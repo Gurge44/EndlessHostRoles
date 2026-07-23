@@ -22,7 +22,7 @@ public class Bane : RoleBase
 
     public static void OnKilled(PlayerControl killer)
     {
-        if (killer == null || killer.Is(CustomRoles.Bloodlust)) return;
+        if (!killer || killer.Is(CustomRoles.Bloodlust) || killer.Is(CustomRoles.Focused)) return;
 
         CustomRoles erasedRole = killer.IsImpostor() ? CustomRoles.ImpostorEHR : killer.IsCrewmate() ? CustomRoles.CrewmateEHR : killer.Is(Team.Coven) ? CustomRoles.CovenMember : CustomRoles.Amnesiac;
         killer.RpcSetCustomRole(erasedRole);

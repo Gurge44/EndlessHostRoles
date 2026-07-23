@@ -1,50 +1,30 @@
 # Thank you so much for finding and using EHR!
 
+# FULL MANUAL REINSTALLATION REQUIRED!!
+
 > [!CAUTION]
-> The latest Among Us update introduced a lot (and I mean a LOT) of issues with the base game itself, which also affects all mods. Expect some bugs! We did our best to fix the ones we could, but there are still some that we haven't figured out. Sorry for the inconvenience....
+> **YOU MUST FULLY REINSTALL THE MOD FOR THIS UPDATE TO WORK!!!!** Just replacing EHR.dll does NOT fix the issues!
 
-> [!NOTE]
-> While at the time of releasing this, the mod should more-less work on InnerSloth's regions, **I still recommend playing on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA).
+### This release fixes the crashes introduced by the latest Among Us update.
+#### The necessary changes are NOT in EHR.dll, hence why you need to completely reinstall the mod for the fixes to take effect.
+Shoutout to Pietro for finding the reason and the fix!
 
-## Bug Fixes
-- **Fixed crashes caused by the settings UI** - by Zypherus
-- **Fixed the memory leaks introduced by the settings UI in the latest Among Us update**
-- CTA data is now synced with non-host modded clients
-- Fixed Generator not seeing its charge
-- Fixed forged roles having incorrect colors
-- Exorcist ability no longer kills ghosts
-- + Mostly internal code-wise fixes
+> [!IMPORTANT]
+> Make sure to back up your templates, player data, banlist, presets, etc. before you reinstall! We're happy to assist you in our Discord server.
 
-## Changes
-- **The HTML log file now contains all data from the other log file (LogOutput.log)** (that means you'll only need the HTML log to make bug reports from now on, and only the HTML log will be dumped!)
-- More compatibility with [BAU](https://github.com/D1GQ/BetterAmongUs) - by Limeau
-- Ghost roles use manual cooldown tracking instead of the protect button cooldown (fixes inconsistencies)
-- Renaming commands now check the DenyName list
-- Ventilation and Decontamination rooms are now available in room-based game modes
-- Ventriloquist works again on InnerSloth's regions
-- Improved how the lobby settings UI works overall (no more close & reopens required)
-- Quick Chat messages are now handled by the mod just like normal text messages
-- Improved the detection of 'start' spam
-- Impostors don't see each other's progress texts when there is a Double Agent
-- Pestilence is now immune to after-meeting deaths
-- Chat character limit lowered to 1000 characters due to packet size limits
-- New loading spinner icon
-
-## Additions
-- New setting under `Apply DenyName List`: `Ban instead of kick on trigger`
-- More ability button icons - by Newholiday
-
-### New game mode: Doom Tag - by HayashiUme
-- In the Doom Tag gamemode, every player is assigned a target, shown by an arrow.
-- You can only kill your assigned target.
-- Killing the wrong player will result in a punishment, such as death or reduced vision.
-- When you eliminate your target, you inherit their target and continue the hunt.
-- As more players are eliminated, the circle grows smaller and the pressure increases.
-- When only a few players remain, Frenzy Mode activates. All remaining players receive a speed boost and a reduced kill cooldown, turning the final showdown into a fast-paced battle for survival.
-- Be the last player standing to win!
+##### Other changes
+- Optimizations, both FPS-wise and network-wise
+- New add-on: Focused (Killers-Only Mixed)
+- New setting: `Enable use of /anagram` (Mod Settings > Commands)
+- Added non-host modded client sync for Committed, Haunter, Markseeker, President, and Curser
+- Players can no longer use ghost roles' abilities after meetings before the cooldown is applied
+- Inquisitor inspecting a neutral who only knows their own role now shows the same message as a crewmate
 
 > [!WARNING]
 > If you're joining a lobby hosted on vanilla regions (NA/EU/AS), please make sure you have a vanilla region selected in the Create Game menu, otherwise authentication will fail. ("Sabotage! The Among Us servers could not authenticate you!")
 I'm saying this now, it's guaranteed that we'll get someone who skipped reading this complaining about this exact issue.
+
+> [!TIP]
+> **Play on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA) for an overall better experience. Mobile and PC users can install them [from my website](https://ehr.gurge44.eu/regions).
 
 ---

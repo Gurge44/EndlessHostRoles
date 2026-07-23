@@ -68,7 +68,7 @@ internal class Benefactor : RoleBase
         if (player.Is(CustomRoles.Benefactor))
         {
             if (playerId.GetAbilityUseLimit() < 1) return;
-            player.RpcRemoveAbilityUse();
+            player.RpcRemoveAbilityUse(notify: false);
 
             if (TaskIndex.TryGetValue(playerId, out var list)) list.Add(task.Index);
             else TaskIndex[playerId] = [task.Index];

@@ -164,7 +164,7 @@ internal class Analyst : RoleBase
         if (CurrentTarget.TIME + Duration.GetInt() <= Utils.TimeStamp)
         {
             CurrentTarget.ID = byte.MaxValue;
-            pc.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse(notify: false);
             pc.Notify(GetAnalyzeResult(target), 10f);
             pc.SetKillCooldown();
         }

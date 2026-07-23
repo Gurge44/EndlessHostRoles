@@ -1847,11 +1847,11 @@ public static class Utils
             {
                 // if (importance != MessageImportance.High && GameStates.InGame && !title.Contains("#ffff00") && !title.Contains('⚠') && !text.Contains('⚠') && title != GetString("NoSpamAnymoreUseCmd"))
                 //     sendOption = SendOption.None;
-                
+
                 text = ReplaceHexColorsWithSafeColors(text);
                 text = ReplaceDigitsOutsideRichText(text);
             }
-            
+
             if (importance == MessageImportance.Low)
                 sendOption = SendOption.None;
 
@@ -1878,7 +1878,7 @@ public static class Utils
             /*if (sender.AmOwner && sender.Data.IsDead && (sendTo == byte.MaxValue || !receiver.Data.IsDead))
             {
                 bool delayMessage = false;
-                
+
                 if (!TempReviveHostRunning)
                 {
                     delayMessage = true;
@@ -1888,7 +1888,7 @@ public static class Utils
                 {
                     if (TempReviveHostTimeSinceRevivalStopwatch.ElapsedMilliseconds < 250)
                         delayMessage = true;
-                    
+
                     TempReviveHostRevertStopwatch.Restart();
                 }
 
@@ -1896,7 +1896,7 @@ public static class Utils
                 {
                     Main.Instance.StartCoroutine(DelaySend());
                     return writer;
-                    
+
                     IEnumerator DelaySend()
                     {
                         yield return new WaitForSecondsRealtime(0.3f);
@@ -1911,18 +1911,18 @@ public static class Utils
                         TempReviveHostRunning = true;
                         TempReviveHostRevertStopwatch = Stopwatch.StartNew();
                         TempReviveHostTimeSinceRevivalStopwatch = Stopwatch.StartNew();
-                    
+
                         Logger.Msg("Temporarily reviving host to send message....", "TempReviveHost");
 
                         sender.RpcSetRoleGlobal(RoleTypes.Crewmate);
-                    
+
                         while (TempReviveHostRevertStopwatch.ElapsedMilliseconds < 1000)
                             yield return null;
-                    
+
                         Logger.Msg("Re-killing host after message sent.", "TempReviveHost");
-                    
+
                         TempReviveHostTimeSinceRevivalStopwatch.Reset();
-                    
+
                         if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded || GameStates.IsLobby)
                         {
                             TempReviveHostRunning = false;
@@ -1947,7 +1947,7 @@ public static class Utils
                     }
                 }
             }*/
-            
+
             if (vanilla && !noSplit && !noNumberSplit)
             {
                 var parts = SplitByNumberLimit(text);
@@ -1970,6 +1970,7 @@ public static class Utils
 
             int fullRpcSizeLimit = Options.MessageRpcSizeLimit.GetInt();
             if (vanilla && fullRpcSizeLimit > 1200) fullRpcSizeLimit = 1200;
+            
             string resetName = Main.AllPlayerNames.GetValueOrDefault(sender.PlayerId, string.Empty);
 
             // --------------------------------------------------------------------------
@@ -1979,6 +1980,7 @@ public static class Utils
             static int GetPackedUInt32Size(uint value)
             {
                 int count = 0;
+
                 do
                 {
                     value >>= 7;
@@ -2122,10 +2124,7 @@ public static class Utils
                     string pureTitle = tempTitle.RemoveHtmlTags();
                     Logger.Info($" Message: \\n - To: {(sendTo == byte.MaxValue ? "Everyone" : $"{GetPlayerById(sendTo)?.GetRealName()}")} - Title: {pureTitle[..Math.Min(pureTitle.Length, 300)]}", "SendMessage");
                 }
-                catch
-                {
-                    Logger.Info(" Message sent", "SendMessage");
-                }
+                catch { Logger.Info(" Message sent", "SendMessage"); }
 
                 if (addToHistory)
                     ChatUpdatePatch.LastMessages.Add(("\n", sendTo, tempTitle, TimeStamp));
@@ -3249,7 +3248,7 @@ public static class Utils
                             TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, forMeeting));
                             if (forMeeting) TargetMark.Append(Wasp.GetStungMark(target.PlayerId));
                             if (forMeeting) TargetMark.Append(SpellCaster.HasSpelledMark(seer.PlayerId) ? ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
-                            if (forMeeting) TargetMark.Append(Commited.GetMark(seer, target));
+                            if (forMeeting) TargetMark.Append(Committed.GetMark(seer, target));
 
                             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                                 TargetMark.Append(CustomRoles.SuperStar.ColoredTextByRole("★"));
@@ -3554,6 +3553,7 @@ public static class Utils
         }
         if (target.Is(CustomRoles.GM)) return true;
         if (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2) return true;
+        if (seer.Is(CustomRoles.Revenant) && Revenant.KnowInfo.GetValue() == 1) return true;
         if (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) return true;
         if (seer.Is(CustomRoles.Mimic) && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool()) return true;
         if (!target.IsAlive() && target.Is(CustomRoles.Gravestone)) return true;
@@ -3754,6 +3754,7 @@ public static class Utils
         }
 
         if (local.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2) return true;
+        if (local.Is(CustomRoles.Revenant) && Revenant.KnowInfo.GetValue() == 1) return true;
         if (local.Is(CustomRoles.GM)) return true;
         if (Main.GodMode.Value) return true;
 
@@ -3873,47 +3874,6 @@ public static class Utils
         pc.Data.SendGameData();
 
         return true;
-    }
-    
-    public static IEnumerator SendGameDataContinuously()
-    {
-        float waitTime = GameData.Instance.AllPlayers.Count switch
-        {
-            <= 15 => 1f,
-            <= 20 => 0.8f,
-            _ => 0.5f
-        };
-        
-        while (GameStates.InGame && !GameStates.IsEnded && ShipStatus.Instance)
-        {
-            if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
-            {
-                yield return new WaitForSecondsRealtime(10f);
-                continue;
-            }
-
-            for (var index = 0; index < GameData.Instance.AllPlayers.Count; index++)
-            {
-                NetworkedPlayerInfo playerInfo = GameData.Instance.AllPlayers[index];
-                
-                if (!playerInfo || (Astral.On && Main.PlayerStates.TryGetValue(playerInfo.PlayerId, out PlayerState state) && state.Role is Astral { Timer: not null }) || (SoulCollector.On && Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(playerInfo.PlayerId)))) continue;
-
-                playerInfo.IsDead = !playerInfo.Object.IsAlive();
-
-                var qa = playerInfo.SendGameData(SendOption.None);
-                yield return qa.Wait();
-
-                if (qa.Dropped || !GameStates.InGame || GameStates.IsEnded || !ShipStatus.Instance)
-                {
-                    Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
-                    yield break;
-                }
-
-                yield return new WaitForSecondsRealtime(waitTime);
-            }
-        }
-        
-        Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
     }
 
     public static void SendGameDataTo(int targetClientId)
@@ -4078,10 +4038,8 @@ public static class Utils
 
         int cd = role switch
         {
-            CustomRoles.Farmer => 2,
-            CustomRoles.Thanos => 5,
-            CustomRoles.Blockade => 5,
             CustomRoles.Mole => Mole.CD.GetInt(),
+            CustomRoles.Bouncer => Bouncer.AbilityCooldown.GetInt(),
             CustomRoles.Operative => Operative.AbilityCooldown.GetInt(),
             CustomRoles.PortalMaker => PortalMaker.AbilityCooldown.GetInt(),
             CustomRoles.Telecommunication => Telecommunication.VentCooldown.GetInt(),
@@ -4148,13 +4106,15 @@ public static class Utils
             _ => -1
         };
 
-        if (cd == -1) return;
+        if (cd <= 3) return;
 
         if (Main.PlayerStates[playerId].SubRoles.Contains(CustomRoles.Energetic))
             cd = (int)Math.Round(cd * 0.75f);
 
         if (!includeDuration && ExileControllerWrapUpPatch.Stopwatch?.IsRunning == true)
             cd -= (int)ExileControllerWrapUpPatch.Stopwatch.Elapsed.TotalSeconds;
+        
+        if (cd <= 3) return;
 
         Main.AbilityCD[playerId] = (TimeStamp, cd);
         if (playerId == 0 || !playerId.IsPlayerModdedClient()) return;
@@ -4429,6 +4389,7 @@ public static class Utils
                 Occultist.OnAnyoneDead();
                 Vulture.OnAnyoneDead();
                 Jackal.OnAnyoneDead();
+                Impartial.OnAnyoneDead();
             }, 0.1f);
 
             if (!onMeeting && !disconnect)
@@ -4534,26 +4495,22 @@ public static class Utils
 
     public static void DumpLog(bool open = true, bool finish = true)
     {
-        try
-        {
-            if (finish) CustomLogger.Instance.Finish();
+        if (finish) CustomLogger.Instance.Finish();
 
-            var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
-            var basePath = OperatingSystem.IsAndroid() ? Main.DataPath : Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            var f = Path.Combine(basePath, "EHR_Logs", t);
-            if (!Directory.Exists(f)) Directory.CreateDirectory(f);
+        var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
+        var basePath = OperatingSystem.IsAndroid() ? Main.DataPath : Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        var f = Path.Combine(basePath, "EHR_Logs", t);
+        if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
-            var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG.html";
-            new FileInfo(CustomLogger.LOGFilePath).CopyTo(filename);
+        var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG.html";
+        new FileInfo(CustomLogger.LOGFilePath).CopyTo(filename);
 
-            if (!open) return;
+        if (!open) return;
 
-            if (PlayerControl.LocalPlayer && HudManager.InstanceExists)
-                HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
+        if (PlayerControl.LocalPlayer && HudManager.InstanceExists)
+            HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
 
-            if (OperatingSystem.IsWindows()) Process.Start("explorer.exe", f.Replace("/", "\\"));
-        }
-        catch (Exception e) { ThrowException(e); }
+        if (OperatingSystem.IsWindows()) Process.Start("explorer.exe", f.Replace("/", "\\"));
     }
 
     public static (int Doused, int All) GetDousedPlayerCount(byte playerId)

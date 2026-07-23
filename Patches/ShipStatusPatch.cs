@@ -617,6 +617,7 @@ internal static class ShipStatusSerializePatch
             
             DataFlagRateLimiter.Enqueue(() =>
             {
+                if (__instance == null || __instance.Pointer == IntPtr.Zero) return;
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
@@ -642,6 +643,7 @@ internal static class ShipStatusSerializePatch
 
             DataFlagRateLimiter.Enqueue(() =>
             {
+                if (__instance == null || __instance.Pointer == IntPtr.Zero) return;
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
@@ -692,6 +694,8 @@ internal static class VentilationSystemDeterioratePatch
 
             DataFlagRateLimiter.Enqueue(() =>
             {
+                if (__instance == null || __instance.Pointer == IntPtr.Zero || !pc || pc.Pointer == IntPtr.Zero) return;
+                
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
 
                 if (BlockVentInteraction(pc))

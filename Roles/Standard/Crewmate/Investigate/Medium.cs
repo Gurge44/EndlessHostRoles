@@ -59,7 +59,7 @@ public class Medium : RoleBase
         {
             if (!pc.Is(CustomRoles.Medium) || pc.PlayerId == target.PlayerId || pc.GetAbilityUseLimit() < 1) continue;
 
-            pc.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse(notify: false);
             ContactPlayer.TryAdd(target.PlayerId, pc.PlayerId);
             Logger.Info($"Medium Connection: {pc.GetNameWithRole()} => {target.PlayerName}", "Medium");
         }

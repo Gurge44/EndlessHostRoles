@@ -81,7 +81,7 @@ public class Gangster : RoleBase
         {
             if (!killer.GetCustomSubRoles().FindFirst(x => x.IsConverted(), out CustomRoles convertedAddon)) convertedAddon = CustomRoles.Madmate;
 
-            killer.RpcRemoveAbilityUse();
+            killer.RpcRemoveAbilityUse(notify: false);
             target.RpcSetCustomRole(convertedAddon);
 
             var sender = CustomRpcSender.Create("Gangster.OnCheckMurder", SendOption.Reliable);

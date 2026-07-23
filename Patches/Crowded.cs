@@ -290,17 +290,6 @@ internal static class Crowded
         }
     }
 
-    [HarmonyPatch(typeof(PlayerTab), nameof(PlayerTab.Update))]
-    public static class PlayerTabIsSelectedItemEquippedPatch
-    {
-        [SuppressMessage("ReSharper", "UnusedMember.Global")]
-        public static void Postfix(PlayerTab __instance)
-        {
-            if (GameOptionsManager.Instance.CurrentGameOptions.MaxPlayers > 15)
-                __instance.currentColorIsEquipped = false;
-        }
-    }
-
     [HarmonyPatch(typeof(PlayerTab), nameof(PlayerTab.UpdateAvailableColors))]
     public static class PlayerTabUpdateAvailableColorsPatch
     {

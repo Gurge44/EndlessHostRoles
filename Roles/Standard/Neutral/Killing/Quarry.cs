@@ -120,7 +120,7 @@ public class Quarry : RoleBase
             Utils.SendRPC(CustomRPC.SyncRoleData, QuarryId, 2);
         }, onTick: () =>
         {
-            if (target == null || !target.IsAlive())
+            if (!target || !target.IsAlive())
             {
                 TargetId = byte.MaxValue;
                 SeekTimer = null;

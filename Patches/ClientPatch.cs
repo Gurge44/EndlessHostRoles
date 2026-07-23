@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using AmongUs.Data;
 using EHR.Modules;
@@ -39,7 +38,7 @@ static class StartRpcImmediatelyPatch
     public static void Postfix(uint targetNetId, byte callId, SendOption option, int targetClientId = -1)
     {
         if (callId is 21 or 44 or 45 or 104) return;
-        Logger.Info($"Starting RPC: {callId} ({RPC.GetRpcName(callId)}) as {Main.CachedAllPlayerControls().FirstOrDefault(x => x.NetId == targetNetId)?.GetRealName() ?? targetNetId.ToString()} with SendOption {option} to {Utils.GetClientById(targetClientId)?.Character?.GetRealName() ?? targetClientId.ToString()}", "StartRpcImmediately");
+        Logger.Info($"Starting RPC: {callId} ({RPC.GetRpcName(callId)}) as {Main.CachedAllPlayerControls().Find(x => x.NetId == targetNetId)?.GetRealName() ?? targetNetId.ToString()} with SendOption {option} to {Utils.GetClientById(targetClientId)?.Character?.GetRealName() ?? targetClientId.ToString()}", "StartRpcImmediately");
     }
 }
 
@@ -69,16 +68,28 @@ internal static class MMOnlineManagerStartPatch
     }
 }
 
-[HarmonyPatch(typeof(SplashManager), nameof(SplashManager.Update))]
+[HarmonyPatch(typeof(SplashManager), nameof(SplashManager.Start))]
 internal static class SplashLogoAnimatorPatch
 {
     public static SceneChanger SceneChanger;
     
-    public static void Prefix(SplashManager __instance)
+    public static void Postfix(SplashManager __instance)
     {
         SceneChanger = __instance.sceneChanger;
-        __instance.sceneChanger.AllowFinishLoadingScene();
-        __instance.startedSceneLoad = true;
+        Main.Instance.StartCoroutine(Coroutine());
+        return;
+
+        System.Collections.IEnumerator Coroutine()
+        {
+            while (__instance && SceneChanger && SceneChanger.loadOp == null) yield return null;
+                
+            if (SceneChanger) SceneChanger.AllowFinishLoadingScene();
+            if (__instance) __instance.startedSceneLoad = true;
+
+            while (!ModManager.InstanceExists) yield return null;
+            
+            ModManager.Instance.ShowModStamp();
+        }
     }
 }
 
@@ -90,11 +101,10 @@ internal static class RunLoginPatch
     public static void Prefix(ref bool canOnline)
     {
         if (DebugModeManager.AmDebugger) canOnline = true;
-
-        if (!Main.AckdPrivacyPolicy.Value)
+        
+        if (!Main.AckdConsentPopup.Value)
         {
-            ModUpdater.ShowPopupWithTwoButtons(GetString("PrivacyPolicy"), GetString("Yes"), GetString("MainMenu.ExitGameButton"), () => Main.AckdPrivacyPolicy.Value = true, SplashLogoAnimatorPatch.SceneChanger.ExitGame);
-            return;
+            canOnline = true;
         }
 
         try { ModUpdater.ShowAvailableUpdate(); }

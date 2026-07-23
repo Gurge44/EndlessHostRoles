@@ -53,7 +53,7 @@ public class Grappler : RoleBase
         if (GrapplerId.GetAbilityUseLimit() >= 1f)
         {
             InUse = true;
-            GrapplerId.GetPlayer().RpcRemoveAbilityUse();
+            GrapplerId.GetPlayer()?.RpcRemoveAbilityUse(notify: false);
         }
         else
             InUse = false;

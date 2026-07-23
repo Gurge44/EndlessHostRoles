@@ -118,7 +118,7 @@ public class Consigliere : RoleBase
     {
         if (!IsReveal(target.PlayerId))
         {
-            killer.RpcRemoveAbilityUse();
+            killer.RpcRemoveAbilityUse(notify: false);
             RevealTarget.Add(target.PlayerId);
             Logger.Info($"{killer.GetNameWithRole()}: Reveal target → {target.GetNameWithRole()} || Remaining: {killer.GetAbilityUseLimit()} uses", "Consigliere");
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);

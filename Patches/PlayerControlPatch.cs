@@ -21,7 +21,7 @@ internal static class CheckProtectPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        if (!AmongUsClient.Instance.AmHost || target.Data.IsDead || !target.IsAlive()) return false;
+        if (!AmongUsClient.Instance.AmHost || AntiBlackout.SkipTasks || target.Data.IsDead || !target.IsAlive()) return false;
 
         Logger.Info($"CheckProtect: {__instance.GetNameWithRole()} => {target.GetNameWithRole()}", "CheckProtect");
 
@@ -194,16 +194,19 @@ internal static class CheckMurderPatch
 
             TimeSinceLastKill[killer.PlayerId] = 0f;
 
-            if (target.Is(CustomRoles.Diseased))
+            if (!killer.Is(CustomRoles.Focused))
             {
-                if (!Main.KilledDiseased.TryAdd(killer.PlayerId, 1))
-                    Main.KilledDiseased[killer.PlayerId] += 1;
-            }
+                if (target.Is(CustomRoles.Diseased))
+                {
+                    if (!Main.KilledDiseased.TryAdd(killer.PlayerId, 1))
+                        Main.KilledDiseased[killer.PlayerId] += 1;
+                }
 
-            if (target.Is(CustomRoles.Antidote))
-            {
-                if (!Main.KilledAntidote.TryAdd(killer.PlayerId, 1))
-                    Main.KilledAntidote[killer.PlayerId] += 1;
+                if (target.Is(CustomRoles.Antidote))
+                {
+                    if (!Main.KilledAntidote.TryAdd(killer.PlayerId, 1))
+                        Main.KilledAntidote[killer.PlayerId] += 1;
+                }
             }
 
             killer.ResetKillCooldown(false);
@@ -761,7 +764,7 @@ internal static class MurderPlayerPatch
                 if (killer.AmOwner && Main.PlayerStates.TryGetValue(killer.PlayerId, out var ks) && ks.GetKillCount() <= 1)
                     Achievements.Type.OhNo.CompleteAfterGameEnd();
             
-                if (target != killer && !killer.Is(CustomRoles.KillingMachine) && (killer.PlayerId != target.PlayerId || target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith || !killer.Is(CustomRoles.Oblivious) || !Options.ObliviousBaitImmune.GetBool()))
+                if (target != killer && !killer.Is(CustomRoles.KillingMachine) && !killer.Is(CustomRoles.Focused) && (killer.PlayerId != target.PlayerId || target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith || !killer.Is(CustomRoles.Oblivious) || !Options.ObliviousBaitImmune.GetBool()))
                 {
                     killer.RPCPlayCustomSound("Congrats");
                     target.RPCPlayCustomSound("Congrats");
@@ -1441,7 +1444,7 @@ internal static class ReportDeadBodyPatch
 
             Bloodmoon.OnMeetingStart();
             Deadlined.OnMeetingStart();
-            Commited.OnMeetingStart();
+            Committed.OnMeetingStart();
             Reroll.OnMeetingStart();
         }
         catch (Exception e) { ThrowException(e); }
@@ -1799,7 +1802,7 @@ internal static class FixedUpdatePatch
                         
                         if (!player.IsModdedClient() && remaining <= 30)
                         {
-                            if (remaining % 5 == 0) sendOption = SendOption.Reliable;
+                            if (remaining % 10 == 0 || remaining == 5) sendOption = SendOption.Reliable;
                             NotifyRoles(SpecifySeer: player, SpecifyTarget: player, SendOption: sendOption);
                         }
 

@@ -450,9 +450,9 @@ public static class CollectionExtensions
         return collection.SelectMany(x => x);
     }
 
-    public static void NotifyPlayers(this IEnumerable<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
+    public static void NotifyPlayers(this IEnumerable<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true, SendOption sendOption = SendOption.Reliable)
     {
-        var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable).StartPackedMessage();
+        var sender = CustomRpcSender.Create("NotifyPlayers", sendOption).StartPackedMessage();
         var hasValue = false;
 
         foreach (PlayerControl player in players)
@@ -463,9 +463,9 @@ public static class CollectionExtensions
 
         sender.SendMessage(dispose: !hasValue || sender.stream.Length <= 11);
     }
-    public static void NotifyPlayers(this List<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
+    public static void NotifyPlayers(this List<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true, SendOption sendOption = SendOption.Reliable)
     {
-        var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable).StartPackedMessage();
+        var sender = CustomRpcSender.Create("NotifyPlayers", sendOption).StartPackedMessage();
         var hasValue = false;
 
         for (int index = 0; index < players.Count; index++)

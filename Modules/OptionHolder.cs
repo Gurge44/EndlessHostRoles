@@ -57,13 +57,22 @@ public static class Options
     }
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public enum ModLanguages
     {
         UseGameLanguage,
         Hungarian,
         Polish,
         Indonesian,
-        Persian
+        Persian,
+        Arabic,
+        Slovak,
+        Romanian,
+        LatinSerbian,
+        Vietnamese,
+        Belarusian,
+        Turkish,
+        CyrillicSerbian
     }
 
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
@@ -436,7 +445,7 @@ public static class Options
     public static OptionItem MareHasIncreasedSpeed;
     public static OptionItem MareSpeedDuringLightsOut;
 
-    public static OptionItem AutoPlayAgain;
+    //public static OptionItem AutoPlayAgain;
     public static OptionItem AutoPlayAgainCountdown;
     public static OptionItem AutoStartTimer;
     
@@ -721,6 +730,7 @@ public static class Options
     public static OptionItem DisablePlayerVotedMessage;
 
     // Game Commands
+    public static OptionItem EnableAnagramCommand;
     public static OptionItem AnagramLanguage;
     public static OptionItem AnagramWordLength;
     public static OptionItem AnagramDifficulty;
@@ -1682,10 +1692,10 @@ public static class Options
         AutoStartTimer = new IntegerOptionItem(44423, "AutoStartTimer", new(10, 600, 1), 20, TabGroup.SystemSettings)
             .SetValueFormat(OptionFormat.Seconds);
 
-        AutoPlayAgain = new BooleanOptionItem(44424, "AutoPlayAgain", false, TabGroup.SystemSettings);
+        //AutoPlayAgain = new BooleanOptionItem(44424, "AutoPlayAgain", false, TabGroup.SystemSettings);
 
-        AutoPlayAgainCountdown = new IntegerOptionItem(44425, "AutoPlayAgainCountdown", new(1, 90, 1), 10, TabGroup.SystemSettings)
-            .SetParent(AutoPlayAgain);
+        AutoPlayAgainCountdown = new IntegerOptionItem(44425, "AutoPlayAgainCountdown", new(1, 90, 1), 10, TabGroup.SystemSettings);
+            //.SetParent(AutoPlayAgain);
 
         AutoGMPollCommandAfterJoin = new BooleanOptionItem(19309, "AutoGMPollCommandAfterJoin", false, TabGroup.SystemSettings)
             .SetHeader(true);
@@ -3009,6 +3019,9 @@ public static class Options
             .SetHeader(true)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
+        EnableAnagramCommand = new BooleanOptionItem(23820, "EnableAnagramCommand", true, TabGroup.GameSettings)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
         AnagramLanguage = new StringOptionItem(23821, "AnagramLanguage", [
             "AnagramLang.Auto",
             "AnagramLang.English",
@@ -3020,6 +3033,7 @@ public static class Options
             "AnagramLang.BrazilianPortuguese",
             "AnagramLang.Romanian"
         ], 0, TabGroup.GameSettings)
+            .SetParent(EnableAnagramCommand)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
         AnagramWordLength = new StringOptionItem(23822, "AnagramWordLength", [
@@ -3027,6 +3041,7 @@ public static class Options
                 "2", "3", "4", "5", "6", "7", "8", "9", "10",
                 "11", "12", "13", "14", "15"
             ], 0, TabGroup.GameSettings, noTranslation: true)
+            .SetParent(EnableAnagramCommand)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
         AnagramDifficulty = new StringOptionItem(23823, "AnagramDifficulty", [
@@ -3036,6 +3051,7 @@ public static class Options
             "AnagramDiff.MediumHard",
             "AnagramDiff.Hard"
         ], 0, TabGroup.GameSettings)
+            .SetParent(EnableAnagramCommand)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
 

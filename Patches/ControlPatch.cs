@@ -18,6 +18,8 @@ internal static class ControllerManagerUpdatePatch
     private static readonly (int, int)[] Resolutions = [(480, 270), (640, 360), (800, 450), (1280, 720), (1600, 900), (1920, 1080)];
     private static int ResolutionIndex;
 
+    public static int CurrentHistorySelection = -1;
+
     // Cache KeyCode[] because the code checks the key array every frame
     private static readonly KeyCode[] ReEnableGameplayKey = [KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X];
     private static readonly KeyCode[] ResolutionManagerKey = [KeyCode.LeftAlt, KeyCode.Return];
@@ -59,14 +61,14 @@ internal static class ControllerManagerUpdatePatch
         {
             var clientControlGUI = ClientControlGUI.Instance;
             bool hudManagerExists = HudManager.InstanceExists;
-            bool chatIsOpen = hudManagerExists && HudManager.Instance.Chat.IsOpenOrOpening;
+            bool chatIsOpen = hudManagerExists && HudManager.Instance.Chat && HudManager.Instance.Chat.IsOpenOrOpening;
             bool isLobby = GameStates.IsLobby;
             bool inGame = GameStates.IsInGame;
             bool isMeeting = GameStates.IsMeeting;
 
             if (clientControlGUI)
             {
-                if ((!hudManagerExists || !HudManager.Instance.Chat || !HudManager.Instance.Chat.IsOpenOrOpening) 
+                if (!chatIsOpen 
                     && Input.GetKeyDown(KeyCode.Delete) ||
                     KeysDown(OpenClientControlGUILeftKey) ||
                     KeysDown(OpenClientControlGUIRightKey))
@@ -86,18 +88,57 @@ internal static class ControllerManagerUpdatePatch
                     PlayerControl.LocalPlayer.Collider.offset = shouldNoclip ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
                 }
 
-                if (isLobby && (!HudManager.Instance.Chat || !chatIsOpen))
+                if (!chatIsOpen)
                 {
-                    /*if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
-
-                    for (var i = 0; i < 9; i++)
+                    if (isLobby)
                     {
-                        if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
-                            OptionShower.CurrentPage = i;
-                    }*/
+                        /*if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
 
-                    if (Input.GetKeyDown(KeyCode.Return) && GameSettingMenu.Instance && GameSettingMenu.Instance.isActiveAndEnabled)
-                        GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
+                        for (var i = 0; i < 9; i++)
+                        {
+                            if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
+                                OptionShower.CurrentPage = i;
+                        }*/
+
+                        if (Input.GetKeyDown(KeyCode.Return) && GameSettingMenu.Instance && GameSettingMenu.Instance.isActiveAndEnabled)
+                            GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
+                    }
+                }
+                else
+                {
+                    ChatController chat = HudManager.Instance.Chat;
+
+                    if (chat.freeChatField.textArea.hasFocus)
+                    {
+                        if (Input.GetKeyDown(KeyCode.Tab)) TextBoxPatch.OnTabPress(chat);
+
+                        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
+                            ClipboardHelper.PutClipboardString(chat.freeChatField.textArea.text);
+
+                        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.V))
+                        {
+                            TextBoxPatch.Pasting = true;
+                            chat.freeChatField.textArea.SetText(chat.freeChatField.textArea.text + GUIUtility.systemCopyBuffer.Trim());
+                        }
+
+                        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.X))
+                        {
+                            ClipboardHelper.PutClipboardString(chat.freeChatField.textArea.text);
+                            chat.freeChatField.textArea.SetText("");
+                        }
+
+                        if (Input.GetKeyDown(KeyCode.UpArrow) && ChatCommands.ChatHistory.Count > 0)
+                        {
+                            CurrentHistorySelection = Mathf.Clamp(--CurrentHistorySelection, 0, ChatCommands.ChatHistory.Count - 1);
+                            chat.freeChatField.textArea.SetText(ChatCommands.ChatHistory[CurrentHistorySelection]);
+                        }
+
+                        if (Input.GetKeyDown(KeyCode.DownArrow) && ChatCommands.ChatHistory.Count > 0)
+                        {
+                            CurrentHistorySelection++;
+                            chat.freeChatField.textArea.SetText(CurrentHistorySelection < ChatCommands.ChatHistory.Count ? ChatCommands.ChatHistory[CurrentHistorySelection] : string.Empty);
+                        }
+                    }
                 }
             }
 
@@ -158,7 +199,7 @@ internal static class ControllerManagerUpdatePatch
 
             if (!AmongUsClient.Instance.AmHost) return;
             
-            if (KeysDown(ChatSetVisibleKey))
+            if (hudManagerExists && HudManager.Instance.Chat && KeysDown(ChatSetVisibleKey))
                 HudManager.Instance.Chat.SetVisible(true);
 
             if (inGame)

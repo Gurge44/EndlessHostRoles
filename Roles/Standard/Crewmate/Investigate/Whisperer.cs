@@ -165,7 +165,7 @@ public class Whisperer : RoleBase
                 Info.Add(info);
                 if (Info.Count > 5) Info.RemoveAt(0);
 
-                pc.RpcRemoveAbilityUse();
+                pc.RpcRemoveAbilityUse(notify: false);
                 Utils.SendRPC(CustomRPC.SyncRoleData, WhispererId, 4, info);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }

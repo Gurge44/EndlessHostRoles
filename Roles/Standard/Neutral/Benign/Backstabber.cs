@@ -82,7 +82,7 @@ public class Backstabber : RoleBase
         if (targetTeam == EHR.Team.Crewmate && killer.AmOwner)
             Achievements.Type.StabbingTheBack.Complete();
 
-        killer.RpcRemoveAbilityUse();
+        killer.RpcRemoveAbilityUse(notify: false);
         killer.Notify(string.Format(Translator.GetString("Backstabber.MurderNotify"), Utils.ColorString(targetTeam.GetColor(), Translator.GetString(targetTeam.ToString())), Translator.GetString($"BackstabberTeam.{Team}")), 10f);
     }
 

@@ -139,7 +139,7 @@ jobs:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: 298f5e96-d02b-40b5-88f6-32bddafcd47d
           project-slug: EndlessHostRoles
-          signing-policy-slug: test-signing
+          signing-policy-slug: release-signing
           artifact-configuration-slug: initial
           github-artifact-id: ${{ steps.upload-unsigned-artifact.outputs.artifact-id }}
           wait-for-completion: true
@@ -198,8 +198,8 @@ jobs:
 
       - name: Copy packaging files to BepInEx config
         run: |
-          cp -r packaging/* epic/
-          cp -r packaging/* steam/
+          cp -rf packaging-epic/* epic/
+          cp -rf packaging-steam/* steam/
 
       - name: Steam App ID
         run : echo "945360" > steam/steam_appid.txt

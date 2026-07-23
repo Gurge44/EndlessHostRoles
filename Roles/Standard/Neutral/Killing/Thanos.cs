@@ -220,7 +220,7 @@ public class Thanos : RoleBase
 
     public static void OnDeath(PlayerControl killer, PlayerControl target, bool noKiller)
     {
-        if (killer == null || killer.PlayerId == target.PlayerId) noKiller = true;
+        if (!killer || killer.PlayerId == target.PlayerId) noKiller = true;
 
         foreach (Thanos instance in Instances)
         {
@@ -229,7 +229,7 @@ public class Thanos : RoleBase
         }
     }
 
-    public static bool IsImmune(PlayerControl pc) => On && pc != null && Instances.Exists(x => x.ThanosId == pc.PlayerId && x.MindStoneUsed);
+    public static bool IsImmune(PlayerControl pc) => On && pc && Instances.Exists(x => x.ThanosId == pc.PlayerId && x.MindStoneUsed);
 
     enum Stone
     {

@@ -141,7 +141,14 @@ public static class TextBoxPatch
                 return;
             }
 
-            IsInvalidCommand = false;
+            if (IsInvalidCommand)
+            {
+                IsInvalidCommand = false;
+                Color textColor = Main.DarkTheme.Value ? Color.white : Color.black;
+                __instance.compoText.Color(textColor);
+                __instance.outputText.color = textColor;
+            }
+
             HudManager hud = HudManager.Instance;
 
             if (!PlaceHolderText)

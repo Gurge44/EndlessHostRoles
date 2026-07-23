@@ -10,6 +10,7 @@ internal static class LoadingScreen
 {
     private const int HintCount = 40;
     private const int JokeHintCount = 6;
+    private static Vector3 Position;
     private static SpriteRenderer LoadingAnimation;
     private static readonly HashSet<int> ToldHints = [];
     private static float HintHideTimer;
@@ -25,11 +26,8 @@ internal static class LoadingScreen
             LoadingAnimation.sprite = Utils.LoadSprite("EHR.Resources.Loading.png", 300f);
             LoadingAnimation.sortingOrder = 100;
 
-            Vector3 basePos = LoadingAnimation.transform.position;
-            float x = basePos.x - 9.8f;
-            float y = basePos.y - 4.5f;
-            float z = basePos.z;
-            LoadingAnimation.transform.position = new(x, y, z);
+            var camera = HudManager.Instance.GetComponentInChildren<Camera>();
+            LoadingAnimation.transform.position = Position = AspectPosition.ComputeWorldPosition(camera, AspectPosition.EdgeAlignments.LeftBottom, new Vector3(0.6f, 0.6f, camera.nearClipPlane + 0.1f));
         }
         catch (Exception ex) { Logger.Error(ex.ToString(), "LoadingScreen.UpdateLoadingAnimation"); }
     }
@@ -89,15 +87,7 @@ internal static class LoadingScreen
 
             if (LoadingAnimation)
             {
-                Vector3 basePos = ModManager.Instance.ModStamp.transform.position;
-
-                float x = basePos.x - 9.8f;
-                float y = basePos.y - 4.5f;
-                float z = basePos.z;
-
-                if (LoadingAnimation.transform.position != new Vector3(x, y, z))
-                    LoadingAnimation.transform.position = new(x, y, z);
-
+                LoadingAnimation.transform.position = Position;
                 LoadingAnimation.transform.Rotate(Vector3.back, 200f * Time.deltaTime);
             }
 

@@ -70,6 +70,12 @@ public class ClientControlGUI : MonoBehaviour
     /// </summary>
     private float _zoomValue = 3.0f;
 
+    /// <summary>
+    /// Whether the next /r command sent will broadcast to all players
+    /// <remarks>Deactivates automatically after being used</remarks>
+    /// </summary>
+    internal static bool BroadcastRoleInfo { get; set; }
+
     // Scale helpers - everything is relative to a 1080px-wide reference screen
     // On PC the UI is scaled down to 50% but on Android we keep it slightly larger (60%) for better readability
     private static float PlatformScale  => OperatingSystem.IsAndroid() ? 0.6f : 0.5f;
@@ -425,118 +431,6 @@ public class ClientControlGUI : MonoBehaviour
         bool notJoined  = GameStates.IsNotJoined;
         bool localAlive = PlayerControl.LocalPlayer && PlayerControl.LocalPlayer.IsAlive();
         bool canMove    = GameStates.IsCanMove;
-        bool noGameEnd  = Options.NoGameEnd.GetBool();
-
-        Section(ref y, "General");
-
-        Btn(ref y, Label("Dump Log", "CTRL + F1"), _sAction, () =>
-        {
-            Logger.Info("Log dumped", "ClientControlGUI");
-            Utils.DumpLog();
-        });
-        Btn(ref y, Label("Reload Translations", "F5 + T"), _sAction, () =>
-        {
-            Logger.Info("Reloading Custom Translation File", "ClientControlGUI");
-            LoadLangs();
-            Logger.SendInGame("Reloaded Custom Translation File");
-        });
-        Btn(ref y, Label("Export Translations", "F5 + X"), _sAction, () =>
-        {
-            Logger.Info("Exported Custom Translation File", "ClientControlGUI");
-            ExportCustomTranslation();
-            Logger.SendInGame("Exported Custom Translation File");
-        });
-        if (!notJoined)
-            Btn(ref y, Label("Copy Settings", "ALT + C"), _sAction, Utils.CopyCurrentSettings);
-
-        Btn(ref y, Label("Fix Button Positions", "ALT + ENTER"), _sAction, () =>
-            LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position")
-        );
-
-        if (inGame || inMeeting)
-            Btn(ref y, Label("Fix Blackscreen", "SHIFT + CTRL + X"), _sAction, () =>
-                ExileController.Instance?.ReEnableGameplay()
-            );
-
-        if (inGame && (canMove || inMeeting))
-            Btn(ref y, Label(InGameRoleInfoMenu.Showing ? "Hide Role Info" : "Show Role Info", "F1 (hold)"), _sAction, () =>
-            {
-                if (InGameRoleInfoMenu.Showing)
-                    InGameRoleInfoMenu.Hide();
-                else
-                {
-                    InGameRoleInfoMenu.SetRoleInfoRef(PlayerControl.LocalPlayer);
-                    InGameRoleInfoMenu.Show();
-                }
-            });
-
-        bool canZoom = Zoom.CanZoom;
-        bool canNoClip = canMove && Main.IntroDestroyed && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && (!GameStartManager.Instance || GameStartManager.Instance.startState == GameStartManager.StartingStates.NotStarting);
-        bool canToggleHud = Main.IntroDestroyed && !inMeeting && !ExileController.Instance && !ReportDeadBodyPatch.MeetingStarted;
-
-        if (canZoom || canNoClip || canToggleHud)
-        {
-            Section(ref y, "Camera");
-
-            if (canZoom)
-            {
-                // Sync slider to actual camera value so external changes (scroll wheel, touch pinch) are reflected
-                if (_cam) _zoomValue = _cam.orthographicSize;
-
-                float newZoom = Slider(ref y, $"Zoom  {_zoomValue:F1}x", _zoomValue, 3.0f, 18.0f, w);
-                if (Mathf.Abs(newZoom - _zoomValue) > 0.01f)
-                {
-                    _zoomValue = newZoom;
-                    Zoom.SetZoomSize(reset: false);
-                    if (_cam) _cam.orthographicSize = _zoomValue;
-                    if (HudManager.InstanceExists) HudManager.Instance.UICamera.orthographicSize = _zoomValue;
-                }
-
-                if (GUI.Button(new Rect(0, y, w, ButtonHeight), "Reset Zoom", _sAction))
-                {
-                    Zoom.SetZoomSize(reset: true);
-                    _zoomValue = 3.0f;
-                }
-                y += ButtonHeight + Padding * 0.7f;
-            }
-            else if (!Mathf.Approximately(_zoomValue, 3.0f))
-            {
-                Zoom.SetZoomSize(reset: true);
-                _zoomValue = 3.0f;
-            }
-
-            if (canNoClip)
-            {
-                // Reads live state every frame for correct label/colour; lambda also reads it on click to avoid stale values
-                bool noclipOn = ControllerManagerUpdatePatch.NoClipEnabled;
-                Btn(ref y, noclipOn ? "No-clip: ON" : "No-clip: OFF", noclipOn ? _sHost : _sAction, () =>
-                {
-                    ControllerManagerUpdatePatch.NoClipEnabled = !ControllerManagerUpdatePatch.NoClipEnabled;
-                    if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
-                });
-            }
-            else if (ControllerManagerUpdatePatch.NoClipEnabled && OperatingSystem.IsAndroid() && PlayerControl.LocalPlayer)
-            {
-                PlayerControl.LocalPlayer.Collider.offset = new Vector2(0f, -0.3636f);
-                ControllerManagerUpdatePatch.NoClipEnabled = false;
-            }
-
-            if (canToggleHud)
-            {
-                Btn(ref y, HudHidden ? "Show HUD" : "Hide HUD", HudHidden ? _sHost : _sAction, () =>
-                {
-                    HudHidden = !HudHidden;
-                    if (HudManager.InstanceExists)
-                        HudManager.Instance.gameObject.SetActive(!HudHidden);
-                });
-            }
-            else if (HudHidden)
-            {
-                HudHidden = false;
-                if (HudManager.InstanceExists)
-                    HudManager.Instance.gameObject.SetActive(true);
-            }
-        }
 
         if (inLobby)
         {
@@ -578,23 +472,52 @@ public class ClientControlGUI : MonoBehaviour
                     Main.IsChatCommand = true;
                     Utils.ShowActiveSettingsHelp();
                 });
-                Btn(ref y, Label("Reset All Options", "CTRL + SHIFT + DEL"), _sDanger, () =>
-                    Prompt.Show(GetString("Promt.ResetAllOptions"), () =>
-                    {
-                        foreach (var opt in OptionItem.AllOptions)
-                            if (opt.Id > 0) opt.SetValue(opt.DefaultValue, false, false);
-                        OptionItem.SyncAllOptions();
-                        OptionSaver.Save();
-                    }, () => { })
-                );
+                BroadcastRoleInfoBtn(ref y);
             }
         }
 
-        if (inGame)
+        if ((inGame || inMeeting) && amHost)
         {
-            Section(ref y, "In Game");
+            Section(ref y, "Host Controls");
 
-            if (amHost && localAlive)
+            if (!inMeeting)
+                Btn(ref y, Label("Call Meeting", "SHIFT + ENTER + M"), _sHost, () =>
+                    PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true)
+                );
+            else
+            {
+                Btn(ref y, Label("End Meeting", "SHIFT + ENTER + M"), _sHost, () =>
+                {
+                    MeetingHudRpcClosePatch.AllowClose = true;
+                    MeetingHud.Instance.RpcClose();
+                });
+                Btn(ref y, Label("End By Votes", "F6"), _sHost, () =>
+                {
+                    CheckForEndVotingPatch.ShouldSkip = true;
+                    MeetingHud.Instance.CheckForEndVoting();
+                });
+            }
+
+            Btn(ref y, Label("Open Your Chat", "SHIFT + ENTER + C"), _sHost, () =>
+                HudManager.Instance.Chat.SetVisible(true)
+            );
+            Btn(ref y, Label("Open Chat for All", "CTRL + SHIFT + ENTER + C"), _sHost, () => Main.AllAlivePlayerControlsToList.SetChatVisible(true));
+
+            BroadcastRoleInfoBtn(ref y);
+
+            if (inGame && (canMove || inMeeting))
+                Btn(ref y, Label(InGameRoleInfoMenu.Showing ? "Hide Role Info" : "Show Role Info", "F1 (hold)"), _sAction, () =>
+                {
+                    if (InGameRoleInfoMenu.Showing)
+                        InGameRoleInfoMenu.Hide();
+                    else
+                    {
+                        InGameRoleInfoMenu.SetRoleInfoRef(PlayerControl.LocalPlayer);
+                        InGameRoleInfoMenu.Show();
+                    }
+                });
+
+            if (inGame && localAlive)
                 Btn(ref y, Label("Kill Self", "SHIFT + ENTER + E"), _sDanger, () =>
                 {
                     var state = Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId];
@@ -609,41 +532,123 @@ public class ClientControlGUI : MonoBehaviour
                     );
                 });
 
-            if (amHost)
+            Btn(ref y, Label("Force Game End", "SHIFT + ENTER + L"), _sDanger, () =>
             {
-                Section(ref y, "Host Controls");
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
+                GameEndChecker.CheckCustomEndCriteria();
+            });
+        }
 
-                if (!inMeeting)
-                    Btn(ref y, Label("Call Meeting", "SHIFT + ENTER + M"), _sHost, () =>
-                        PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true)
-                    );
-                else
+        bool canZoom = Zoom.CanZoom;
+        bool canNoClip = canMove && Main.IntroDestroyed && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && (!GameStartManager.Instance || GameStartManager.Instance.startState == GameStartManager.StartingStates.NotStarting);
+        bool canToggleHud = Main.IntroDestroyed && !inMeeting && !ExileController.Instance && !ReportDeadBodyPatch.MeetingStarted;
+
+        if (canZoom || canNoClip || canToggleHud)
+        {
+            Section(ref y, "Camera");
+
+            if (canZoom)
+            {
+                // Sync slider to actual camera value so external changes (scroll wheel, touch pinch) are reflected
+                if (_cam) _zoomValue = _cam.orthographicSize;
+
+                float newZoom = Slider(ref y, $"Zoom  {_zoomValue:F1}x", _zoomValue, 3.0f, 18.0f, w);
+                if (Mathf.Abs(newZoom - _zoomValue) > 0.01f)
                 {
-                    Btn(ref y, Label("End Meeting", "SHIFT + ENTER + M"), _sHost, () =>
-                    {
-                        MeetingHudRpcClosePatch.AllowClose = true;
-                        MeetingHud.Instance.RpcClose();
-                    });
-                    Btn(ref y, Label("End By Votes", "F6"), _sHost, () =>
-                    {
-                        CheckForEndVotingPatch.ShouldSkip = true;
-                        MeetingHud.Instance.CheckForEndVoting();
-                    });
+                    _zoomValue = newZoom;
+                    Zoom.SetZoomSize(reset: false);
+                    if (_cam) _cam.orthographicSize = _zoomValue;
+                    if (HudManager.InstanceExists) HudManager.Instance.UICamera.orthographicSize = _zoomValue;
                 }
 
-                Btn(ref y, Label("Open Your Chat", "SHIFT + ENTER + C"), _sHost, () =>
-                    HudManager.Instance.Chat.SetVisible(true)
-                );
-                Btn(ref y, Label("Open Chat for All", "CTRL + SHIFT + ENTER + C"), _sHost, () => Main.AllAlivePlayerControlsToList.SetChatVisible(true));
+                if (GUI.Button(new Rect(0, y, w, ButtonHeight), "Reset Zoom", _sAction))
+                {
+                    Zoom.SetZoomSize(reset: true);
+                    _zoomValue = 3.0f;
+                }
+                y += ButtonHeight + Padding * 0.7f;
+            }
+            else if (!Mathf.Approximately(_zoomValue, 3.0f))
+            {
+                Zoom.SetZoomSize(reset: true);
+                _zoomValue = 3.0f;
+            }
 
-                if (noGameEnd)
-                    Btn(ref y, Label("Force Game End", "SHIFT + ENTER + L"), _sDanger, () =>
-                    {
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
-                        GameEndChecker.CheckCustomEndCriteria();
-                    });
+            if (canNoClip)
+            {
+                // Reads live state every frame for correct label/colour; lambda also reads it on click to avoid stale values
+                bool noclipOn = ControllerManagerUpdatePatch.NoClipEnabled;
+                Btn(ref y, noclipOn ? "Noclip: ON" : "Noclip: OFF", noclipOn ? _sHost : _sAction, () =>
+                {
+                    ControllerManagerUpdatePatch.NoClipEnabled = !ControllerManagerUpdatePatch.NoClipEnabled;
+                    if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
+                });
+            }
+            else if (ControllerManagerUpdatePatch.NoClipEnabled && OperatingSystem.IsAndroid() && PlayerControl.LocalPlayer)
+            {
+                PlayerControl.LocalPlayer.Collider.offset = new Vector2(0f, -0.3636f);
+                ControllerManagerUpdatePatch.NoClipEnabled = false;
+            }
+
+            if (canToggleHud)
+            {
+                Btn(ref y, HudHidden ? "Show HUD" : "Hide HUD", HudHidden ? _sHost : _sAction, () =>
+                {
+                    HudHidden = !HudHidden;
+                    if (HudManager.InstanceExists)
+                        HudManager.Instance.gameObject.SetActive(!HudHidden);
+                });
+            }
+            else if (HudHidden)
+            {
+                HudHidden = false;
+                if (HudManager.InstanceExists)
+                    HudManager.Instance.gameObject.SetActive(true);
             }
         }
+
+        Section(ref y, "Utilities");
+
+        if (!notJoined)
+            Btn(ref y, Label("Copy Settings", "ALT + C"), _sAction, Utils.CopyCurrentSettings);
+
+        Btn(ref y, Label("Dump Log", "CTRL + F1"), _sAction, () =>
+        {
+            Logger.Info("Log dumped", "ClientControlGUI");
+            Utils.DumpLog();
+        });
+        Btn(ref y, Label("Fix Button Positions", "ALT + ENTER"), _sAction, () =>
+            LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position")
+        );
+
+        if (inGame || inMeeting)
+            Btn(ref y, Label("Fix Blackscreen", "SHIFT + CTRL + X"), _sAction, () =>
+                ExileController.Instance?.ReEnableGameplay()
+            );
+
+        Btn(ref y, Label("Reload Translations", "F5 + T"), _sAction, () =>
+        {
+            Logger.Info("Reloading Custom Translation File", "ClientControlGUI");
+            LoadLangs();
+            Logger.SendInGame("Reloaded Custom Translation File");
+        });
+        Btn(ref y, Label("Export Translations", "F5 + X"), _sAction, () =>
+        {
+            Logger.Info("Exported Custom Translation File", "ClientControlGUI");
+            ExportCustomTranslation();
+            Logger.SendInGame("Exported Custom Translation File");
+        });
+
+        if (inLobby && amHost)
+            Btn(ref y, Label("Reset All Options", "CTRL + SHIFT + DEL"), _sDanger, () =>
+                Prompt.Show(GetString("Promt.ResetAllOptions"), () =>
+                {
+                    foreach (var opt in OptionItem.AllOptions)
+                        if (opt.Id > 0) opt.SetValue(opt.DefaultValue, false, false);
+                    OptionItem.SyncAllOptions();
+                    OptionSaver.Save();
+                }, () => { })
+            );
 
         return;
 
@@ -654,6 +659,13 @@ public class ClientControlGUI : MonoBehaviour
             GUI.Label(new Rect(0, sy, w, ButtonHeight * 0.50f), title, _sSection);
             sy += ButtonHeight * 0.52f + Padding * 0.4f;
         }
+
+        // Draws the "Broadcast Role Info" toggle button in the Lobby and Host Controls sections
+        void BroadcastRoleInfoBtn(ref float by) =>
+            Btn(ref by, BroadcastRoleInfo ? "Broadcast Role Info: ON" : "Broadcast Role Info: OFF", BroadcastRoleInfo ? _sHost : _sAction, () =>
+            {
+                BroadcastRoleInfo = !BroadcastRoleInfo;
+            });
 
         // Draws a button and moves the cursor; try/catch stops one bad action from crashing the GUI
         void Btn(ref float by, string label, GUIStyle style, Action action)

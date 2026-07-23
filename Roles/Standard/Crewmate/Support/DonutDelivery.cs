@@ -98,7 +98,7 @@ public class DonutDelivery : RoleBase
     {
         if (!IsEnable) return false;
 
-        killer.RpcRemoveAbilityUse();
+        killer.RpcRemoveAbilityUse(notify: false);
 
         int num1 = IRandom.Instance.Next(0, 19);
         killer.Notify(GetString($"DonutDelivered-{num1}"));

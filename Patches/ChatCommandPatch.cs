@@ -222,6 +222,7 @@ internal static class ChatCommands
             new("ChemistInfo", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, ChemistInfoCommand, true, false),
             new("Forge", "{id} {role}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ForgeCommand, true, true, [GetString("CommandArgs.Forge.Id"), GetString("CommandArgs.Forge.Role")]),
             new("Choose", "{role}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChooseCommand, true, true, [GetString("CommandArgs.Choose.Role")]),
+            new("Mark", "{id}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, MarkCommand, true, true, [GetString("CommandArgs.Mark.Id")]),
             new("CopyPreset", "{sourcepreset} {targetpreset}", Command.UsageLevels.Host, Command.UsageTimes.InLobby, CopyPresetCommand, true, false, [GetString("CommandArgs.CopyPreset.SourcePreset"), GetString("CommandArgs.CopyPreset.TargetPreset")]),
             new("AddAdmin", "{id}", Command.UsageLevels.Host, Command.UsageTimes.Always, AddAdminCommand, true, false, [GetString("CommandArgs.AddAdmin.Id")]),
             new("DeleteAdmin", "{id}", Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteAdminCommand, true, false, [GetString("CommandArgs.DeleteAdmin.Id")]),
@@ -233,6 +234,7 @@ internal static class ChatCommands
             new("UIScale", "{scale}", Command.UsageLevels.Modded, Command.UsageTimes.Always, UIScaleCommand, true, false, [GetString("CommandArgs.UIScale.Scale")]),
             new("Fabricate", "{deathreason}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, FabricateCommand, true, true, [GetString("CommandArgs.Fabricate.DeathReason")]),
             new("Start", "", Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, StartCommand, false, false),
+            new("StartNow", "", Command.UsageLevels.HostOrAdmin, Command.UsageTimes.InLobby, StartNowCommand, false, false),
             new("Summon", "{id}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SummonCommand, true, true, [GetString("CommandArgs.Summon.Id")]),
             new("CovenInfo", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, CovenInfoCommand, true, false),
             new("NeutralInfo", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, NeutralInfoCommand, true, false),
@@ -389,7 +391,7 @@ internal static class ChatCommands
 
         if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
-        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > Utils.TimeStamp)
+        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > Utils.TimeStamp && !text.StartsWith("/cmd") && !PlayerControl.LocalPlayer.Is(CustomRoles.Pestilence))
         {
             LateTask.New(() =>
             {
@@ -403,7 +405,7 @@ internal static class ChatCommands
         if (ChatHistory.Count == 0 || ChatHistory[^1] != text)
             ChatHistory.Add(text);
 
-        ChatControllerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;
+        ControllerManagerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;
 
         var canceled = false;
         Main.IsChatCommand = true;
@@ -631,6 +633,53 @@ internal static class ChatCommands
     private static void StartCommand(PlayerControl player, string text, string[] args)
     {
         VotedToStart.UnionWith(Main.EnumeratePlayerControls().Select(x => x.PlayerId));
+    }
+    
+    private static void StartNowCommand(PlayerControl player, string text, string[] args)
+    {
+        if (!GameStartManager.InstanceExists) return;
+
+        if (!GameStates.IsCountDown)
+        {
+            Main.EnumeratePlayerControls().DoIf(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId, p => AmongUsClient.Instance.KickPlayer(p.OwnerId, false));
+        
+            GameStartManagerPatch.UpdateSpriteStartButton = true;
+
+            if (Options.RandomMapsMode.GetBool())
+            {
+                Main.NormalOptions.MapId = GameStartRandomMap.SelectRandomMap();
+                GameOptionsMapPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
+            }
+            else if (GameOptionsMapPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+            else if (GameOptionsMapPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
+
+            if (Options.OverrideSpeedForEachMap.GetBool() && Options.MapSpeeds.TryGetValue(Main.CurrentMap, out var option))
+                Main.NormalOptions.PlayerSpeedMod = option.GetFloat();
+
+            if (Main.CurrentMap == MapNames.Dleks || Main.NormalOptions.MapId == 6)
+            {
+                var opt = Main.NormalOptions.CastFast<IGameOptions>();
+
+                Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
+                Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
+                AURoleOptions.SetOpt(opt);
+                Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
+                AURoleOptions.ShapeshifterCooldown = 0f;
+                AURoleOptions.ImpostorsCanSeeProtect = false;
+
+                GameManager.Instance.LogicOptions.SetDirty();
+                OptionItem.SyncAllOptions();
+            }
+
+            GameStartManager.Instance.startState = GameStartManager.StartingStates.Countdown;
+            GameStartManager.Instance.countDownTimer = Options.AutoStartTimer.GetInt();
+            GameStartManager.Instance.StartButton.gameObject.SetActive(false);
+        
+            if (HudManager.InstanceExists)
+                HudManager.Instance.Dialogue.Hide();
+        }
+        
+        GameStartManager.Instance.countDownTimer = 0;
     }
     
     private static void FabricateCommand(PlayerControl player, string text, string[] args)
@@ -899,19 +948,49 @@ internal static class ChatCommands
             OptionSaver.Save();
         }
     }
-    
+
     public static void ChooseCommand(PlayerControl player, string text, string[] args)
     {
-        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state) || state.IsDead || state.Role is not Pawn pawn) return;
-        
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state) || state.IsDead) return;
+
         if (args.Length < 2 || !GetRoleByName(string.Join(' ', args[1..]), out var role) || !role.IsEnable())
         {
             Utils.SendMessage("\n", player.PlayerId, GetString("PawnChooseFail"));
             return;
         }
 
-        pawn.ChosenRole = role;
-        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PawnChosenRole"), role.ToColoredString()));
+        if (state.Role is Pawn pawn)
+        {
+            pawn.ChosenRole = role;
+            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PawnChosenRole"), role.ToColoredString()));
+        }
+        else if (state.Role is Changeling changeling)
+        {
+            if (!Changeling.Roles.Contains(role))
+            {
+                Utils.SendMessage("\n", player.PlayerId, GetString("ChangelingChooseFail"));
+                return;
+            }
+            changeling.CurrentRole = role;
+            changeling.UsedCommand = true;
+            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("ChangelingChosenRole"), role.ToColoredString()));
+        }
+        else
+            return;
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+
+    public static void MarkCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+
+        if (!player.IsAlive() || Main.PlayerStates[player.PlayerId].Role is not Markseeker { IsEnable: true } ms || ms.MarkedId != byte.MaxValue) return;
+
+        ms.MarkedId = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out byte targetId) ? targetId : byte.MaxValue;
+
+        player.RPCPlayCustomSound("Line");
+        Utils.SendRPC(CustomRPC.SyncRoleData, player.PlayerId, ms.MarkedId);
 
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
@@ -1075,10 +1154,10 @@ internal static class ChatCommands
 
     private static void JailTalkCommand(PlayerControl player, string text, string[] args)
     {
-        if (args.Length < 2) return;
+        if (args.Length < 2 || !player.IsAlive()) return;
 
         Jailor jailor = Main.PlayerStates[player.PlayerId].Role as Jailor ?? Main.PlayerStates.Select(x => x.Value.Role as Jailor).FirstOrDefault(x => x != null);
-        if (jailor == null) return;
+        if (jailor == null || jailor.JailorTarget == byte.MaxValue) return;
 
         bool amJailor = Jailor.PlayerIdList.Contains(player.PlayerId);
         bool amJailed = player.PlayerId == jailor.JailorTarget;
@@ -1181,6 +1260,12 @@ internal static class ChatCommands
 
     private static void AnagramCommand(PlayerControl player, string text, string[] args)
     {
+        if (!Options.EnableAnagramCommand.GetBool())
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("AnagramDisabled"), importance: MessageImportance.Low);
+            return;
+        }
+        
         string langParam = GetLangParam();
         int lengthIndex = Options.AnagramWordLength.GetValue();
         int wordLength = lengthIndex == 0 ? 0 : lengthIndex + 1;
@@ -2015,7 +2100,7 @@ internal static class ChatCommands
         if (GameStates.IsLobby || !player.FriendCode.GetDevUser().up) return;
 
         string subArgs = text.Remove(0, 8);
-        string setRole = FixRoleNameInput(subArgs.Trim());
+        string setRole = subArgs.Trim().Replace("着", "者");
 
         foreach (CustomRoles rl in Main.CustomRoleValues)
         {
@@ -2683,7 +2768,8 @@ internal static class ChatCommands
     private static void RCommand(PlayerControl player, string text, string[] args)
     {
         string subArgs = text.Remove(0, 2);
-        byte to = player.AmOwner && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) ? byte.MaxValue : player.PlayerId;
+        byte to = player.AmOwner && ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) || ClientControlGUI.BroadcastRoleInfo) ? byte.MaxValue : player.PlayerId;
+        ClientControlGUI.BroadcastRoleInfo = false;
         SendRolesInfo(subArgs, to);
     }
 
@@ -3230,17 +3316,6 @@ internal static class ChatCommands
         return true;
     }
 
-    private static string FixRoleNameInput(string text)
-    {
-        text = text.Replace("着", "者").Trim().ToLower();
-
-        return text switch
-        {
-            "schrodingers cat" or "schrodingerscat" or "cat" => "Schrödinger's Cat",
-            _ => text
-        };
-    }
-
     public static bool GetRoleByName(string name, out CustomRoles role)
     {
         role = new();
@@ -3259,7 +3334,7 @@ internal static class ChatCommands
                 result += mc[i]; //匹配结果是完整的数字，此处可以不做拼接的
             }
 
-            name = FixRoleNameInput(result.Replace("是", string.Empty).Trim());
+            name = result.Replace("是", string.Empty).Trim().Replace("着", "者");
         }
         else
             name = name.Trim().ToLower();
@@ -3292,10 +3367,6 @@ internal static class ChatCommands
         }
 
         role = role.Trim().ToLower();
-        if (role.StartsWith("/r")) _ = role.Replace("/r", string.Empty);
-        if (role.StartsWith("/up")) _ = role.Replace("/up", string.Empty);
-        if (role.EndsWith("\r\n")) _ = role.Replace("\r\n", string.Empty);
-        if (role.EndsWith("\n")) _ = role.Replace("\n", string.Empty);
 
         if (role == "")
         {
@@ -3303,7 +3374,8 @@ internal static class ChatCommands
             return;
         }
 
-        role = FixRoleNameInput(role).ToLower().Trim().Replace(" ", string.Empty);
+        string originalInput = role;
+        role = role.Replace("着", "者").ToLower().Trim().Replace(" ", string.Empty);
 
         foreach (CustomRoles rl in Main.CustomRoleValues)
         {
@@ -3311,7 +3383,7 @@ internal static class ChatCommands
 
             string roleName = Regex.Replace(GetString(rl.ToString()).RemoveHtmlTags().ToLower().Trim().TrimStart('*'), @"[^\p{L}-]+", string.Empty);
 
-            if (role == roleName)
+            if (role == roleName || (originalInput is "schrodingers cat" or "schrodingerscat" or "cat" && rl == CustomRoles.SchrodingersCat))
             {
                 if ((isDev || isUp) && GameStates.IsLobby)
                 {
@@ -3391,13 +3463,13 @@ internal static class ChatCommands
             return;
         }
 
-        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > now && player.IsAlive())
+        if (text.StartsWith("\n")) text = text[1..];
+
+        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > now && player.IsAlive() && !text.StartsWith("/cmd") && !player.Is(CustomRoles.Pestilence))
         {
             player.RpcGuesserMurderPlayer();
             player.SetRealKiller(Main.EnumeratePlayerControls().FirstOrDefault(x => x.Is(CustomRoles.Exorcist)));
         }
-
-        if (text.StartsWith("\n")) text = text[1..];
 
         switch (Options.CurrentGameMode)
         {
@@ -3498,25 +3570,9 @@ internal static class ChatCommands
     }
 }
 
-[HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
 internal static class ChatUpdatePatch
 {
     public static readonly List<(string Text, byte SendTo, string Title, long SendTimeStamp)> LastMessages = [];
-
-    public static void Postfix(ChatController __instance)
-    {
-        var chatBubble = __instance.chatBubblePool.Prefab.CastFast<ChatBubble>();
-        chatBubble.TextArea.overrideColorTags = false;
-
-        if (Main.DarkTheme.Value)
-        {
-            chatBubble.TextArea.color = Color.white;
-            chatBubble.Background.color = new(0.1f, 0.1f, 0.1f, 1f);
-        }
-
-        long now = Utils.TimeStamp;
-        LastMessages.RemoveAll(x => now - x.SendTimeStamp > 10);
-    }
 
     internal static bool SendLastMessages(ref CustomRpcSender sender)
     {

@@ -108,8 +108,8 @@ public class Coroner : RoleBase
                 CoronerTargets.Add(killer.PlayerId);
                 TargetArrow.Add(pc.PlayerId, killer.PlayerId);
 
+                pc.RpcRemoveAbilityUse(notify: false);
                 pc.Notify(GetString("CoronerTrackRecorded"));
-                pc.RpcRemoveAbilityUse();
 
                 if (LeaveDeadBodyUnreportable.GetBool())
                 {

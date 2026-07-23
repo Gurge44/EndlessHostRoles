@@ -72,7 +72,6 @@ imagetense#5619 |  | Chinese | Cheating |
 gabledebb#2717 |  | 部屋潰しガチ勢SEX | Cheating | 
 lawnhoppy#4726 |  | 封禁 | Cheating | 
 larkyprow#0965 | 9eb11d42b | Cheater| Cheating | 
-rapidmatch#3120 | 7a320d676 | rawpotato6 | Cheating | 
 panslushy#9362 | 34aaba1bd | No one | Cheating | 
 socialnest#0628 | 2dc0c9013 | ROFL | Cheating | 
  | 53b5b1a76 | Cheifalike | Cheating | No friendcode cheater
@@ -123,6 +122,10 @@ pianochief#9094 | 8c9d396f5 |  | slur in name |
 spottyhill#7614 | 5b273d541 | BITTU | Making pedo & general inappropriate comments in game | 
 batspicy#0693 | 765e0c882 | umeye | Spamming | Inappropriate chat spam
 gamejewel#8750 | bbb5f1d30 | PatMyBalls | Inappropriate Name | 
+brownapex#1378 | 0926b55a8 | igoonalot | slurs in game | 
+frettedria#8062 | c29fae4c3 |  | slurs in game | 
+pluralbug#5217 | cf91054b4 |  | slurs in game | 
+oakaverage#9192 | 0aebc840d | Tevell67 | slurs in game | 
 
 ## Griefers, Toxic, Harrasing, Racist
 setmolar#4374 |  | 藏族顶针 | Toxic | 

@@ -109,7 +109,7 @@ internal class TimeMaster : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         if (pc.GetAbilityUseLimit() < 1) return;
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
 
         Main.Instance.StartCoroutine(Rewind());
         
@@ -121,7 +121,7 @@ internal class TimeMaster : RoleBase
     {
         if (UsePets.GetBool()) return;
         if (pc.GetAbilityUseLimit() < 1) return;
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
 
         Main.Instance.StartCoroutine(Rewind());
         
@@ -155,7 +155,7 @@ internal class TimeMaster : RoleBase
                 player.MarkDirtySettings();
             }
             
-            yield return PlayerGameOptionsSender.SendAllImmediately().Wait();
+            yield return PlayerGameOptionsSender.SendAllImmediately()?.Wait();
 
             yield return new WaitForSecondsRealtime(0.55f);
 

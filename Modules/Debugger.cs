@@ -103,6 +103,12 @@ internal static class Logger
 
             if (level == LogLevel.Message) NowDetailedErrorLog.Clear();
         }
+        
+        if (!Main.Loaded)
+        {
+            LateTask.New(() => CustomLogger.Instance.Log(level.ToString(), LogText, multiLine), 1f, log: false);
+            return;
+        }
 
         CustomLogger.Instance.Log(level.ToString(), LogText, multiLine);
     }
@@ -171,8 +177,9 @@ public sealed class HtmlLogListener : ILogListener
         sb.Append(System.Net.WebUtility.HtmlEncode(eventArgs.Data.ToString()));
         sb.Replace("\r\n", "<br>");
         sb.Replace("\n", "<br>");
+        sb.Replace("\\n", "<br>");
 
-        CustomLogger.Instance.Log(eventArgs.Level.ToString(), sb, multiLine: true);
+        CustomLogger.Instance.Log(eventArgs.Level.ToString(), sb, fromUnity: true);
     }
 
     public LogLevel LogLevelFilter => LogLevel.All;
@@ -196,6 +203,13 @@ public class CustomLogger
           <title>EHR Log File</title>
           <style>
               body { font-family: Arial, sans-serif; background-color: #1e1e1e; color: #aaaaaa; margin: 0; padding: 1rem; font-family: "Roboto Mono", "Consolas", "Courier New", monospace; }
+              .log-entry-unity { margin: 0; padding: 0; border-radius: 5px; letter-spacing: 0.1rem; background-color: transparent; }
+              .info-unity { font-size: 0.8rem; }
+              .warning-unity { color: #ffff99; }
+              .error-unity { color: red; border-radius: 10px; margin: 1rem; }
+              .fatal-unity { background: linear-gradient(to bottom, #ff9999, #cc0000); color: black; border: 3px solid yellow; border-radius: 15px; padding: 1rem; }
+              .debug-unity { color: gray; font-size: 0.8rem; }
+              .message-unity { font-size: 0.8rem; }
               .log-entry { margin: 0; padding: 0; border-radius: 5px; letter-spacing: 0.1rem; }
               .info { background-color: transparent; }
               .warning { background-color: #ffff44; color: black; }
@@ -217,6 +231,8 @@ public class CustomLogger
             </body>
             </html>
         """;
+
+    private const string UnityTag = "-unity";
 
     private static CustomLogger PrivateInstance;
     private float timer = 0.5f;
@@ -245,44 +261,65 @@ public class CustomLogger
         if (!check || (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0))
         {
             PrivateInstance?.Finish();
-            Utils.DumpLog(false, false);
+            try { Utils.DumpLog(false, false); } catch (Exception e) { LateTask.New(() => Logger.Fatal(e.ToString(), "ClearLog.DumpLog"), 0.1f); }
         }
 
         File.WriteAllText(LOGFilePath, HtmlHeader);
     }
 
-    public void Log(string level, StringBuilder message, bool multiLine = false)
+    public void Log(string level, StringBuilder message, bool multiLine = false, bool fromUnity = false)
     {
         if (multiLine) message.Replace("\\n", "<br>");
 
         bool hasB = false, hasU = false, hasI = false, hasS = false;
-        for (int i = 0; i < message.Length - 2; i++)
+        bool containsException = false;
+
+        for (int i = 0; i < message.Length; i++)
         {
-            if (message[i] != '<') continue;
-            char c = message[i + 1];
-            switch (c)
+            if (i < message.Length - 2 && message[i] == '<')
             {
-                case 'b':
-                    hasB = true;
-                    break;
-                case 'u':
-                    hasU = true;
-                    break;
-                case 'i':
-                    hasI = true;
-                    break;
-                case 's':
-                    hasS = true;
-                    break;
+                switch (message[i + 1])
+                {
+                    case 'b':
+                        hasB = true;
+                        break;
+                    case 'u':
+                        hasU = true;
+                        break;
+                    case 'i':
+                        hasI = true;
+                        break;
+                    case 's':
+                        hasS = true;
+                        break;
+                }
+            }
+
+            if (!containsException &&
+                i <= message.Length - 9 &&
+                message[i]     == 'E' &&
+                message[i + 1] == 'x' &&
+                message[i + 2] == 'c' &&
+                message[i + 3] == 'e' &&
+                message[i + 4] == 'p' &&
+                message[i + 5] == 't' &&
+                message[i + 6] == 'i' &&
+                message[i + 7] == 'o' &&
+                message[i + 8] == 'n')
+            {
+                containsException = true;
             }
         }
+
         if (hasB) message.Append("</b>");
         if (hasU) message.Append("</u>");
         if (hasI) message.Append("</i>");
         if (hasS) message.Append("</s>");
+        
+        string unityTag = fromUnity && !containsException ? UnityTag : string.Empty;
 
         Builder.Append($"""
-                        <div class='log-entry {level.ToLower()}'>
+                        <div class='log-entry{unityTag} {level.ToLower()}{unityTag}'>
                             {message}
                         </div>
                         """);

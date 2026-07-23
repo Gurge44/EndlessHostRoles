@@ -55,6 +55,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
     public static DataFlagRateLimiter.QueuedAction SendAllImmediately()
     {
+        if (AntiBlackout.SkipTasks) return null;
+        
         ForceWaitFrame = true;
         
         if (PackedWriterMessages > 0 && PackedWriter != null)
@@ -262,6 +264,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     
     protected override void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex)
     {
+        if (AntiBlackout.SkipTasks) return;
+        
         if (PackedWriter == null) // Single write
         {
             Logger.Info("Enqueue complete for single write", "SendOptionsArray");
@@ -655,7 +659,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             if (player.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) opt.SetVision(true);
 
-            if (Main.AllAlivePlayerControlsToList.Any(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)))
+            if (!player.Is(CustomRoles.Focused) && Main.CachedAllPlayerControls().Exists(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)))
             {
                 opt.SetVision(false);
                 opt.SetFloat(FloatOptionNames.CrewLightMod, Options.BewilderVision.GetFloat());

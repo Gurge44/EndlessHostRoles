@@ -578,7 +578,7 @@ public static class TemplateManager
     }
 
     private static void Dispatch(string content, byte playerId, MessageImportance importance) =>
-        new List<Message> { new(content, playerId) }.SendMultipleMessages(importance);
+        Utils.SendMessage(content, playerId, importance: importance);
 
     private static TemplateEntry WeightedPick(List<TemplateEntry> entries)
     {

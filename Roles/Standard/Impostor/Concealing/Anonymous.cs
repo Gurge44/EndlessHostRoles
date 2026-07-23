@@ -83,7 +83,7 @@ public class Anonymous : RoleBase
     {
         if (!shapeshifting || pc.GetAbilityUseLimit() < 1 || ssTarget == null || ssTarget.Is(CustomRoles.LazyGuy) || ssTarget.Is(CustomRoles.Lazy) || Thanos.IsImmune(ssTarget)) return false;
 
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
 
         var targetId = byte.MaxValue;
 

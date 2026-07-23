@@ -88,7 +88,7 @@ internal class EvilEraser : RoleBase
         {
             return killer.CheckDoubleTrigger(target, () =>
             {
-                killer.RpcRemoveAbilityUse();
+                killer.RpcRemoveAbilityUse(notify: false);
                 killer.SetKillCooldown();
                 killer.Notify(GetString("TargetErasedInRound"));
                 if (!PlayerToErase.Contains(target.PlayerId)) PlayerToErase.Add(target.PlayerId);

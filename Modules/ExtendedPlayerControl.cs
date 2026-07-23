@@ -232,6 +232,7 @@ internal static class ExtendedPlayerControl
 
             void Action()
             {
+                if (!player || player.Pointer == IntPtr.Zero) return;
                 bool dead = player.Data.IsDead;
                 MessageWriter writer = packedWriter ?? MessageWriter.Get(SendOption.Reliable);
                 writer.StartMessage(6);
@@ -868,25 +869,25 @@ internal static class ExtendedPlayerControl
             return Main.AbilityUseLimit.GetValueOrDefault(player.PlayerId, float.NaN);
         }
 
-        public void RpcRemoveAbilityUse(bool log = true)
+        public void RpcRemoveAbilityUse(bool log = true, bool notify = true)
         {
             float current = player.GetAbilityUseLimit();
             if (float.IsNaN(current) || current <= 0f) return;
 
-            player.SetAbilityUseLimit(current - 1, log: log);
+            player.SetAbilityUseLimit(current - 1, log: log, notify: notify);
         }
 
-        public void RpcIncreaseAbilityUseLimitBy(float get, bool log = true)
+        public void RpcIncreaseAbilityUseLimitBy(float get, bool log = true, bool notify = true)
         {
             float current = player.GetAbilityUseLimit();
             if (float.IsNaN(current)) return;
 
-            player.SetAbilityUseLimit(current + get, log: log);
+            player.SetAbilityUseLimit(current + get, log: log, notify: notify);
         }
 
-        public void SetAbilityUseLimit(float limit, bool rpc = true, bool log = true)
+        public void SetAbilityUseLimit(float limit, bool rpc = true, bool log = true, bool notify = true)
         {
-            player.PlayerId.SetAbilityUseLimit(limit, rpc, log);
+            player.PlayerId.SetAbilityUseLimit(limit, rpc, log, notify);
         }
 
         public void Suicide(PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
@@ -930,7 +931,7 @@ internal static class ExtendedPlayerControl
         {
             if (!player) return;
 
-            if (!Mathf.Approximately(time, -1f) && Commited.ReduceKCD != null && Commited.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
+            if (!Mathf.Approximately(time, -1f) && Committed.ReduceKCD != null && Committed.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
                 time = Math.Max(time - reduction, 0.01f);
 
             Logger.Info($"{player.GetNameWithRole()}'s KCD set to {(time < 0f ? Main.AllPlayerKillCooldown[player.PlayerId] : time)}s", "SetKCD");
@@ -1817,7 +1818,7 @@ internal static class ExtendedPlayerControl
                 Logger.Info($"KCD of player set to {Main.AllPlayerKillCooldown[player.PlayerId]}", "Antidote");
             }
 
-            if (Commited.ReduceKCD != null && Commited.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
+            if (Committed.ReduceKCD != null && Committed.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
                 Main.AllPlayerKillCooldown[player.PlayerId] -= reduction;
 
             if (sync) player.SyncSettings();
@@ -1825,6 +1826,8 @@ internal static class ExtendedPlayerControl
 
         public void BeartrapKilled(PlayerControl target)
         {
+            if (player.Is(CustomRoles.Focused)) return;
+            
             Logger.Info($"{target?.Data?.PlayerName} was Beartrap", "Beartrap");
             float tmpSpeed = Main.AllPlayerSpeed[player.PlayerId];
             Main.AllPlayerSpeed[player.PlayerId] = Main.MinSpeed;
@@ -2151,7 +2154,7 @@ internal static class ExtendedPlayerControl
 
         public string GetRoleInfo(bool infoLong = false)
         {
-            CustomRoles role = player.AmOwner && Main.GM.Value ? CustomRoles.GM : player.GetCustomRole();
+            CustomRoles role = AmongUsClient.Instance.AmHost && player.AmOwner && Main.GM.Value ? CustomRoles.GM : player.GetCustomRole();
             if (role is CustomRoles.Crewmate or CustomRoles.Impostor) infoLong = false;
 
             string info = (role.IsVanilla() ? "Blurb" : "Info") + (infoLong ? "Long" : string.Empty);
@@ -2509,7 +2512,7 @@ internal static class ExtendedPlayerControl
             return Main.AbilityUseLimit.GetValueOrDefault(playerId, float.NaN);
         }
 
-        public void SetAbilityUseLimit(float limit, bool rpc = true, bool log = true)
+        public void SetAbilityUseLimit(float limit, bool rpc = true, bool log = true, bool notify = true)
         {
             limit = (float)Math.Round(limit, 2);
 
@@ -2526,7 +2529,7 @@ internal static class ExtendedPlayerControl
             }
 
             PlayerControl pc = GetPlayerById(playerId);
-            if (Main.IntroDestroyed) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (notify && Main.IntroDestroyed) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             if (log) Logger.Info($" {pc.GetNameWithRole()} => {Math.Round(limit, 2)}", "SetAbilityUseLimit");
         }
 
@@ -2557,6 +2560,7 @@ internal static class ExtendedPlayerControl
         {
             return DataFlagRateLimiter.Enqueue(() =>
             {
+                if (!playerInfo || playerInfo.Pointer == IntPtr.Zero) return;
                 MessageWriter writer = MessageWriter.Get(sendOption);
                 writer.StartMessage(5);
                 writer.Write(AmongUsClient.Instance.GameId);

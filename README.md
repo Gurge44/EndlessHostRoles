@@ -19,13 +19,8 @@
 <p align="center">
   <img src="https://discordapp.com/api/guilds/1039487420757966858/widget.png?style=banner3" alt="Discord Banner"/>
 </p>
-<p align="left" style="font-size: 10px"><i>Image by oCelestino & Seleneous on Discord</i></p>
+<p align="left" style="font-size: 10px"><i>Image by thecelestrinity & Seleneous on Discord</i></p>
 </div>
-
----
-
-> [!IMPORTANT]
-> **Our webapp domain was changed from `gurge44.pythonanywhere.com` to `app.gurge44.eu`**
 
 ---
 
@@ -103,7 +98,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Catcher           | Cleaner         | Deathknight       | Wyrd          | Circumvent     |
 | Chameleon         | Clock Blocker   | Demon             |               | Cleansed       |
 | Chef              | Commander       | Doppelganger      |               | Clumsy         |
-| Clairvoyant       | Consigliere     | Doomsayer         |               | Commited       |
+| Clairvoyant       | Consigliere     | Doomsayer         |               | Committed      |
 | Cleanser          | Consort         | Duality           |               | Compelled      |
 | Convener          | Councillor      | Eclipse           |               | Composter      |
 | Copycat           | Crewpostor      | Enderman          |               | Concealer      |
@@ -180,26 +175,27 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Rabbit            | Trapster        | Stalker           |               | Stressed       |
 | Randomizer        | Trickster       | Starspawn         |               | Swift          |
 | Retributionist    | Twister         | Cultist           |               | Sunglasses     |
-| Rhapsode          | Undertaker      | Sunnyboy          |               | Talkative      |
-| Ricochet          | Vampire         | Tank              |               | Taskcounter    |
-| Safeguard         | Venerer         | Technician        |               | Task Master    |
-| Scanner           | Ventriloquist   | Terrorist         |               | Tiebreaker     |
-| Scout             | Vindicator      | Thanos            |               | Tired          |
-| Security Guard    | Visionary       | Thief             |               | Torch          |
-| Sensor            | Warlock         | Tiger             |               | Truant         |
-| Sentinel          | Wasp            | Traitor           |               | Unbound        |
-| Sentry            | Wildling        | Tremor            |               | Undead         |
-| Sheriff           | Wiper           | Vector            |               | Underdog       |
-| Shiftguard        | Witch           | Vengeance         |               | Unlucky        |
-| Snitch            | Yin Yanger      | Vengeful Romantic |               | Urgent         |
-| Socialite         | Zombie          | Virus             |               | Venom          |
-| Soothsayer        |                 | Vortex            |               | Warden         |
-| Spiritualist      |                 | Vulture           |               | Watcher        |
-| Speedrunner       |                 | Wraith            |               | Workhorse      |
-| Speed Booster     |                 | Werewolf          |               | YouTuber       |
-| Spy               |                 | Weapon Master     |               |                |
-| Super Star        |                 | Weatherman        |               |                |
-| Survivor          |                 | Workaholic        |               |                |
+| Revenant          | Undertaker      | Sunnyboy          |               | Talkative      |
+| Rhapsode          | Vampire         | Tank              |               | Taskcounter    |
+| Ricochet          | Venerer         | Technician        |               | Task Master    |
+| Safeguard         | Ventriloquist   | Terrorist         |               | Tiebreaker     |
+| Scanner           | Vindicator      | Thanos            |               | Tired          |
+| Scout             | Visionary       | Thief             |               | Torch          |
+| Security Guard    | Warlock         | Tiger             |               | Truant         |
+| Sensor            | Wasp            | Traitor           |               | Unbound        |
+| Sentinel          | Wildling        | Tremor            |               | Undead         |
+| Sentry            | Wiper           | Vector            |               | Underdog       |
+| Sheriff           | Witch           | Vengeance         |               | Unlucky        |
+| Shiftguard        | Yin Yanger      | Vengeful Romantic |               | Urgent         |
+| Snitch            | Zombie          | Virus             |               | Venom          |
+| Socialite         |                 | Vortex            |               | Warden         |
+| Soothsayer        |                 | Vulture           |               | Watcher        |
+| Spiritualist      |                 | Wraith            |               | Workhorse      |
+| Speedrunner       |                 | Werewolf          |               | YouTuber       |
+| Speed Booster     |                 | Weapon Master     |               |                |
+| Spy               |                 | Weatherman        |               |                |
+| Super Star        |                 | Workaholic        |               |                |
+| Survivor          |                 |                   |               |                |
 | Swapper           |                 |                   |               |                |
 | Tar               |                 |                   |               |                |
 | Task Manager      |                 |                   |               |                |
@@ -224,7 +220,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Witness           |                 |                   |               |                |
 | Wizard            |                 |                   |               |                |
 |                   |                 |                   |               |                |
-| 143               | 113             | 120               | 21            | 117            |
+| 144               | 113             | 120               | 21            | 117            |
 
 ## VIP, Moderator, and Admin perks
 
@@ -398,7 +394,8 @@ Click this badge to view our translation project:
 | /xor                                           | Specify 2 roles that will never spawn in the same game.                                       | &#x1F538; **role** – A main role that will never spawn in the same game with the other role<br>&#x1F538; **role** – A main role that will never spawn in the same game with the other role<br>                                                                                                                               | :purple_circle: Everyone                  | :purple_square: Always                  | :x:                      |
 | /ci<br>/chemistinfo                            | Show all processes available for the Chemist role.                                            | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone                  | :purple_square: Always                  | :x:                      |
 | /forge                                         | As the Forger, forge a fake role for a player.                                                | &#x1F538; **id** – The player's ID to forge a fake role for<br>&#x1F538; **role** – The fake role to forge<br>                                                                                                                                                                                                               | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :heavy_check_mark:       |
-| /choose<br>/pick                               | Choose your role as the Pawn after completing all tasks.                                      | &#x1F538; **role** – The role to choose<br>                                                                                                                                                                                                                                                                                  | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :heavy_check_mark:       |
+| /choose<br>/pick                               | Choose your role as the Changeling, or as the Pawn after completing all tasks.                | &#x1F538; **role** – The role to choose<br>                                                                                                                                                                                                                                                                                  | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :heavy_check_mark:       |
+| /mark                                          | Mark a target as the Markseeker.                                                              | &#x1F538; **id** – The player's ID to mark as the target<br>                                                                                                                                                                                                                                                                 | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :heavy_check_mark:       |
 | /copypreset<br>/presetcopy<br>/cpp             | Copy all settings from a preset to another preset.                                            | &#x1F538; **sourcepreset** – The preset to copy all settings from<br>&#x1F538; **targetpreset** – The preset to paste all settings to<br>                                                                                                                                                                                    | :yellow_circle: Host                      | :green_square: In Lobby                 | :x:                      |
 | /addadmin                                      | Add a player to the list of admins                                                            | &#x1F538; **id** – The player's ID to add to the list of admins<br>                                                                                                                                                                                                                                                          | :yellow_circle: Host                      | :purple_square: Always                  | :x:                      |
 | /deleteadmin                                   | Remove a player from the list of admins                                                       | &#x1F538; **id** – The player's ID to remove from the list of admins<br>                                                                                                                                                                                                                                                     | :yellow_circle: Host                      | :purple_square: Always                  | :x:                      |
@@ -552,6 +549,12 @@ Click this badge to view our translation project:
 > - Reference: Custom Region Installer (adding modded regions)
 >
 
+### :star: [AutoRejoin](https://github.com/Maxi0fc/AutoRejoin) :
+
+>
+> - Reference: Auto Rejoin
+>
+
 ### :star: [Crowded](https://github.com/CrowdedMods/CrowdedMod)
 
 >
@@ -562,6 +565,11 @@ Click this badge to view our translation project:
 >
 > - Next button sprites (Inactive and Active)
 > - Double task panel
+
+### :star: [UnityDoorstop](https://github.com/Pietrodjaowjao/UnityDoorstop)
+
+>
+> - Modified doorstop_config.ini and winhttp.dll for packaging
 	
 
 ### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.
@@ -599,6 +607,10 @@ Click this badge to view our translation project:
 - Kurma (ID)
 - Gurge44 (HU)
 
+# Sponsors
+| <img src="https://cdn.brandfetch.io/idXCVMKbd8/w/180/h/180/theme/dark/logo.png?c=1bxid64Mup7aczewSAYMX&t=1777121415987" alt="SignPath Logo" width="44"/> | Free code signing on Windows provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org) |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+
 # License for the Custom Team Assigner application (everything inside the `CTA` folder)
 
 ```
@@ -635,29 +647,29 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Privacy Policy
 
-### Privacy Policy for EHR Lobby Sharing
-
 **Effective Date:** 2025. 01. 05.
 
-------------------------------------------------------------------------------------------------------------
+---
 
-#### 1. **Introduction**
+## 1. Introduction
 
-This Privacy Policy explains how we collect, use, and handle information related to lobby sharing via the EHR Website
-for your Among Us mod. We are committed to ensuring that your data privacy and security are respected.
+This Privacy Policy explains how we collect, use, and handle information related to the Endless Host Roles (EHR) mod and its associated services, including lobby sharing via the EHR Website and player authentication. We are committed to ensuring that your data privacy and security are respected.
 
-------------------------------------------------------------------------------------------------------------
+---
 
-#### 2. **Information Collected**
+## 2. Information Collected
+
+### Lobby Sharing
 
 When using this integration, we collect the following non-personal information:
 
 - **Lobby Code:** A six-letter code that uniquely identifies a game lobby.
 - **Server Name:** The region where the game server is hosted (e.g., Asia, EU, NA).
 - **User Language:** The selected language for the game (e.g., English, Russian, Spanish).
-- **Mod Version:** The version of the Endless Host Roles (EHR) mod being used.
+- **Mod Version:** The version of the EHR mod being used.
 - **Host Name:** The username of the player who created the lobby.
-- **Player Count:** The number of players in the lobby.
+- **Player Count:** The number of players currently in the lobby.
+- **Max Players:** The maximum number of players that can join the lobby.
 - **Map Name:** The name of the map selected for the game (e.g., Skeld, Polus, Submerged).
 - **Game Mode:** The selected game mode (e.g., Standard, Room Rush, Free For All, Bed Wars).
 - **Lobby Status:** The current status of the lobby (e.g., In Lobby, In Game, Ended).
@@ -665,37 +677,47 @@ When using this integration, we collect the following non-personal information:
 
 Furthermore, the following information is collected to enhance the user experience:
 
-- **Completed Achievements:** A list of custom achievements (added by the mod) completed by the user, in the form of
-  numbers. (Please note that the users are identified using their encrypted product user ID, not their username or any
-  other personal information. This ID is unique to each user and is not shared with any third parties. This ID cannot be
-  used to identify the user outside the game.)
+- **Completed Achievements:** A list of custom achievements (added by the mod) completed by the user, in the form of numbers. (Please note that the users are identified using their encrypted product user ID, not their username or any other personal information. This ID is unique to each user and is not shared with any third parties. This ID cannot be used to identify the user outside the game.)
 
-------------------------------------------------------------------------------------------------------------
+### Authentication Data
 
-#### 3. **How Information is Used**
+To authenticate players, we process **Epic Online Services (EOS) Connect ID tokens**. From these tokens, we extract and store the following metadata:
+
+1. **Platform:** The gaming platform the player authenticated from (e.g., Epic Games, Steam, or other).
+2. **Account ID:** A unique identifier (EAID) tied to the player's EOS account, used to associate sessions and game data with that player.
+3. **External Account Type:** The type of external account linked to the player's session (e.g., Epic Games), used alongside the platform to identify the authentication source.
+4. **Token issued and expiration timestamps:** Used to manage session validity and determine when a token needs to be refreshed.
+
+We do not store the raw token itself beyond what is needed for validation.
+
+---
+
+## 3. How Information is Used
 
 The collected information is used solely for the following purposes:
 
 - To notify players about available lobbies via the designated Discord server.
 - To make sure, that only genuine players can create lobbies on our server (prevent DDoS and fake data spam).
 - To update the status of the lobby in real time, enhancing coordination among players.
-- To provide lobby-management features for hosts, and track hosting statistics on Discord.
-- To ensure, that progress in custom achievements isn't lost when updating or reinstalling the mod.
+- To provide lobby management features for hosts and track hosting statistics on Discord.
+- To ensure that progress in custom achievements is not lost when updating or reinstalling the mod.
+- To verify player identity, maintain secure sessions, and associate gameplay data with the correct player across sessions.
+- To retain data for moderation purposes and to detect, investigate, and prevent abuse of our services and mod.
 
 **No personal data** or any other information beyond what is listed above is collected or processed.
 
-------------------------------------------------------------------------------------------------------------
+---
 
-#### 4. **Data Sharing**
+## 4. Data Sharing
 
 - The collected information is only sent to the EHR Website through an API.
-- No data is shared with third parties or used for any other purposes.
+- No data is shared with third parties or used for any other purposes beyond those described in this policy.
 
-------------------------------------------------------------------------------------------------------------
+---
 
-#### 5. **User Control and Opt-Out**
+## 5. User Control and Opt-Out
 
-You have full control over whether to enable or disable data sharing. You can disable data sharing by:
+You have full control over whether to enable or disable data sharing. You can disable it by:
 
 1. Opening the **Room Settings** UI.
 2. Navigating to the **System Settings** tab.
@@ -704,31 +726,29 @@ You have full control over whether to enable or disable data sharing. You can di
 
 When disabled, no lobby information will be collected or transmitted.
 
-------------------------------------------------------------------------------------------------------------
+---
 
-#### 6. **Data Retention**
+## 6. Data Retention
 
-- Lobby data is retained only as long as the lobby is active. Once a lobby is closed, the data is removed from our
-  system within 3 minutes.
+- Lobby data is retained only as long as the lobby is active. Once a lobby is closed, the data is removed from our system within 3 minutes.
 - We do not store historical records of lobbies after they are removed.
+- Authentication metadata is retained as needed to support session management, moderation, and abuse prevention.
 - To delete your achievements from our database, please contact us through the official EHR Discord server.
 
-------------------------------------------------------------------------------------------------------------
+---
 
-#### 7. **Changes to this Privacy Policy**
+## 7. Changes to this Privacy Policy
 
-We may update this Privacy Policy from time to time. Any changes will be communicated through an update in the mod or
-via the official EHR Discord channel.
+We may update this Privacy Policy from time to time. Any changes will be communicated through an update in the mod or via the official EHR Discord channel.
 
-------------------------------------------------------------------------------------------------------------
+---
 
-#### 8. **Contact Us**
+## 8. Contact Us
 
 If you have any questions about this Privacy Policy or how your data is handled, please contact us at:
 
 **[The EHR Discord Server](https://discord.gg/m3ayxfumC8)**
 
-------------------------------------------------------------------------------------------------------------
+---
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
-

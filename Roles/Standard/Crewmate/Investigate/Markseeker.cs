@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System;
+using Hazel;
+using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -7,7 +10,6 @@ internal class Markseeker : RoleBase
     private const int Id = 643550;
     public static List<byte> PlayerIdList;
     public static bool On;
-    public static OptionItem CancelVote;
 
     public byte MarkedId;
     public bool TargetRevealed;
@@ -16,7 +18,6 @@ internal class Markseeker : RoleBase
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Markseeker);
-        CancelVote = Options.CreateVoteCancellingUseSetting(Id + 2, CustomRoles.Markseeker, TabGroup.CrewmateRoles);
     }
 
     public override void Add(byte playerId)
@@ -39,6 +40,12 @@ internal class Markseeker : RoleBase
         PlayerIdList = null;
     }
 
+    public void ReceiveRPC(MessageReader reader)
+    {
+        MarkedId = reader.ReadByte();
+    }
+
+/*
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
@@ -49,10 +56,12 @@ internal class Markseeker : RoleBase
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;
     }
+*/
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        var command = $"/mark {target.PlayerId}";
+        ChatCommands.MarkCommand(shapeshifter, command, command.Split(' '));
     }
 
     public static void OnDeath(PlayerControl player)
@@ -60,5 +69,48 @@ internal class Markseeker : RoleBase
         if (Main.PlayerStates[player.PlayerId].Role is not Markseeker { IsEnable: true } ms || ms.MarkedId == byte.MaxValue) return;
 
         ms.TargetRevealed = true;
+    }
+
+    private static void MarkseekerOnClick(byte playerId /*, MeetingHud __instance*/)
+    {
+        Logger.Msg($"Click: ID {playerId}", "Markseeker UI");
+        PlayerControl pc = Utils.GetPlayerById(playerId);
+        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
+
+        var command = $"/mark {playerId}";
+
+        if (AmongUsClient.Instance.AmHost)
+            ChatCommands.MarkCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
+        else
+            ChatCommands.RequestCommandProcessingFromHost(command, "Mark");
+    }
+
+    public static void CreateMarkseekerButton(MeetingHud __instance)
+    {
+        foreach (PlayerVoteArea pva in __instance.playerStates)
+        {
+            PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
+            if (!pc || !pc.IsAlive()) continue;
+
+            GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
+            GameObject targetBox = Object.Instantiate(template, pva.transform);
+            targetBox.name = "ShootButton";
+            targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
+            var renderer = targetBox.GetComponent<SpriteRenderer>();
+            renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.prophecies.png", 160f);
+            var button = targetBox.GetComponent<PassiveButton>();
+            button.OnClick.RemoveAllListeners();
+            button.OnClick.AddListener((Action)(() => MarkseekerOnClick(pva.TargetPlayerId)));
+        }
+    }
+
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    public static class StartMeetingPatch
+    {
+        public static void Postfix(MeetingHud __instance)
+        {
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Markseeker) && PlayerControl.LocalPlayer.IsAlive())
+                CreateMarkseekerButton(__instance);
+        }
     }
 }
