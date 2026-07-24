@@ -1550,7 +1550,9 @@ internal static class MeetingHudRpcClosePatch
         
         AllowClose = false;
 
-        if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame)
+        // Official/vanilla regionsuse default ejection screen modded uses custom
+        if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame
+            && GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
         {
             if (AmongUsClient.Instance.AmClient)
                 __instance.Close();
