@@ -52,10 +52,16 @@ internal static class AllMapIconsPatch
                 if (Main.NormalOptions.MapId == 3)
                 {
                     Main.NormalOptions.MapId = 0;
+            
                     if (__instance && __instance.MapImage)
-                    __instance.UpdateMapImage(MapNames.Skeld);
-
-                    if (!Options.RandomMapsMode.GetBool()) GameOptionsMapPickerPatch.SetDleks = true;
+                    {
+                        __instance.UpdateMapImage(MapNames.Skeld);
+                    }
+            
+                    if (!Options.RandomMapsMode.GetBool())
+                    {
+                        GameOptionsMapPickerPatch.SetDleks = true;
+                    }
                 }
             }, AmongUsClient.Instance.AmHost ? 1f : 4f, "Set Skeld Icon For Dleks Map");
         }
