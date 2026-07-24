@@ -1550,7 +1550,8 @@ internal static class MeetingHudRpcClosePatch
         
         AllowClose = false;
 
-        if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame)
+        if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame
+            && GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
         {
             if (AmongUsClient.Instance.AmClient)
                 __instance.Close();
@@ -1566,27 +1567,10 @@ internal static class MeetingHudRpcClosePatch
                 PlayerControl player = info.Object;
 
                 if (player != null)
-                {
-                    writer.StartMessage(2);
-                    writer.WritePacked(player.NetId);
-                    writer.Write((byte)RpcCalls.SetName);
-                    writer.Write(info.NetId);
-                    writer.Write(CheckForEndVotingPatch.EjectionText);
-                    writer.EndMessage();
-                }
+                    player.RpcSetName(CheckForEndVotingPatch.EjectionText);
             }
 
-            writer.StartMessage(2);
-            writer.WritePacked(__instance.NetId);
-            writer.Write((byte)RpcCalls.CloseMeeting);
-            writer.Write(CheckForEndVotingPatch.EjectionText);
-            writer.EndMessage();
-
-            writer.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
-
-            return false;
+            return true;
         }
 
         return true;
