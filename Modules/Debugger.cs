@@ -258,6 +258,8 @@ public class CustomLogger
 
     public static void ClearLog(bool check = true)
     {
+        if (!Directory.Exists(Path.GetDirectoryName(LOGFilePath))) return;
+
         if (!check || (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0))
         {
             PrivateInstance?.Finish();
