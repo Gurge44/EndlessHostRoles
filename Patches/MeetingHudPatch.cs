@@ -11,6 +11,7 @@ using Hazel;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
+using Priority = HarmonyLib.Priority;
 
 namespace EHR.Patches;
 
@@ -182,6 +183,7 @@ internal static class CheckForEndVotingPatch
                 bool canVote = !(CheckRole(ps.TargetPlayerId, CustomRoles.Glitch) && !Glitch.CanVote.GetBool());
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) canVote = false;
                 if (ps.VotedFor.GetPlayer() && CheckRole(ps.VotedFor, CustomRoles.Zombie)) canVote = false;
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.Degraded)) canVote = false;
                 if (Poache.PoachedPlayers != null && Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) canVote = false;
                 if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControlsCount > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) canVote = false;
 
@@ -198,6 +200,9 @@ internal static class CheckForEndVotingPatch
                         break;
                     case Mayor mayor when !Mayor.MayorHideVote.GetBool():
                         Loop.Times(Mayor.MayorAdditionalVote.GetInt() + mayor.TaskVotes, _ => AddVote());
+                        break;
+                    case Survivor when Main.AllAlivePlayerControlsCount <= Survivor.ThirdAbility.GetInt():
+                        Loop.Times(Survivor.AdditionalVote.GetInt(), _ => AddVote());
                         break;
                 }
 
@@ -645,6 +650,7 @@ internal static class ExtendedMeetingHud
                 if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControlsCount > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) voteNum = 0;
 
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) voteNum += 1;
+                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Degraded)) voteNum -= 1;
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Schizophrenic) && Options.DualVotes.GetBool()) voteNum += voteNum;
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Stealer)) voteNum += (int)(Main.EnumeratePlayerControls().Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Options.VotesPerKill.GetFloat());
                 

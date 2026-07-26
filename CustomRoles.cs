@@ -121,6 +121,7 @@ public enum CustomRoles
     Trapster,
     Trickster,
     Twister,
+    Tyrant,
     Undertaker,
     Vampire,
     Venerer,
@@ -537,6 +538,7 @@ public enum CustomRoles
     Blocked,
     Bloodlust,
     Bloodmoon, // Ghost role
+    Bluetooth,
     Busy,
     Charmed,
     Circumvent,
@@ -551,6 +553,7 @@ public enum CustomRoles
     Damocles,
     Deadlined,
     DeadlyQuota,
+    Degraded,
     Disco,
     Diseased,
     Disregarded,
@@ -604,6 +607,7 @@ public enum CustomRoles
     Sleep,
     Phantasm, // Ghost role
     Physicist,
+    Priority,
     Rascal,
     Reach,
     Rookie,
