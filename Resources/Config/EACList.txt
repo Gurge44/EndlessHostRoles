@@ -126,6 +126,7 @@ brownapex#1378 | 0926b55a8 | igoonalot | slurs in game |
 frettedria#8062 | c29fae4c3 |  | slurs in game | 
 pluralbug#5217 | cf91054b4 |  | slurs in game | 
 oakaverage#9192 | 0aebc840d | Tevell67 | slurs in game | 
+signingwry#3704 | 800955a89 |  | slurs in game | 
 
 ## Griefers, Toxic, Harrasing, Racist
 setmolar#4374 |  | 藏族顶针 | Toxic | 
