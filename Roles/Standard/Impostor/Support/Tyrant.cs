@@ -20,7 +20,7 @@ public class Tyrant : RoleBase
 
     public override void SetupCustomOption()
     {
-        StartSetup(659300)
+        StartSetup(659400)
             .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(1, 120, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref AbilityUseLimit, 3f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.5f, new FloatValueRule(0f, 5f, 0.25f), OptionFormat.Times);
