@@ -83,7 +83,8 @@ public class Goddess : CovenBase
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Stoned;
+        if (killer.PlayerId != target.PlayerId)
+            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Stoned;
     }
 
     public void ReceiveRPC(MessageReader reader)
