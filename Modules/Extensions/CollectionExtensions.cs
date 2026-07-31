@@ -377,55 +377,6 @@ public static class CollectionExtensions
         }
 
         /// <summary>
-        /// Takes the specified number of random elements from the collection.
-        /// </summary>
-        /// <param name="count">The number of random elements to pick.</param>
-        /// <returns>A new collection with the specified number of random elements from the original collection.</returns>
-        public IEnumerable<T> TakeRandom(int count)
-        {
-            if (collection == null || collection.Count == 0 || count <= 0)
-                yield break;
-
-            int n = collection.Count;
-
-            // If asking for >= all elements, just return everything
-            if (count >= n)
-            {
-                for (int i = 0; i < n; i++)
-                    yield return collection[i];
-                yield break;
-            }
-
-            // If k is small relative to n → pick unique indices via HashSet
-            // If k is large → invert selection (pick excluded indices instead)
-            if (count <= n / 2)
-            {
-                var chosen = new HashSet<int>();
-                while (chosen.Count < count)
-                {
-                    int idx = IRandom.Instance.Next(n);
-                    if (chosen.Add(idx))
-                        yield return collection[idx];
-                }
-            }
-            else
-            {
-                // More efficient to exclude (n - count) items
-                int excludeCount = n - count;
-                var excluded = new HashSet<int>();
-
-                while (excluded.Count < excludeCount)
-                    excluded.Add(IRandom.Instance.Next(n));
-
-                for (int i = 0; i < n; i++)
-                {
-                    if (!excluded.Contains(i))
-                        yield return collection[i];
-                }
-            }
-        }
-
-        /// <summary>
         ///     Returns a random element from a collection
         /// </summary>
         /// <returns>
