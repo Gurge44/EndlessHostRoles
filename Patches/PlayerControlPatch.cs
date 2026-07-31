@@ -1312,7 +1312,16 @@ internal static class ReportDeadBodyPatch
         }); }
         catch (Exception e) { ThrowException(e); }
 
-        try { if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.Count > 0) ChatManager.ClearChat(Main.EnumerateAlivePlayerControls().ExceptBy(Main.LoversPlayers.ConvertAll(x => x.PlayerId), x => x.PlayerId).ToArray()); }
+        try
+        {
+            if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.Count > 0)
+            {
+                if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+                    ChatManager.ClearChat(Main.CachedAlivePlayerControls().FindAll(x => !Main.LoversPlayers.Exists(l => l.PlayerId == x.PlayerId)));
+                else
+                    ChatManager.ClearChat();
+            }
+        }
         catch (Exception e) { ThrowException(e); }
 
         CustomSabotage.Reset();
@@ -1391,18 +1400,21 @@ internal static class ReportDeadBodyPatch
                 QuizMaster.Data.NumMeetings++;
             }
 
-            if (Main.IsLoversDead && Lovers.LoverDieConsequence.GetValue() == 1 && Main.LoversPlayers.Exists(x => x && x.IsAlive()))
+            if (Main.IsLoversDead && Lovers.LoverDieConsequence.GetValue() == 1)
             {
-                PlayerControl aliveLover = Main.LoversPlayers.First(x => x && x.IsAlive());
+                PlayerControl aliveLover = Main.LoversPlayers.Find(x => x && x.IsAlive());
 
-                switch (Lovers.LoverSuicideTime.GetValue())
+                if (aliveLover)
                 {
-                    case 1:
-                        aliveLover.Suicide(PlayerState.DeathReason.FollowingSuicide);
-                        break;
-                    case 2:
-                        CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, aliveLover.PlayerId);
-                        break;
+                    switch (Lovers.LoverSuicideTime.GetValue())
+                    {
+                        case 1:
+                            aliveLover.Suicide(PlayerState.DeathReason.FollowingSuicide);
+                            break;
+                        case 2:
+                            CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, aliveLover.PlayerId);
+                            break;
+                    }
                 }
             }
         }
@@ -2065,8 +2077,19 @@ internal static class FixedUpdatePatch
 
             if (!lowLoad)
             {
-                Main.LoversPlayers.RemoveAll(x => !x);
-                if (!Main.HasJustStarted) Main.LoversPlayers.DoIf(x => !x.Is(CustomRoles.Lovers), x => x.RpcSetCustomRole(CustomRoles.Lovers));
+                for (int i = Main.LoversPlayers.Count - 1; i >= 0; i--)
+                {
+                    PlayerControl lover = Main.LoversPlayers[i];
+
+                    if (!lover)
+                    {
+                        Main.LoversPlayers.RemoveAt(i);
+                        continue;
+                    }
+
+                    if (!Main.HasJustStarted && !lover.Is(CustomRoles.Lovers))
+                        lover.RpcSetCustomRole(CustomRoles.Lovers);
+                }
             }
 
             if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && (Main.LoversPlayers.Exists(x => x.PlayerId == lpId) || !seer.IsAlive()))

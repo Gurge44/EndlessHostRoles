@@ -145,6 +145,8 @@ public class PlayerState(byte playerId)
         MainRole = role;
 
         Role.Add(PlayerId);
+        
+        ExtendedPlayerControl.NameWithRoleCache.Remove(PlayerId);
 
         Logger.Info($"ID {PlayerId} ({Player.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
@@ -158,10 +160,7 @@ public class PlayerState(byte playerId)
 
             if (role.IsVanilla() || role.IsVanillaEHR())
                 Main.AbilityUseLimit.Remove(PlayerId);
-        }
-
-        if (Main.IntroDestroyed && GameStates.InGame)
-        {
+            
             if (PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.IsInTask)
             {
                 HudManager.Instance.SetHudActive(true);
@@ -239,6 +238,8 @@ public class PlayerState(byte playerId)
         SetAddonCountTypes(role);
 
         Logger.Info($" ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetSubRole");
+        
+        ExtendedPlayerControl.NameWithRoleCache.Remove(PlayerId);
     }
 
     private void SetAddonCountTypes(CustomRoles role)
@@ -361,6 +362,8 @@ public class PlayerState(byte playerId)
         }
 
         Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 1, (int)role);
+
+        ExtendedPlayerControl.NameWithRoleCache.Remove(PlayerId);
     }
 
     public void SetDead()

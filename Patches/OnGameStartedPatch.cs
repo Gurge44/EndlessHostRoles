@@ -200,6 +200,7 @@ internal static class ChangeRoleSettings
             ExtendedPlayerControl.TempExiled.Clear();
             Utils.CachedRoleSettings.Clear();
             MeetingHudCastVotePatch.ShouldCancelVoteList.Clear();
+            ExtendedPlayerControl.NameWithRoleCache.Clear();
 
             MeetingTimeManager.Init();
             Main.DefaultCrewmateVision = Main.RealOptionsData.GetFloat(FloatOptionNames.CrewLightMod);

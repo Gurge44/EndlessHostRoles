@@ -320,7 +320,7 @@ public static class ChatManager
         if (!AmongUsClient.Instance.AmHost) return;
         PlayerControl player = Main.AllAlivePlayerControlsCount == 0 ? PlayerControl.LocalPlayer : Main.CachedAlivePlayerControls().MinBy(x => x.PlayerId);
         if (!player) return;
-        if (targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControlsCount) SendEmptyMessage(null);
+        if (targets == null || targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControlsCount) SendEmptyMessage(null);
         else targets.Do(SendEmptyMessage);
         return;
 

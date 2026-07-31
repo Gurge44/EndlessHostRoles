@@ -25,6 +25,7 @@ internal static class ExtendedPlayerControl
     public static readonly HashSet<byte> CancelBlackScreenFix = [];
     private static readonly List<Vent> ResultBuffer = [];
     public static readonly HashSet<byte> TempExiled = [];
+    public static readonly Dictionary<byte, string> NameWithRoleCache = [];
 
     extension(PlayerControl player)
     {
@@ -570,6 +571,8 @@ internal static class ExtendedPlayerControl
 
             var players = Main.CachedAllPlayerControls();
 
+            HashSet<(PlayerControl target, RoleTypes roleType, int seerClientId)> setRoleCallsMap = [];
+
             switch (oldRoleIsDesync, newRoleIsDesync)
             {
                 // Desync role to normal role
@@ -591,7 +594,7 @@ internal static class ExtendedPlayerControl
 
                             // Set role type for seer
                             StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, player.PlayerId)] = (rememberRoleType, newCustomRole);
-                            player.RpcSetRoleDesync(rememberRoleType, seerClientId);
+                            setRoleCallsMap.Add((player, rememberRoleType, seerClientId));
 
                             if (self) continue;
 
@@ -609,13 +612,13 @@ internal static class ExtendedPlayerControl
                                 if (!playerIsKiller && seer.Is(Team.Impostor)) rememberRoleType = RoleTypes.ImpostorGhost;
 
                                 StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(player.PlayerId, seer.PlayerId)] = (seerCustomRole.IsDesyncRole() ? RoleTypes.Crewmate : seerRoleType, seerCustomRole);
-                                seer.RpcSetRoleDesync(rememberRoleType, player.OwnerId);
+                                setRoleCallsMap.Add((seer, rememberRoleType, player.OwnerId));
                                 continue;
                             }
 
                             // Set role type for player
                             StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(player.PlayerId, seer.PlayerId)] = (rememberRoleType, seerCustomRole);
-                            seer.RpcSetRoleDesync(rememberRoleType, player.OwnerId);
+                            setRoleCallsMap.Add((seer, rememberRoleType, player.OwnerId));
                         }
 
                         break;
@@ -643,7 +646,7 @@ internal static class ExtendedPlayerControl
                                 rememberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Crewmate;
 
                             StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, player.PlayerId)] = (rememberRoleType, newCustomRole);
-                            player.RpcSetRoleDesync(rememberRoleType, seerClientId);
+                            setRoleCallsMap.Add((player, rememberRoleType, seerClientId));
 
                             if (self) continue;
 
@@ -656,13 +659,13 @@ internal static class ExtendedPlayerControl
                                 rememberRoleType = RoleTypes.CrewmateGhost;
 
                                 StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(player.PlayerId, seer.PlayerId)] = (seerCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Crewmate, seerCustomRole);
-                                seer.RpcSetRoleDesync(rememberRoleType, player.OwnerId);
+                                setRoleCallsMap.Add((seer, rememberRoleType, player.OwnerId));
                                 continue;
                             }
 
                             // Set role type for player
                             StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(player.PlayerId, seer.PlayerId)] = (rememberRoleType, seerCustomRole);
-                            seer.RpcSetRoleDesync(rememberRoleType, player.OwnerId);
+                            setRoleCallsMap.Add((seer, rememberRoleType, player.OwnerId));
                         }
 
                         break;
@@ -685,11 +688,53 @@ internal static class ExtendedPlayerControl
                                 rememberRoleType = newRoleType;
 
                             StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, player.PlayerId)] = (rememberRoleType, newCustomRole);
-                            player.RpcSetRoleDesync(rememberRoleType, seerClientId);
+                            setRoleCallsMap.Add((player, rememberRoleType, seerClientId));
                         }
 
                         break;
                     }
+            }
+            
+            foreach (var targetGroup in setRoleCallsMap.GroupBy(x => x.target))
+            {
+                Dictionary<RoleTypes, int> counts = [];
+                
+                RoleTypes globalRole = default;
+                int maxCount = 0;
+                
+                foreach (var call in targetGroup)
+                {
+                    int count = counts.TryGetValue(call.roleType, out int c) ? ++c : 1;
+                
+                    counts[call.roleType] = count;
+                
+                    if (count > maxCount)
+                    {
+                        maxCount = count;
+                        globalRole = call.roleType;
+                    }
+                }
+                
+                int total = targetGroup.Count();
+                
+                if (maxCount > 1 && 1 + total - maxCount < total)
+                {
+                    targetGroup.Key.RpcSetRoleGlobal(globalRole);
+
+                    LateTask.New(() =>
+                    {
+                        foreach (var call in targetGroup)
+                        {
+                            if (call.roleType != globalRole)
+                                targetGroup.Key.RpcSetRoleDesync(call.roleType, call.seerClientId);
+                        }
+                    }, 0.2f);
+                }
+                else
+                {
+                    foreach (var call in targetGroup)
+                        targetGroup.Key.RpcSetRoleDesync(call.roleType, call.seerClientId);
+                }
             }
 
             if (loggerRoleMap)
@@ -1090,8 +1135,9 @@ internal static class ExtendedPlayerControl
         {
             try
             {
+                if (NameWithRoleCache.TryGetValue(player?.PlayerId ?? 250, out string cache)) return cache;
                 bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle and not CustomGameMode.Snowdown;
-                return $"{player?.Data?.PlayerName}" + (addRoleName ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+                return NameWithRoleCache[player?.PlayerId ?? 250] = $"{player?.Data?.PlayerName}" + (addRoleName ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
             }
             catch (Exception e)
             {

@@ -117,7 +117,7 @@ public static class AntiBlackout
                         }
                         catch (Exception e) { Utils.ThrowException(e); }
                     }
-                }, 0.2f, "Set Desync Roles");
+                }, 0.2f, "Set Desync Roles", log: false);
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
