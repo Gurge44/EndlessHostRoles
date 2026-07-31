@@ -22,6 +22,7 @@ internal static class CustomHnS
     private static OptionItem DangerMeter;
     private static OptionItem PlayersSeeRoles;
     private static OptionItem ChatDuringGame;
+    private static OptionItem ShiftAndSeek;
 
     public static Dictionary<Team, Dictionary<CustomRoles, int>> HideAndSeekRoles = [];
     public static Dictionary<byte, (IHideAndSeekRole Interface, CustomRoles Role)> PlayerRoles = [];
@@ -32,6 +33,7 @@ internal static class CustomHnS
     public static int RandomNeutralsNum => IRandom.Instance.Next(MinNeutrals.GetInt(), MaxNeutrals.GetInt() + 1);
     public static int MaximumGameLength => MaxGameLength.GetInt();
     public static bool Chat => ChatDuringGame.GetBool();
+    public static bool SNS { set => ShiftAndSeek.SetValue(value ? 1 : 0); }
 
     public static void SetupCustomOption()
     {
@@ -60,6 +62,10 @@ internal static class CustomHnS
             .SetColor(color);
         
         ChatDuringGame = new BooleanOptionItem(id + 5, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.HideAndSeek)
+            .SetColor(color);
+        
+        ShiftAndSeek = new BooleanOptionItem(id + 6, "HNS.ShiftAndSeek", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(color);
     }
@@ -109,7 +115,7 @@ internal static class CustomHnS
     {
         return types
             .Select(x => Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name))
-            .Where(role => role is CustomRoles.Seeker or CustomRoles.Hider || role.GetMode() != 0)
+            .Where(role => !ShiftAndSeek.GetBool() ? (role is CustomRoles.Seeker or CustomRoles.Hider || role.GetMode() != 0) : (role == CustomRoles.SNSSeeker || (role is not (CustomRoles.Seeker or CustomRoles.Locator or CustomRoles.Dasher or CustomRoles.Venter or CustomRoles.Agent) && role.GetMode() != 0)))
             .ToList();
     }
     
@@ -145,7 +151,7 @@ internal static class CustomHnS
 
         Dictionary<byte, CustomRoles> preSetRoles = Main.SetRoles.AddRange(ChatCommands.DraftResult, false);
 
-        if (ChatCommands.DraftResult.Count > 0 && ChatCommands.DraftResult.Count + preSetRoles.Count >= allPlayers.Count && preSetRoles.All(x => x.Value is not (CustomRoles.Seeker or CustomRoles.Locator or CustomRoles.Dasher or CustomRoles.Venter or CustomRoles.Agent)))
+        if (ChatCommands.DraftResult.Count > 0 && ChatCommands.DraftResult.Count + preSetRoles.Count >= allPlayers.Count && preSetRoles.All(x => x.Value is not (CustomRoles.Seeker or CustomRoles.Locator or CustomRoles.Dasher or CustomRoles.Venter or CustomRoles.Agent or CustomRoles.SNSSeeker)))
         {
             byte removeKey = ChatCommands.DraftResult.Keys.RandomElement();
             ChatCommands.DraftResult.Remove(removeKey);
@@ -517,6 +523,8 @@ internal static class CustomHnS
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (PlayerRoles[killer.PlayerId].Interface.Team != Team.Impostor || PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor || IsBlindTime) return;
+
+        if (killer.Is(CustomRoles.SNSSeeker) && !SNSSeeker.CheckMurder(killer, target)) return;
 
         killer.Kill(target);
 

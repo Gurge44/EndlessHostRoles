@@ -1421,6 +1421,7 @@ internal static class ExtendedPlayerControl
                 CustomRoles.Venter => true,
                 CustomRoles.Agent => true,
                 CustomRoles.Taskinator => false,
+                CustomRoles.SNSSeeker => true,
 
                 _ => Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && state.Role.CanUseKillButton(player)
             };

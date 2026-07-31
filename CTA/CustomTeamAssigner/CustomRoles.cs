@@ -473,6 +473,7 @@ public enum CustomRoles
     Venter,
     Agent,
     Taskinator,
+    SNSSeeker,
 
     // Speedrun
     Runner,

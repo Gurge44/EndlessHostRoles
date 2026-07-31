@@ -1109,7 +1109,8 @@ internal static class ChatCommands
     public static void GameModePollCommand(PlayerControl player, string text, string[] args)
     {
         GMPollGameModes = Main.CustomGameModeValues[..^1].Where(x => Options.GMPollGameModesSettings[x].GetBool()).ToList();
-        string gmNames = string.Join(' ', GMPollGameModes.Select(x => GetString(x.ToString()).Replace(' ', '_')));
+        if (GMPollGameModes.Contains(CustomGameMode.HideAndSeek)) GMPollGameModes.Add((CustomGameMode)100);
+        string gmNames = string.Join(' ', GMPollGameModes.Select(x => GetString((int)x == 100 ? "HNS.ShiftAndSeek" : x.ToString()).Replace(' ', '_')));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
@@ -1892,7 +1893,7 @@ internal static class ChatCommands
         for (var i = 0; i < Math.Max(answers.Length, 2); i++)
         {
             var choiceLetter = (char)(i + 65);
-            msg += Utils.ColorString(gmPoll ? gmPollColors[i] : RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
+            msg += Utils.ColorString(gmPoll && gmPollColors.Length > i ? gmPollColors[i] : RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
             PollVotes[choiceLetter] = 0;
             PollAnswers[choiceLetter] = $"〖 {answers[i]} 〗";
         }
@@ -1951,7 +1952,26 @@ internal static class ChatCommands
             if (winners.Length is > 0 and < 4 && GameStates.IsLobby)
             {
                 int winnerIndex = (winners.Length == 1 ? winners[0].Key : winners.RandomElement().Key) - 65;
-                if (gmPoll) Options.GameMode.SetValue((int)GMPollGameModes[winnerIndex] - 1, doSave: true, doSync: true);
+                
+                if (gmPoll)
+                {
+                    CustomGameMode winnerGM = GMPollGameModes[winnerIndex];
+                    
+                    if ((int)winnerGM == 100)
+                    {
+                        winnerGM = CustomGameMode.HideAndSeek;
+                        CustomHnS.SNS = true;
+                        Options.CustomRoleSpawnChances[CustomRoles.SNSSeeker].SetValue(100 / 5);
+                    }
+                    else if (winnerGM == CustomGameMode.HideAndSeek)
+                    {
+                        CustomHnS.SNS = false;
+                        Options.CustomRoleSpawnChances[CustomRoles.SNSSeeker].SetValue(0);
+                    }
+                    
+                    Options.GameMode.SetValue((int)winnerGM - 1, doSave: true, doSync: true);
+                }
+
                 if (mPoll) Main.NormalOptions.MapId = (byte)winnerIndex;
                 if (pPoll) Options.Preset?.SetValue(winnerIndex);
             }
