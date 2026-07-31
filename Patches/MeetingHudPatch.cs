@@ -1537,7 +1537,7 @@ internal static class MeetingHudRpcClosePatch
 {
     public static bool AllowClose;
     
-    public static bool Prefix(MeetingHud __instance)
+    public static bool Prefix()
     {
         Logger.Info("MeetingHud.RpcClose is being called", "MeetingHudRpcClosePatch");
         
@@ -1552,41 +1552,23 @@ internal static class MeetingHudRpcClosePatch
 
         if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame)
         {
-            if (AmongUsClient.Instance.AmClient)
-                __instance.Close();
+            NetworkedPlayerInfo info = CheckForEndVotingPatch.TempExiledPlayer;
 
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-
-            writer.StartMessage(5);
-            writer.Write(AmongUsClient.Instance.GameId);
-
-            if (CheckForEndVotingPatch.TempExiledPlayer != null)
+            if (info && info.Object)
             {
-                NetworkedPlayerInfo info = CheckForEndVotingPatch.TempExiledPlayer;
-                PlayerControl player = info.Object;
-
-                if (player != null)
-                {
-                    writer.StartMessage(2);
-                    writer.WritePacked(player.NetId);
-                    writer.Write((byte)RpcCalls.SetName);
-                    writer.Write(info.NetId);
-                    writer.Write(CheckForEndVotingPatch.EjectionText);
-                    writer.EndMessage();
-                }
+                MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+                writer.StartMessage(5);
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.StartMessage(2);
+                writer.WritePacked(info.Object.NetId);
+                writer.Write((byte)RpcCalls.SetName);
+                writer.Write(info.NetId);
+                writer.Write(CheckForEndVotingPatch.EjectionText);
+                writer.EndMessage();
+                writer.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(writer);
+                writer.Recycle();
             }
-
-            writer.StartMessage(2);
-            writer.WritePacked(__instance.NetId);
-            writer.Write((byte)RpcCalls.CloseMeeting);
-            writer.Write(CheckForEndVotingPatch.EjectionText);
-            writer.EndMessage();
-
-            writer.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
-
-            return false;
         }
 
         return true;
@@ -1596,7 +1578,7 @@ internal static class MeetingHudRpcClosePatch
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.HandleRpc))]
 internal static class MeetingHudHandleRpcPatch
 {
-    public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
+    public static bool Prefix([HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
         if (callId == (byte)RpcCalls.CloseMeeting)
         {
