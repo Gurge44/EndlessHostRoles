@@ -6,10 +6,21 @@ using Exception = System.Exception;
 
 namespace EHR;
 
-// Thanks: https://github.com/AU-Avengers/TOU-Mira/blob/main/TownOfUs/Patches/AprilFools/DleksMapOptionPickerPatches.cs
 [HarmonyPatch(typeof(GameStartManager))]
 internal static class AllMapIconsPatch
 {
+    private static void EnsureMapIcon(GameStartManager instance, MapNames map, string spritePath, float pixelsPerUnit)
+    {
+        if (instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != map)))
+        {
+            instance.AllMapIcons.Insert((int)map, new MapIconByName
+            {
+                Name = map,
+                MapIcon = Utils.LoadSprite(spritePath, pixelsPerUnit)
+            });
+        }
+    }
+
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     [HarmonyPriority(Priority.First)]
     [HarmonyPrefix]
@@ -17,28 +28,14 @@ internal static class AllMapIconsPatch
     {
         try
         {
-            if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != MapNames.Dleks)))
-            {
-                __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
-                {
-                    Name = MapNames.Dleks,
-                    MapIcon = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f)
-                });
-            }
+            EnsureMapIcon(__instance, MapNames.Dleks, "EHR.Resources.Images.DleksBanner-Wordart.png", 160f);
+
             if (SubmergedCompatibility.Loaded)
-            {
-                if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != (MapNames)6)))
-                {
-                    __instance.AllMapIcons.Insert((int)(MapNames)6, new MapIconByName
-                    {
-                        Name = (MapNames)6,
-                        MapIcon = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 380f)
-                    });
-                }
-            }
+                EnsureMapIcon(__instance, (MapNames)6, "EHR.Resources.Images.Submerged-Wordart.png", 380f);
         }
         catch { }
     }
+
     [HarmonyPatch(nameof(GameStartManager.Start))]
     [HarmonyPostfix]
     public static void Postfix_AllMapIcons(GameStartManager __instance)
@@ -49,26 +46,33 @@ internal static class AllMapIconsPatch
 
             LateTask.New(() =>
             {
-                if (Main.NormalOptions.MapId == 3)
-                {
-                    Main.NormalOptions.MapId = 0;
+                if (Main.NormalOptions.MapId != 3) return;
+
+                Main.NormalOptions.MapId = 0;
+
+                if (__instance && __instance.MapImage)
                     __instance.UpdateMapImage(MapNames.Skeld);
 
-                    if (!Options.RandomMapsMode.GetBool()) GameOptionsMapPickerPatch.SetDleks = true;
-                }
+                // Only force Dleks if random maps mode isn't active
+                if (!Options.RandomMapsMode.GetBool())
+                    GameOptionsMapPickerPatch.SetDleks = true;
             }, AmongUsClient.Instance.AmHost ? 1f : 4f, "Set Skeld Icon For Dleks Map");
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
+
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.UpdateMapImage))]
     [HarmonyPrefix]
     public static bool Prefix_UpdateMapImage(GameStartManager __instance)
     {
+        if (!__instance || !__instance.MapImage) return false;
+
         if (GameOptionsMapPickerPatch.SetDleks)
         {
             __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f);
             return false;
         }
+
         return true;
     }
 }
@@ -89,6 +93,8 @@ public static class AutoselectDleksPatch
 [HarmonyPatch]
 public static class CreateGameOptionsPatch
 {
+    private const string DleksSpritePath = "EHR.Resources.Images.DleksBanner-Wordart.png";
+
     [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.MapChanged))]
     [HarmonyPrefix]
     public static bool MapChangedPrefix(CreateGameOptions __instance)
@@ -97,22 +103,23 @@ public static class CreateGameOptionsPatch
         {
             __instance.mapBanner.flipX = false;
             __instance.rendererBGCrewmates.sprite = __instance.bgCrewmates[0];
-            __instance.mapBanner.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
+            __instance.mapBanner.sprite = Utils.LoadSprite(DleksSpritePath, 100f);
             __instance.TurnOffCrewmates();
             __instance.currentCrewSprites = __instance.skeldCrewSprites;
             __instance.SetCrewmateGraphic(__instance.capacityOption.Value - 1f);
             return false;
         }
+
         return !SubmergedCompatibility.Loaded || __instance.mapPicker.GetSelectedID() != 6;
     }
+
     [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.Start))]
     [HarmonyPrefix]
     public static void SetupMapBackground(CreateGameOptions __instance)
     {
         if (__instance.currentCrewSprites == null)
-        {
-            __instance.mapBanner.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
-        }
+            __instance.mapBanner.sprite = Utils.LoadSprite(DleksSpritePath, 100f);
+
         __instance.currentCrewSprites ??= __instance.skeldCrewSprites;
         __instance.mapTooltips[3] = StringNames.ToolTipSkeld;
     }
