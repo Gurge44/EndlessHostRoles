@@ -12,7 +12,6 @@ public class Disguiser : RoleBase, IHideAndSeekRole
     public static OptionItem ResetKillCooldownTo;
     public static OptionItem ShapeshiftCooldown;
     public static OptionItem ShapeshiftDuration;
-    public static OptionItem ShapeshiftAnimation;
     public static OptionItem Vision;
     public static OptionItem Speed;
 
@@ -78,11 +77,6 @@ public class Disguiser : RoleBase, IHideAndSeekRole
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new(179, 70, 70, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Disguiser]);
-
-        ShapeshiftAnimation = new BooleanOptionItem(69_213_1111, "DisguiserShapeshiftAnimation", true, TabGroup.ImpostorRoles)
-            .SetGameMode(CustomGameMode.HideAndSeek)
-            .SetColor(new(179, 70, 70, byte.MaxValue))
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Disguiser]);
     }
 
     public override void Add(byte playerId)
@@ -102,11 +96,6 @@ public class Disguiser : RoleBase, IHideAndSeekRole
     {
         AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetInt();
         AURoleOptions.ShapeshifterDuration = ShapeshiftDuration.GetInt();
-    }
-
-    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
-    {
-        return ShapeshiftAnimation.GetBool();
     }
 
     public static bool CheckMurder(PlayerControl killer, PlayerControl target)

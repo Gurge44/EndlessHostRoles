@@ -4552,7 +4552,6 @@
   "DisguiserResetKillCooldownTo": "Reset Kill Cooldown To",
   "DisguiserShapeshiftCooldown": "Disguiser Shapeshift Cooldown",
   "DisguiserShapeshiftDuration": "Disguiser Shapeshift Duration",
-  "DisguiserShapeshiftAnimation": "Disguiser Shapeshift Animation",
   "HotPotato": "HOT POTATO",
   "ModeHotPotato": "Gamemode: Hot Potato",
   "ModeDescribe.HotPotato": "In the Hot Potato gamemode, one player always has the hot potato, and they can pass it to anyone by going near someone. Each X seconds (X is set by the host), the player who holds the hot potato dies. The last player alive wins!\\n\\nNote: You cannot pass the hot potato to the player that just gave it to you (their name is colored in cyan, it means they cannot get the hot potato) unless there are only 2 players left.",

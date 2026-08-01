@@ -1076,7 +1076,7 @@ internal static class CustomRolesHelper
 
         public bool IsNoAnimationShifter()
         {
-            return (role == CustomRoles.Disguiser && !Disguiser.ShapeshiftAnimation.GetBool()) || role is
+            return role is
                 CustomRoles.Glitch or
                 CustomRoles.Generator or
                 CustomRoles.Echo;

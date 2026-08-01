@@ -1838,6 +1838,9 @@ internal static class ExtendedPlayerControl
                 _ => Main.AllPlayerKillCooldown[player.PlayerId]
             };
 
+            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
+                Main.AllPlayerKillCooldown[player.PlayerId] = Seeker.KillCooldown.GetFloat();
+
             if (player.PlayerId == LastImpostor.CurrentId) LastImpostor.SetKillCooldown();
 
             if (player.Is(CustomRoles.Mare))
