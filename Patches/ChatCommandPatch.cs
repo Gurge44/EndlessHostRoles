@@ -1961,12 +1961,12 @@ internal static class ChatCommands
                     {
                         winnerGM = CustomGameMode.HideAndSeek;
                         CustomHnS.SNS = true;
-                        Options.CustomRoleSpawnChances[CustomRoles.SNSSeeker].SetValue(100 / 5);
+                        Options.CustomRoleSpawnChances[CustomRoles.Disguiser].SetValue(100 / 5);
                     }
                     else if (winnerGM == CustomGameMode.HideAndSeek)
                     {
                         CustomHnS.SNS = false;
-                        Options.CustomRoleSpawnChances[CustomRoles.SNSSeeker].SetValue(0);
+                        Options.CustomRoleSpawnChances[CustomRoles.Disguiser].SetValue(0);
                     }
                     
                     Options.GameMode.SetValue((int)winnerGM - 1, doSave: true, doSync: true);

@@ -903,7 +903,7 @@ public class Main : BasePlugin
                 { CustomRoles.Venter, "#694141" },
                 { CustomRoles.Agent, "#ff8f8f" },
                 { CustomRoles.Taskinator, "#561dd1" },
-                { CustomRoles.SNSSeeker, "#b34646" }
+                { CustomRoles.Disguiser, "#b34646" }
             };
 
             CustomRoleValues.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleHtmlColors.TryAdd(x, ImpostorColor));

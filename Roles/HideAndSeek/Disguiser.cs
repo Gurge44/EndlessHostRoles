@@ -2,7 +2,7 @@
 
 namespace EHR.Roles;
 
-public class SNSSeeker : RoleBase, IHideAndSeekRole
+public class Disguiser : RoleBase, IHideAndSeekRole
 {
     public static bool On;
 
@@ -17,59 +17,59 @@ public class SNSSeeker : RoleBase, IHideAndSeekRole
 
     public override bool IsEnable => On;
     public Team Team => Team.Impostor;
-    public int Chance => CustomRoles.SNSSeeker.GetMode();
-    public int Count => CustomRoles.SNSSeeker.GetCount();
+    public int Chance => CustomRoles.Disguiser.GetMode();
+    public int Count => CustomRoles.Disguiser.GetCount();
     public float RoleSpeed => Speed.GetFloat();
     public float RoleVision => Vision.GetFloat();
 
     public override void SetupCustomOption()
     {
-        Options.SetupRoleOptions(69_211_1101, TabGroup.ImpostorRoles, CustomRoles.SNSSeeker, CustomGameMode.HideAndSeek);
+        Options.SetupRoleOptions(69_211_1101, TabGroup.ImpostorRoles, CustomRoles.Disguiser, CustomGameMode.HideAndSeek);
 
-        Vision = new FloatOptionItem(69_211_1103, "SNSSeekerVision", new(0.05f, 5f, 0.05f), 0.25f, TabGroup.ImpostorRoles)
+        Vision = new FloatOptionItem(69_211_1103, "DisguiserVision", new(0.05f, 5f, 0.05f), 0.25f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(179, 70, 70, byte.MaxValue))
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SNSSeeker]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Disguiser]);
 
-        Speed = new FloatOptionItem(69_213_1104, "SNSSeekerSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
+        Speed = new FloatOptionItem(69_213_1104, "DisguiserSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(179, 70, 70, byte.MaxValue))
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SNSSeeker]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Disguiser]);
 
-        CanOnlyKillShapeshiftTarget = new BooleanOptionItem(69_213_1105, "SNSSeekerCanOnlyKillShapeshiftTarget", true, TabGroup.ImpostorRoles)
+        CanOnlyKillShapeshiftTarget = new BooleanOptionItem(69_213_1105, "DisguiserCanOnlyKillShapeshiftTarget", true, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(179, 70, 70, byte.MaxValue))
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SNSSeeker]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Disguiser]);
         
-        PenaltyForWrongKillAttempt = new StringOptionItem(69_213_1106, "SNSSeekerPenaltyForWrongKillAttempt", ["SNSSeekerPFWKA.BlockKill", "SNSSeekerPFWKA.Suicide"], 1, TabGroup.ImpostorRoles)
+        PenaltyForWrongKillAttempt = new StringOptionItem(69_213_1106, "DisguiserPenaltyForWrongKillAttempt", ["DisguiserPFWKA.BlockKill", "DisguiserPFWKA.Suicide"], 1, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(179, 70, 70, byte.MaxValue))
             .SetParent(CanOnlyKillShapeshiftTarget);
         
-        ToleranceBeforeSuicide = new IntegerOptionItem(69_213_1107, "SNSSeekerToleranceBeforeSuicide", new(0, 14, 1), 2, TabGroup.ImpostorRoles)
+        ToleranceBeforeSuicide = new IntegerOptionItem(69_213_1107, "DisguiserToleranceBeforeSuicide", new(0, 14, 1), 2, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Times)
             .SetColor(new(179, 70, 70, byte.MaxValue))
             .SetParent(PenaltyForWrongKillAttempt);
         
-        ShapeshiftCooldown = new IntegerOptionItem(69_213_1108, "SNSSeekerShapeshiftCooldown", new(0, 180, 1), 0, TabGroup.ImpostorRoles)
+        ShapeshiftCooldown = new IntegerOptionItem(69_213_1108, "DisguiserShapeshiftCooldown", new(0, 180, 1), 0, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new(179, 70, 70, byte.MaxValue))
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SNSSeeker]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Disguiser]);
         
-        ShapeshiftDuration = new IntegerOptionItem(69_213_1109, "SNSSeekerShapeshiftDuration", new(0, 180, 1), 30, TabGroup.ImpostorRoles)
+        ShapeshiftDuration = new IntegerOptionItem(69_213_1109, "DisguiserShapeshiftDuration", new(0, 180, 1), 30, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new(179, 70, 70, byte.MaxValue))
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SNSSeeker]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Disguiser]);
 
-        ShapeshiftAnimation = new BooleanOptionItem(69_213_1110, "SNSSeekerShapeshiftAnimation", true, TabGroup.ImpostorRoles)
+        ShapeshiftAnimation = new BooleanOptionItem(69_213_1110, "DisguiserShapeshiftAnimation", true, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(179, 70, 70, byte.MaxValue))
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SNSSeeker]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Disguiser]);
     }
 
     public override void Add(byte playerId)

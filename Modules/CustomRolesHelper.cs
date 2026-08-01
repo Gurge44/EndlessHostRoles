@@ -422,7 +422,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Venter => CustomRoles.Impostor,
                 CustomRoles.Agent => CustomRoles.Impostor,
                 CustomRoles.Taskinator => CustomRoles.Crewmate,
-                CustomRoles.SNSSeeker => CustomRoles.Shapeshifter,
+                CustomRoles.Disguiser => CustomRoles.Shapeshifter,
 
                 // Stop And Go
                 CustomRoles.Tasker => CustomRoles.Crewmate,
@@ -1076,7 +1076,7 @@ internal static class CustomRolesHelper
 
         public bool IsNoAnimationShifter()
         {
-            return (role == CustomRoles.SNSSeeker && !SNSSeeker.ShapeshiftAnimation.GetBool()) || role is
+            return (role == CustomRoles.Disguiser && !Disguiser.ShapeshiftAnimation.GetBool()) || role is
                 CustomRoles.Glitch or
                 CustomRoles.Generator or
                 CustomRoles.Echo;
