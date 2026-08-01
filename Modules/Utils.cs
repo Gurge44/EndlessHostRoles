@@ -4283,7 +4283,8 @@ public static class Utils
             if (!onMeeting) Main.DiedThisRound.Add(target.PlayerId);
 
             // Record the first death
-            if (Main.FirstDied == string.Empty) Main.FirstDied = target.FriendCode;
+            if (Main.FirstDied == string.Empty && !disconnect)
+                Main.FirstDied = target.FriendCode;
 
             switch (target.GetCustomRole())
             {

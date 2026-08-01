@@ -9,6 +9,7 @@ public class Disguiser : RoleBase, IHideAndSeekRole
     public static OptionItem CanOnlyKillShapeshiftTarget;
     public static OptionItem PenaltyForWrongKillAttempt;
     public static OptionItem ToleranceBeforeSuicide;
+    public static OptionItem ResetKillCooldownTo;
     public static OptionItem ShapeshiftCooldown;
     public static OptionItem ShapeshiftDuration;
     public static OptionItem ShapeshiftAnimation;
@@ -43,10 +44,16 @@ public class Disguiser : RoleBase, IHideAndSeekRole
             .SetColor(new(179, 70, 70, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Disguiser]);
         
-        PenaltyForWrongKillAttempt = new StringOptionItem(69_213_1106, "DisguiserPenaltyForWrongKillAttempt", ["DisguiserPFWKA.BlockKill", "DisguiserPFWKA.Suicide"], 1, TabGroup.ImpostorRoles)
+        PenaltyForWrongKillAttempt = new StringOptionItem(69_213_1106, "DisguiserPenaltyForWrongKillAttempt", ["DisguiserPFWKA.BlockKill", "DisguiserPFWKA.Suicide", "DisguiserPFWKA.ResetKillCooldown"], 1, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(179, 70, 70, byte.MaxValue))
-            .SetParent(CanOnlyKillShapeshiftTarget);
+            .SetParent(CanOnlyKillShapeshiftTarget)
+            .RegisterUpdateValueEvent((_, _, newValue) =>
+            {
+                ToleranceBeforeSuicide.SetHidden(newValue != 1);
+                ResetKillCooldownTo.SetHidden(newValue != 2);
+            })
+            .SetRunEventOnLoad(true);
         
         ToleranceBeforeSuicide = new IntegerOptionItem(69_213_1107, "DisguiserToleranceBeforeSuicide", new(0, 14, 1), 2, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
@@ -54,19 +61,25 @@ public class Disguiser : RoleBase, IHideAndSeekRole
             .SetColor(new(179, 70, 70, byte.MaxValue))
             .SetParent(PenaltyForWrongKillAttempt);
         
-        ShapeshiftCooldown = new IntegerOptionItem(69_213_1108, "DisguiserShapeshiftCooldown", new(0, 180, 1), 0, TabGroup.ImpostorRoles)
+        ResetKillCooldownTo = new FloatOptionItem(69_213_1108, "DisguiserResetKillCooldownTo", new(0.5f, 120f, 0.5f), 10f, TabGroup.ImpostorRoles)
+            .SetGameMode(CustomGameMode.HideAndSeek)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new(179, 70, 70, byte.MaxValue))
+            .SetParent(PenaltyForWrongKillAttempt);
+        
+        ShapeshiftCooldown = new IntegerOptionItem(69_213_1109, "DisguiserShapeshiftCooldown", new(0, 180, 1), 0, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new(179, 70, 70, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Disguiser]);
         
-        ShapeshiftDuration = new IntegerOptionItem(69_213_1109, "DisguiserShapeshiftDuration", new(0, 180, 1), 30, TabGroup.ImpostorRoles)
+        ShapeshiftDuration = new IntegerOptionItem(69_213_1110, "DisguiserShapeshiftDuration", new(0, 180, 1), 30, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new(179, 70, 70, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Disguiser]);
 
-        ShapeshiftAnimation = new BooleanOptionItem(69_213_1110, "DisguiserShapeshiftAnimation", true, TabGroup.ImpostorRoles)
+        ShapeshiftAnimation = new BooleanOptionItem(69_213_1111, "DisguiserShapeshiftAnimation", true, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(179, 70, 70, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Disguiser]);
@@ -100,12 +113,22 @@ public class Disguiser : RoleBase, IHideAndSeekRole
     {
         if (CanOnlyKillShapeshiftTarget.GetBool() && killer.shapeshiftTargetPlayerId != target.PlayerId)
         {
-            if (PenaltyForWrongKillAttempt.GetValue() == 1)
+            switch (PenaltyForWrongKillAttempt.GetValue())
             {
-                if (killer.GetAbilityUseLimit() < 1)
-                    killer.Suicide();
-                else
-                    killer.RpcRemoveAbilityUse();
+                case 1:
+                {
+                    if (killer.GetAbilityUseLimit() < 1)
+                        killer.Suicide();
+                    else
+                        killer.RpcRemoveAbilityUse();
+
+                    break;
+                }
+                case 2:
+                {
+                    killer.SetKillCooldown(ResetKillCooldownTo.GetFloat());
+                    break;
+                }
             }
 
             return false;
