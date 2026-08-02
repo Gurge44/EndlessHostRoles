@@ -259,11 +259,6 @@ public static class SubmergedCompatibility
         return (IList)Activator.CreateInstance(genericListType);
     }
 
-    public static bool IsNotSupported(CustomGameMode mode)
-    {
-        return mode is CustomGameMode.NaturalDisasters;
-    }
-
     public enum SubmergedSystemTypes : byte
     {
         Research = 0x80, // 128

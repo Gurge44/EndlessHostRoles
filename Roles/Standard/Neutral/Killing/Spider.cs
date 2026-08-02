@@ -24,7 +24,6 @@ public class Spider : RoleBase
 
     private Dictionary<Vector2, Dictionary<byte, long>> Webs = [];
     private readonly List<Vector2> ToRemove = [];
-    private long LastNotifyTS;
     private bool NameDirty;
     private byte SpiderId;
 
@@ -50,7 +49,6 @@ public class Spider : RoleBase
     {
         On = true;
         Webs = [];
-        LastNotifyTS = 0;
         NameDirty = false;
         SpiderId = playerId;
         Instances.Add(this);
@@ -182,10 +180,9 @@ public class Spider : RoleBase
                 Utils.SendRPC(CustomRPC.SyncRoleData, SpiderId, 2, x);
             });
 
-        if (NameDirty && now != LastNotifyTS)
+        if (NameDirty && PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId))
         {
             NameDirty = false;
-            LastNotifyTS = now;
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
     }

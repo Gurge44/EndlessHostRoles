@@ -247,8 +247,6 @@ public static class KingOfTheZones
         AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
         AllRooms.Remove(SystemTypes.Hallway);
         AllRooms.Remove(SystemTypes.Outside);
-        AllRooms.Remove(SystemTypes.Ventilation);
-        AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
         if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveWhere(x => (byte)x > 135);
 
         Zones = Main.LIMap ? ShipStatus.Instance.AllRooms.Select(x => x.RoomId).TakeRandom(NumZones.GetInt()) : DefaultZones[Main.CurrentMap][NumZones.GetInt() - 1];
@@ -326,7 +324,7 @@ public static class KingOfTheZones
                     notify = notify.Insert(0, tutorial + "\n\n");
                 }
 
-                hasData |= writer.Notify(player, $"<#ffffff>{notify}</color>", 100f);
+                hasData |= CustomRpcSenderExtensions.Notify(ref writer, player, $"<#ffffff>{notify}</color>", 100f);
                 Logger.Info($"{name} assigned to {team} team", "KOTZ");
 
                 if (!player.AmOwner)
@@ -664,7 +662,11 @@ public static class KingOfTheZones
                 }
         }
 
-        void ResetSkins() => DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
+        void ResetSkins()
+        {
+            DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
+            DefaultOutfits = [];
+        }
     }
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
@@ -974,10 +976,7 @@ public static class KingOfTheZones
                 {
                     try
                     {
-                        byte colorId = PlayerTeams[player.PlayerId].GetColorId();
-                        if (player.CurrentOutfit.ColorId == colorId) continue;
-
-                        player.RpcSetColor(colorId);
+                        player.RpcChangeColor(PlayerTeams[player.PlayerId].GetColorId());
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
                 }

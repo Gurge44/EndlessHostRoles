@@ -326,6 +326,8 @@ public static class CaptureTheFlag
                 if (pc && outfit != null)
                     Utils.RpcChangeSkin(pc, outfit);
             }
+
+            DefaultOutfits = [];
         }
     }
 
@@ -368,7 +370,7 @@ public static class CaptureTheFlag
             players.Remove(player);
             PlayerTeams[player.PlayerId] = CTFTeam.Blue;
             bluePlayers.Add(player.PlayerId);
-            player.RpcSetColor(1);
+            player.RpcChangeColor(1);
             yield return WaitFrameIfNecessary();
         }
 
@@ -376,7 +378,7 @@ public static class CaptureTheFlag
         {
             PlayerTeams[player.PlayerId] = CTFTeam.Yellow;
             yellowPlayers.Add(player.PlayerId);
-            player.RpcSetColor(5);
+            player.RpcChangeColor(5);
             yield return WaitFrameIfNecessary();
         }
 

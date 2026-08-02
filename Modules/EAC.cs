@@ -1194,6 +1194,48 @@ internal static class EAC
     }
 }
 
+//[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+internal static class CheckInvalidMovementPatch
+{
+    private static readonly Dictionary<byte, long> LastCheck = [];
+    public static readonly Dictionary<byte, Vector2> LastPosition = [];
+    public static readonly HashSet<byte> ExemptedPlayers = [];
+
+    public static void Postfix(PlayerControl __instance)
+    {
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.HasJustStarted || !Main.IntroDestroyed || MeetingStates.FirstMeeting || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Options.CurrentGameMode == CustomGameMode.NaturalDisasters || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || !__instance || __instance.PlayerId >= 254 || !__instance.IsAlive() || __instance.inVent) return;
+
+        Vector2 pos = __instance.Pos();
+        long now = Utils.TimeStamp;
+
+        if (!LastPosition.TryGetValue(__instance.PlayerId, out Vector2 lastPosition))
+        {
+            SetCurrentData();
+            return;
+        }
+
+        if (LastCheck.TryGetValue(__instance.PlayerId, out long lastCheck) && lastCheck == now) return;
+
+        SetCurrentData();
+
+        if (!FastVector2.DistanceWithinRange(lastPosition, pos, 10f) && PhysicsHelpers.AnythingBetween(__instance.Collider, lastPosition, pos, Constants.ShipOnlyMask, false))
+        {
+            if (ExemptedPlayers.Remove(__instance.PlayerId)) return;
+
+            EAC.WarnHost();
+            EAC.Report(__instance, "This player is moving too fast, possibly using a speed hack.");
+        }
+
+        return;
+
+        void SetCurrentData()
+        {
+            LastPosition[__instance.PlayerId] = pos;
+            LastCheck[__instance.PlayerId] = now;
+        }
+    }
+}
+
 // https://github.com/0xDrMoe/TownofHost-Enhanced/blob/main/Patches/InnerNetClientPatch.cs
 internal enum GameDataTag : byte
 {
@@ -1371,47 +1413,5 @@ internal static class StartGameHostPatchEAC
     public static void Postfix()
     {
         if (ShipStatus.Instance != null) IsStartingAsHost = false;
-    }
-}
-
-//[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-internal static class CheckInvalidMovementPatch
-{
-    private static readonly Dictionary<byte, long> LastCheck = [];
-    public static readonly Dictionary<byte, Vector2> LastPosition = [];
-    public static readonly HashSet<byte> ExemptedPlayers = [];
-
-    public static void Postfix(PlayerControl __instance)
-    {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.HasJustStarted || !Main.IntroDestroyed || MeetingStates.FirstMeeting || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Options.CurrentGameMode == CustomGameMode.NaturalDisasters || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || !__instance || __instance.PlayerId >= 254 || !__instance.IsAlive() || __instance.inVent) return;
-
-        Vector2 pos = __instance.Pos();
-        long now = Utils.TimeStamp;
-
-        if (!LastPosition.TryGetValue(__instance.PlayerId, out Vector2 lastPosition))
-        {
-            SetCurrentData();
-            return;
-        }
-
-        if (LastCheck.TryGetValue(__instance.PlayerId, out long lastCheck) && lastCheck == now) return;
-
-        SetCurrentData();
-
-        if (!FastVector2.DistanceWithinRange(lastPosition, pos, 10f) && PhysicsHelpers.AnythingBetween(__instance.Collider, lastPosition, pos, Constants.ShipOnlyMask, false))
-        {
-            if (ExemptedPlayers.Remove(__instance.PlayerId)) return;
-
-            EAC.WarnHost();
-            EAC.Report(__instance, "This player is moving too fast, possibly using a speed hack.");
-        }
-
-        return;
-
-        void SetCurrentData()
-        {
-            LastPosition[__instance.PlayerId] = pos;
-            LastCheck[__instance.PlayerId] = now;
-        }
     }
 }

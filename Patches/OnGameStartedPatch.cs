@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.Data;
 using AmongUs.GameOptions;
-using Assets.CoreScripts;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.Gamemodes;
 using EHR.Modules;
@@ -26,116 +24,6 @@ namespace EHR;
 internal static class ChangeRoleSettings
 {
     public static bool BlockPopulateSkins;
-
-    public static bool Prefix(AmongUsClient __instance, ref IEnumerator __result)
-    {
-        if (!GameStates.IsLocalGame || !HudManager.InstanceExists) return true;
-
-        __result = CoStartGame().WrapToIl2Cpp();
-        return false;
-
-        IEnumerator<object> CoStartGame()
-        {
-            if (HudManager.Instance.GameMenu.IsOpen)
-                HudManager.Instance.GameMenu.Close();
-
-            UnityTelemetry.Instance.Init();
-            __instance.logger.Info("Received game start: " + __instance.AmHost);
-            yield return null;
-
-            while (!HudManager.InstanceExists)
-                yield return null;
-
-            while (!PlayerControl.LocalPlayer)
-                yield return null;
-
-            PlayerControl.LocalPlayer.moveable = false;
-            PlayerControl.LocalPlayer.MyPhysics.inputHandler.enabled = true;
-            var objectOfType1 = Object.FindObjectOfType<PlayerCustomizationMenu>();
-
-            if (objectOfType1)
-                objectOfType1.Close(false);
-
-            var objectOfType2 = Object.FindObjectOfType<GameSettingMenu>();
-
-            if (objectOfType2)
-                objectOfType2.Close();
-
-            if (GameStartManager.InstanceExists)
-            {
-                __instance.DisconnectHandlers.Remove(GameStartManager.Instance.CastFast<IDisconnectHandler>());
-                Object.Destroy(GameStartManager.Instance.gameObject);
-            }
-
-            if (LobbyInfoPane.InstanceExists)
-                Object.Destroy(LobbyInfoPane.Instance.gameObject);
-
-            if (DiscordManager.InstanceExists)
-                DiscordManager.Instance.SetPlayingGame();
-
-            if (!string.IsNullOrEmpty(DataManager.Player.Store.ActiveCosmicube))
-                AmongUsClient.Instance.SetActivePodType(CosmicubeManager.Instance.GetCubeDataByID(DataManager.Player.Store.ActiveCosmicube).podId);
-            else
-            {
-                PlayerStorageManager.CloudPlayerPrefs playerPrefs = PlayerStorageManager.Instance.PlayerPrefs;
-                AmongUsClient.Instance.SetActivePodType(playerPrefs.ActivePodType);
-            }
-
-            FriendsListManager.Instance.ConfirmationScreen.Cancel();
-            FriendsListManager.Instance.Ui.Close(true);
-            FriendsListManager.Instance.ReparentUI();
-
-            try { CosmeticsCache.ClearUnusedCosmetics(); }
-            catch (Exception e) { Utils.ThrowException(e); }
-
-            yield return HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black);
-            ++DataManager.Player.Ban.BanPoints;
-            DataManager.Player.Ban.PreviousGameStartDate = DateTime.UtcNow;
-            DataManager.Player.Save();
-
-            if (__instance.AmHost)
-                yield return __instance.CoStartGameHost();
-            else
-            {
-                yield return __instance.CoStartGameClient();
-
-                if (__instance.AmHost)
-                    yield return __instance.CoStartGameHost();
-            }
-
-            for (var index = 0; index < GameData.Instance.PlayerCount; ++index)
-            {
-                PlayerControl player = GameData.Instance.AllPlayers[index].Object;
-
-                if (player)
-                {
-                    player.moveable = true;
-                    player.NetTransform.enabled = true;
-                    player.MyPhysics.enabled = true;
-                    player.MyPhysics.Awake();
-                    player.MyPhysics.ResetMoveState();
-                    player.Collider.enabled = true;
-                    ShipStatus.Instance.SpawnPlayer(player, GameData.Instance.PlayerCount, true);
-                }
-            }
-
-            FriendsListManager.Instance.SetRecentlyPlayed(GameData.Instance.AllPlayers);
-            GameData.TimeGameStarted = Time.realtimeSinceStartup;
-            int map = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
-            string gameName = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
-            DebugAnalytics.Instance.Analytics.StartGame(PlayerControl.LocalPlayer.Data, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, (MapNames)map, GameOptionsManager.Instance.CurrentGameOptions.GameMode, gameName, ServerManager.Instance.CurrentRegion.Name, GameOptionsManager.Instance.CurrentGameOptions, GameData.Instance.AllPlayers);
-
-            try
-            {
-                UnityTelemetry.Instance.StartGame(AmongUsClient.Instance.AmHost, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, DataManager.Player.Stats.GetStat(StatID.GamesAsImpostor), DataManager.Player.Stats.GetStat(StatID.GamesStarted), DataManager.Player.Stats.GetStat(StatID.CrewmateStreak));
-                NetworkedPlayerInfo.PlayerOutfit defaultOutfit = PlayerControl.LocalPlayer.Data.DefaultOutfit;
-                UnityTelemetry.Instance.StartGameCosmetics(defaultOutfit.ColorId, defaultOutfit.HatId, defaultOutfit.SkinId, defaultOutfit.PetId, defaultOutfit.VisorId, defaultOutfit.NamePlateId);
-            }
-            catch { }
-
-            GameDebugCommands.AddCommands();
-        }
-    }
 
     public static void Postfix(AmongUsClient __instance)
     {
@@ -242,18 +130,20 @@ internal static class ChangeRoleSettings
             Nemesis.NemesisRevenged = [];
             Warlock.IsCurseAndKill = [];
             Warlock.IsCursed = false;
-            Forensic.ForensicNotify = [];
+            Forensic.ForensicNotify = null;
             Provocateur.Provoked = [];
             Crusader.ForCrusade = [];
             Godfather.GodfatherTarget = byte.MaxValue;
             Crewpostor.TasksDone = [];
-            Messenger.Sent = [];
-            Lazy.BeforeMeetingPositions = [];
-            Introvert.TeleportAwayDelays = [];
-            Onbound.NumBlocked = [];
-            Blessed.ShieldActive = [];
-            Talkative.NumMessagesThisMeeting = [];
-            Entombed.BlockedRoom = [];
+            Messenger.Sent = null;
+            Lazy.BeforeMeetingPositions = null;
+            Introvert.TeleportAwayDelays = null;
+            Onbound.NumBlocked = null;
+            Blessed.ShieldActive = null;
+            Talkative.NumMessagesThisMeeting = null;
+            Entombed.BlockedRoom = null;
+            Disco.LastChange = null;
+            Stained.VioletNameList = null;
 
             try
             {
@@ -309,6 +199,8 @@ internal static class ChangeRoleSettings
             ChatCommands.MutedPlayers.Clear();
             ExtendedPlayerControl.TempExiled.Clear();
             Utils.CachedRoleSettings.Clear();
+            MeetingHudCastVotePatch.ShouldCancelVoteList.Clear();
+            ExtendedPlayerControl.NameWithRoleCache.Clear();
 
             MeetingTimeManager.Init();
             Main.DefaultCrewmateVision = Main.RealOptionsData.GetFloat(FloatOptionNames.CrewLightMod);
@@ -329,6 +221,9 @@ internal static class ChangeRoleSettings
 
             Camouflage.BlockCamouflage = false;
             Camouflage.Init();
+            
+            ReportDeadBodyPatch.CanReport.Clear();
+            ReportDeadBodyPatch.WaitReport.Clear();
             
             RoleResult = [];
 
@@ -377,6 +272,20 @@ internal static class ChangeRoleSettings
             {
                 RPC.SyncCustomSettingsRPC();
             }
+            else
+            {
+                CustomTeamManager.CustomTeams.Clear();
+                CustomTeamManager.EnabledCustomTeams.Clear();
+                CustomTeamManager.CustomTeamPlayerIds.Clear();
+                CustomTeamManager.CustomTeamOptionsCache.Clear();
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Bloodlust] = [];
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Nimble] = [];
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Examiner] = [];
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Finder] = [];
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Physicist] = [];
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Noisy] = [];
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Venom] = [];
+            }
 
             FallFromLadder.Reset();
             CustomSabotage.Reset();
@@ -393,7 +302,7 @@ internal static class ChangeRoleSettings
                 Asthmatic.Init();
                 DoubleShot.Init();
                 Circumvent.Init();
-                Commited.Init();
+                Committed.Init();
                 Reroll.Init();
             }
             catch (Exception ex) { Logger.Exception(ex, "Init Roles"); }
@@ -406,6 +315,7 @@ internal static class ChangeRoleSettings
                 HotPotato.Init();
                 CustomHnS.Init();
                 Speedrun.Init();
+                DoomTag.Init();
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
@@ -419,6 +329,8 @@ internal static class ChangeRoleSettings
                 GhostRolesManager.Initialize();
                 RoleBlockManager.Reset();
                 ChatManager.ResetHistory();
+                PerSecondUpdateScheduler.Reset();
+                Prompt.Reset();
             }
             catch (Exception e) { Utils.ThrowException(e); }
             
@@ -432,9 +344,6 @@ internal static class ChangeRoleSettings
             GameStates.AlreadyDied = false;
 
             Main.Instance.StartCoroutine(PopulateSkinItems());
-            
-            GC.Collect();
-            Resources.UnloadUnusedAssets();
         }
         catch (Exception ex)
         {
@@ -469,24 +378,8 @@ internal static class StartGameHostPatch
     private static AmongUsClient AUClient;
 
     public static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
-    private static Dictionary<RoleTypes, int> RoleTypeNums = [];
 
     private static RoleOptionsCollectionV10 RoleOpt => Main.NormalOptions.roleOptions;
-
-    private static void UpdateRoleTypeNums()
-    {
-        RoleTypeNums = new()
-        {
-            { RoleTypes.Scientist, AddScientistNum },
-            { RoleTypes.Engineer, AddEngineerNum },
-            { RoleTypes.Shapeshifter, AddShapeshifterNum },
-            { RoleTypes.Noisemaker, AddNoisemakerNum },
-            { RoleTypes.Phantom, AddPhantomNum },
-            { RoleTypes.Tracker, AddTrackerNum },
-            { RoleTypes.Detective, AddDetectiveNum },
-            { RoleTypes.Viper, AddViperNum }
-        };
-    }
 
     private static System.Collections.IEnumerator WaitAndSmoothlyUpdate(this LoadingBarManager loadingBarManager, float startPercent, float targetPercent, float duration, string loadingText)
     {
@@ -594,6 +487,16 @@ internal static class StartGameHostPatch
         try
         {
             loadingBarManager.SetLoadingPercent(10f, StringNames.LoadingBarGameStart);
+            loadingBarManager.loadingBar.loadingText.text = GetString("LoadingBarText.3");
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        try
+        {
+            GC.Collect();
+            Resources.UnloadUnusedAssets();
+            GC.Collect();
+            
             loadingBarManager.loadingBar.loadingText.text = loadingTextText1;
         }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -671,9 +574,7 @@ internal static class StartGameHostPatch
         SelectAddonRoles();
         CalculateVanillaRoleCount();
 
-        UpdateRoleTypeNums();
-
-        foreach ((RoleTypes roleTypes, int roleNum) in RoleTypeNums)
+        foreach ((RoleTypes roleTypes, int roleNum) in AddRoleTypesNum)
             RoleOpt.SetRoleRate(roleTypes, roleNum, roleNum > 0 ? 100 : RoleOpt.GetChancePerGame(roleTypes));
 
         Statistics.OnRoleSelectionComplete();
@@ -1032,6 +933,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.Snowdown:
                     Snowdown.Init();
                     goto default;
+                case CustomGameMode.DoomTag:
+                    DoomTag.OnGameStart();
+                    goto default;
                 default:
                     if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                     break;
@@ -1043,7 +947,7 @@ internal static class StartGameHostPatch
                 pc.ResetKillCooldown(false);
 
 
-            foreach (KeyValuePair<RoleTypes, int> roleType in RoleTypeNums)
+            foreach (KeyValuePair<RoleTypes, int> roleType in AddRoleTypesNum)
             {
                 var roleNum = 0;
                 roleNum -= roleType.Value;
@@ -1104,6 +1008,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.Snowdown:
                     GameEndChecker.SetPredicateToSnowdown();
                     break;
+                case CustomGameMode.DoomTag:
+                    GameEndChecker.SetPredicateToDoomTag();
+                    break;
             }
 
             // Add players with unclassified roles to the list of players who require ResetCam.
@@ -1132,8 +1039,9 @@ internal static class StartGameHostPatch
         }
         
         
+        string loadingText = GetString("LoadingBarText.4");
         LoadingBarManager loadingBarManager = LoadingBarManager.Instance;
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 95f, 1f, GetString("LoadingBarText.1"));
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 95f, 1f, loadingText);
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
@@ -1150,7 +1058,8 @@ internal static class StartGameHostPatch
 
         Logger.Info("Successfully set everyone's data as Disconnected", "StartGameHost");
 
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(95f, 100f, 1f, GetString("LoadingBarText.1"));
+        if (GameOptionsManager.Instance.CurrentGameOptions.MapId is 2 or 5) loadingText = GetString("LoadingBarText.5");
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(95f, 100f, 1f, loadingText);
         loadingBarManager.ToggleLoadingBar(false);
 
         Main.EnumeratePlayerControls().Do(SetRoleSelf);
@@ -1190,7 +1099,7 @@ internal static class StartGameHostPatch
             Main.PlayerStates[player.PlayerId].SetMainRole(role);
 
             RoleTypes selfRole = isHost ? baseRole == RoleTypes.Shapeshifter ? RoleTypes.Shapeshifter : hostBaseRole : baseRole;
-            RoleTypes othersRole = isHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
+            const RoleTypes othersRole = RoleTypes.Crewmate;
 
             // Set Desync role for self and for others
             foreach (PlayerControl target in Main.EnumeratePlayerControls())
@@ -1321,7 +1230,7 @@ internal static class StartGameHostPatch
                 return;
             }
 
-            List<PlayerControl> allPlayers = Main.EnumeratePlayerControls().Where(pc => (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> bannedCombos) || bannedCombos.All(x => !pc.Is(x.Key) || !x.Value.Contains(CustomRoles.Lovers))) && !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && pc.GetCustomRole() is not (CustomRoles.Altruist or CustomRoles.Provocateur or CustomRoles.Dictator or CustomRoles.DoubleAgent or CustomRoles.Nuker or CustomRoles.Bomber or CustomRoles.Curser or CustomRoles.Hater or CustomRoles.God) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.Is(CustomRoleTypes.Coven) || Lovers.CovenCanBeInLove.GetBool()) && (!pc.IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
+            List<PlayerControl> allPlayers = Main.EnumeratePlayerControls().Where(pc => (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> bannedCombos) || bannedCombos.All(x => !pc.Is(x.Key) || !x.Value.Contains(CustomRoles.Lovers))) && !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && pc.GetCustomRole() is not (CustomRoles.Altruist or CustomRoles.Provocateur or CustomRoles.Dictator or CustomRoles.DoubleAgent or CustomRoles.Nuker or CustomRoles.Bomber or CustomRoles.Curser or CustomRoles.Hater or CustomRoles.God or CustomRoles.Revenant) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.Is(CustomRoleTypes.Coven) || Lovers.CovenCanBeInLove.GetBool()) && (!pc.IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
             const CustomRoles role = CustomRoles.Lovers;
             int count = Math.Clamp(rawCount, 0, allPlayers.Count);
             if (rawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);

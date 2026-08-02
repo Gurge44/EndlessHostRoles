@@ -52,9 +52,6 @@ public class Astral : RoleBase
 
         AURoleOptions.EngineerCooldown = AbilityCooldown.GetFloat();
         AURoleOptions.EngineerInVentMaxTime = 1f;
-
-        try { AURoleOptions.GuardianAngelCooldown = 900f; }
-        catch { }
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
@@ -71,7 +68,7 @@ public class Astral : RoleBase
     void BecomeGhostTemporarily(PlayerControl pc)
     {
         if (pc.GetAbilityUseLimit() < 1f || ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) return;
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
 
         Timer = new CountdownTimer(AbilityDuration.GetInt(), () => BecomeAliveAgain(pc), onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc), onCanceled: () => Timer = null);
         Utils.SendRPC(CustomRPC.SyncRoleData, AstralId);
@@ -84,7 +81,7 @@ public class Astral : RoleBase
     void BecomeAliveAgain(PlayerControl pc, bool onMeeting = false)
     {
         Timer = null;
-        if (!pc.IsAlive()) return;
+        if (!pc || !pc.IsAlive()) return;
 
         GhostRolesManager.RemoveGhostRole(pc.PlayerId);
         ReportDeadBodyPatch.AlreadyReportedBodies.Remove(pc.PlayerId);
@@ -118,7 +115,6 @@ public class Astral : RoleBase
         if (Timer != null)
         {
             Timer.Dispose();
-            Timer = null;
             BecomeAliveAgain(astralPc, true);
         }
 

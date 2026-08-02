@@ -144,7 +144,7 @@ internal class Nemesis : RoleBase
             return true;
         }
 
-        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} revenged {target.GetNameWithRole().RemoveHtmlTags()}", "Nemesis");
+        Logger.Info($"{pc.GetNameWithRole()} revenged {target.GetNameWithRole()}", "Nemesis");
 
         string name = target.GetRealName();
 

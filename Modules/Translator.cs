@@ -179,8 +179,6 @@ public static class Translator
             foreach (KeyValuePair<string, string> rd in replacementDic)
                 str = str.Replace(rd.Key, rd.Value);
         }
-        if (modLanguageId == 1 && (str.Contains('ő') || str.Contains('ű'))) // Hungarian (none of the fonts support ő/ű and innersloth doesn't care, thankfully at least German has ö/ü)
-            str = str.Replace("ő", "ö", StringComparison.CurrentCultureIgnoreCase).Replace("ű", "ü", StringComparison.CurrentCultureIgnoreCase);
 
         return str;
     }
@@ -350,7 +348,9 @@ public static class Translator
 
     public static string FixRoleName(this string infoLong, CustomRoles role)
     {
-        return OriginalRoleNames.TryGetValue(role, out var d) && d.TryGetValue(GetUserTrueLang(), out var o) ? infoLong.Replace(o, role.ToColoredString(), StringComparison.OrdinalIgnoreCase) : infoLong;
+        if (!OriginalRoleNames.TryGetValue(role, out var d) || !d.TryGetValue(GetUserTrueLang(), out var o)) return infoLong;
+        string modifiedName = role.ToColoredString();
+        return infoLong.Contains(modifiedName) ? infoLong : infoLong.Replace(o, modifiedName, StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool LangHasSensitiveOutlineText()

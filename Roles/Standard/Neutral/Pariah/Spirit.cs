@@ -75,7 +75,7 @@ public class Spirit : RoleBase
                 break;
         }
 
-        shapeshifter.RpcRemoveAbilityUse();
+        shapeshifter.RpcRemoveAbilityUse(notify: false);
         shapeshifter.SyncSettings();
         target.Notify(string.Format(Translator.GetString("SpiritTarget"), CustomRoles.Spirit.ToColoredString()));
         Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: target);

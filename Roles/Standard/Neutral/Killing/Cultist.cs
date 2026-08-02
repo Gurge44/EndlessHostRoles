@@ -104,19 +104,19 @@ public class Cultist : RoleBase
 
         if (CanBeCharmed(target))
         {
-            killer.RpcRemoveAbilityUse();
+            killer.RpcRemoveAbilityUse(notify: false);
 
             target.RpcSetCustomRole(CustomRoles.Charmed);
 
             var sender = CustomRpcSender.Create("Cultist.OnCheckMurder", SendOption.Reliable);
             var hasValue = false;
 
-            hasValue |= sender.Notify(killer, CustomRoles.Cultist.ColoredTextByRole(GetString("CultistCharmedPlayer")));
+            hasValue |= CustomRpcSenderExtensions.Notify(ref sender, killer, CustomRoles.Cultist.ColoredTextByRole(GetString("CultistCharmedPlayer")));
             hasValue |= sender.SetKillCooldown(killer);
             hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
             if (cleared) hasValue = false;
 
-            hasValue |= sender.Notify(target, CustomRoles.Cultist.ColoredTextByRole(GetString("CharmedByCultist")));
+            hasValue |= CustomRpcSenderExtensions.Notify(ref sender, target, CustomRoles.Cultist.ColoredTextByRole(GetString("CharmedByCultist")));
             hasValue |= sender.RpcGuardAndKill(target, killer);
             hasValue |= sender.RpcGuardAndKill(target, target);
             hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);

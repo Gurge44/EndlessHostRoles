@@ -73,6 +73,14 @@ public class Survivor : RoleBase
         ShieldTimer = null;
         Killing = false;
         SurvivorId = playerId;
+
+        LateTask.New(() =>
+        {
+            PlayerControl player = Utils.GetPlayerById(playerId);
+            Killing = player.Is(CustomRoles.Bloodlust);
+            if (Killing)
+                player.RpcChangeRoleBasis(CustomRoles.Scanner);
+        }, 1f, log: false);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -121,7 +129,7 @@ public class Survivor : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (!Killing) 
+        if (!Killing && !pc.Is(CustomRoles.Bloodlust))
             ShieldSelf(pc);
     }
 
@@ -138,6 +146,7 @@ public class Survivor : RoleBase
             }, onCanceled: () => ShieldTimer = null);
             if (!shielded) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
+        else pc.Notify(GetString("SurvivorCantShieldYet"));
     }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)

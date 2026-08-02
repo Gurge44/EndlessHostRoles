@@ -93,7 +93,7 @@ public class Catcher : RoleBase
     {
         if (pc.GetAbilityUseLimit() < 1) return;
 
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
 
         Vector2 pos = pc.Pos();
         Traps[pos] = new(pos, pc);

@@ -11,14 +11,17 @@ internal static class CustomRoleSelector
 {
     public static Dictionary<byte, CustomRoles> RoleResult;
     public static List<CustomRoles> AddonRolesList = [];
-    public static int AddScientistNum;
-    public static int AddEngineerNum;
-    public static int AddShapeshifterNum;
-    public static int AddNoisemakerNum;
-    public static int AddTrackerNum;
-    public static int AddPhantomNum;
-    public static int AddViperNum;
-    public static int AddDetectiveNum;
+    public static Dictionary<RoleTypes, int> AddRoleTypesNum = new()
+    {
+        [RoleTypes.Scientist] = 0,
+        [RoleTypes.Engineer] = 0,
+        [RoleTypes.Shapeshifter] = 0,
+        [RoleTypes.Noisemaker] = 0,
+        [RoleTypes.Tracker] = 0,
+        [RoleTypes.Phantom] = 0,
+        [RoleTypes.Viper] = 0,
+        [RoleTypes.Detective] = 0
+    };
 
     public static readonly Dictionary<CustomGameMode, CustomRoles> GameModeRoles = new()
     {
@@ -36,7 +39,8 @@ internal static class CustomRoleSelector
         { CustomGameMode.BedWars, CustomRoles.BedWarsPlayer },
         { CustomGameMode.Deathrace, CustomRoles.Racer },
         { CustomGameMode.Mingle, CustomRoles.MinglePlayer },
-        { CustomGameMode.Snowdown, CustomRoles.SnowdownPlayer }
+        { CustomGameMode.Snowdown, CustomRoles.SnowdownPlayer },
+        { CustomGameMode.DoomTag, CustomRoles.Tagger }
     };
 
     public static void SelectCustomRoles()
@@ -106,7 +110,6 @@ internal static class CustomRoleSelector
                 case CustomRoles.Bargainer when Main.LIMap:
                 case CustomRoles.AntiAdminer when Main.LIMap:
                 case CustomRoles.CameraMan when Main.LIMap:
-                case CustomRoles.Ventriloquist when GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
                 case CustomRoles.Weatherman when Main.LIMap || GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
                 case CustomRoles.Doctor when Options.EveryoneSeesDeathReasons.GetBool():
                 case CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor when !loversData.Spawning:
@@ -248,7 +251,7 @@ internal static class CustomRoleSelector
 
         Dictionary<RoleAssignType, List<RoleAssignInfo>> allRoles = roles.ToDictionary(x => x.Key, x => x.Value.ToList());
 
-        roles.Keys.ToArray().Do(type => ApplySubCategoryLimits(type, subCategoryLimits));
+        roles.Keys.Do(type => ApplySubCategoryLimits(type, subCategoryLimits));
 
         Logger.Msg("===================================================", "PreSelectedRoles");
         Logger.Info(string.Join(", ", roles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "PreSelectedImpostorRoles");
@@ -510,46 +513,26 @@ internal static class CustomRoleSelector
     public static void CalculateVanillaRoleCount()
     {
         // Calculate the number of base roles
-        AddEngineerNum = 0;
-        AddScientistNum = 0;
-        AddShapeshifterNum = 0;
-        AddNoisemakerNum = 0;
-        AddTrackerNum = 0;
-        AddPhantomNum = 0;
-        AddViperNum = 0;
-        AddDetectiveNum = 0;
+        AddRoleTypesNum = new()
+        {
+            [RoleTypes.Scientist] = 0,
+            [RoleTypes.Engineer] = 0,
+            [RoleTypes.Shapeshifter] = 0,
+            [RoleTypes.Noisemaker] = 0,
+            [RoleTypes.Tracker] = 0,
+            [RoleTypes.Phantom] = 0,
+            [RoleTypes.Viper] = 0,
+            [RoleTypes.Detective] = 0,
+        };
 
         foreach (CustomRoles role in RoleResult.Values)
         {
             try
             {
-                switch (role.GetVNRole())
-                {
-                    case CustomRoles.Scientist:
-                        AddScientistNum++;
-                        break;
-                    case CustomRoles.Engineer:
-                        AddEngineerNum++;
-                        break;
-                    case CustomRoles.Shapeshifter:
-                        AddShapeshifterNum++;
-                        break;
-                    case CustomRoles.Noisemaker:
-                        AddNoisemakerNum++;
-                        break;
-                    case CustomRoles.Tracker:
-                        AddTrackerNum++;
-                        break;
-                    case CustomRoles.Phantom:
-                        AddPhantomNum++;
-                        break;
-                    case CustomRoles.Viper:
-                        AddViperNum++;
-                        break;
-                    case CustomRoles.Detective:
-                        AddDetectiveNum++;
-                        break;
-                }
+                var baseRole = role.GetVNRole();
+                
+                if (Enum.TryParse(baseRole.ToString(), true, out RoleTypes roleTypes) && AddRoleTypesNum.ContainsKey(roleTypes))
+                    AddRoleTypesNum[roleTypes]++;
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }

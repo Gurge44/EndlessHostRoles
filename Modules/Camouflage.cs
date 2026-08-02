@@ -4,6 +4,7 @@ using AmongUs.Data;
 using EHR.Modules;
 using EHR.Roles;
 using Hazel;
+using UnityEngine;
 
 namespace EHR;
 
@@ -46,7 +47,6 @@ public static class Camouflage
     public static bool IsCamouflage;
     public static bool BlockCamouflage;
     public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> PlayerSkins = [];
-    public static List<byte> ResetSkinAfterDeathPlayers = [];
     private static HashSet<byte> WaitingForSkinChange = [];
 
     private static int SkippedCamoTimes;
@@ -57,7 +57,6 @@ public static class Camouflage
     {
         IsCamouflage = false;
         PlayerSkins = [];
-        ResetSkinAfterDeathPlayers = [];
         WaitingForSkinChange = [];
 
         SkippedCamoTimes = 0;
@@ -153,9 +152,10 @@ public static class Camouflage
 
             RpcSetSkin(pc);
 
-            yield return null;
+            yield return new WaitForSecondsRealtime(0.1f);
         }
 
+        yield return new WaitForSecondsRealtime(0.5f);
         yield return Utils.NotifyEveryoneAsync();
     }
 
@@ -216,6 +216,12 @@ public static class Camouflage
         }
 
         Logger.Info($"Setting new outfit: {newOutfit.GetString()}", "Camouflage.RpcSetSkin");
+
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !string.IsNullOrWhiteSpace(newOutfit.PetId))
+        {
+            target.RpcChangeOutfitByData(newOutfit);
+            return;
+        }
 
         bool noSender = sender == null;
         if (noSender) sender = CustomRpcSender.Create($"Camouflage.RpcSetSkin({target.Data.PlayerName})", SendOption.Reliable);

@@ -8,7 +8,7 @@ namespace EHR.Roles;
 public class Siren : CovenBase
 {
     public static bool On;
-    private static List<Siren> Instances = [];
+    private static List<Siren> Instances;
 
     private static OptionItem AbilityCooldown;
     private static OptionItem SingRange;
@@ -69,7 +69,7 @@ public class Siren : CovenBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
     }
 
     public override void Add(byte playerId)
@@ -78,12 +78,13 @@ public class Siren : CovenBase
         Stages = [];
         AffectedPlayers = [];
         SirenId = playerId;
+        Instances ??= [];
         Instances.Add(this);
     }
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -93,6 +94,8 @@ public class Siren : CovenBase
 
     public static void ApplyGameOptionsForOthers(IGameOptions opt, byte playerId)
     {
+        if (Instances == null) return;
+
         foreach (Siren instance in Instances)
         {
             if (instance.AffectedPlayers.Contains(playerId))

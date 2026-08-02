@@ -153,7 +153,7 @@ public class Swooper : RoleBase
             if (!AmongUsClient.Instance.AmHost) return;
 
             var player = SwooperId.GetPlayer();
-            if (player == null || !player.IsAlive()) return;
+            if (!player || !player.IsAlive()) return;
             
             if (!player.IsModdedClient() && !(UsedRole != CustomRoles.Chameleon && UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool())))
                 player.Notify(GetString("SwooperCanVent"), 10f);
@@ -162,7 +162,7 @@ public class Swooper : RoleBase
             if (!AmongUsClient.Instance.AmHost) return;
             
             var player = SwooperId.GetPlayer();
-            if (player == null || !player.IsAlive()) return;
+            if (!player || !player.IsAlive()) return;
             
             if (!(UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool())))
                 player.Notify(string.Format(GetString("CDPT"), (int)Math.Ceiling(CooldownTimer.Remaining.TotalSeconds)), 3f, true);
@@ -178,7 +178,12 @@ public class Swooper : RoleBase
             InvisTimer = null;
 
             if (UsedRole == CustomRoles.Chameleon && !UsePets.GetBool())
-                Main.EnumeratePlayerControls().Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
+            {
+                bool hasValue = false;
+                CustomRpcSender sender = CustomRpcSender.Create("Swooper RpcExitVentDesync calls", SendOption.Reliable).StartPackedMessage();
+                Main.EnumeratePlayerControls().Without(player).Do(x => hasValue |= sender.RpcExitVentDesync(player.MyPhysics, ventId, x));
+                sender.SendMessage(dispose: !hasValue);
+            }
             else
                 player.RpcMakeVisible(phantom: UsedRole == CustomRoles.Swooper);
 
@@ -210,7 +215,7 @@ public class Swooper : RoleBase
 
             StartInvisTimer(pc, ventId);
             
-            if (!wraith) pc.RpcRemoveAbilityUse();
+            if (!wraith) pc.RpcRemoveAbilityUse(notify: false);
 
             pc.Notify(GetString("SwooperInvisState"), Duration);
             return true;
@@ -253,7 +258,7 @@ public class Swooper : RoleBase
             
             StartInvisTimer(pc);
             
-            if (!wraith) pc.RpcRemoveAbilityUse();
+            if (!wraith) pc.RpcRemoveAbilityUse(notify: false);
 
             pc.Notify(GetString("SwooperInvisState"), Duration);
         }
@@ -268,7 +273,7 @@ public class Swooper : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!hud || seer == null || seer.PlayerId != SwooperId || !GameStates.IsInTask || ExileController.Instance || !seer.IsAlive()) return string.Empty;
+        if (!hud || seer.PlayerId != SwooperId || meeting || !seer.IsAlive()) return string.Empty;
 
         Suffix.Clear();
 

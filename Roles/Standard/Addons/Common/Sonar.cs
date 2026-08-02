@@ -4,7 +4,7 @@ namespace EHR.Roles;
 
 public class Sonar : IAddon
 {
-    private static readonly Dictionary<byte, byte> Target = [];
+    private static Dictionary<byte, byte> Target;
     public AddonTypes Type => AddonTypes.Helpful;
 
     public void SetupCustomOption()
@@ -14,16 +14,16 @@ public class Sonar : IAddon
 
     public static string GetSuffix(PlayerControl seer, bool meeting)
     {
-        if (meeting || !seer.Is(CustomRoles.Sonar) || !Target.TryGetValue(seer.PlayerId, out byte targetId)) return string.Empty;
-
+        if (meeting || !seer.Is(CustomRoles.Sonar) || Target == null || !Target.TryGetValue(seer.PlayerId, out byte targetId)) return string.Empty;
         return TargetArrow.GetArrows(seer, targetId);
     }
 
     public static void OnFixedUpdate(PlayerControl seer)
     {
         if (!GameStates.IsInTask || seer.inVent) return;
-        
         if (!FastVector2.TryGetClosestPlayerTo(seer, out PlayerControl closest)) return;
+
+        Target ??= [];
 
         if (Target.TryGetValue(seer.PlayerId, out byte targetId))
         {

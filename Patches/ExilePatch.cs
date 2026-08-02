@@ -8,6 +8,7 @@ using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
+using UnityEngine;
 
 namespace EHR.Patches;
 
@@ -98,17 +99,20 @@ internal static class ExileControllerWrapUpPatch
 
         try
         {
-            foreach ((byte id, Vector2 pos) in Lazy.BeforeMeetingPositions)
+            if (Lazy.BeforeMeetingPositions != null)
             {
-                PlayerControl pc = id.GetPlayer();
-                if (!pc || !pc.IsAlive()) continue;
+                foreach ((byte id, Vector2 pos) in Lazy.BeforeMeetingPositions)
+                {
+                    PlayerControl pc = id.GetPlayer();
+                    if (!pc || !pc.IsAlive()) continue;
 
-                pc.TP(pos);
+                    pc.TP(pos);
+                }
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        Lazy.BeforeMeetingPositions = [];
+        Lazy.BeforeMeetingPositions = null;
 
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);
@@ -169,7 +173,7 @@ internal static class ExileControllerWrapUpPatch
             if (Options.EnableGameTimeLimit.GetBool()) finalText += $"\n<#888888>{Options.GameTimeLimit.GetInt() - Main.GameTimer.Elapsed.TotalSeconds:N0}s {Translator.GetString("RemainingText.Suffix")}";
 
             if (!string.IsNullOrWhiteSpace(finalText))
-                Main.EnumerateAlivePlayerControls().NotifyPlayers(finalText, 13f);
+                Main.EnumerateAlivePlayerControls().NotifyPlayers(finalText, 13f, setName: false, sendOption: ejectionNotify ? SendOption.None : SendOption.Reliable);
         }
 
         LateTask.New(() =>
@@ -216,9 +220,19 @@ internal static class ExileControllerWrapUpPatch
         Utils.MarkEveryoneDirtySettings();
         Utils.CheckAndSetVentInteractions();
 
-        Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync());
+        Main.Instance.StartCoroutine(Coroutine());
         
         Stopwatch.Reset();
+        return;
+
+        System.Collections.IEnumerator Coroutine()
+        {
+            yield return new WaitForSecondsRealtime(0.2f);
+            
+            if (GameStates.IsEnded) yield break;
+            
+            yield return Utils.NotifyEveryoneAsync();
+        }
     }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]

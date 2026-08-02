@@ -16,7 +16,6 @@ public class Telekinetic : RoleBase
     private static OptionItem IncreasedSpeed;
 
     private Mode CurrentMode;
-    private long LastUpdate;
     private bool Shielded;
     private PlayerControl TelekineticPC;
     private int Timer;
@@ -69,11 +68,7 @@ public class Telekinetic : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance || Main.HasJustStarted) return;
-
-        long now = Utils.TimeStamp;
-        if (now == LastUpdate) return;
-
-        LastUpdate = now;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         switch (Timer)
         {
@@ -97,7 +92,7 @@ public class Telekinetic : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         PlayerControl target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
-        bool hasTarget = target != null;
+        bool hasTarget = target;
 
         switch (CurrentMode)
         {

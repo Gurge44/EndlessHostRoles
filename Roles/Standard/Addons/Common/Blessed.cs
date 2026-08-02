@@ -13,7 +13,7 @@ public class Blessed : IAddon
     private static OptionItem ShieldDuration;
     private static OptionItem MinLivingPlayersToActivateShield;
 
-    public static HashSet<byte> ShieldActive = [];
+    public static HashSet<byte> ShieldActive;
     private static CountdownTimer ShieldTimer;
 
     public void SetupCustomOption()
@@ -37,8 +37,11 @@ public class Blessed : IAddon
         foreach (PlayerControl pc in aapc)
         {
             if (!pc.Is(CustomRoles.Blessed)) continue;
+            ShieldActive ??= [];
             ShieldActive.Add(pc.PlayerId);
         }
+
+        if (ShieldActive == null) return;
         
         ShieldTimer = new CountdownTimer(ShieldDuration.GetInt(), () =>
         {

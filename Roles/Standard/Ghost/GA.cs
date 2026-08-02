@@ -16,7 +16,12 @@ internal class GA : IGhostRole
 
     public void OnProtect(PlayerControl pc, PlayerControl target)
     {
-        if (ProtectionList.Add(target.PlayerId)) LateTask.New(() => ProtectionList.Remove(target.PlayerId), ProtectDuration.GetFloat());
+        if (ProtectionList.Add(target.PlayerId))
+        {
+            int duration = ProtectDuration.GetInt();
+            LateTask.New(() => ProtectionList.Remove(target.PlayerId), duration);
+            pc.AddAbilityCD(Cooldown + duration);
+        }
     }
 
     public void OnAssign(PlayerControl pc)

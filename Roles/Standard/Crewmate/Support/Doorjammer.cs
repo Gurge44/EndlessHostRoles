@@ -65,7 +65,7 @@ public class Doorjammer : RoleBase
             Utils.SendRPC(CustomRPC.SyncRoleData, DoorjammerId, 2);
         }
 
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
         JammedRooms.Add(room);
         Utils.SendRPC(CustomRPC.SyncRoleData, DoorjammerId, 1, (byte)room);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

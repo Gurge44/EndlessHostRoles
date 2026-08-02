@@ -16,7 +16,7 @@ public static class NameColorManager
         if (!TryGetData(seer, target, out string colorCode))
         {
             if (KnowTargetRoleColor(seer, target, isMeeting, out string color))
-                colorCode = color == "" ? target.GetRoleColorCode() : color;
+                colorCode = color == "" ? Utils.ToHexRGB(Utils.GetRoleText(seer.PlayerId, target.PlayerId, seeTargetBetrayalAddons: seer.PlayerId == target.PlayerId || (seer.Is(Team.Impostor) && target.Is(Team.Impostor))).Item2) : color;
         }
 
         string openTag = "", closeTag = "";
@@ -43,6 +43,7 @@ public static class NameColorManager
                     color = FreeForAll.TeamColors.GetValueOrDefault(team, "#00ffff");
                 return true;
             case CustomGameMode.Snowdown:
+            case CustomGameMode.DoomTag:
             case CustomGameMode.Mingle:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
@@ -83,7 +84,7 @@ public static class NameColorManager
         RoleBase targetRoleClass = Main.PlayerStates[target.PlayerId].Role;
 
         // Global (low priority)
-        if (Stained.VioletNameList.Contains(target.PlayerId) && !isMeeting) color = "#ff00ff";
+        if (Stained.VioletNameList != null && Stained.VioletNameList.Contains(target.PlayerId) && !isMeeting) color = "#ff00ff";
 
         // Coven
         if (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven)) color = Main.CovenColor;
@@ -162,7 +163,7 @@ public static class NameColorManager
             CustomRoles.Glitch when target.IsRoleBlocked() => Utils.GetRoleColorCode(seerRole),
             CustomRoles.Slenderman when Slenderman.IsBlinded(target.PlayerId) => "000000",
             CustomRoles.Aid when Aid.ShieldedPlayers.ContainsKey(target.PlayerId) => Utils.GetRoleColorCode(CustomRoles.Aid),
-            CustomRoles.Spy when Spy.SpyRedNameList.Contains(target.PlayerId) => "#BA4A00",
+            CustomRoles.Spy when Spy.SpyRedNameList != null && Spy.SpyRedNameList.Contains(target.PlayerId) => "#BA4A00",
             CustomRoles.Mastermind when Mastermind.ManipulateDelays.ContainsKey(target.PlayerId) => "#00ffa5",
             CustomRoles.Mastermind when Mastermind.ManipulatedPlayers.ContainsKey(target.PlayerId) => Utils.GetRoleColorCode(CustomRoles.Arsonist),
             CustomRoles.Hitman when (seerRoleClass as Hitman)?.TargetId == target.PlayerId => "000000",
@@ -180,8 +181,9 @@ public static class NameColorManager
             CustomRoles.Dad when ((Dad)seerRoleClass).DrunkPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Wasp when seerRoleClass is Wasp wasp && (wasp.DelayedKills.ContainsKey(target.PlayerId) || wasp.MeetingKills.Contains(target.PlayerId)) => "000000",
             CustomRoles.God when God.KnowInfo.GetValue() == 1 => target.GetTeam().GetTextColor(),
+            CustomRoles.Revenant when Revenant.KnowInfo.GetValue() == 0 => target.GetTeam().GetTextColor(),
             CustomRoles.Curser when ((Curser)seerRoleClass).KnownFactionPlayers.Contains(target.PlayerId) => target.GetTeam().GetTextColor(),
-            CustomRoles.Poache when Poache.PoachedPlayers.Contains(target.PlayerId) => "000000",
+            CustomRoles.Poache when Poache.PoachedPlayers != null && Poache.PoachedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Reaper when ((Reaper)seerRoleClass).CursedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Dreamweaver when ((Dreamweaver)seerRoleClass).InsanePlayers.Contains(target.PlayerId) || target.Is(CustomRoles.Insane) => "000000",
             CustomRoles.Banshee when ((Banshee)seerRoleClass).ScreechedPlayers.Contains(target.PlayerId) => "000000",
@@ -193,7 +195,8 @@ public static class NameColorManager
             CustomRoles.Wyrd when ((Wyrd)seerRoleClass).MarkedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Investor when ((Investor)seerRoleClass).MarkedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Stealth when ((Stealth)seerRoleClass).darkenedPlayers?.Any(x => x == target) ?? false => "000000",
-            CustomRoles.Snitch when Snitch.IsComplete.GetValueOrDefault(seer.PlayerId) && Snitch.IsSnitchTarget(target) => Utils.GetRoleColorCode(targetRole),
+            CustomRoles.Snitch when Snitch.IsComplete != null && Snitch.IsComplete.GetValueOrDefault(seer.PlayerId) && Snitch.IsSnitchTarget(target) => Utils.GetRoleColorCode(targetRole),
+            CustomRoles.Psychic when (GameStates.IsMeeting || ReportDeadBodyPatch.MeetingStarted) && Psychic.IsRedForPsy(target, seer) => Main.ImpostorColor,
             _ => color
         };
 
@@ -245,6 +248,7 @@ public static class NameColorManager
             || target.Is(CustomRoles.GM)
             || seer.Is(CustomRoles.GM)
             || (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2)
+            || (seer.Is(CustomRoles.Revenant) && Revenant.KnowInfo.GetValue() == 1)
             || (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven))
             || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && CustomTeamManager.ArentInCustomTeam(seer.PlayerId, target.PlayerId))
             || (seer.Is(CustomRoles.Traitor) && target.Is(Team.Impostor))

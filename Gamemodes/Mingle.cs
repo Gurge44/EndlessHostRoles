@@ -198,7 +198,7 @@ public static class Mingle
             if (hud) Suffix.Append("</size></b>");
         }
         
-        if (!plainShipRoom || !RequiredPlayerCount.ContainsKey(plainShipRoom.RoomId))
+        if (GameGoing && pc.IsAlive() && (!plainShipRoom || !RequiredPlayerCount.ContainsKey(plainShipRoom.RoomId)))
         {
             Suffix.Append('\n')
                 .Append("<#ffff00><size=70%>")
@@ -242,8 +242,6 @@ public static class Mingle
         AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
         AllRooms.Remove(SystemTypes.Hallway);
         AllRooms.Remove(SystemTypes.Outside);
-        AllRooms.Remove(SystemTypes.Ventilation);
-        AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
         if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveWhere(x => (byte)x > 135);
 
         yield return new WaitForSecondsRealtime(Main.CurrentMap == MapNames.Airship ? 8f : 3f);

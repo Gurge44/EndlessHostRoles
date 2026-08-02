@@ -41,11 +41,11 @@ public class PortalMaker : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        if (Marks.Count >= 2)
+        if (Marks.Count == 2)
         {
-            if (!PetToRemovePortals.GetBool() && Marks.Count == 2) return;
+            if (!PetToRemovePortals.GetBool()) return;
             Marks.Clear();
-            CustomNetObject.AllObjects.OfType<Portal>().Do(x => x.Despawn());
+            CustomNetObject.AllObjects.ToArray().OfType<Portal>().Do(x => x.Despawn());
             pc.Notify(Translator.GetString("MarksCleared"));
             return;
         }

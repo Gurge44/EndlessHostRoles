@@ -6,7 +6,7 @@ namespace EHR.Roles;
 
 public class Deadlined : IAddon
 {
-    private static HashSet<byte> DidTask = [];
+    private static HashSet<byte> DidTask;
     private static long MeetingEndTS;
     private static OptionItem InactiveTime;
     public AddonTypes Type => AddonTypes.Harmful;
@@ -22,6 +22,7 @@ public class Deadlined : IAddon
 
     public static void SetDone(PlayerControl pc)
     {
+        DidTask ??= [];
         DidTask.Add(pc.PlayerId);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         Utils.SendRPC(CustomRPC.Deadlined, 1, pc.PlayerId);
@@ -29,7 +30,7 @@ public class Deadlined : IAddon
 
     public static void AfterMeetingTasks()
     {
-        DidTask = [];
+        DidTask = null;
         MeetingEndTS = Utils.TimeStamp;
         Utils.SendRPC(CustomRPC.Deadlined, 2);
 
@@ -51,7 +52,7 @@ public class Deadlined : IAddon
         {
             if (!pc.Is(CustomRoles.Deadlined)) continue;
 
-            if (!DidTask.Contains(pc.PlayerId))
+            if (DidTask == null || !DidTask.Contains(pc.PlayerId))
                 pc.Suicide();
         }
     }
@@ -61,10 +62,11 @@ public class Deadlined : IAddon
         switch (reader.ReadPackedInt32())
         {
             case 1:
+                DidTask ??= [];
                 DidTask.Add(reader.ReadByte());
                 break;
             case 2:
-                DidTask = [];
+                DidTask = null;
                 MeetingEndTS = Utils.TimeStamp - 1;
                 break;
         }
@@ -72,7 +74,7 @@ public class Deadlined : IAddon
 
     public static string GetSuffix(PlayerControl seer)
     {
-        if (DidTask.Contains(seer.PlayerId) || MeetingStates.FirstMeeting) return "<#00ff00>\u2713</color>";
+        if ((DidTask != null && DidTask.Contains(seer.PlayerId)) || MeetingStates.FirstMeeting) return "<#00ff00>\u2713</color>";
 
         long now = Utils.TimeStamp;
 

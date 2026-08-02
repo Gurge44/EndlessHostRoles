@@ -72,7 +72,7 @@ internal class Visionary : RoleBase
 
         RevealedPlayerIds.Add(target.PlayerId);
         Utils.SendRPC(CustomRPC.SyncRoleData, shapeshifter.PlayerId, target.PlayerId);
-        shapeshifter.RpcRemoveAbilityUse();
+        shapeshifter.RpcRemoveAbilityUse(notify: false);
         Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: target);
 
         return false;

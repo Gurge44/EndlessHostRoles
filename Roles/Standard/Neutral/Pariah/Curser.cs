@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 
 namespace EHR.Roles;
 
@@ -18,7 +20,6 @@ public class Curser : RoleBase
 
     public HashSet<byte> KnownFactionPlayers = [];
     private HashSet<byte> LowerSpeedPlayers = [];
-
     private HashSet<byte> LowerVisionPlayers = [];
 
     public override bool IsEnable => On;
@@ -80,6 +81,7 @@ public class Curser : RoleBase
         if (killer.CheckDoubleTrigger(target, () =>
         {
             KnownFactionPlayers.Add(target.PlayerId);
+            Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, target.PlayerId);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             killer.SetKillCooldown();
             killer.RpcRemoveAbilityUse();
@@ -149,5 +151,10 @@ public class Curser : RoleBase
         LowerVisionPlayers.Clear();
         LowerSpeedPlayers.Clear();
         players.Do(x => x.MarkDirtySettings());
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        KnownFactionPlayers.Add(reader.ReadByte());
     }
 }

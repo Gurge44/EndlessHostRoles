@@ -14,9 +14,9 @@ internal class Spurt : IAddon
 
     public static bool LocalPlayerAvoidsZeroAndOneHundredPrecent;
 
-    private static readonly Dictionary<byte, Vector2> LastPos = [];
-    private static readonly Dictionary<byte, int> LastNum = [];
-    private static readonly Dictionary<byte, long> LastUpdate = [];
+    private static Dictionary<byte, Vector2> LastPos;
+    private static Dictionary<byte, int> LastNum;
+    private static Dictionary<byte, long> LastUpdate;
     public AddonTypes Type => AddonTypes.Helpful;
 
     public void SetupCustomOption()
@@ -42,10 +42,18 @@ internal class Spurt : IAddon
 
     public static void Add()
     {
+        LastPos = null;
+        LastNum = null;
+        LastUpdate = null;
+        
         foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             if (pc.Is(CustomRoles.Spurt))
             {
+                LastPos ??= [];
+                LastNum ??= [];
+                LastUpdate ??= [];
+                
                 LastPos[pc.PlayerId] = pc.Pos();
                 LastNum[pc.PlayerId] = 0;
                 LastUpdate[pc.PlayerId] = Utils.TimeStamp;
@@ -82,6 +90,8 @@ internal class Spurt : IAddon
 
     public static void OnFixedUpdate(PlayerControl player)
     {
+        if (LastPos == null) return;
+        
         Vector2 pos = player.Pos();
         bool moving = !FastVector2.DistanceWithinRange(pos, LastPos[player.PlayerId], 0.1f) || player.MyPhysics.Animations.IsPlayingRunAnimation();
         LastPos[player.PlayerId] = pos;

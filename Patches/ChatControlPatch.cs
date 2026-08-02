@@ -11,26 +11,41 @@ using UnityEngine;
 
 namespace EHR;
 
-[HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
-internal static class ChatControllerUpdatePatch
+[HarmonyPatch(typeof(ChatController), nameof(ChatController.Awake))]
+static class ChatControllerAwakePatch 
 {
-    public static int CurrentHistorySelection = -1;
-
     private static SpriteRenderer QuickChatIcon;
     private static SpriteRenderer OpenBanMenuIcon;
     private static SpriteRenderer OpenKeyboardIcon;
 
-    public static void Prefix()
+    private static readonly Color32 DarkBackgroundColor = new(40, 40, 40, byte.MaxValue);
+    
+    public static void Postfix(ChatController __instance) 
     {
         if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == QuickChatModes.QuickChatOnly)
             DataManager.Settings.Multiplayer.ChatMode = QuickChatModes.FreeChatOrQuickChat;
-    }
 
-    public static void Postfix(ChatController __instance)
-    {
+        if (GameSettingMenu.Instance)
+        {
+            FreeChatInputField field = GameSettingMenuPatch.InputField;
+
+            if (field && field.gameObject.activeSelf)
+            {
+                field.background.color = DarkBackgroundColor;
+                field.textArea.compoText.Color(Color.white);
+                field.textArea.outputText.color = Color.white;
+            }
+        }
+        
+        var chatBubble = __instance.chatBubblePool.Prefab.CastFast<ChatBubble>();
+        chatBubble.TextArea.overrideColorTags = false;
+        
         if (Main.DarkTheme.Value)
         {
-            __instance.freeChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
+            chatBubble.TextArea.color = Color.white;
+            chatBubble.Background.color = new(0.1f, 0.1f, 0.1f, 1f);
+            
+            __instance.freeChatField.background.color = DarkBackgroundColor;
 
             if (!TextBoxPatch.IsInvalidCommand)
             {
@@ -38,54 +53,36 @@ internal static class ChatControllerUpdatePatch
                 __instance.freeChatField.textArea.outputText.color = Color.white;
             }
 
-            __instance.quickChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
+            __instance.quickChatField.background.color = DarkBackgroundColor;
             __instance.quickChatField.text.color = Color.white;
-
-            if (!QuickChatIcon)
-                QuickChatIcon = GameObject.Find("QuickChatIcon")?.transform.GetComponent<SpriteRenderer>();
-            else
-                QuickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
-
-            if (!OpenBanMenuIcon)
-                OpenBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform.GetComponent<SpriteRenderer>();
-            else
-                OpenBanMenuIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkReport.png", 100f);
-
-            if (!OpenKeyboardIcon)
-                OpenKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform.GetComponent<SpriteRenderer>();
-            else
-                OpenKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
+        
+            Main.Instance.StartCoroutine(Coroutine());
         }
-        else __instance.freeChatField.textArea.outputText.color = Color.black;
+        else
+            __instance.freeChatField.textArea.outputText.color = Color.black;
+        
+        return;
 
-        if (!__instance.freeChatField.textArea.hasFocus) return;
-
-        __instance.freeChatField.textArea.characterLimit = 1200;
-
-        if (Input.GetKeyDown(KeyCode.Tab)) TextBoxPatch.OnTabPress(__instance);
-
-        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
-            ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);
-
-        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.V))
-            __instance.freeChatField.textArea.SetText(__instance.freeChatField.textArea.text + GUIUtility.systemCopyBuffer.Trim());
-
-        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.X))
+        System.Collections.IEnumerator Coroutine()
         {
-            ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);
-            __instance.freeChatField.textArea.SetText("");
-        }
-
-        if (Input.GetKeyDown(KeyCode.UpArrow) && ChatCommands.ChatHistory.Count > 0)
-        {
-            CurrentHistorySelection = Mathf.Clamp(--CurrentHistorySelection, 0, ChatCommands.ChatHistory.Count - 1);
-            __instance.freeChatField.textArea.SetText(ChatCommands.ChatHistory[CurrentHistorySelection]);
-        }
-
-        if (Input.GetKeyDown(KeyCode.DownArrow) && ChatCommands.ChatHistory.Count > 0)
-        {
-            CurrentHistorySelection++;
-            __instance.freeChatField.textArea.SetText(CurrentHistorySelection < ChatCommands.ChatHistory.Count ? ChatCommands.ChatHistory[CurrentHistorySelection] : string.Empty);
+            while (__instance)
+            {
+                if (__instance.IsOpenOrOpening)
+                {
+                    __instance.freeChatField.background.color = DarkBackgroundColor;
+                
+                    if (!QuickChatIcon) QuickChatIcon = GameObject.Find("QuickChatIcon")?.transform.GetComponent<SpriteRenderer>();
+                    if (QuickChatIcon) QuickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
+    
+                    if (!OpenBanMenuIcon) OpenBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform.GetComponent<SpriteRenderer>();
+                    if (OpenBanMenuIcon) OpenBanMenuIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkReport.png", 100f);
+    
+                    if (!OpenKeyboardIcon) OpenKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform.GetComponent<SpriteRenderer>();
+                    if (OpenKeyboardIcon) OpenKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
+                }
+                
+                yield return null;
+            }
         }
     }
 }
@@ -97,6 +94,24 @@ internal static class UrlFinderPatch
     {
         __result = false;
         return false;
+    }
+}
+
+[HarmonyPatch(typeof(ChatController), nameof(ChatController.ForceClosed))]
+static class ChatControllerForceClosedPatch
+{
+    public static bool Prefix()
+    {
+        return !Utils.TempReviveHostRunning || GameStates.IsEnded || !GameStates.InGame;
+    }
+}
+
+[HarmonyPatch(typeof(ChatController), nameof(ChatController.SetVisible))]
+static class ChatControllerSetVisiblePatch
+{
+    public static bool Prefix([HarmonyArgument(0)] bool visible)
+    {
+        return visible || !Utils.TempReviveHostRunning || GameStates.IsEnded || !GameStates.InGame;
     }
 }
 
@@ -303,9 +318,9 @@ public static class ChatManager
     public static void ClearChat(params IReadOnlyList<PlayerControl> targets)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId) ?? Main.EnumeratePlayerControls().MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        PlayerControl player = Main.AllAlivePlayerControlsCount == 0 ? PlayerControl.LocalPlayer : Main.CachedAlivePlayerControls().MinBy(x => x.PlayerId);
         if (!player) return;
-        if (targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControlsCount) SendEmptyMessage(null);
+        if (targets == null || targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControlsCount) SendEmptyMessage(null);
         else targets.Do(SendEmptyMessage);
         return;
 
@@ -315,19 +330,10 @@ public static class ChatManager
             bool toLocalPlayer = !toEveryone && receiver.AmOwner;
             if (HudManager.InstanceExists && (toLocalPlayer || toEveryone)) HudManager.Instance.Chat.AddChat(player, "<size=32767>.");
             if (toLocalPlayer) return;
-
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
-            {
-                byte to = toEveryone ? byte.MaxValue : receiver.PlayerId;
-                Utils.SendMessage("<size=32767>.", to, "\n", force: true, addToHistory: false, importance: MessageImportance.High);
-            }
-            else
-            {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, toEveryone ? -1 : receiver.OwnerId);
-                writer.Write("<size=32767>.");
-                writer.Write(true);
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-            }
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, toEveryone ? -1 : receiver.OwnerId);
+            writer.Write("<size=32767>.");
+            writer.Write(true);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
     }
 }

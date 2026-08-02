@@ -310,6 +310,16 @@ internal static class SetUpRoleTextPatch
                 __instance.RoleBlurbText.text = GetString("SnowdownPlayerInfo");
                 break;
             }
+            case CustomGameMode.DoomTag:
+            {
+                Color color = Utils.GetRoleColor(CustomRoles.Tagger);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("Tagger");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("TaggerInfo");
+                break;
+            }
             default:
             {
                 CustomRoles role = lp.GetCustomRole();
@@ -1017,6 +1027,15 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("SnowdownPlayerInfo");
                 break;
             }
+            case CustomGameMode.DoomTag:
+            {
+                __instance.TeamTitle.text = GetString("Tagger");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Tagger);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("TaggerInfo");
+                break;
+            }
         }
 
         return;
@@ -1149,6 +1168,19 @@ internal static class IntroCutsceneDestroyPatch
         if (AmongUsClient.Instance.AmHost)
         {
             LateTask.New(() => apc.DoIf(x => x && ((x.AmOwner && Main.GM.Value) || ChatCommands.Spectators.Contains(x.PlayerId)), x => x.RpcSetCustomRole(CustomRoles.GM)), 8f);
+
+            try
+            {
+                System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToValidPlayers().ToList();
+                if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
+
+                spectators.ForEach(x =>
+                {
+                    x.RpcExileV2();
+                    Main.PlayerStates[x.PlayerId].SetDead();
+                });
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
             
             var aapc = Main.AllAlivePlayerControlsToList;
 
@@ -1234,63 +1266,56 @@ internal static class IntroCutsceneDestroyPatch
             {
                 void GrantPetForEveryone()
                 {
+                    var messages = 0;
+                    var stream = MessageWriter.Get(SendOption.Reliable);
+                    stream.StartMessage(5);
+                    stream.Write(AmongUsClient.Instance.GameId);
+                    
                     foreach (PlayerControl pc in aapc)
                     {
-                        if (pc.Is(CustomRoles.GM)) continue;
-
-                        string petId = PetsHelper.GetPetId();
-                        PetsHelper.SetPet(pc, petId);
-                        Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
-                    }
-                }
-
-                Main.ProcessShapeshifts = false;
-
-                LateTask.New(GrantPetForEveryone, 3f, "Grant Pet For Everyone");
-
-                LateTask.New(() =>
-                {
-                    lp.Notify(GetString("GLHF"), 2f);
-
-                    foreach (PlayerControl pc in aapc)
-                    {
-                        if (pc.IsHost()) continue; // Skip the host
-
                         try
                         {
-                            var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
-                            
-                            if (AmongUsClient.Instance.AmClient)
-                                pc.Shapeshift(pc, false);
+                            if (pc.Is(CustomRoles.GM)) continue;
 
-                            sender.AutoStartRpc(pc.NetId, 46);
-                            sender.WriteNetObject(pc);
-                            sender.Write(false);
-                            sender.EndRpc();
+                            if (stream.Length > 500 || messages + 2 > AmongUsClient.Instance.GetMaxMessagePackingLimit())
+                            {
+                                stream.EndMessage();
 
-                            sender.Notify(pc, GetString("GLHF"), 2f);
+                                var captured = stream;
+                                DataFlagRateLimiter.Enqueue(() =>
+                                {
+                                    AmongUsClient.Instance.SendOrDisconnect(captured);
+                                    captured.Recycle();
+                                }, cleanup: captured.Recycle);
 
-                            sender.SendMessage();
+                                stream = MessageWriter.Get(SendOption.Reliable);
+                                stream.StartMessage(5);
+                                stream.Write(AmongUsClient.Instance.GameId);
+
+                                messages = 0;
+                            }
+
+                            string petId = PetsHelper.GetPetId();
+                            pc.Data.DefaultOutfit.PetId = petId;
+                            pc.SyncOutfitData(stream);
+                            messages += 2;
+                            Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                         }
-                        catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
+                        catch (Exception e) { Utils.ThrowException(e); }
                     }
-                }, 4f, "Show Pet For Everyone");
 
-                LateTask.New(() => Main.ProcessShapeshifts = true, 2f, "Enable SS Processing");
+                    stream.EndMessage();
+                    DataFlagRateLimiter.Enqueue(() =>
+                    {
+                        AmongUsClient.Instance.SendOrDisconnect(stream);
+                        stream.Recycle();
+                    }, cleanup: stream.Recycle);
+                }
+
+                LateTask.New(GrantPetForEveryone, 3f, "Grant Pet For Everyone");
             }
 
-            try
-            {
-                System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToValidPlayers().ToList();
-                if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
-
-                spectators.ForEach(x =>
-                {
-                    x.RpcExileV2();
-                    Main.PlayerStates[x.PlayerId].SetDead();
-                });
-            }
-            catch (Exception e) { Utils.ThrowException(e); }
+            LateTask.New(() => aapc.NotifyPlayers(GetString("GLHF"), 3f), 4f, "GLHF");
 
             if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && !Main.LIMap && AmongUsClient.Instance.AmHost && Options.CurrentGameMode is not CustomGameMode.CaptureTheFlag and not CustomGameMode.KingOfTheZones and not CustomGameMode.BedWars and not CustomGameMode.Deathrace)
             {
@@ -1360,11 +1385,14 @@ internal static class IntroCutsceneDestroyPatch
                 case CustomGameMode.Snowdown:
                     Snowdown.GameStart();
                     break;
+                case CustomGameMode.DoomTag:
+                    DoomTag.OnGameStart();
+                    break;
             }
 
             if (AFKDetector.ActivateOnStart.GetBool()) LateTask.New(() => aapc.Do(AFKDetector.RecordPosition), 1f, log: false);
 
-            LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, "NotifyEveryoneAsync On Game Start");
+            LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 6f, "NotifyEveryoneAsync On Game Start");
             LateTask.New(Utils.MarkEveryoneDirtySettings, 0.5f, "SyncAllSettings On Game Start");
             LateTask.New(() => Main.Instance.StartCoroutine(ShipStatusFixedUpdatePatch.Postfix()), 5f, "ShipStatusFixedUpdatePatch Postfix Start");
 

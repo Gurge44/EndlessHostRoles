@@ -74,19 +74,19 @@ public class Monarch : RoleBase
 
         if (target != null && !target.GetCustomRole().IsNotKnightable() && !target.Is(CustomRoles.Knighted) && !target.Is(CustomRoles.Stealer))
         {
-            killer.RpcRemoveAbilityUse();
+            killer.RpcRemoveAbilityUse(notify: false);
             target.RpcSetCustomRole(CustomRoles.Knighted);
 
             var sender = CustomRpcSender.Create("Monarch.OnCheckMurder", SendOption.Reliable);
             var hasValue = false;
 
             killer.ResetKillCooldown();
-            hasValue |= sender.Notify(killer, CustomRoles.Monarch.ColoredTextByRole(GetString("MonarchKnightedPlayer")), setName: false);
+            hasValue |= CustomRpcSenderExtensions.Notify(ref sender, killer, CustomRoles.Monarch.ColoredTextByRole(GetString("MonarchKnightedPlayer")), setName: false);
             hasValue |= sender.SetKillCooldown(killer);
             hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
             if (cleared) hasValue = false;
 
-            hasValue |= sender.Notify(target, CustomRoles.Monarch.ColoredTextByRole(GetString("KnightedByMonarch")), setName: false);
+            hasValue |= CustomRpcSenderExtensions.Notify(ref sender, target, CustomRoles.Monarch.ColoredTextByRole(GetString("KnightedByMonarch")), setName: false);
             hasValue |= sender.RpcGuardAndKill(target, killer);
             hasValue |= sender.RpcGuardAndKill(target, target);
             hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);

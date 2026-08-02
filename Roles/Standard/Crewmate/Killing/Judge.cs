@@ -112,7 +112,7 @@ public class Judge : RoleBase
 
                 if (target != null)
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} trialed {target.GetNameWithRole().RemoveHtmlTags()}", "Judge");
+                    Logger.Info($"{pc.GetNameWithRole()} trialed {target.GetNameWithRole()}", "Judge");
                     bool judgeSuicide;
 
                     if (pc.GetAbilityUseLimit() < 1 || MeetingUseLimit[pc.PlayerId] < 1 || TotalUseLimit[pc.PlayerId] < 1)

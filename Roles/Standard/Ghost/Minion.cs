@@ -22,11 +22,13 @@ internal class Minion : IGhostRole
         target.RPCPlayCustomSound("FlashBang");
         target.MarkDirtySettings();
 
+        int duration = BlindDuration.GetInt();
         LateTask.New(() =>
         {
             if (BlindPlayers.Remove(target.PlayerId)) target.MarkDirtySettings();
             RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskComplete);
-        }, BlindDuration.GetFloat(), "Remove Minion Blindness");
+        }, duration, "Remove Minion Blindness");
+        pc.AddAbilityCD(Cooldown + duration);
     }
 
     public void OnAssign(PlayerControl pc) { }

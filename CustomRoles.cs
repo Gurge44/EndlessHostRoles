@@ -68,6 +68,7 @@ public enum CustomRoles
     Frightener,
     Gambler,
     Gangster,
+    Gatekeeper,
     Generator,
     Godfather,
     Greedy,
@@ -169,6 +170,7 @@ public enum CustomRoles
     Benefactor,
     Bestower,
     Bodyguard,
+    Bouncer,
     CameraMan,
     Captain,
     Car,
@@ -254,6 +256,7 @@ public enum CustomRoles
     Rabbit,
     Randomizer,
     Retributionist,
+    Revenant,
     Rhapsode,
     Ricochet,
     Safeguard,
@@ -470,6 +473,7 @@ public enum CustomRoles
     Venter,
     Agent,
     Taskinator,
+    Disguiser,
 
     // Speedrun
     Runner,
@@ -504,6 +508,9 @@ public enum CustomRoles
     // Snowdown
     SnowdownPlayer,
 
+    // DoomTag
+    Tagger,
+
     // GM
     GM,
 
@@ -536,7 +543,7 @@ public enum CustomRoles
     Circumvent,
     Cleansed,
     Clumsy,
-    Commited,
+    Committed,
     Compelled,
     Composter,
     Concealer,
@@ -560,8 +567,9 @@ public enum CustomRoles
     Facilitator, // Ghost role
     Finder,
     Flash,
-    Fragile,
+    Focused,
     Fool,
+    Fragile,
     Giant,
     Glow,
     Gravestone,

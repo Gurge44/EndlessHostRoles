@@ -73,10 +73,13 @@ internal class Nullifier : RoleBase
                     case CustomRoles.Hacker:
                         if (target.IsModdedClient())
                         {
-                            Hacker.UseLimitSeconds[target.PlayerId] -= Hacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
-                            Hacker.SendRPC(target.PlayerId, Hacker.UseLimitSeconds[target.PlayerId]);
+                            if (Hacker.UseLimitSeconds != null)
+                            {
+                                Hacker.UseLimitSeconds[target.PlayerId] -= Hacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
+                                Hacker.SendRPC(target.PlayerId, Hacker.UseLimitSeconds[target.PlayerId]);
+                            }
                         }
-                        else
+                        else if (Hacker.UseLimit != null)
                             Hacker.UseLimit[target.PlayerId]--;
 
                         break;
@@ -85,7 +88,7 @@ internal class Nullifier : RoleBase
                         Vigilante.SendRPC(target.PlayerId);
                         break;
                     default:
-                        target.RpcRemoveAbilityUse();
+                        target.RpcRemoveAbilityUse(notify: false);
                         break;
                 }
 

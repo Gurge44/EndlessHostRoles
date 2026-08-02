@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Roles;
 
@@ -43,7 +44,6 @@ internal static class GeneratorStatic
         private static Dictionary<Action, int> ActionCosts = [];
 
         private int Charges;
-        private long LastUpdate;
         public override bool IsEnable => On;
 
         public override void SetupCustomOption()
@@ -77,7 +77,6 @@ internal static class GeneratorStatic
             On = true;
             Charges = StartingCharges.GetInt();
             playerId.SetAbilityUseLimit(Charges);
-            LastUpdate = Utils.TimeStamp + 8;
         }
 
         public override void Init()
@@ -97,10 +96,7 @@ internal static class GeneratorStatic
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!GameStates.IsInTask || !pc.IsAlive()) return;
-
-            long now = Utils.TimeStamp;
-            if (now <= LastUpdate) return;
-            LastUpdate = now;
+            if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
             int beforeCharges = Charges;
             bool shifted = pc.IsShifted();

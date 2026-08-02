@@ -14,7 +14,7 @@ public static class Prompt
     private static string CurrentQuestion = string.Empty;
     private static bool ShowBackButton;
 
-    public static void Show(string question, Action onYes, Action onNo, bool showBackButton = false)
+    public static void Show(string question, Action onYes, Action onNo, bool showBackButton = true)
     {
         try
         {
@@ -36,8 +36,8 @@ public static class Prompt
 
             Action closePromt = () =>
             {
-                HidePromt();
                 CurrentQuestion = string.Empty;
+                HidePromt();
 
                 if (!ShowBackButton) hud.Dialogue.BackButton.gameObject.SetActive(true);
                 hud.Dialogue.Hide();
@@ -97,12 +97,19 @@ public static class Prompt
             {
                 if (!ShowBackButton) return false;
                 
+                CurrentQuestion = string.Empty;
                 ClearQueue();
                 HidePromt();
-                CurrentQuestion = string.Empty;
             }
 
             return true;
         }
+    }
+
+    public static void Reset()
+    {
+        CurrentQuestion = string.Empty;
+        ClearQueue();
+        HidePromt();
     }
 }

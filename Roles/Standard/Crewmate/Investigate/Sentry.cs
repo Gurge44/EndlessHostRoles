@@ -20,7 +20,7 @@ internal class Sentry : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
     private static readonly Dictionary<SimpleTeam, OptionItem> TeamsCanSeeInfo = [];
 
-    private static Vector2[] AvailableDevices = [];
+    private static Vector2[] AvailableDevices;
 
     private readonly Dictionary<byte, long> LastInfoSend = [];
     private readonly HashSet<byte> LastNotified = [];
@@ -84,11 +84,6 @@ internal class Sentry : RoleBase
         DeadBodiesInRoom = [];
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
         UsingDevice = [];
-    }
-
-    public override void Init()
-    {
-        On = false;
 
         AvailableDevices = DisableDevice.DevicePos.Where(x =>
         {
@@ -120,6 +115,12 @@ internal class Sentry : RoleBase
         }).Select(x => x.Value).ToArray();
     }
 
+    public override void Init()
+    {
+        On = false;
+        AvailableDevices = null;
+    }
+
     public override void OnPet(PlayerControl pc)
     {
         PlainShipRoom room = pc.GetPlainShipRoom();
@@ -148,7 +149,7 @@ internal class Sentry : RoleBase
         if (!fromDevice)
         {
             if (pc.GetAbilityUseLimit() < 1) return;
-            pc.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse(notify: false);
         }
 
         string roomName = Translator.GetString(MonitoredRoom.RoomId);
@@ -167,7 +168,7 @@ internal class Sentry : RoleBase
             if (target.shapeshiftTargetPlayerId != byte.MaxValue)
                 realTarget = Utils.GetPlayerById(target.shapeshiftTargetPlayerId);
 
-            if (realTarget == null) realTarget = target;
+            if (!realTarget) realTarget = target;
 
             string coloredName = Utils.ColorString(Main.PlayerColors[realTarget.PlayerId], realTarget.GetRealName());
 
@@ -181,7 +182,7 @@ internal class Sentry : RoleBase
         foreach (byte id in DeadBodiesInRoom)
         {
             PlayerControl bodyPc = Utils.GetPlayerById(id);
-            if (bodyPc == null) continue;
+            if (!bodyPc) continue;
 
             string coloredName = Utils.ColorString(Main.PlayerColors[id], bodyPc.GetRealName());
 
@@ -280,11 +281,10 @@ internal class Sentry : RoleBase
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (MonitoredRoom == null || MonitoredRoom == null || MonitoredRoom == null) return;
+        if (!MonitoredRoom || AvailableDevices == null) return;
 
         long now = Utils.TimeStamp;
         if (LastInfoSend.TryGetValue(pc.PlayerId, out long ts) && ts == now) return;
-
         LastInfoSend[pc.PlayerId] = now;
 
         if (!CheckTeam(pc)) return;

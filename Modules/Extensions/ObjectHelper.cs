@@ -75,22 +75,20 @@ public static class Il2CppCastHelper
 
     public static bool TryCastFast<T>(this Il2CppObjectBase obj, out T casted) where T : Il2CppObjectBase
     {
-        if (obj is T t)
+        switch (obj)
         {
-            casted = t;
-            return true;
+            case T t:
+                casted = t;
+                return true;
+            case null:
+                casted = null;
+                return false;
+            default:
+                casted = OperatingSystem.IsAndroid()
+                    ? obj.Cast<T>()
+                    : obj.Pointer.CastFast<T>();
+
+                return casted != null;
         }
-
-        if (obj == null)
-        {
-            casted = null;
-            return false;
-        }
-
-        casted = OperatingSystem.IsAndroid()
-            ? obj.Cast<T>()
-            : obj.Pointer.CastFast<T>();
-
-        return casted != null;
     }
 }

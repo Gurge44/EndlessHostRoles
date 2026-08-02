@@ -9,7 +9,6 @@ using Newtonsoft.Json.Linq;
 using TMPro;
 using Twitch;
 using UnityEngine;
-using UnityEngine.Events;
 using static EHR.Translator;
 
 namespace EHR;
@@ -352,8 +351,8 @@ public static class ModUpdater
                 var passiveButton = firstButton.GetComponent<PassiveButton>();
                 passiveButton.OnClick = new();
                 if (onClickOnFirstButton != null)
-                    passiveButton.OnClick.AddListener((UnityAction)(() => { onClickOnFirstButton(); InfoPopupV2.Close();}));
-                else passiveButton.OnClick.AddListener((UnityAction)(() => InfoPopupV2.Close()));
+                    passiveButton.OnClick.AddListener((Action)(() => { onClickOnFirstButton(); InfoPopupV2.Close();}));
+                else passiveButton.OnClick.AddListener((Action)(() => InfoPopupV2.Close()));
             }
             
             if (secondButton)
@@ -377,8 +376,8 @@ public static class ModUpdater
                 var passiveButton = secondButton.GetComponent<PassiveButton>();
                 passiveButton.OnClick = new();
                 if (onClickOnSecondButton != null)
-                    passiveButton.OnClick.AddListener((UnityAction)(() => { onClickOnSecondButton(); InfoPopupV2.Close(); }));
-                else passiveButton.OnClick.AddListener((UnityAction)(() => InfoPopupV2.Close()));
+                    passiveButton.OnClick.AddListener((Action)(() => { onClickOnSecondButton(); InfoPopupV2.Close(); }));
+                else passiveButton.OnClick.AddListener((Action)(() => InfoPopupV2.Close()));
             }
         }
     }

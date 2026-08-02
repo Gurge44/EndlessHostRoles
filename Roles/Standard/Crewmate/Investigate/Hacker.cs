@@ -15,9 +15,9 @@ using static Utils;
 public class Hacker : RoleBase
 {
     private const int Id = 641000;
-    public static Dictionary<byte, bool> PlayerIdList = [];
-    public static Dictionary<byte, float> UseLimit = [];
-    public static Dictionary<byte, float> UseLimitSeconds = [];
+    public static Dictionary<byte, bool> PlayerIdList;
+    public static Dictionary<byte, float> UseLimit;
+    public static Dictionary<byte, float> UseLimitSeconds;
 
     public static OptionItem AbilityCD;
     public static OptionItem UseLimitOpt;
@@ -27,7 +27,7 @@ public class Hacker : RoleBase
     public static OptionItem ModdedClientCanMoveWhileViewingMap;
     public static OptionItem VanillaClientSeesInfoFor;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList is { Count: > 0 };
 
     public override void SetupCustomOption()
     {
@@ -63,13 +63,17 @@ public class Hacker : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
-        UseLimit = [];
-        UseLimitSeconds = [];
+        PlayerIdList = null;
+        UseLimit = null;
+        UseLimitSeconds = null;
     }
 
     public override void Add(byte playerId)
     {
+        PlayerIdList ??= [];
+        UseLimit ??= [];
+        UseLimitSeconds ??= [];
+        
         PlayerIdList.TryAdd(playerId, GetPlayerById(playerId).IsModdedClient());
 
         if (!GetPlayerById(playerId).IsModdedClient())
@@ -80,7 +84,7 @@ public class Hacker : RoleBase
 
     public override void Remove(byte playerId)
     {
-        PlayerIdList.Remove(playerId);
+        PlayerIdList?.Remove(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -108,6 +112,7 @@ public class Hacker : RoleBase
         byte playerId = reader.ReadByte();
         float secondsLeft = reader.ReadSingle();
 
+        UseLimitSeconds ??= [];
         UseLimitSeconds[playerId] = secondsLeft;
     }
 
@@ -124,9 +129,9 @@ public class Hacker : RoleBase
 
     private static void UseAbility(PlayerControl pc, bool pet)
     {
-        if (pc == null) return;
+        if (!pc) return;
 
-        if (pc.IsModdedClient() || !UseLimit.ContainsKey(pc.PlayerId)) return;
+        if (pc.IsModdedClient() || UseLimit == null || !UseLimit.ContainsKey(pc.PlayerId)) return;
 
         if (UseLimit[pc.PlayerId] >= 1)
         {
@@ -145,7 +150,7 @@ public class Hacker : RoleBase
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        if (!pc.IsAlive()) return;
+        if (!pc.IsAlive() || UseLimit == null || UseLimitSeconds == null) return;
         
         if (completedTaskCount + 1 >= totalTaskCount)
         {
@@ -213,7 +218,7 @@ public class Hacker : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!hud || seer == null) return string.Empty;
+        if (!hud || UseLimitSeconds == null) return string.Empty;
 
         return !seer.Is(CustomRoles.Hacker) ? string.Empty : $"<color=#00ffa5>{GetString("HackerAbilitySecondsLeft")}:</color> <b>{(int)UseLimitSeconds[seer.PlayerId]}</b>s";
     }
@@ -221,7 +226,7 @@ public class Hacker : RoleBase
     public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
         if (playerId.IsPlayerModdedClient()) return;
-        if (!UseLimit.TryGetValue(playerId, out float limit)) return;
+        if (UseLimit == null || !UseLimit.TryGetValue(playerId, out float limit)) return;
 
         resultText.Append(GetTaskCount(playerId, comms))
             .Append(" <color=#777777>-</color> ")

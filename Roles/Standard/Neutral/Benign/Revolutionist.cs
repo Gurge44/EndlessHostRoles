@@ -62,6 +62,11 @@ internal class Revolutionist : RoleBase
     public override void Init()
     {
         On = false;
+        IsDraw = [];
+        RevolutionistTimer = [];
+        RevolutionistStart = [];
+        RevolutionistLastTime = [];
+        RevolutionistCountdown = [];
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -179,7 +184,7 @@ internal class Revolutionist : RoleBase
                         Main.PlayerStates[rvTarget.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
                         player.Kill(rvTarget);
                         Main.PlayerStates[rvTarget.PlayerId].SetDead();
-                        Logger.Info($"Revolutionist: {player.GetNameWithRole().RemoveHtmlTags()} killed {rvTarget.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
+                        Logger.Info($"Revolutionist: {player.GetNameWithRole()} killed {rvTarget.GetNameWithRole()}", "Revolutionist");
                     }
                 }
                 else
@@ -194,7 +199,7 @@ internal class Revolutionist : RoleBase
                         Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rvTarget);
                         RPC.ResetCurrentDrawTarget(playerId);
 
-                        Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
+                        Logger.Info($"Canceled: {player.GetNameWithRole()}", "Revolutionist");
                     }
                 }
             }

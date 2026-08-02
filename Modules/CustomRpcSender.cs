@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles;
@@ -36,12 +37,14 @@ public class CustomRpcSender
     private readonly OnSendDelegateType onSendDelegate;
     public readonly SendOption sendOption;
 
+    public bool checkLength;
+
     // 0~: targetClientId (GameDataTo)
     // -1: All players (GameData)
     // -2: Not set
-    private int currentRpcTarget;
+    public int currentRpcTarget;
 
-    private bool packed;
+    public bool packed;
 
     private State currentState/* = State.BeforeInit*/;
     public int messages;
@@ -57,6 +60,7 @@ public class CustomRpcSender
         this.log = log;
         currentRpcTarget = -2;
         packed = false;
+        checkLength = true;
         onSendDelegate = () => { };
         messages = 0;
 
@@ -126,7 +130,7 @@ public class CustomRpcSender
         {
             // StartMessage processing
             if (currentState == State.InRootMessage)
-                EndMessage(startNew: !packed);
+                EndMessage(startNew: !packed && messages < AmongUsClient.Instance.GetMaxMessagePackingLimit());
             else if (messages > 0) // state is Ready or InRootPackedMessage
             {
                 if (currentState == State.InRootPackedMessage)
@@ -162,30 +166,21 @@ public class CustomRpcSender
         
             if (currentState == State.InRootPackedMessage)
             {
-                static int GetPackedIntSize(int value)
-                {
-                    uint v = (uint)value;
-                    int count = 0;
-
-                    do
-                    {
-                        v >>= 7;
-                        count++;
-                    }
-                    while (v != 0);
-
-                    return count;
-                }
-
-                if (1 + GetPackedIntSize(AmongUsClient.Instance.GameId) >= stream.Length)
+                if (stream.Length <= 11)
                     dispose = true;
                 else
                     EndMessage();
             }
             
-            if (currentState != State.Ready)
+            if (!dispose && currentState != State.Ready)
             {
-                var errorMsg = $"Tried to send RPC but State is not Ready (in: \"{name}\", state: {currentState})";
+                if (currentState == State.Finished)
+                {
+                    Logger.Warn($"Tried to send Message but \"{name}\" is already Finished", "CustomRpcSender.Warn");
+                    return;
+                }
+                
+                var errorMsg = $"Tried to send Message but State is not Ready (in: \"{name}\", state: {currentState})";
 
                 if (isUnsafe)
                     Logger.Warn(errorMsg, "CustomRpcSender.Warn");
@@ -232,7 +227,7 @@ public class CustomRpcSender
     {
         if (currentState != State.InRpc)
         {
-            var errorMsg = $"Tried to write RPC, but State is not InRpc (in: \"{name}\")";
+            var errorMsg = $"Tried to write into RPC, but State is not InRpc (in: \"{name}\")";
 
             if (isUnsafe)
                 Logger.Warn(errorMsg, "CustomRpcSender.Warn");
@@ -263,7 +258,7 @@ public class CustomRpcSender
 
         if (currentState == State.InRootPackedMessage && targetClientId < 0)
         {
-            var errorMsg = $"Tried to start RPC, but State is InRootPackedMessage and the requested targetClientId is negative. Only GameDataTo messages can be started in this state. (in: \"{name}\")";
+            var errorMsg = $"Tried to start Message, but State is InRootPackedMessage and the requested targetClientId is negative. Only GameDataTo messages can be started in this state. (in: \"{name}\")";
 
             if (isUnsafe)
                 Logger.Warn(errorMsg, "CustomRpcSender.Warn");
@@ -271,7 +266,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        if (stream.Length > 500)
+        if (checkLength && stream.Length > 500)
         {
             if (currentState == State.InRootPackedMessage)
             {
@@ -279,6 +274,7 @@ public class CustomRpcSender
                 doneStreams.Add(stream);
                 stream = MessageWriter.Get(sendOption);
                 messages = 0;
+                currentState = State.Ready;
                 StartPackedMessage();
             }
             else
@@ -312,7 +308,7 @@ public class CustomRpcSender
     {
         if (currentState != State.Ready)
         {
-            var errorMsg = $"Tried to start Message but State is not Ready (in: \"{name}\")";
+            var errorMsg = $"Tried to start Packed Message but State is not Ready (in: \"{name}\")";
 
             if (isUnsafe)
                 Logger.Warn(errorMsg, "CustomRpcSender.Warn");
@@ -320,7 +316,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        if (stream.Length > 500)
+        if (checkLength && stream.Length > 500)
         {
             doneStreams.Add(stream);
             stream = MessageWriter.Get(sendOption);
@@ -340,7 +336,7 @@ public class CustomRpcSender
     {
         if (currentState is not State.InRootMessage and not State.InRootPackedMessage)
         {
-            var errorMsg = $"Tried to exit Message but State is not InRootMessage or InRootPackedMessage (in: \"{name}\")";
+            var errorMsg = $"Tried to end Message but State is not InRootMessage or InRootPackedMessage (in: \"{name}\")";
 
             if (isUnsafe)
                 Logger.Warn(errorMsg, "CustomRpcSender.Warn");
@@ -407,8 +403,9 @@ public class CustomRpcSender
 
         if (messages >= AmongUsClient.Instance.GetMaxMessagePackingLimit())
         {
+            int targetClientId = currentRpcTarget;
             EndMessage(startNew: true);
-            StartMessage(currentRpcTarget);
+            StartMessage(targetClientId);
         }
 
         messages++;
@@ -425,7 +422,7 @@ public class CustomRpcSender
     {
         if (currentState != State.InRpc)
         {
-            var errorMsg = $"Tried to terminate RPC but State is not InRpc (in: \"{name}\")";
+            var errorMsg = $"Tried to end RPC but State is not InRpc (in: \"{name}\")";
 
             if (isUnsafe)
                 Logger.Warn(errorMsg, "CustomRpcSender.Warn");
@@ -529,6 +526,96 @@ public class CustomRpcSender
 
 public static class CustomRpcSenderExtensions
 {
+    public static void RpcSetName(ref CustomRpcSender sender, PlayerControl player, PlayerControl seer, string name)
+    {
+        bool seerIsNull = !seer;
+        int targetClientId = seerIsNull ? -1 : seer.OwnerId;
+
+        name = name.Replace("color=", string.Empty);
+
+        switch (seerIsNull)
+        {
+            case true when Main.LastNotifyNames.Where(x => x.Key.Item1 == player.PlayerId).All(x => x.Value == name):
+            case false when Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name:
+                return;
+            case true:
+                Main.EnumeratePlayerControls().Do(x => Main.LastNotifyNames[(player.PlayerId, x.PlayerId)] = name);
+                break;
+            default:
+                Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
+                break;
+        }
+
+        sender.checkLength = false;
+
+        if (sender.stream.Length + GetSetNameRpcSize(player.NetId, name) > 1100)
+        {
+            bool packed = sender.packed;
+            sender.SendMessage();
+            sender = CustomRpcSender.Create(sender.name, sender.sendOption);
+            if (packed) sender.StartPackedMessage();
+        }
+
+        sender.AutoStartRpc(player.NetId, RpcCalls.SetName, targetClientId)
+            .Write(player.Data.NetId)
+            .Write(name)
+            .Write(false)
+            .EndRpc();
+        
+        return;
+
+        static int GetSetNameRpcSize(uint netId, string playerName)
+        {
+            int byteCount = Encoding.UTF8.GetByteCount(playerName);
+            return 3 + PackedUIntSize(netId) + 1 + 4 + PackedUIntSize((uint)byteCount) + byteCount + 1;
+        }
+
+        static int PackedUIntSize(uint value)
+        {
+            return value switch
+            {
+                < 0x80 => 1,
+                < 0x4000 => 2,
+                < 0x20_0000 => 3,
+                < 0x1000_0000 => 4,
+                _ => 5
+            };
+        }
+    }
+
+    public static bool Notify(ref CustomRpcSender sender, PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
+    {
+        if (!AmongUsClient.Instance.AmHost || !pc) return false;
+        if (!GameStates.IsInTask) return false;
+        if (!text.Contains('#') && !text.Contains("<color=")) text = Utils.ColorString(Color.white, text);
+        if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
+
+        long expireTS = Utils.TimeStamp + (long)time;
+        bool alreadyContainsKey = false;
+
+        if (overrideAll || !NameNotifyManager.Notifies.TryGetValue(pc.PlayerId, out Dictionary<string, long> notifies))
+            NameNotifyManager.Notifies[pc.PlayerId] = new() { { text, expireTS } };
+        else
+        {
+            alreadyContainsKey = notifies.ContainsKey(text);
+            notifies[text] = expireTS;
+        }
+
+        bool returnValue = pc.IsNonHostModdedClient();
+        if (returnValue) NameNotifyManager.SendRPC(sender, pc, text, expireTS, overrideAll);
+
+        if (alreadyContainsKey)
+        {
+            if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
+            return returnValue;
+        }
+
+        if (setName) returnValue |= Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], [], out bool senderWasCleared) && !senderWasCleared;
+        if (log) Logger.Info($"New name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
+
+        return returnValue;
+    }
+
     extension(CustomRpcSender sender)
     {
         public bool RpcSetRole(PlayerControl player, RoleTypes role, int targetClientId = -1, bool noRpcForSelf = true, bool changeRoleMap = false)
@@ -566,33 +653,6 @@ public static class CustomRpcSenderExtensions
             }
 
             return true;
-        }
-
-        public void RpcSetName(PlayerControl player, string name, PlayerControl seer = null)
-        {
-            bool seerIsNull = !seer;
-            int targetClientId = seerIsNull ? -1 : seer.OwnerId;
-
-            name = name.Replace("color=", string.Empty);
-
-            switch (seerIsNull)
-            {
-                case true when Main.LastNotifyNames.Where(x => x.Key.Item1 == player.PlayerId).All(x => x.Value == name):
-                case false when Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name:
-                    return;
-                case true:
-                    Main.EnumeratePlayerControls().Do(x => Main.LastNotifyNames[(player.PlayerId, x.PlayerId)] = name);
-                    break;
-                default:
-                    Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
-                    break;
-            }
-
-            sender.AutoStartRpc(player.NetId, RpcCalls.SetName, targetClientId)
-                .Write(player.Data.NetId)
-                .Write(name)
-                .Write(false)
-                .EndRpc();
         }
 
         public bool RpcGuardAndKill(PlayerControl killer, PlayerControl target = null, bool forObserver = false, bool fromSetKCD = false)
@@ -633,7 +693,7 @@ public static class CustomRpcSenderExtensions
                 sender.EndRpc();
 
                 if (Options.CurrentGameMode == CustomGameMode.Standard && !MeetingStates.FirstMeeting && !AntiBlackout.SkipTasks && !ExileController.Instance && GameStates.IsInTask && killer.IsBeginner() && Main.GotShieldAnimationInfoThisGame.Add(killer.PlayerId))
-                    sender.Notify(killer, Translator.GetString("PleaseStopBeingDumb"), 10f);
+                    Notify(ref sender, killer, Translator.GetString("PleaseStopBeingDumb"), 10f);
 
                 returnValue = true;
             }
@@ -757,39 +817,6 @@ public static class CustomRpcSenderExtensions
             sender.EndRpc();
         }
 
-        public bool Notify(PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
-        {
-            if (!AmongUsClient.Instance.AmHost || !pc) return false;
-            if (!GameStates.IsInTask) return false;
-            if (!text.Contains("<color=") && !text.Contains("</color>")) text = Utils.ColorString(Color.white, text);
-            if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
-
-            long expireTS = Utils.TimeStamp + (long)time;
-            bool alreadyContainsKey = false;
-
-            if (overrideAll || !NameNotifyManager.Notifies.TryGetValue(pc.PlayerId, out Dictionary<string, long> notifies))
-                NameNotifyManager.Notifies[pc.PlayerId] = new() { { text, expireTS } };
-            else
-            {
-                alreadyContainsKey = notifies.ContainsKey(text);
-                notifies[text] = expireTS;
-            }
-
-            bool returnValue = pc.IsNonHostModdedClient();
-            if (returnValue) NameNotifyManager.SendRPC(sender, pc.PlayerId, text, expireTS, overrideAll);
-
-            if (alreadyContainsKey)
-            {
-                if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
-                return returnValue;
-            }
-
-            if (setName) returnValue |= Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], [], out bool senderWasCleared) && !senderWasCleared;
-            if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
-
-            return returnValue;
-        }
-
         public bool TP(PlayerControl pc, Vector2 location, bool noCheckState = false, bool log = true)
         {
             if (!AmongUsClient.Instance.AmHost) return false;
@@ -802,13 +829,13 @@ public static class CustomRpcSenderExtensions
 
                 if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
                 {
-                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
+                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole()}) is in an un-teleportable state - Teleporting canceled", "TP");
                     return false;
                 }
 
                 if (FastVector2.DistanceWithinRange(pc.Pos(), location, 0.5f))
                 {
-                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
+                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole()}) is too close to the destination - Teleporting canceled", "TP");
                     return false;
                 }
             }
@@ -824,7 +851,7 @@ public static class CustomRpcSenderExtensions
             sender.Write(newSid);
             sender.EndRpc();
 
-            if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
+            if (log) Logger.Info($"{pc.GetNameWithRole()} => {location}", "TP");
 
             CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
             CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
@@ -925,6 +952,28 @@ public static class CustomRpcSenderExtensions
 
             return true;
         }
+        
+        public bool RpcExitVentDesync(PlayerPhysics physics, int ventId, PlayerControl seer)
+        {
+            if (!physics) return false;
+
+            int clientId = seer.OwnerId;
+
+            if (AmongUsClient.Instance.ClientId == clientId)
+            {
+                physics.StopAllCoroutines();
+                physics.StartCoroutine(physics.CoExitVent(ventId));
+                return false;
+            }
+            
+            if (clientId < 0) return false;
+
+            sender.AutoStartRpc(physics.NetId, RpcCalls.ExitVent, clientId);
+            sender.WritePacked(ventId);
+            sender.EndRpc();
+            
+            return true;
+        }
     }
 }
 
@@ -935,8 +984,10 @@ static class PreventLargePacketKickPatch
     public static bool Prefix([HarmonyArgument(0)] MessageWriter msg)
     {
         if (msg.Length <= 1200) return true;
-        
-        if (GameStates.CurrentServerType is GameStates.ServerType.Local or GameStates.ServerType.Vanilla)
+
+        var serverType = GameStates.CurrentServerType;
+
+        if (!AmongUsClient.Instance.AmHost || serverType is GameStates.ServerType.Local or GameStates.ServerType.Vanilla || (serverType == GameStates.ServerType.Niko && !AmongUsClient.Instance.AmHost))
         {
             Logger.Warn($" Blocked large packet from sending (size: {msg.Length})", nameof(PreventLargePacketKickPatch));
             return false;

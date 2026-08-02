@@ -14,8 +14,8 @@ public class Poache : CovenBase
     private static OptionItem CanVentBeforeNecronomicon;
     private static OptionItem CanVentAfterNecronomicon;
 
-    public static HashSet<byte> PoachedPlayers = [];
-    private static List<byte> KillDelays = [];
+    public static HashSet<byte> PoachedPlayers;
+    private static List<byte> KillDelays;
 
     private byte PoacheId;
 
@@ -35,8 +35,8 @@ public class Poache : CovenBase
     public override void Init()
     {
         On = false;
-        PoachedPlayers = [];
-        KillDelays = [];
+        PoachedPlayers = null;
+        KillDelays = null;
     }
 
     public override void Add(byte playerId)
@@ -64,11 +64,13 @@ public class Poache : CovenBase
     {
         if (!HasNecronomicon)
         {
+            PoachedPlayers ??= [];
             PoachedPlayers.Add(target.PlayerId);
             Utils.SendRPC(CustomRPC.SyncRoleData, PoacheId, 1, target.PlayerId);
         }
         else
         {
+            KillDelays ??= [];
             KillDelays.Add(target.PlayerId);
             _ = new CountdownTimer(KillDelay.GetInt(), () =>
             {
@@ -83,14 +85,14 @@ public class Poache : CovenBase
 
     public override void AfterMeetingTasks()
     {
-        PoachedPlayers.Clear();
+        PoachedPlayers = null;
         Utils.SendRPC(CustomRPC.SyncRoleData, PoacheId, 2);
     }
 
     public override void OnReportDeadBody()
     {
         KillDelays.ForEach(x => x.GetPlayer()?.Suicide(PlayerState.DeathReason.Poison, realKiller: PoacheId.GetPlayer()));
-        KillDelays.Clear();
+        KillDelays = null;
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -98,10 +100,11 @@ public class Poache : CovenBase
         switch (reader.ReadPackedInt32())
         {
             case 1:
+                PoachedPlayers ??= [];
                 PoachedPlayers.Add(reader.ReadByte());
                 break;
             case 2:
-                PoachedPlayers.Clear();
+                PoachedPlayers = null;
                 break;
         }
     }

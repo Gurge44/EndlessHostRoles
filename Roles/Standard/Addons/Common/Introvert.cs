@@ -10,7 +10,7 @@ public class Introvert : IAddon
     private static OptionItem Radius;
     private static OptionItem Time;
 
-    public static Dictionary<byte, long> TeleportAwayDelays = [];
+    public static Dictionary<byte, long> TeleportAwayDelays;
     public AddonTypes Type => AddonTypes.Mixed;
 
     public void SetupCustomOption()
@@ -30,9 +30,11 @@ public class Introvert : IAddon
     {
         if (Main.HasJustStarted || !Main.IntroDestroyed || AntiBlackout.SkipTasks || ExileController.Instance)
         {
-            TeleportAwayDelays = [];
+            TeleportAwayDelays = null;
             return;
         }
+
+        TeleportAwayDelays ??= [];
 
         Vector2 pos = pc.Pos();
         float radius = Radius.GetFloat();
@@ -89,6 +91,7 @@ public class Introvert : IAddon
             {
                 byte id = reader.ReadByte();
                 long endTS = long.Parse(reader.ReadString());
+                TeleportAwayDelays ??= [];
                 TeleportAwayDelays[id] = endTS;
                 break;
             }
@@ -97,7 +100,7 @@ public class Introvert : IAddon
 
     public static string GetSelfSuffix(PlayerControl seer)
     {
-        if (!seer.IsAlive() || !TeleportAwayDelays.TryGetValue(seer.PlayerId, out long endTS)) return string.Empty;
+        if (!seer.IsAlive() || TeleportAwayDelays == null || !TeleportAwayDelays.TryGetValue(seer.PlayerId, out long endTS)) return string.Empty;
         return string.Format(Translator.GetString("Introvert.Suffix"), endTS - Utils.TimeStamp);
     }
 }

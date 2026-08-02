@@ -18,7 +18,6 @@ public class Chronomancer : RoleBase
     private int ChargePercent;
     private byte ChronomancerId;
     private bool IsRampaging;
-    private long LastUpdate;
     
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -47,15 +46,13 @@ public class Chronomancer : RoleBase
         writer.Write(ChronomancerId);
         writer.Write(IsRampaging);
         writer.Write(ChargePercent);
-        writer.Write(LastUpdate.ToString());
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public void ReceiveRPC(bool isRampaging, int chargePercent, long lastUpdate)
+    public void ReceiveRPC(bool isRampaging, int chargePercent)
     {
         IsRampaging = isRampaging;
         ChargePercent = chargePercent;
-        LastUpdate = lastUpdate;
     }
 
     public override void Init()
@@ -63,7 +60,6 @@ public class Chronomancer : RoleBase
         PlayerIdList = [];
         IsRampaging = false;
         ChargePercent = 0;
-        LastUpdate = Utils.TimeStamp + 30;
         ChronomancerId = byte.MaxValue;
     }
 
@@ -73,7 +69,6 @@ public class Chronomancer : RoleBase
         RampageKills = 0;
         IsRampaging = false;
         ChargePercent = 0;
-        LastUpdate = Utils.TimeStamp + 10;
         ChronomancerId = playerId;
     }
 
@@ -115,10 +110,7 @@ public class Chronomancer : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!GameStates.IsInTask) return;
-
-        long now = Utils.TimeStamp;
-        if (LastUpdate >= now) return;
-        LastUpdate = now;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         var notify = false;
         int beforeCharge = ChargePercent;
@@ -161,7 +153,6 @@ public class Chronomancer : RoleBase
 
     public override void OnReportDeadBody()
     {
-        LastUpdate = Utils.TimeStamp;
         ChargePercent = 0;
         IsRampaging = false;
         SendRPC();

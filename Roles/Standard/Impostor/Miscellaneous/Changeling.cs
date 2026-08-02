@@ -2,6 +2,9 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using System;
+using UnityEngine;
+using static EHR.Translator;
 using static EHR.Options;
 
 namespace EHR.Roles;
@@ -21,9 +24,10 @@ internal class Changeling : RoleBase
         "CL.Enabled" // 1
     ];
 
-    private static List<CustomRoles> Roles = [];
+    public static List<CustomRoles> Roles = [];
     public static bool On;
     private byte ChangelingId;
+    public bool UsedCommand;
 
     public CustomRoles CurrentRole;
     public override bool IsEnable => On;
@@ -65,6 +69,7 @@ internal class Changeling : RoleBase
         On = true;
         ChangelingId = playerId;
         ChangedRole[playerId] = false;
+        UsedCommand = false;
 
         if (Roles.Count == 0)
         {
@@ -121,6 +126,13 @@ internal class Changeling : RoleBase
         return false;
     }
 
+    public override void AfterMeetingTasks()
+    {
+        var pc = ChangelingId.GetPlayer();
+        if (!pc || !pc.IsAlive() || !UsedCommand) return;
+        OnVanish(pc);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.PhantomCooldown = 0.1f;
@@ -129,5 +141,47 @@ internal class Changeling : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         return seer.PlayerId != target.PlayerId || ChangelingId != seer.PlayerId || (seer.IsModdedClient() && !hud) || meeting ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), CurrentRole.ToColoredString());
+    }
+
+    public static void CreateChangelingButton(MeetingHud __instance)
+    {
+        PlayerVoteArea localPva = __instance.playerStates
+            .FirstOrDefault(pva => pva.TargetPlayerId == PlayerControl.LocalPlayer.PlayerId);
+
+        PlayerControl pc = Utils.GetPlayerById(localPva.TargetPlayerId);
+        if (!pc || !pc.IsAlive()) return;
+
+        GameObject template = localPva.Buttons.transform.Find("CancelButton").gameObject;
+        GameObject targetBox = Object.Instantiate(template, localPva.transform);
+        targetBox.name = "ShootButton";
+        targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
+        var renderer = targetBox.GetComponent<SpriteRenderer>();
+        renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.GlitchMimic.png", 160f);
+        var button = targetBox.GetComponent<PassiveButton>();
+        button.OnClick.RemoveAllListeners();
+        button.OnClick.AddListener((Action)(() => GuessManager.GuesserOnClick(localPva.TargetPlayerId, __instance, true)));
+    }
+
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    public static class StartMeetingPatch
+    {
+        public static void Postfix(MeetingHud __instance)
+        {
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Changeling) && PlayerControl.LocalPlayer.IsAlive())
+                CreateChangelingButton(__instance);
+        }
+    }
+
+    public static void ProcessGuesserUI(CustomRoles role)
+    {
+        PlayerControl pc = PlayerControl.LocalPlayer;
+        if (!pc || !pc.Is(CustomRoles.Changeling)) return;
+
+        var command = $"/choose {GetString(role.ToString())}";
+
+        if (AmongUsClient.Instance.AmHost)
+            ChatCommands.ChooseCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
+        else
+            ChatCommands.RequestCommandProcessingFromHost(command, "Choose");
     }
 }

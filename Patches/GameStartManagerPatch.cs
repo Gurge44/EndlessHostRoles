@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
@@ -44,6 +45,8 @@ public static class GameStartManagerPatch
         {
             try
             {
+                try { GameStartManagerUpdatePatch.DiscordManagerBridge.Init(); } catch (Exception e) { Utils.ThrowException(e); }
+                
                 if (!__instance) return;
 
                 UpdateSpriteStartButton = true;
@@ -128,6 +131,40 @@ public static class GameStartManagerPatch
         private static SpriteRenderer LobbyTimerBg;
         public static bool Warned;
 
+        public static class DiscordManagerBridge
+        {
+            private static bool Initialized;
+            public static bool Enabled;
+
+            public static Func<bool> InstanceExistsGetter;
+            public static Func<object> InstanceGetter;
+            public static MethodInfo SetInLobbyHost;
+            public static MethodInfo SetInLobbyClient;
+
+            public static void Init()
+            {
+                if (Initialized) return;
+                Initialized = true;
+
+                var discordType = AppDomain.CurrentDomain.GetAssemblies().Select(a =>
+                {
+                    try { return a.GetType("DiscordManager"); }
+                    catch { return null; }
+                }).FirstOrDefault(t => t != null);
+                
+                if (discordType == null) return;
+
+                var instanceProp = discordType.BaseType!.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+                InstanceGetter = (Func<object>)Delegate.CreateDelegate(typeof(Func<object>), instanceProp!.GetGetMethod()!);
+                var existsProp = discordType.BaseType.GetProperty("InstanceExists", BindingFlags.Public | BindingFlags.Static);
+                InstanceExistsGetter = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), existsProp!.GetGetMethod()!);
+                SetInLobbyHost = discordType.GetMethod("SetInLobbyHost", BindingFlags.Public | BindingFlags.Instance);
+                SetInLobbyClient = discordType.GetMethod("SetInLobbyClient", BindingFlags.Public | BindingFlags.Instance);
+
+                Enabled = true;
+            }
+        }
+
         public static bool Prefix(GameStartManager __instance)
         {
             try
@@ -156,7 +193,7 @@ public static class GameStartManagerPatch
                     }
                 }
 
-                if (!AmongUsClient.Instance || !GameData.Instance) return true;
+                if (!GameData.Instance) return true;
 
                 CheckAutoStart(__instance);
             }
@@ -224,7 +261,6 @@ public static class GameStartManagerPatch
 
                 Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
                 Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
-                Main.NormalOptions.KillCooldown = 0f;
                 AURoleOptions.SetOpt(opt);
                 Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
                 AURoleOptions.ShapeshifterCooldown = 0f;
@@ -284,12 +320,10 @@ public static class GameStartManagerPatch
                 ActionMapGlyphDisplay startButtonGlyph = instance.StartButtonGlyph;
                 startButtonGlyph?.SetColor(instance.LastPlayerCount >= instance.MinPlayers ? Palette.EnabledColor : Palette.DisabledClear);
 
-                if (DiscordManager.InstanceExists)
+                if (DiscordManagerBridge.Enabled && DiscordManagerBridge.InstanceExistsGetter())
                 {
-                    if (AmongUsClient.Instance.AmHost && AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame)
-                        DiscordManager.Instance.SetInLobbyHost(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
-                    else
-                        DiscordManager.Instance.SetInLobbyClient(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
+                    var method = AmongUsClient.Instance.AmHost && AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame ? DiscordManagerBridge.SetInLobbyHost : DiscordManagerBridge.SetInLobbyClient;
+                    method.Invoke(DiscordManagerBridge.InstanceGetter(), [instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId]);
                 }
             }
 
@@ -380,7 +414,7 @@ public static class GameStartManagerPatch
                         }
                     }
 
-                    if (!canStartGame) __instance.StartButton.gameObject.SetActive(false);
+                    if (!canStartGame && __instance.StartButton) __instance.StartButton.gameObject.SetActive(false);
                 }
                 else
                 {
@@ -402,12 +436,15 @@ public static class GameStartManagerPatch
                     }
                 }
 
-                if (warningMessage == "")
-                    WarningText.gameObject.SetActive(false);
-                else
+                if (WarningText)
                 {
-                    WarningText.text = warningMessage;
-                    WarningText.gameObject.SetActive(true);
+                    if (warningMessage == "")
+                        WarningText.gameObject.SetActive(false);
+                    else
+                    {
+                        WarningText.text = warningMessage;
+                        WarningText.gameObject.SetActive(true);
+                    }
                 }
 
                 __instance.RulesPresetText.text = GetString($"Preset_{OptionItem.CurrentPreset + 1}");
@@ -439,21 +476,24 @@ public static class GameStartManagerPatch
 
                 TextMeshPro tmp = GameStartManagerStartPatch.GameCountdown;
 
-                if (tmp.text == string.Empty)
+                if (tmp)
                 {
-                    tmp.name = "LobbyInfoText";
-                    tmp.fontSize = tmp.fontSizeMin = tmp.fontSizeMax = 3f;
-                    tmp.autoSizeTextContainer = true;
-                    tmp.alignment = TextAlignmentOptions.Center;
-                    tmp.color = Color.cyan;
-                    tmp.outlineColor = Color.black;
-                    tmp.outlineWidth = LangHasSensitiveOutlineText() ? 0.1f : 0.4f;
-                    tmp.transform.localPosition += new Vector3(-0.625f, -0.12f, 0f);
-                    tmp.transform.localScale = new(0.6f, 0.6f, 1f);
-                }
+                    if (tmp.text == string.Empty)
+                    {
+                        tmp.name = "LobbyInfoText";
+                        tmp.fontSize = tmp.fontSizeMin = tmp.fontSizeMax = 3f;
+                        tmp.autoSizeTextContainer = true;
+                        tmp.alignment = TextAlignmentOptions.Center;
+                        tmp.color = Color.cyan;
+                        tmp.outlineColor = Color.black;
+                        tmp.outlineWidth = LangHasSensitiveOutlineText() ? 0.1f : 0.4f;
+                        tmp.transform.localPosition += new Vector3(-0.625f, -0.12f, 0f);
+                        tmp.transform.localScale = new(0.6f, 0.6f, 1f);
+                    }
 
-                tmp.text = suffix;
-                tmp.gameObject.SetActive(true);
+                    tmp.text = suffix;
+                    tmp.gameObject.SetActive(true);
+                }
 
                 // Lobby timer
                 if (GameData.Instance && HudManager.InstanceExists && AmongUsClient.Instance.NetworkMode != NetworkModes.LocalGame && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
@@ -468,7 +508,7 @@ public static class GameStartManagerPatch
                     {
                         Warned = true;
                         LobbyTimerExtensionUI lobbyTimerExtensionUI = HudManager.Instance.LobbyTimerExtensionUI;
-                        lobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(true);
+                        lobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon")?.gameObject.SetActive(true);
                         SoundManager.Instance.PlaySound(lobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
                         Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
                     }
@@ -554,13 +594,10 @@ public static class GameStartRandomMap
         if (Options.OverrideSpeedForEachMap.GetBool() && Options.MapSpeeds.TryGetValue(Main.CurrentMap, out var option))
             Main.NormalOptions.PlayerSpeedMod = option.GetFloat();
 
-        if (__instance.startState == GameStartManager.StartingStates.Countdown)
-            Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
-        else
+        if (__instance.startState != GameStartManager.StartingStates.Countdown)
         {
             Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
             Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
-            Main.NormalOptions.KillCooldown = 0f;
         }
 
         var opt = Main.NormalOptions.CastFast<IGameOptions>();
@@ -610,13 +647,6 @@ internal static class ResetStartStatePatch
     {
         SoundManager.Instance.StopSound(__instance.gameStartSound);
         GameStartManagerPatch.UpdateSpriteStartButton = true;
-
-        if (__instance.startState == GameStartManager.StartingStates.Countdown)
-        {
-            Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
-            GameManager.Instance.LogicOptions.SetDirty();
-            OptionItem.SyncAllOptions();
-        }
     }
 }
 

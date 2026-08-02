@@ -45,7 +45,7 @@ public class Exclusionary : RoleBase
 
             LateTask.New(() =>
             {
-                if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || GameStates.IsEnded || GameStates.IsLobby || AntiBlackout.SkipTasks || target == null || !target.IsAlive() || ExcludedPlayers.Exists(x => x.ID == target.PlayerId)) return;
+                if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || GameStates.IsEnded || GameStates.IsLobby || AntiBlackout.SkipTasks || !target || !target.IsAlive() || ExcludedPlayers.Exists(x => x.ID == target.PlayerId)) return;
                 
                 ExcludedPlayers.Add((target.PlayerId, Utils.TimeStamp + ExclusionDuration.GetInt()));
                 

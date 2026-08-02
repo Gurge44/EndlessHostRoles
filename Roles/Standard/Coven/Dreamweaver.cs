@@ -63,10 +63,10 @@ public class Dreamweaver : CovenBase
     {
         if (Thanos.IsImmune(target)) return false;
         InsanePlayers.Add(target.PlayerId);
+        killer.RpcRemoveAbilityUse(notify: false);
         Utils.SendRPC(CustomRPC.SyncRoleData, DreamweaverId, 1, target.PlayerId);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         killer.SetKillCooldown(AbilityCooldown.GetFloat());
-        killer.RpcRemoveAbilityUse();
         return false;
     }
 

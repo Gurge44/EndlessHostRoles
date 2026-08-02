@@ -116,7 +116,7 @@ internal class NiceEraser : RoleBase
             player.RpcSetCustomRole(erasedRole);
             player.RpcChangeRoleBasis(erasedRole);
             player.Notify(GetString("LostRoleByNiceEraser"));
-            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} lost their role", "NiceEraser");
+            Logger.Info($"{player.GetNameWithRole()} lost their role", "NiceEraser");
             ErasedPlayers.Add(pc);
         });
     }

@@ -7,7 +7,6 @@ using EHR.Roles;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace EHR.Patches;
 
@@ -265,7 +264,7 @@ public static class LobbyViewSettingsPanePatch
             ShowOnlyEnabledRolesButton.selectedSprites.GetComponent<SpriteRenderer>().color = Color.cyan;
 
             ShowOnlyEnabledRolesButton.OnClick = new();
-            ShowOnlyEnabledRolesButton.OnClick.AddListener((UnityAction)(() =>
+            ShowOnlyEnabledRolesButton.OnClick.AddListener((Action)(() =>
             {
                 OnlyEnabledRoles = !OnlyEnabledRoles;
 
@@ -304,7 +303,7 @@ public static class LobbyViewSettingsPanePatch
 
             var rightPassiveButton = rightButton.gameObject.GetComponent<PassiveButton>();
             rightPassiveButton.OnClick = new();
-            rightPassiveButton.OnClick.AddListener((UnityAction)(() =>
+            rightPassiveButton.OnClick.AddListener((Action)(() =>
             {
                 LastGameModeSelected++;
                 CustomGameMode[] enumGameModes = Main.CustomGameModeValues[..^1];
@@ -324,7 +323,7 @@ public static class LobbyViewSettingsPanePatch
 
             var leftButtonPassiveButton = leftButton.gameObject.GetComponent<PassiveButton>();
             leftButtonPassiveButton.OnClick = new();
-            leftButtonPassiveButton.OnClick.AddListener((UnityAction)(() =>
+            leftButtonPassiveButton.OnClick.AddListener((Action)(() =>
             {
                 LastGameModeSelected--;
                 CustomGameMode[] enumGameModes = Main.CustomGameModeValues[..^1];
@@ -376,7 +375,7 @@ public static class LobbyViewSettingsPanePatch
                         cloneSettingTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = color;
 
                         cloneSettingTabButton.OnClick = new();
-                        cloneSettingTabButton.OnClick.AddListener((UnityAction)(() => { __instance.ChangeTab(stringName); }));
+                        cloneSettingTabButton.OnClick.AddListener((Action)(() => { __instance.ChangeTab(stringName); }));
 
                         TabButtons[stringName] = cloneSettingTabButton;
                         AllTabButtons[tabGroup] = cloneSettingTabButton;
@@ -415,7 +414,7 @@ public static class LobbyViewSettingsPanePatch
                         cloneRoleTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = color;
 
                         cloneRoleTabButton.OnClick = new();
-                        cloneRoleTabButton.OnClick.AddListener((UnityAction)(() => { __instance.ChangeTab(stringName); }));
+                        cloneRoleTabButton.OnClick.AddListener((Action)(() => { __instance.ChangeTab(stringName); }));
 
                         TabButtons[stringName] = cloneRoleTabButton;
                         AllTabButtons[tabGroup] = cloneRoleTabButton;
@@ -639,7 +638,7 @@ public static class LobbyViewSettingsPanePatch
                     chmButton.OnMouseOver = new();
                     chmButton.OnMouseOut = new();
                     chmButton.OnClick = new();
-                    chmButton.OnClick.AddListener((UnityAction)(() =>
+                    chmButton.OnClick.AddListener((Action)(() =>
                     {
                         toi.CollapsesSection = !toi.CollapsesSection;
                         viewSettings.ReDrawTab(LastTabPressed);
@@ -819,7 +818,7 @@ public static class LobbyViewSettingsPanePatch
                     chmButton.OnMouseOver = new();
                     chmButton.OnMouseOut = new();
                     chmButton.OnClick = new();
-                    chmButton.OnClick.AddListener((UnityAction)(() =>
+                    chmButton.OnClick.AddListener((Action)(() =>
                     {
                         toi.CollapsesSection = !toi.CollapsesSection;
                         viewSettings.ReDrawTab(LastTabPressed);

@@ -121,7 +121,7 @@ public class Virus : RoleBase
         if (!CanBeInfected(target)) return;
 
         byte id = PlayerIdList[0];
-        Utils.GetPlayerById(id).RpcRemoveAbilityUse();
+        Utils.GetPlayerById(id)?.RpcRemoveAbilityUse();
 
         if (KillInfectedPlayerAfterMeeting.GetBool())
         {

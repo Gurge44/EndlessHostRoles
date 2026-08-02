@@ -48,8 +48,8 @@ internal class SchrodingersCat : RoleBase
 
         hasValue |= sender.SetKillCooldown(killer, 5f);
 
-        hasValue |= sender.Notify(killer, string.Format(Translator.GetString("SchrodingersCat.Notify.KillerRecruited"), target.GetRealName(), CustomRoles.SchrodingersCat.ToColoredString()), 10f, setName: false);
-        hasValue |= sender.Notify(target, string.Format(Translator.GetString("SchrodingersCat.Notify.RecruitedByKiller"), killer.GetRealName(), killerRole.ToColoredString()), setName: false);
+        hasValue |= CustomRpcSenderExtensions.Notify(ref sender, killer, string.Format(Translator.GetString("SchrodingersCat.Notify.KillerRecruited"), target.GetRealName(), CustomRoles.SchrodingersCat.ToColoredString()), 10f, setName: false);
+        hasValue |= CustomRpcSenderExtensions.Notify(ref sender, target, string.Format(Translator.GetString("SchrodingersCat.Notify.RecruitedByKiller"), killer.GetRealName(), killerRole.ToColoredString()), setName: false);
 
         sender.SendMessage(!hasValue);
 

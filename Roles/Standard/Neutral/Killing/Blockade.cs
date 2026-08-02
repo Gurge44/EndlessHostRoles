@@ -89,7 +89,7 @@ public class Blockade : RoleBase
     void PlaceBlockade(PlayerControl pc)
     {
         if (pc.GetAbilityUseLimit() < 1f) return;
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
 
         Blockades.Add(pc.Pos());
         pc.Notify(Translator.GetString("MarkDone"));

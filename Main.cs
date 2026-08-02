@@ -41,8 +41,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     public const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "7.5.1";
-    public const string PluginDisplayVersion = "7.5.1";
+    public const string PluginVersion = "7.9.0";
+    public const string PluginDisplayVersion = "7.9.0";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -82,6 +82,7 @@ public class Main : BasePlugin
     public static readonly MapNames[] MapNamesValues = Enum.GetValues<MapNames>();
     public static readonly RoleTypes[] RoleTypesValues = Enum.GetValues<RoleTypes>();
 
+    public static bool Loaded;
     public static IntPtr? OriginalAffinity;
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
     public static OptionBackupData RealOptionsData;
@@ -147,7 +148,8 @@ public class Main : BasePlugin
         [CustomGameMode.Speedrun] = [],
         [CustomGameMode.CaptureTheFlag] = [],
         [CustomGameMode.NaturalDisasters] = [],
-        [CustomGameMode.Snowdown] = []
+        [CustomGameMode.Snowdown] = [],
+        [CustomGameMode.DoomTag] = []
     };
 
     public static Dictionary<CustomGameMode, Color> GameModeColors = [];
@@ -182,7 +184,7 @@ public class Main : BasePlugin
     private static readonly List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
     private Coroutines coroutines;
 
-    public static bool HasReactorPlugin;
+    public static bool HasReactorPlugin => IL2CPPChainloader.Instance.Plugins.ContainsKey("gg.reactor.api");
 
     private static HashAuth DebugKeyAuth { get; set; }
     private static ConfigEntry<string> DebugKeyInput { get; set; }
@@ -199,6 +201,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> UnlockFps { get; private set; }
     public static ConfigEntry<bool> ShowFps { get; private set; }
     public static ConfigEntry<bool> AutoStart { get; private set; }
+    public static ConfigEntry<bool> AutoPlayAgain { get; private set; }
     public static ConfigEntry<bool> ForceOwnLanguage { get; private set; }
     public static ConfigEntry<bool> ForceOwnLanguageRoleName { get; private set; }
     public static ConfigEntry<bool> EnableCustomButton { get; private set; }
@@ -247,7 +250,7 @@ public class Main : BasePlugin
     public static ConfigEntry<string> BetaBuildUrl { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
-    public static ConfigEntry<bool> AckdPrivacyPolicy { get; private set; }
+    public static ConfigEntry<bool> AckdConsentPopup { get; private set; }
 
     public static PlayerControl[] AllPlayerControlsToArray => CachedAllPlayerControlsList.ToArray();
     public static PlayerControl[] AllAlivePlayerControlsToArray => CachedAlivePlayerControlsList.ToArray();
@@ -260,13 +263,14 @@ public class Main : BasePlugin
 
     // ################# - WARNING!!! - #####################
     // Don't use Enumerate(Alive)PlayerControls if it updates every frame or every second
-    // Better use CachedAll/AlivePlayerControls, but in Coroutines (Async) functions need use "for (...)" loop
+    // Better use CachedAll/AlivePlayerControls, but in Coroutines (Async) functions, use "for (...)" loop
     public static IEnumerable<PlayerControl> EnumeratePlayerControls()
     {
         // foreach can throw System.InvalidOperationException: Collection was modified; enumeration operation may not execute.
         // if the code waits frames between iterations, so the safest way is to use a for loop backwards
         for (int index = PlayerControl.AllPlayerControls.Count - 1; index >= 0; index--)
         {
+            if (PlayerControl.AllPlayerControls.Count <= index) continue;
             PlayerControl pc = PlayerControl.AllPlayerControls[index];
             if (!pc || pc.PlayerId >= 254) continue;
             yield return pc;
@@ -276,6 +280,7 @@ public class Main : BasePlugin
     {
         for (int index = PlayerControl.AllPlayerControls.Count - 1; index >= 0; index--)
         {
+            if (PlayerControl.AllPlayerControls.Count <= index) continue;
             PlayerControl pc = PlayerControl.AllPlayerControls[index];
             if (!pc.IsAliveWithConditions() || pc.PlayerId >= 254) continue;
             yield return pc;
@@ -319,7 +324,7 @@ public class Main : BasePlugin
     }
     // ################# - WARNING!!! - #####################
     // Don't use CachedAll/AlivePlayerControls witch "foreach (...)" loop in Coroutines (Async) functions
-    // In async functions use a "for (...)" loop or Enumerate(Alive)PlayerControls or CachedAll/AlivePlayerControls witch LINQ functions (Like: ToList() or ToArray())
+    // In async functions use a "for (...)" loop or Enumerate(Alive)PlayerControls or CachedAll(Alive)PlayerControls with LINQ functions (Like: ToList() or ToArray())
     // ######################################
     public static List<PlayerControl> CachedAllPlayerControls()
     {
@@ -355,6 +360,7 @@ public class Main : BasePlugin
         UnlockFps = Config.Bind("Client Options", "UnlockFPS", false);
         ShowFps = Config.Bind("Client Options", "ShowFPS", false);
         AutoStart = Config.Bind("Client Options", "AutoStart", false);
+        AutoPlayAgain = Config.Bind("Client Options", "AutoPlayAgain", false);
         ForceOwnLanguage = Config.Bind("Client Options", "ForceOwnLanguage", false);
         ForceOwnLanguageRoleName = Config.Bind("Client Options", "ForceOwnLanguageRoleName", false);
         EnableCustomButton = Config.Bind("Client Options", "EnableCustomButton", true);
@@ -376,8 +382,6 @@ public class Main : BasePlugin
         TryFixStuttering = Config.Bind("Client Options", "TryFixStuttering", true);
         ShowClientControlGUI = Config.Bind("Client Options", "ShowClientControlGUI", true);
         UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
-
-        HasReactorPlugin = IL2CPPChainloader.Instance.Plugins.ContainsKey("gg.reactor.api");
 
         AddComponent<ClientControlGUI>();
         Log.LogInfo("ClientControlGUI registered");
@@ -433,7 +437,7 @@ public class Main : BasePlugin
         MessageWait = Config.Bind("Other", "MessageWait", 0);
         LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
         LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
-        AckdPrivacyPolicy = Config.Bind("Other", "AckdPrivacyPolicy", false);
+        AckdConsentPopup = Config.Bind("Other", "AckdConsentPopup", false);
 
         HasArgumentException = false;
 
@@ -509,6 +513,7 @@ public class Main : BasePlugin
                 { CustomRoles.Vacuum, "#E44CD6" },
                 { CustomRoles.Carrier, "#5DE2E7" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Bouncer, "#95C8E8" },
                 { CustomRoles.Operative, "#47f5d2" },
                 { CustomRoles.Tar, "#8C796B" },
                 { CustomRoles.Sensor, "#a3f7ff" },
@@ -589,6 +594,7 @@ public class Main : BasePlugin
                 { CustomRoles.Deputy, "#df9026" },
                 { CustomRoles.Bestower, "#4C4FE4" },
                 { CustomRoles.Retributionist, "#cfc999" },
+                { CustomRoles.Revenant, "#811a7a" },
                 { CustomRoles.Cleanser, "#98FF98" },
                 { CustomRoles.Swapper, "#922348" },
                 { CustomRoles.Ignitor, "#ffffa5" },
@@ -756,6 +762,7 @@ public class Main : BasePlugin
                 { CustomRoles.Listener, "#060270" },
                 { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Focused, "#A10E49" },
                 { CustomRoles.Dizzy, "#de97a7" },
                 { CustomRoles.Entombed, "#8c71de" },
                 { CustomRoles.Urgent, "#D49255" },
@@ -769,7 +776,7 @@ public class Main : BasePlugin
                 { CustomRoles.Composter, "#8D6F64" },
                 { CustomRoles.TaskMaster, "#00ffa5" },
                 { CustomRoles.Compelled, "#D2E44C" },
-                { CustomRoles.Commited, "#f5c542" },
+                { CustomRoles.Committed, "#f5c542" },
                 { CustomRoles.BananaMan, "#ffe135" },
                 { CustomRoles.Blind, "#666666" },
                 { CustomRoles.Shy, "#9582f5" },
@@ -881,6 +888,8 @@ public class Main : BasePlugin
                 { CustomRoles.MinglePlayer, "#FE9900" },
                 // Snowdown
                 { CustomRoles.SnowdownPlayer, "#e4fdff" },
+                // Doom Tag
+                { CustomRoles.Tagger, "#D9BAA5" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -893,7 +902,8 @@ public class Main : BasePlugin
                 { CustomRoles.Locator, "#f59e42" },
                 { CustomRoles.Venter, "#694141" },
                 { CustomRoles.Agent, "#ff8f8f" },
-                { CustomRoles.Taskinator, "#561dd1" }
+                { CustomRoles.Taskinator, "#561dd1" },
+                { CustomRoles.Disguiser, "#b34646" }
             };
 
             CustomRoleValues.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleHtmlColors.TryAdd(x, ImpostorColor));
@@ -942,8 +952,9 @@ public class Main : BasePlugin
 
         if (!OperatingSystem.IsAndroid())
         {
-            // there are some issues with TextBoxPatch on Android
+            // there are some issues with TextBoxPatch and DiscordRPC on Android
             Harmony.PatchAll(typeof(TextBoxPatch));
+            Harmony.PatchAll(typeof(DiscordRPC));
         }
 
         if (!DebugModeManager.AmDebugger)
@@ -969,13 +980,16 @@ public class Main : BasePlugin
             [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer),
             [CustomGameMode.Deathrace] = Utils.GetRoleColor(CustomRoles.Racer),
             [CustomGameMode.Mingle] = Utils.GetRoleColor(CustomRoles.MinglePlayer),
-            [CustomGameMode.Snowdown] = Utils.GetRoleColor(CustomRoles.SnowdownPlayer)
+            [CustomGameMode.Snowdown] = Utils.GetRoleColor(CustomRoles.SnowdownPlayer),
+            [CustomGameMode.DoomTag] = Utils.GetRoleColor(CustomRoles.Tagger)
         };
 
         IL2CPPChainloader.Instance.Finished += () =>
         {
             CustomLogger.ClearLog();
-
+            Loaded = true;
+            BepInEx.Logging.Logger.Listeners.Add(new HtmlLogListener());
+            
             StartCoroutine(ModNewsFetcher.FetchNews());
 
             try { DevManager.StartFetchingTags(); }
@@ -1056,6 +1070,12 @@ public class Main : BasePlugin
             AllRoleClasses.Sort();
         }
         catch (Exception e) { Utils.ThrowException(e); }
+    }
+
+    public Coroutine StartCoroutine(Il2CppSystem.Collections.IEnumerator coroutine)
+    {
+        if (coroutine == null) return null;
+        return coroutines.StartCoroutine(coroutine);
     }
 
     public Coroutine StartCoroutine(IEnumerator coroutine)

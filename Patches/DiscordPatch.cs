@@ -6,12 +6,12 @@ using HarmonyLib;
 namespace EHR.Patches;
 
 // Originally from "Town of Us Rewritten", by Det
-[HarmonyPatch(typeof(ActivityManager), nameof(ActivityManager.UpdateActivity))]
 public static class DiscordRPC
 {
     private static string Lobbycode = "";
     private static string Region = "";
 
+    [HarmonyPatch(typeof(ActivityManager), nameof(ActivityManager.UpdateActivity))]
     public static void Prefix([HarmonyArgument(0)] Activity activity)
     {
         if (activity == null) return;

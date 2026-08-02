@@ -78,7 +78,7 @@ internal class Pacifist : RoleBase
             return;
         }
 
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
         bool isMadMate = pc.Is(CustomRoles.Madmate);
 
         Main.EnumerateAlivePlayerControls()

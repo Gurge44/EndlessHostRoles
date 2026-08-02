@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
 using EHR.Roles;
@@ -14,7 +15,6 @@ public static class TheMindGame
 {
     private static Dictionary<byte, int> Points = [];
     private static Dictionary<byte, int> SuperPoints = [];
-    private static Dictionary<PlayerControl, int> DefaultColorIds = [];
     private static Dictionary<byte, Group> Groups = [];
     private static Dictionary<Group, List<byte>> GroupPlayers = [];
     private static List<SystemTypes> AllRooms = [];
@@ -276,7 +276,6 @@ public static class TheMindGame
         var pcCount = aapc.Count;
         Points = aapc.ToDictionary(x => x.PlayerId, _ => 0);
         SuperPoints = aapc.ToDictionary(x => x.PlayerId, _ => 0);
-        DefaultColorIds = aapc.ToDictionary(x => x, x => x.Data.DefaultOutfit.ColorId);
         PlayerItems = aapc.ToDictionary(x => x.PlayerId, _ => new List<Item>());
 
         Groups = [];
@@ -329,7 +328,6 @@ public static class TheMindGame
                 foreach (PlayerControl pc in players)
                 {
                     Groups[pc.PlayerId] = group;
-                    pc.RpcSetColor(group.GetColorId());
                     pc.TP(location);
                     ids.Add(pc.PlayerId);
                 }
@@ -403,8 +401,6 @@ public static class TheMindGame
         aapc.Join(Points, x => x.PlayerId, x => x.Key, (pc, kvp) => (pc, points: kvp.Value)).OrderBy(x => x.points).SkipLast(MinPlayersInRound2).Do(x => x.pc.Suicide());
 
         Round = 2;
-
-        DefaultColorIds.DoIf(x => x.Key && x.Value is >= byte.MinValue and <= byte.MaxValue, x => x.Key.RpcSetColor((byte)x.Value));
 
         yield return NotifyEveryone("TMG.Notify.Round", 2, 2);
         if (Stop) yield break;
@@ -963,21 +959,6 @@ public static class TheMindGame
         }
     }
 
-    private static byte GetColorId(this Group group)
-    {
-        return group switch
-        {
-            Group.Red => 0,
-            Group.Yellow => 5,
-            Group.Blue => 10,
-            Group.Green => 11,
-            Group.Tan => 16,
-            Group.Rose => 13,
-            Group.Orange => 4,
-            _ => 7
-        };
-    }
-
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
@@ -1014,6 +995,7 @@ public static class TheMindGame
         MindDetective
     }
 
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private enum Group
     {
         Red,

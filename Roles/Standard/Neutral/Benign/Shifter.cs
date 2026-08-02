@@ -98,6 +98,7 @@ public class Shifter : RoleBase
         if (taskState.HasTasks) Main.PlayerStates[killer.PlayerId].TaskState = taskState;
 
         killer.SyncSettings();
+        LateTask.New(() => killer.SetKillCooldown(), 0.2f, log: false);
 
         // ------------------------------------------------------------------------------------------
 

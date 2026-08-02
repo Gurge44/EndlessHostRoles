@@ -12,7 +12,6 @@ public static class NameNotifyManager
     private static readonly List<KeyValuePair<string, long>> NameList = [];
     private static readonly Comparison<KeyValuePair<string, long>> CompareByValue = static (a, b) => a.Value.CompareTo(b.Value);
     private static readonly StringBuilder Sb = new();
-    private static long LastUpdate;
 
     public static void Reset()
     {
@@ -25,7 +24,7 @@ public static class NameNotifyManager
         if (!GameStates.IsInTask) return;
 
         text = text.Trim();
-        if (!text.Contains("<color=") && !text.Contains("</color>") && !text.Contains("<#")) text = Utils.ColorString(Color.white, text);
+        if (!text.Contains('#') && !text.Contains("<color=")) text = Utils.ColorString(Color.white, text);
         if (!text.Contains("<size=")) text = "<size=1.9>" + text + "</size>";
 
         long expireTS = Utils.TimeStamp + (long)time;
@@ -44,12 +43,12 @@ public static class NameNotifyManager
 
         if (alreadyContainsKey)
         {
-            if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
+            if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
             return;
         }
 
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: sendOption);
-        if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
+        if (log) Logger.Info($"New name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
     }
 
     public static void OnFixedUpdate()
@@ -59,12 +58,11 @@ public static class NameNotifyManager
             Reset();
             return;
         }
+        
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate()) return;
+        if (Notifies.Count == 0) return;
 
         long now = Utils.TimeStamp;
-        if (now == LastUpdate) return;
-        LastUpdate = now;
-
-        if (Notifies.Count == 0) return;
 
         var notifyEnumerator = Notifies.GetEnumerator();
         while (notifyEnumerator.MoveNext())
@@ -92,7 +90,7 @@ public static class NameNotifyManager
                 if (!AmongUsClient.Instance.AmHost) continue;
 
                 PlayerControl pc = Utils.GetPlayerById(id);
-                if (pc.IsAlive()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
         }
     }
@@ -134,12 +132,12 @@ public static class NameNotifyManager
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public static void SendRPC(CustomRpcSender sender, byte playerId, string text, long expireTS, bool overrideAll)
+    public static void SendRPC(CustomRpcSender sender, PlayerControl player, string text, long expireTS, bool overrideAll)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || player.OwnerId < 0) return;
 
-        sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncNameNotify);
-        sender.Write(playerId);
+        sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncNameNotify, sender.packed || sender.currentRpcTarget >= 0 ? player.OwnerId : -1);
+        sender.Write(player.PlayerId);
         sender.Write(text);
         sender.Write(expireTS.ToString());
         sender.Write(overrideAll);

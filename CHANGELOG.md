@@ -1,23 +1,19 @@
 # Thank you so much for finding and using EHR!
 
-> [!NOTE]
-> Regardless of the measures I've coded to obey InnerSloth's new anti-cheat, **I still recommend playing on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA).
-
-- Fixed drafting not listing non-crew roles (and thus fewer than before)
-- Fixed Snitch not seeing killers after task completion
-- Fixed Sheriff being able to kill anyone when `Recruited Sheriff Can Go Nuts` is enabled
-- Fixed Exorcist not killing anyone
-- Fixed Time Master not rewinding player positions
-- Fixed Lovers win condition triggering when Lovers are disabled
-- Fixed Bloodlust not keeping the game going
-- Fixed Lovers seeing double ejection screen when chatting during the game is enabled both globally and for Lovers
-- Fixed HUD not updating on role change for non-host modded clients
-- Fixed name notifies not disappearing for non-host modded clients
-- Fixed meeting HUD issues for non-host modded clients
-- Fixed Magistrate role data not syncing for non-host modded clients
+- New mini game mode under Custom Hide And Seek: `SHIFT AND SEEK`
+    - This comes with a new seeker role for the game mode called Disguiser, which has a Shapeshifter basis. It has settings to make it behave like an SNS Seeker and customize it however you want. It functions just like any other seeker role in the game mode.
+    - For convenience, there's a `SHIFT AND SEEK` setting in Mod Settings when the game mode is set to (Custom) Hide And Seek, which makes sure all seeker roles will be Disguiser and enables the role on 100%. Disabling this setting also sets the Disguiser role's spawn chance to 0%. You CAN still use Disguiser even if `SHIFT AND SEEK` is disabled, you just have to re-enable the role yourself. It will spawn like any other seeker role.
+    - This mini game mode also appears as an option in /gmpoll, which when voted, sets the game mode to (Custom) Hide And Seek, and enables the `SHIFT AND SEEK` setting mentioned above. When normal HNS gets voted, the system disables the setting.
+- Fixed kicks after the voting ends on vanilla regions
+- Additional optimizations
+- Fixed a bug that lead to kicks with large packets
+- CHNS: Seekers are announced at the start if players can see each other's roles
+- First death recording now skips disconnects
 
 > [!WARNING]
-> If you're joining a lobby hosted on vanilla regions (NA/EU/AS), please make sure you have a vanilla region selected in the Create Game menu, otherwise authentication will fail. ("Sabotage! The Among Us servers could not authenticate you!")
-I'm saying this now, it's guaranteed that we'll get someone who skipped reading this complaining about this exact issue.
+> If you're joining a lobby hosted on vanilla regions (NA/EU/AS), please make sure you have a vanilla region selected in the Create Game menu, otherwise authentication will fail.
+
+> [!TIP]
+> **Play on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA) for an overall better experience. Mobile and PC users can install them [from my website](https://ehr.gurge44.eu/regions).
 
 ---

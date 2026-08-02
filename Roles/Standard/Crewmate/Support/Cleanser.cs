@@ -108,7 +108,7 @@ public class Cleanser : RoleBase
 
         voter.RpcRemoveAbilityUse();
         CleanserTarget = target.PlayerId;
-        Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} cleansed {target.GetNameWithRole().RemoveHtmlTags()}", "Cleansed");
+        Logger.Info($"{voter.GetNameWithRole()} cleansed {target.GetNameWithRole()}", "Cleansed");
         Utils.SendMessage(string.Format(GetString("CleanserRemovedRole"), target.GetRealName()), voter.PlayerId, CustomRoles.Cleanser.ColoredTextByRole(GetString("CleanserTitle")), importance: MessageImportance.Low);
         SendRPC(voter.PlayerId);
 
@@ -130,7 +130,7 @@ public class Cleanser : RoleBase
         if (targetPc == null) return;
 
         targetPc.RpcSetCustomRole(CustomRoles.Cleansed);
-        Logger.Info($"Removed all the add ons of {targetPc.GetNameWithRole().RemoveHtmlTags()}", "Cleanser");
+        Logger.Info($"Removed all the add ons of {targetPc.GetNameWithRole()}", "Cleanser");
         CleanserTarget = byte.MaxValue;
         targetPc.MarkDirtySettings();
         targetPc.Notify(string.Format(GetString("LostAddonByCleanser"), CustomRoles.Cleanser.ToColoredString()));

@@ -95,8 +95,8 @@ internal class SecurityGuard : RoleBase
                 pc.RpcResetAbilityCooldown();
                 pc.Notify(Translator.GetString("SecurityGuardSkillStop"));
             }, onCanceled: () => BlockSabo.Remove(pc.PlayerId));
+            pc.RpcRemoveAbilityUse(notify: false);
             pc.Notify(Translator.GetString("SecurityGuardSkillInUse"), SecurityGuardSkillDuration.GetFloat());
-            pc.RpcRemoveAbilityUse();
         }
         else
             pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));

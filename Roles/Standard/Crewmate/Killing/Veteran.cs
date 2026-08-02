@@ -106,7 +106,7 @@ internal class Veteran : RoleBase
                 pc.RpcResetAbilityCooldown();
                 pc.Notify(string.Format(Translator.GetString("VeteranOffGuard"), (int)pc.GetAbilityUseLimit()));
             }, onCanceled: () => VeteranInProtect.Remove(pc.PlayerId));
-            pc.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse(notify: false);
             pc.RPCPlayCustomSound("Gunload");
             pc.Notify(Translator.GetString("VeteranOnGuard"), VeteranSkillDuration.GetFloat());
             pc.MarkDirtySettings();
@@ -124,6 +124,7 @@ internal class Veteran : RoleBase
             if (!killer.Is(CustomRoles.Pestilence))
             {
                 killer.SetRealKiller(target);
+                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Shot;
                 target.Kill(killer);
                 Logger.Info($"{target.GetRealName()} reverse killed: {killer.GetRealName()}", "Veteran Kill");
                 return false;

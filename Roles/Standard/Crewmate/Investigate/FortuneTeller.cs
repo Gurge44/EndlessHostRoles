@@ -11,7 +11,7 @@ public class FortuneTeller : RoleBase
 {
     private const int Id = 6700;
     private static int RolesPerCategory;
-    private static List<byte> PlayerIdList = [];
+    private static bool On;
 
     public static OptionItem CheckLimitOpt;
     public static OptionItem AccurateCheckMode;
@@ -22,11 +22,11 @@ public class FortuneTeller : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
     public static OptionItem CancelVote;
 
-    public static readonly List<byte> DidVote = [];
+    public static List<byte> DidVote;
 
-    private static Dictionary<byte, List<CustomRoles>> AllPlayerRoleList = [];
+    private static Dictionary<byte, List<CustomRoles>> AllPlayerRoleList;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -62,14 +62,14 @@ public class FortuneTeller : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
-        AllPlayerRoleList = [];
+        On = false;
+        AllPlayerRoleList = null;
         RolesPerCategory = NumRolesListedForEachPlayer.GetInt();
     }
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.Add(playerId);
+        On = true;
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetFloat());
 
         LateTask.New(() =>
@@ -93,18 +93,13 @@ public class FortuneTeller : RoleBase
         }, 8f, log: false);
     }
 
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
-    }
-
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null) return false;
 
-        if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
-
+        DidVote ??= [];
+        if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId) || AllPlayerRoleList == null) return false;
         DidVote.Add(player.PlayerId);
 
         if (player.GetAbilityUseLimit() < 1)
@@ -146,7 +141,7 @@ public class FortuneTeller : RoleBase
     {
         try
         {
-            if (!AllPlayerRoleList.TryGetValue(id, out List<CustomRoles> list)) return;
+            if (AllPlayerRoleList == null || !AllPlayerRoleList.TryGetValue(id, out List<CustomRoles> list)) return;
 
             int index = list.IndexOf(previousRole);
             list.Remove(previousRole);

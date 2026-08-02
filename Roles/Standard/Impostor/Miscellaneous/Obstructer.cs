@@ -59,8 +59,10 @@ public class Obstructer : RoleBase
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
-                if (!Main.AllPlayerSpeed.ContainsKey(pc.PlayerId)) continue;
-                Main.AllPlayerSpeed[pc.PlayerId] -= SpeedReductionPerSecond.GetFloat();
+                if (!Main.AllPlayerSpeed.TryGetValue(pc.PlayerId, out float speed)) continue;
+                float reduction = SpeedReductionPerSecond.GetFloat();
+                if (speed - reduction <= Main.MinSpeed) continue;
+                Main.AllPlayerSpeed[pc.PlayerId] -= reduction;
                 pc.MarkDirtySettings();
             }
         } while (Utils.IsAnySabotageActive());

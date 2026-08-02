@@ -114,7 +114,6 @@ internal class Chemist : RoleBase
     private Dictionary<byte, long> Grenades;
     public bool IsBlinding;
     private Dictionary<Item, int> ItemCounts;
-    private long LastUpdate;
     private string SelectedProcess;
     private readonly List<string> SortedAvailableProcesses = [];
     private readonly List<string> Available = [];
@@ -194,18 +193,7 @@ internal class Chemist : RoleBase
     {
         On = false;
         Instances = [];
-
         FactoryLocations = [];
-
-        LateTask.New(() =>
-        {
-            FactoryLocations = ShipStatus.Instance.AllRooms
-                .Select(x => x.RoomId)
-                .Where(x => x != SystemTypes.Outside && !x.ToString().Contains("Decontamination"))
-                .Distinct()
-                .Zip(Enum.GetValues<Factory>()[1..])
-                .ToDictionary(x => x.First, x => x.Second);
-        }, 20f, log: false);
     }
 
     public override void Add(byte playerId)
@@ -214,7 +202,6 @@ internal class Chemist : RoleBase
         Instances.Add(this);
 
         ChemistPC = Utils.GetPlayerById(playerId);
-        LastUpdate = Utils.TimeStamp + 8;
         ItemCounts = [];
         CurrentFactory = Factory.None;
         SelectedProcess = string.Empty;
@@ -228,6 +215,13 @@ internal class Chemist : RoleBase
         Grenades = [];
 
         ItemCounts = Enum.GetValues<Item>().ToDictionary(x => x, _ => 0);
+        
+        FactoryLocations = ShipStatus.Instance.AllRooms
+            .Select(x => x.RoomId)
+            .Where(x => x != SystemTypes.Outside && !x.ToString().Contains("Decontamination"))
+            .Distinct()
+            .Zip(Enum.GetValues<Factory>()[1..])
+            .ToDictionary(x => x.First, x => x.Second);
     }
 
     public override void Remove(byte playerId)
@@ -499,9 +493,8 @@ internal class Chemist : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || !pc.IsAlive() || LastUpdate >= Utils.TimeStamp) return;
-
-        LastUpdate = Utils.TimeStamp;
+        if (!GameStates.IsInTask || !pc.IsAlive()) return;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         if (ItemCounts[Item.Air] < 900)
         {

@@ -121,12 +121,9 @@ public class Pelican : RoleBase
         return false;
     }
 
-    public static bool CanEat(PlayerControl pc, byte id)
+    public static bool CanEat(PlayerControl target)
     {
-        if (!pc.Is(CustomRoles.Pelican) || GameStates.IsMeeting) return false;
-
-        PlayerControl target = Utils.GetPlayerById(id);
-        return target.IsAlive() && !target.inVent && !Medic.ProtectList.Contains(target.PlayerId) && !target.Is(CustomRoles.GM) && !target.Is(CustomRoles.Pestilence) && !IsEaten(pc, id) && !IsEaten(id);
+        return !Medic.ProtectList.Contains(target.PlayerId) && !target.Is(CustomRoles.GM) && !target.Is(CustomRoles.Pestilence) && (!target.Is(CustomRoles.Guardian) || !target.AllTasksCompleted()) && !IsEaten(target.PlayerId);
     }
 
     public static Vector2 GetBlackRoomPS()
@@ -147,7 +144,7 @@ public class Pelican : RoleBase
     public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
         PlayerControl player = Utils.GetPlayerById(playerId);
-        if (player == null)
+        if (!player)
         {
             resultText.Append("Invalid");
             return;
@@ -163,9 +160,9 @@ public class Pelican : RoleBase
             .Append(")</color>");
     }
 
-    public static void EatPlayer(PlayerControl pc, PlayerControl target)
+    private static void EatPlayer(PlayerControl pc, PlayerControl target)
     {
-        if (pc == null || target == null || !CanEat(pc, target.PlayerId)) return;
+        if (!pc || !target) return;
 
         if (!EatenList.ContainsKey(pc.PlayerId)) EatenList.Add(pc.PlayerId, []);
 
@@ -217,7 +214,7 @@ public class Pelican : RoleBase
         {
             PlayerControl target = Utils.GetPlayerById(tar);
             PlayerControl player = Utils.GetPlayerById(pc);
-            if (player == null || target == null) continue;
+            if (!player || !target) continue;
 
             target.TP(player);
             Main.AllPlayerSpeed[tar] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
@@ -259,7 +256,7 @@ public class Pelican : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (CanEat(killer, target.PlayerId))
+        if (CanEat(target))
         {
             EatPlayer(killer, target);
             killer.SetKillCooldown();

@@ -5,7 +5,6 @@ using EHR.Modules;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using static EHR.Translator;
 
 
@@ -16,12 +15,11 @@ internal static class PingTrackerUpdatePatch
 {
     public static PingTracker Instance;
     private static readonly StringBuilder Sb = new();
-    private static long LastUpdate;
 
     private static readonly float[] FpsBuffer = new float[10];
     private static int FpsIndex;
     private static int FpsCount;
-    private static Color32 FpsColor = new(0, 165, 255, 255);
+    private static readonly Color32 FpsColor = new(0, 165, 255, 255);
 
     public static bool Prefix(PingTracker __instance)
     {
@@ -47,9 +45,7 @@ internal static class PingTrackerUpdatePatch
 
         if (!Instance) Instance = __instance;
 
-        long now = Utils.TimeStamp;
-        if (now == LastUpdate) return false;
-        LastUpdate = now;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate()) return false;
 
         bool inGame = GameStates.InGame;
         Sb.Clear()
@@ -199,112 +195,6 @@ public static class UpdateFriendCodeUIPatch
             friendsButton.transform.FindChild("Highlight").GetComponent<SpriteRenderer>().color = new(0f, 0.647f, 1f, 1f);
             friendsButton.transform.FindChild("Inactive").GetComponent<SpriteRenderer>().color = new(0f, 0.847f, 1f, 1f);
         }
-    }
-}
-
-[HarmonyPatch(typeof(FriendsListUI), nameof(FriendsListUI.Open))]
-internal static class FriendsListUIOpenPatch
-{
-    public static bool Prefix(FriendsListUI __instance)
-    {
-        try
-        {
-            if (__instance.gameObject.activeSelf || __instance.currentSceneName == "")
-                __instance.Close();
-            else
-            {
-                FriendsListBar[] componentsInChildren = __instance.GetComponentsInChildren<FriendsListBar>(true);
-
-                for (var index = 0; index < componentsInChildren.Length; ++index)
-                {
-                    if (componentsInChildren[index])
-                        Object.Destroy(componentsInChildren[index].gameObject);
-                }
-
-                Scene activeScene = SceneManager.GetActiveScene();
-                __instance.currentSceneName = activeScene.name;
-                __instance.UpdateFriendCodeUI();
-
-                if ((HudManager.InstanceExists && HudManager.InstanceExists && HudManager.Instance.Chat && HudManager.Instance.Chat.IsOpenOrOpening) || ShipStatus.Instance)
-                    return false;
-
-                __instance.friendBars = new();
-                __instance.lobbyBars = new();
-                __instance.notifBars = new();
-                __instance.platformFriendBars = new();
-                __instance.viewingAllFriends = true;
-                __instance.gameObject.SetActive(true);
-                __instance.guestAccountWarnings.ForEach((Action<FriendsListGuestWarning>)(t => t.gameObject.SetActive(false)));
-                __instance.ViewRequestsButton.color = __instance.NoRequestsColor;
-                __instance.ViewRequestsText.text = TranslationController.Instance.GetString(StringNames.NoNewRequests);
-
-                __instance.StartCoroutine(FriendsListManager.Instance.RefreshFriendsList((Action)(() =>
-                {
-                    __instance.ClearNotifs();
-
-                    if (EOSManager.Instance.IsFriendsListAllowed())
-                    {
-                        __instance.AddFriendObjects.SetActive(true);
-                        __instance.RefreshBlockedPlayers();
-                        __instance.RefreshFriends();
-                        __instance.RefreshNotifications();
-                    }
-                    else
-                    {
-                        __instance.AddFriendObjects.SetActive(false);
-                        __instance.guestAccountWarnings.ForEach((Action<FriendsListGuestWarning>)(g => g.SetUp()));
-                    }
-
-                    __instance.RefreshRecentlyPlayed();
-                    __instance.RefreshPlatformFriends();
-
-                    foreach (FriendsListBar friendBar in __instance.friendBars)
-                    {
-                        foreach (PassiveButton passiveButton in friendBar.ControllerSelectable)
-                            ControllerManager.Instance.AddSelectableUiElement(passiveButton);
-                    }
-
-                    foreach (FriendsListBar platformFriendBar in __instance.platformFriendBars)
-                    {
-                        foreach (PassiveButton passiveButton in platformFriendBar.ControllerSelectable)
-                            ControllerManager.Instance.AddSelectableUiElement(passiveButton);
-                    }
-
-                    foreach (FriendsListBar notifBar in __instance.notifBars)
-                    {
-                        foreach (PassiveButton passiveButton in notifBar.ControllerSelectable)
-                            ControllerManager.Instance.AddSelectableUiElement(passiveButton);
-                    }
-
-                    foreach (FriendsListBar lobbyBar in __instance.lobbyBars)
-                    {
-                        foreach (PassiveButton passiveButton in lobbyBar.ControllerSelectable)
-                            ControllerManager.Instance.AddSelectableUiElement(passiveButton);
-                    }
-
-                    ControllerManager.Instance.PickTopSelectable();
-                })));
-
-                if (__instance.currentSceneName == "OnlineGame")
-                {
-                    __instance.RefreshLobbyPlayers();
-                    __instance.LobbyPlayersTab.SetActive(true);
-                    __instance.LobbyPlayersInactiveTab.SetActive(false);
-                    __instance.OpenTab(0);
-                }
-                else
-                {
-                    __instance.LobbyPlayersInactiveTab.SetActive(true);
-                    __instance.LobbyPlayersTab.SetActive(false);
-                    __instance.OpenTab(2);
-                }
-
-                ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
-            }
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
-
-        return false;
     }
 }
 
@@ -485,40 +375,6 @@ internal static class TitleLogoPatch
             inActiveRenderer.color = inActiveColor;
             button.activeTextColor = activeTextColor;
             button.inactiveTextColor = inActiveTextColor;
-        }
-    }
-}
-
-[HarmonyPatch(typeof(ModManager), nameof(ModManager.LateUpdate))]
-internal static class ModManagerLateUpdatePatch
-{
-    public static bool Prefix(ModManager __instance)
-    {
-        __instance.ShowModStamp();
-
-        ChatBubbleShower.Update();
-
-        if (!string.IsNullOrEmpty(LobbySharingAPI.LastRoomCode) && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > Options.LobbyUpdateInterval.GetInt())
-            LobbySharingAPI.NotifyLobbyStatusChanged(!PlayerControl.LocalPlayer ? LobbyStatus.Closed : GameStates.InGame ? LobbyStatus.In_Game : LobbyStatus.In_Lobby);
-
-        return false;
-    }
-
-    public static void Postfix(ModManager __instance)
-    {
-        if (__instance.localCamera)
-        {
-            float offsetY = HudManager.InstanceExists ? 1.1f : 0.9f;
-
-            __instance.ModStamp.transform.position = AspectPosition.ComputeWorldPosition(
-                __instance.localCamera, AspectPosition.EdgeAlignments.RightTop,
-                new(0.4f, offsetY, __instance.localCamera.nearClipPlane + 0.1f));
-        }
-        else
-        {
-            __instance.localCamera = !HudManager.InstanceExists
-                ? Camera.main
-                : HudManager.Instance.GetComponentInChildren<Camera>();
         }
     }
 }

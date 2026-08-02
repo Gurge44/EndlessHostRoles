@@ -194,7 +194,7 @@ public class Chainbinder : RoleBase
         binder.Notify(string.Format(GetString("Chainbinder.PairBound"), FirstTarget.ColoredPlayerName(), SecondTarget.ColoredPlayerName()));
         Utils.NotifyRoles(SpecifySeer: binder, SpecifyTarget: binder);
 
-        Logger.Info($"{binder.GetNameWithRole().RemoveHtmlTags()} chained {first.GetNameWithRole().RemoveHtmlTags()} to {second.GetNameWithRole().RemoveHtmlTags()}", "Chainbinder");
+        Logger.Info($"{binder.GetNameWithRole()} chained {first.GetNameWithRole()} to {second.GetNameWithRole()}", "Chainbinder");
     }
 
     private bool TryGetTargets(PlayerControl binder, PlayerControl requestedTarget, out PlayerControl first, out PlayerControl second)

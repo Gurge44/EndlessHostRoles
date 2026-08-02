@@ -12,7 +12,6 @@ using HarmonyLib;
 using Hazel;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using static EHR.Translator;
 
 namespace EHR;
@@ -221,6 +220,7 @@ public static class GuessManager
                         case CustomRoles.Terrorist when !Terrorist.TerroristCanGuess.GetBool():
                         case CustomRoles.Workaholic when !Workaholic.WorkaholicCanGuess.GetBool():
                         case CustomRoles.God when !God.GodCanGuess.GetBool():
+                        case CustomRoles.Revenant:
                         case CustomRoles.Executioner when Executioner.Target[pc.PlayerId] == target.PlayerId && Executioner.KnowTargetRole.GetBool() && !Executioner.CanGuessTarget.GetBool():
                             ShowMessage("GuessDisabled");
                             return true;
@@ -340,6 +340,8 @@ public static class GuessManager
 
                     if (target.Is(CustomRoles.Onbound))
                     {
+                        Onbound.NumBlocked ??= [];
+                        
                         if (!Onbound.NumBlocked.TryGetValue(target.PlayerId, out HashSet<byte> attempters))
                             Onbound.NumBlocked[target.PlayerId] = attempters = [];
                         
@@ -367,7 +369,7 @@ public static class GuessManager
                         if (!isUI) Utils.SendMessage(GetString("CantGuessJailed"), pc.PlayerId, CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle")));
                         else pc.ShowPopUp($"{CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle"))}\n{GetString("CantGuessJailed")}");
 
-                        Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} tried to guess jailed player {target.GetNameWithRole().RemoveHtmlTags()}", "Guesser");
+                        Logger.Info($"Player {pc.GetNameWithRole()} tried to guess jailed player {target.GetNameWithRole()}", "Guesser");
                         return true;
                     }
 
@@ -376,11 +378,11 @@ public static class GuessManager
                         if (!isUI) Utils.SendMessage(GetString("JailedCanOnlyGuessJailor"), pc.PlayerId, CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle")));
                         else pc.ShowPopUp($"{CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle"))}\n{GetString("JailedCanOnlyGuessJailor")}");
 
-                        Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} tried to guess {target.GetNameWithRole().RemoveHtmlTags()} while jailed", "Guesser");
+                        Logger.Info($"Player {pc.GetNameWithRole()} tried to guess {target.GetNameWithRole()} while jailed", "Guesser");
                         return true;
                     }
 
-                    if (Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { TargetRevealed: true } ms && ms.MarkedId == target.PlayerId))
+                    if (Markseeker.PlayerIdList != null && Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { TargetRevealed: true } ms && ms.MarkedId == target.PlayerId))
                     {
                         ShowMessage("GuessMarkseekerTarget");
                         return true;
@@ -466,7 +468,7 @@ public static class GuessManager
                     // -----------------------------------------------------------------------------------------------------------------------------------
 
 
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} guessed {target.GetNameWithRole().RemoveHtmlTags()}", "Guesser");
+                    Logger.Info($"{pc.GetNameWithRole()} guessed {target.GetNameWithRole()}", "Guesser");
                     PlayerControl dp = guesserSuicide ? pc : target;
                     target = dp;
 
@@ -794,7 +796,7 @@ public static class GuessManager
         }
     }
 
-    private static void GuesserOnClick(byte playerId, MeetingHud __instance)
+    public static void GuesserOnClick(byte playerId, MeetingHud __instance, bool specificRoleChoosing = false)
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
         if (!pc || !pc.IsAlive() || GuesserUI || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || Starspawn.IsDayBreak) return;
@@ -854,6 +856,17 @@ public static class GuessManager
                     case (CustomRoles.EvilGuesser, 4) when !Options.EGCanGuessAdt.GetBool():
                     case (CustomRoles.NiceGuesser, 0) when !Options.GGCanGuessCrew.GetBool() && !PlayerControl.LocalPlayer.IsMadmate():
                     case (CustomRoles.NiceGuesser, 4) when !Options.GGCanGuessAdt.GetBool():
+                    case (CustomRoles.Loner, 0) when specificRoleChoosing:
+                    case (CustomRoles.Loner, 2) when specificRoleChoosing:
+                    case (CustomRoles.Loner, 3) when specificRoleChoosing:
+                    case (CustomRoles.Loner, 4) when specificRoleChoosing:
+                    case (CustomRoles.Changeling, 0) when specificRoleChoosing:
+                    case (CustomRoles.Changeling, 2) when specificRoleChoosing:
+                    case (CustomRoles.Changeling, 3) when specificRoleChoosing:
+                    case (CustomRoles.Changeling, 4) when specificRoleChoosing:
+                    case (CustomRoles.Inquirer, 4) when specificRoleChoosing:
+                    case (CustomRoles.Forger, 4) when specificRoleChoosing:
+                    case (CustomRoles.Pawn, 4) when specificRoleChoosing:
                         continue;
                 }
 
@@ -893,7 +906,7 @@ public static class GuessManager
                 {
                     var passiveButton = teambutton.GetComponent<PassiveButton>();
                     passiveButton.OnClick.RemoveAllListeners();
-                    passiveButton.OnClick.AddListener((UnityAction)(() =>
+                    passiveButton.OnClick.AddListener((Action)(() =>
                     {
                         GuesserSelectRole(type);
                         ReloadPage();
@@ -970,7 +983,7 @@ public static class GuessManager
 
             foreach (CustomRoles role in Main.CustomRoleValues)
             {
-                if (!ShowRoleOnUI(role)) continue;
+                if (!ShowRoleOnUI(role, specificRoleChoosing)) continue;
 
                 CreateRole(role);
             }
@@ -1023,8 +1036,19 @@ public static class GuessManager
 
                             Logger.Msg($"Click: {pc.GetNameWithRole()} => {role}", "Guesser UI");
 
-                            if (AmongUsClient.Instance.AmHost) GuesserMsg(PlayerControl.LocalPlayer, $"/bt {playerId} {GetString(role.ToString())}", true);
-                            else SendRPC(playerId, role);
+                            if (specificRoleChoosing) 
+                            {
+                                Loner.ProcessGuesserUI(playerId, role);
+                                Changeling.ProcessGuesserUI(role);
+                                Inquirer.ProcessGuesserUI(playerId, role);
+                                Forger.ProcessGuesserUI(playerId, role);
+                                Pawn.ProcessGuesserUI(role);
+                            }
+                            else
+                            {
+                                if (AmongUsClient.Instance.AmHost) GuesserMsg(PlayerControl.LocalPlayer, $"/bt {playerId} {GetString(role.ToString())}", true);
+                                else SendRPC(playerId, role);
+                            }
 
                             // Reset the GUI
                             __instance.playerStates.ToList().ForEach(x => x.gameObject.SetActive(true));
@@ -1038,7 +1062,7 @@ public static class GuessManager
             }
 
             container.transform.localScale *= 0.75f;
-            GuesserSelectRole(CustomRoleTypes.Neutral);
+            GuesserSelectRole(specificRoleChoosing ? CustomRoleTypes.Impostor : CustomRoleTypes.Neutral);
             ReloadPage();
         }
         catch (Exception ex)
@@ -1050,10 +1074,12 @@ public static class GuessManager
         CustomSoundsManager.Play("Gunload");
     }
 
-    private static bool ShowRoleOnUI(CustomRoles role)
+    private static bool ShowRoleOnUI(CustomRoles role, bool specificRoleChoosing = false)
     {
+        if (role is CustomRoles.GM or CustomRoles.NotAssigned )
+            return false;
+
         if (role is
-                CustomRoles.GM or
                 CustomRoles.Ankylosaurus or
                 CustomRoles.BananaMan or
                 CustomRoles.Car or
@@ -1061,12 +1087,11 @@ public static class GuessManager
                 CustomRoles.Flash or
                 CustomRoles.Giant or
                 CustomRoles.LastImpostor or
-                CustomRoles.NotAssigned or
                 CustomRoles.Shifter or
                 CustomRoles.Specter or
                 CustomRoles.SuperStar
             )
-            return false;
+            return specificRoleChoosing;
 
         if (role.IsForOtherGameMode()) return false;
         if (!role.IsEnable() && !role.RoleExist(true) && !CanMakeRoleSpawn(role)) return false;
@@ -1146,7 +1171,7 @@ public static class GuessManager
 
         public static bool CanGuess(PlayerControl lp, bool restrictions)
         {
-            if ((!Options.UseMeetingShapeshift.GetBool() || !Options.UseMeetingShapeshiftForGuessing.GetBool()) && Banshee.Instances.Exists(x => x.ScreechedPlayers.Contains(lp.PlayerId))) return false; // Vanilla clients can't guess with their chat hidden, so don't let modded clients guess for fairness
+            if ((!Options.UseMeetingShapeshift.GetBool() || !Options.UseMeetingShapeshiftForGuessing.GetBool()) && Banshee.Instances != null && Banshee.Instances.Exists(x => x.ScreechedPlayers.Contains(lp.PlayerId))) return false; // Vanilla clients can't guess with their chat hidden, so don't let modded clients guess for fairness
             return lp.Is(CustomRoles.Guesser) || lp.GetCustomRole() switch
             {
                 CustomRoles.EvilGuesser => true,

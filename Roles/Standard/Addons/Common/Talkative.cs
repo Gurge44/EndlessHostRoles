@@ -8,7 +8,7 @@ public class Talkative : IAddon
 
     private static OptionItem MaxMessagesPerMeeting;
 
-    public static Dictionary<byte, int> NumMessagesThisMeeting = [];
+    public static Dictionary<byte, int> NumMessagesThisMeeting;
 
     public void SetupCustomOption()
     {
@@ -21,6 +21,8 @@ public class Talkative : IAddon
 
     public static void OnMessageSend(PlayerControl player)
     {
+        NumMessagesThisMeeting ??= [];
+        
         if (NumMessagesThisMeeting.TryGetValue(player.PlayerId, out int sent) && sent >= MaxMessagesPerMeeting.GetInt())
         {
             player.RpcGuesserMurderPlayer();

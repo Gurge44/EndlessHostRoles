@@ -11,7 +11,7 @@ namespace EHR.Roles;
 public class ToiletMaster : RoleBase
 {
     public static bool On;
-    private static List<ToiletMaster> Instances = [];
+    private static List<ToiletMaster> Instances;
 
     public static OptionItem AbilityCooldown;
     private static OptionItem AbilityUses;
@@ -32,7 +32,6 @@ public class ToiletMaster : RoleBase
     private Dictionary<byte, (Poop Poop, long TimeStamp, object Data)> ActivePoops = [];
 
     private static Poop[] AllPoopValues;
-    private long LastUpdate;
     private List<PlayerControl> AffectedPlayers = [];
     private List<PlayerControl> ActivePoopDataList = [];
     private Dictionary<byte, long> PlayersUsingToilet = [];
@@ -118,7 +117,7 @@ public class ToiletMaster : RoleBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
         Toilets = [];
         ActivePoops = [];
         PlayersUsingToilet = [];
@@ -128,14 +127,14 @@ public class ToiletMaster : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
+        Instances ??= [];
         Instances.Add(this);
-        LastUpdate = 8 + AbilityCooldown.GetInt() + ToiletDuration.GetInt();
         playerId.SetAbilityUseLimit(AbilityUses.GetFloat());
     }
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override void OnPet(PlayerControl pc)
@@ -310,11 +309,9 @@ public class ToiletMaster : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!pc.IsAlive() || !GameStates.IsInTask) return;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         long now = Utils.TimeStamp;
-        if (LastUpdate >= now) return;
-        LastUpdate = now;
-
         int duration = ToiletDuration.GetInt();
         int maxUses = ToiletMaxUses.GetInt();
 
@@ -338,12 +335,15 @@ public class ToiletMaster : RoleBase
 
     public static bool OnAnyoneCheckMurderStart(PlayerControl killer, PlayerControl target)
     {
-        foreach (ToiletMaster tm in Instances)
+        if (Instances != null)
         {
-            if (tm.ActivePoops.TryGetValue(killer.PlayerId, out (Poop Poop, long TimeStamp, object Data) poop) && poop.Poop == Poop.Blue)
+            foreach (ToiletMaster tm in Instances)
             {
-                killer.RpcCheckAndMurder(target);
-                return true;
+                if (tm.ActivePoops.TryGetValue(killer.PlayerId, out (Poop Poop, long TimeStamp, object Data) poop) && poop.Poop == Poop.Blue)
+                {
+                    killer.RpcCheckAndMurder(target);
+                    return true;
+                }
             }
         }
 
@@ -352,14 +352,17 @@ public class ToiletMaster : RoleBase
 
     public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        foreach (ToiletMaster tm in Instances)
+        if (Instances != null)
         {
-            if (tm.ActivePoops.TryGetValue(killer.PlayerId, out (Poop Poop, long TimeStamp, object Data) poop) && poop.Poop == Poop.Purple)
+            foreach (ToiletMaster tm in Instances)
             {
-                if (PurplePoopNotifyOnKillAttempt.GetBool())
-                    target.Notify(Translator.GetString("TM.TryKillNotify"));
+                if (tm.ActivePoops.TryGetValue(killer.PlayerId, out (Poop Poop, long TimeStamp, object Data) poop) && poop.Poop == Poop.Purple)
+                {
+                    if (PurplePoopNotifyOnKillAttempt.GetBool())
+                        target.Notify(Translator.GetString("TM.TryKillNotify"));
 
-                return false;
+                    return false;
+                }
             }
         }
 

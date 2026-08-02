@@ -83,7 +83,7 @@ internal static class CheckForEndVotingPatch
 
                     Statistics.OnVotingComplete(States.ToArray(), voteTarget.Data, false, true);
 
-                    Logger.Info($"{voteTarget.GetNameWithRole().RemoveHtmlTags()} expelled by dictator", "Dictator");
+                    Logger.Info($"{voteTarget.GetNameWithRole()} expelled by dictator", "Dictator");
                     CheckForDeathOnExile(PlayerState.DeathReason.Vote, pva.VotedFor);
                     Logger.Info("Dictatorship vote, forced end of meeting", "Special Phase");
 
@@ -140,11 +140,11 @@ internal static class CheckForEndVotingPatch
                         {
                             case VoteMode.Suicide:
                                 TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.SkippedVote, ps.TargetPlayerId);
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Commit suicide for skipping voting");
+                                voteLog.Info($"{voter.GetNameWithRole()} Commit suicide for skipping voting");
                                 break;
                             case VoteMode.SelfVote:
                                 ps.VotedFor = ps.TargetPlayerId;
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Self-voting due to skipping voting");
+                                voteLog.Info($"{voter.GetNameWithRole()} Self-voting due to skipping voting");
                                 break;
                         }
                     }
@@ -155,15 +155,15 @@ internal static class CheckForEndVotingPatch
                         {
                             case VoteMode.Suicide:
                                 TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.DidntVote, ps.TargetPlayerId);
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Committed suicide for not voting");
+                                voteLog.Info($"{voter.GetNameWithRole()} Committed suicide for not voting");
                                 break;
                             case VoteMode.SelfVote:
                                 ps.VotedFor = ps.TargetPlayerId;
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Self-voting due to not voting");
+                                voteLog.Info($"{voter.GetNameWithRole()} Self-voting due to not voting");
                                 break;
                             case VoteMode.Skip:
                                 ps.VotedFor = 253;
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Skip for not voting");
+                                voteLog.Info($"{voter.GetNameWithRole()} Skip for not voting");
                                 break;
                         }
                     }
@@ -182,7 +182,7 @@ internal static class CheckForEndVotingPatch
                 bool canVote = !(CheckRole(ps.TargetPlayerId, CustomRoles.Glitch) && !Glitch.CanVote.GetBool());
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) canVote = false;
                 if (ps.VotedFor.GetPlayer() && CheckRole(ps.VotedFor, CustomRoles.Zombie)) canVote = false;
-                if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) canVote = false;
+                if (Poache.PoachedPlayers != null && Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) canVote = false;
                 if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControlsCount > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) canVote = false;
 
                 switch (Main.PlayerStates[ps.TargetPlayerId].Role)
@@ -235,7 +235,7 @@ internal static class CheckForEndVotingPatch
                     });
             }
 
-            Commited.OnVotingResultsShown(StatesList);
+            Committed.OnVotingResultsShown(StatesList);
             Summoner.OnMeetingEnd();
             QuizMaster.OnMeetingEnd();
 
@@ -548,7 +548,7 @@ internal static class CheckForEndVotingPatch
     {
         if (playerIds.Length == 0) return;
         Logger.Info($"{playerIds.Join(x => Main.AllPlayerNames[x])} - died with the reason: {deathReason}", "TryAddAfterMeetingDeathPlayers");
-        byte[] addedIdList = playerIds.Where(playerId => Main.AfterMeetingDeathPlayers.TryAdd(playerId, deathReason)).ToArray();
+        byte[] addedIdList = playerIds.Where(id => (!Main.PlayerStates.TryGetValue(id, out PlayerState state) || state.MainRole != CustomRoles.Pestilence) && Main.AfterMeetingDeathPlayers.TryAdd(id, deathReason)).ToArray();
         CheckForDeathOnExile(deathReason, addedIdList);
     }
 
@@ -593,7 +593,7 @@ internal static class CheckForEndVotingPatch
 
         TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Revenge, target.PlayerId);
         target.SetRealKiller(player);
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} revenged: {target.GetNameWithRole().RemoveHtmlTags()}", "RevengeOnExile");
+        Logger.Info($"{player.GetNameWithRole()} revenged: {target.GetNameWithRole()}", "RevengeOnExile");
     }
 
     private static PlayerControl PickRevengeTarget(PlayerControl exiledplayer /*, PlayerState.DeathReason deathReason*/)
@@ -641,7 +641,7 @@ internal static class ExtendedMeetingHud
                     Collector.CollectorVotes(target, ps);
                 }
 
-                if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) voteNum = 0;
+                if (Poache.PoachedPlayers != null && Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) voteNum = 0;
                 if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControlsCount > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) voteNum = 0;
 
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) voteNum += 1;
@@ -818,11 +818,12 @@ internal static class MeetingHudStartPatch
             {
                 string playername = pc.GetRealName();
                 if (Doppelganger.DoppelVictim.TryGetValue(pc.PlayerId, out string value)) playername = value;
+                playername = Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, playername);
 
                 AddMsg(string.Format(GetString("SilencerDead"), playername, pc.PlayerId, CustomRoles.Silencer.ColoredTextByRole(GetString("SilencerKillTitle"))));
             }
 
-            if (Forensic.ForensicNotify.TryGetValue(pc.PlayerId, out string value1)) AddMsg(value1, pc.PlayerId, CustomRoles.Forensic.ColoredTextByRole(GetString("ForensicNoticeTitle")));
+            if (Forensic.ForensicNotify != null && Forensic.ForensicNotify.TryGetValue(pc.PlayerId, out string value1)) AddMsg(value1, pc.PlayerId, CustomRoles.Forensic.ColoredTextByRole(GetString("ForensicNoticeTitle")));
             if (Main.SleuthMsgs.TryGetValue(pc.PlayerId, out string msg)) AddMsg(msg, pc.PlayerId, CustomRoles.Sleuth.ColoredTextByRole(GetString("Sleuth")));
 
             if (pc.Is(CustomRoles.Mimic) && !pc.IsAlive())
@@ -832,11 +833,11 @@ internal static class MeetingHudStartPatch
                     .Do(x => mimicMsg += $"\n{x.GetNameWithRole(true)}");
             }
 
-            if (Mortician.MsgToSend.TryGetValue(pc.PlayerId, out string value2)) AddMsg(value2, pc.PlayerId, CustomRoles.Mortician.ColoredTextByRole(GetString("MorticianCheckTitle")));
-            if (Medium.ContactPlayer.ContainsValue(pc.PlayerId)) AddMsg(string.Format(GetString("MediumNotifySelf"), Main.AllPlayerNames[Medium.ContactPlayer.FirstOrDefault(x => x.Value == pc.PlayerId).Key], pc.GetAbilityUseLimit()), pc.PlayerId, CustomRoles.Medium.ColoredTextByRole(GetString("MediumTitle")));
-            if (Medium.ContactPlayer.ContainsKey(pc.PlayerId) && (!Medium.OnlyReceiveMsgFromCrew.GetBool() || pc.IsCrewmate())) AddMsg(string.Format(GetString("MediumNotifyTarget"), Main.AllPlayerNames[Medium.ContactPlayer[pc.PlayerId]]), pc.PlayerId, CustomRoles.Medium.ColoredTextByRole(GetString("MediumTitle")));
+            if (Mortician.MsgToSend != null && Mortician.MsgToSend.TryGetValue(pc.PlayerId, out string value2)) AddMsg(value2, pc.PlayerId, CustomRoles.Mortician.ColoredTextByRole(GetString("MorticianCheckTitle")));
+            if (Medium.ContactPlayer != null && Medium.ContactPlayer.ContainsValue(pc.PlayerId)) AddMsg(string.Format(GetString("MediumNotifySelf"), Main.AllPlayerNames[Medium.ContactPlayer.FirstOrDefault(x => x.Value == pc.PlayerId).Key], pc.GetAbilityUseLimit()), pc.PlayerId, CustomRoles.Medium.ColoredTextByRole(GetString("MediumTitle")));
+            if (Medium.ContactPlayer != null && Medium.ContactPlayer.ContainsKey(pc.PlayerId) && (!Medium.OnlyReceiveMsgFromCrew.GetBool() || pc.IsCrewmate())) AddMsg(string.Format(GetString("MediumNotifyTarget"), Main.AllPlayerNames[Medium.ContactPlayer[pc.PlayerId]]), pc.PlayerId, CustomRoles.Medium.ColoredTextByRole(GetString("MediumTitle")));
             if (Virus.VirusNotify.TryGetValue(pc.PlayerId, out string value3)) AddMsg(value3, pc.PlayerId, CustomRoles.Virus.ColoredTextByRole(GetString("VirusNoticeTitle")));
-            if (Enigma.MsgToSend.TryGetValue(pc.PlayerId, out string value4)) AddMsg(value4, pc.PlayerId, CustomRoles.Enigma.ColoredTextByRole(Enigma.MsgToSendTitle[pc.PlayerId]));
+            if (Enigma.MsgToSend != null && Enigma.MsgToSendTitle != null && Enigma.MsgToSend.TryGetValue(pc.PlayerId, out string value4)) AddMsg(value4, pc.PlayerId, CustomRoles.Enigma.ColoredTextByRole(Enigma.MsgToSendTitle[pc.PlayerId]));
 
             if (QuizMaster.On && QuizMaster.MessagesToSend.TryGetValue(pc.PlayerId, out string value5))
             {
@@ -859,11 +860,12 @@ internal static class MeetingHudStartPatch
         if (MsgToSend.Count > 0) LateTask.New(() => MsgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title, importance: MessageImportance.High)), 9f, "Meeting Start Notify");
 
         Main.SuperStarDead.Clear();
-        Forensic.ForensicNotify.Clear();
+        Forensic.ForensicNotify = null;
         Main.SleuthMsgs.Clear();
         Virus.VirusNotify.Clear();
-        Mortician.MsgToSend.Clear();
-        Enigma.MsgToSend.Clear();
+        Mortician.MsgToSend = null;
+        Enigma.MsgToSend = null;
+        Enigma.MsgToSendTitle = null;
         return;
 
         static void AddMsg(string text, byte sendTo = 255, string title = "") => MsgToSend.Add(new(text, sendTo, title));
@@ -929,14 +931,15 @@ internal static class MeetingHudStartPatch
                 (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
                 (CustomTeamManager.AreInSameCustomTeam(target.PlayerId, seer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(target.PlayerId, CTAOption.KnowRoles)) ||
                 Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||
-                Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
+                (Markseeker.PlayerIdList != null && Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId)) ||
                 seer.IsRevealedPlayer(target) ||
                 (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2) ||
+                (seer.Is(CustomRoles.Revenant) && Revenant.KnowInfo.GetValue() == 1) ||
                 seer.Is(CustomRoles.GM) ||
                 Main.GodMode.Value;
 
 
-            if (seer.IsAlive() && seer.IsRevealedPlayer(target) && target.Is(CustomRoles.Trickster))
+            if (seer.IsAlive() && Investigator.RandomRole != null && seer.IsRevealedPlayer(target) && target.Is(CustomRoles.Trickster))
             {
                 roleTextMeeting.text = Investigator.RandomRole[seer.PlayerId];
                 roleTextMeeting.text += Investigator.GetTaskState();
@@ -1141,7 +1144,7 @@ internal static class MeetingHudStartPatch
                 .Append(Witch.GetSpelledMark(target.PlayerId, true))
                 .Append(Wasp.GetStungMark(target.PlayerId))
                 .Append(SpellCaster.HasSpelledMark(seer.PlayerId) ? Utils.ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty)
-                .Append(Commited.GetMark(seer, target));
+                .Append(Committed.GetMark(seer, target));
 
             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                 NameText.Append(CustomRoles.SuperStar.ColoredTextByRole("★"));
@@ -1180,6 +1183,7 @@ internal static class MeetingHudStartPatch
         // -------------------------------------------------------------------------------------------
 
         CovenBase.CovenMeetingStartPatch.Postfix();
+
         GuessManager.StartMeetingPatch.Postfix(__instance);
         Inspector.StartMeetingPatch.Postfix(__instance);
         Judge.StartMeetingPatch.Postfix(__instance);
@@ -1190,6 +1194,15 @@ internal static class MeetingHudStartPatch
         Retributionist.StartMeetingPatch.Postfix(__instance);
         Starspawn.StartMeetingPatch.Postfix(__instance);
         Ventriloquist.StartMeetingPatch.Postfix(__instance);
+        Exorcist.StartMeetingPatch.Postfix(__instance);
+        Summoner.StartMeetingPatch.Postfix(__instance);
+        Loner.StartMeetingPatch.Postfix(__instance);
+        Changeling.StartMeetingPatch.Postfix(__instance);
+        Markseeker.StartMeetingPatch.Postfix(__instance);
+        Forger.StartMeetingPatch.Postfix(__instance);
+        Inquirer.StartMeetingPatch.Postfix(__instance);
+        Pawn.StartMeetingPatch.Postfix(__instance);
+
         ShowHostMeetingPatch.Setup_Postfix(__instance);
         Crowded.MeetingHudStartPatch.Postfix(__instance);
         
@@ -1249,7 +1262,7 @@ internal static class MeetingHudUpdatePatch
                         Main.PlayerStates[player.PlayerId].SetDead();
                         Utils.AfterPlayerDeathTasks(player, true);
                         Utils.SendMessage(string.Format(GetString("Message.Executed"), player.Data.PlayerName));
-                        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} was executed by the host", "Execution");
+                        Logger.Info($"{player.GetNameWithRole()} was executed by the host", "Execution");
                         __instance.CheckForEndVoting();
                     }
                 });
@@ -1359,6 +1372,10 @@ internal static class MeetingHudOnDestroyPatch
         }
 
         if (Main.LIMap) Main.Instance.StartCoroutine(WaitForExileFinish());
+        
+        GC.Collect();
+        Resources.UnloadUnusedAssets();
+        GC.Collect();
         return;
 
         IEnumerator WaitForExileFinish()
@@ -1383,7 +1400,7 @@ internal static class MeetingHudOnDestroyPatch
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CastVote))]
 internal static class MeetingHudCastVotePatch
 {
-    private static readonly Dictionary<byte, (MeetingHud MeetingHud, PlayerVoteArea SourcePVA, PlayerControl SourcePC)> ShouldCancelVoteList = [];
+    public static readonly Dictionary<byte, (MeetingHud MeetingHud, PlayerVoteArea SourcePVA, PlayerControl SourcePC)> ShouldCancelVoteList = [];
 
     public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
     {
@@ -1520,7 +1537,7 @@ internal static class MeetingHudRpcClosePatch
 {
     public static bool AllowClose;
     
-    public static bool Prefix(MeetingHud __instance)
+    public static bool Prefix()
     {
         Logger.Info("MeetingHud.RpcClose is being called", "MeetingHudRpcClosePatch");
         
@@ -1535,41 +1552,23 @@ internal static class MeetingHudRpcClosePatch
 
         if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame)
         {
-            if (AmongUsClient.Instance.AmClient)
-                __instance.Close();
+            NetworkedPlayerInfo info = CheckForEndVotingPatch.TempExiledPlayer;
 
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-
-            writer.StartMessage(5);
-            writer.Write(AmongUsClient.Instance.GameId);
-
-            if (CheckForEndVotingPatch.TempExiledPlayer != null)
+            if (info && info.Object)
             {
-                NetworkedPlayerInfo info = CheckForEndVotingPatch.TempExiledPlayer;
-                PlayerControl player = info.Object;
-
-                if (player != null)
-                {
-                    writer.StartMessage(2);
-                    writer.WritePacked(player.NetId);
-                    writer.Write((byte)RpcCalls.SetName);
-                    writer.Write(info.NetId);
-                    writer.Write(CheckForEndVotingPatch.EjectionText);
-                    writer.EndMessage();
-                }
+                MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+                writer.StartMessage(5);
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.StartMessage(2);
+                writer.WritePacked(info.Object.NetId);
+                writer.Write((byte)RpcCalls.SetName);
+                writer.Write(info.NetId);
+                writer.Write(CheckForEndVotingPatch.EjectionText);
+                writer.EndMessage();
+                writer.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(writer);
+                writer.Recycle();
             }
-
-            writer.StartMessage(2);
-            writer.WritePacked(__instance.NetId);
-            writer.Write((byte)RpcCalls.CloseMeeting);
-            writer.Write(CheckForEndVotingPatch.EjectionText);
-            writer.EndMessage();
-
-            writer.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
-
-            return false;
         }
 
         return true;
@@ -1579,7 +1578,7 @@ internal static class MeetingHudRpcClosePatch
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.HandleRpc))]
 internal static class MeetingHudHandleRpcPatch
 {
-    public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
+    public static bool Prefix([HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
         if (callId == (byte)RpcCalls.CloseMeeting)
         {

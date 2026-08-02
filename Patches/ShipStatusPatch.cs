@@ -91,10 +91,10 @@ internal static class UpdateSystemPatch
         [HarmonyArgument(1)] PlayerControl player,
         [HarmonyArgument(2)] byte amount)
     {
-        Logger.Msg($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}", "UpdateSystem");
+        Logger.Msg($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole()}, amount: {amount}", "UpdateSystem");
 #if DEBUG
         if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
-            Logger.SendInGame($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}");
+            Logger.SendInGame($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole()}, amount: {amount}");
 #endif
 
         if (!AmongUsClient.Instance.AmHost) return true; // Execute the following only on the host
@@ -143,14 +143,14 @@ internal static class UpdateSystemPatch
                     {
                         case Mechanic:
                         {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Mechanic");
+                            Logger.Info($"{player.GetNameWithRole()} instant-fix-lights", "Mechanic");
                             Mechanic.SwitchSystemRepair(player.PlayerId, switchSystem, amount);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
                         }
                         case Alchemist { FixNextSabo: true } am:
                         {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Alchemist");
+                            Logger.Info($"{player.GetNameWithRole()} instant-fix-lights", "Alchemist");
                             if (amount.HasBit(SwitchSystem.DamageSystem)) break;
 
                             switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ (1 << amount));
@@ -160,7 +160,7 @@ internal static class UpdateSystemPatch
                         }
                         case Adventurer av:
                         {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Adventurer");
+                            Logger.Info($"{player.GetNameWithRole()} instant-fix-lights", "Adventurer");
                             if (amount.HasBit(SwitchSystem.DamageSystem)) break;
 
                             switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ (1 << amount));
@@ -170,7 +170,7 @@ internal static class UpdateSystemPatch
                         }
                         case Technician:
                         {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Technician");
+                            Logger.Info($"{player.GetNameWithRole()} instant-fix-lights", "Technician");
                             Technician.SwitchSystemRepair(player.PlayerId, switchSystem, amount);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
@@ -260,7 +260,7 @@ internal static class CloseDoorsPatch
 {
     public static bool Prefix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes room)
     {
-        bool allow = !AntiBlackout.SkipTasks && Options.CurrentGameMode is not CustomGameMode.SoloPVP and not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle and not CustomGameMode.Snowdown;
+        bool allow = !AntiBlackout.SkipTasks && Options.CurrentGameMode is not CustomGameMode.SoloPVP and not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle and not CustomGameMode.Snowdown and not CustomGameMode.DoomTag;
 
         if (Doorjammer.JammedRooms.Contains(room)) allow = false;
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;
@@ -617,6 +617,7 @@ internal static class ShipStatusSerializePatch
             
             DataFlagRateLimiter.Enqueue(() =>
             {
+                if (__instance == null || __instance.Pointer == IntPtr.Zero) return;
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
@@ -642,6 +643,7 @@ internal static class ShipStatusSerializePatch
 
             DataFlagRateLimiter.Enqueue(() =>
             {
+                if (__instance == null || __instance.Pointer == IntPtr.Zero) return;
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
@@ -692,6 +694,8 @@ internal static class VentilationSystemDeterioratePatch
 
             DataFlagRateLimiter.Enqueue(() =>
             {
+                if (__instance == null || __instance.Pointer == IntPtr.Zero || !pc || pc.Pointer == IntPtr.Zero) return;
+                
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
 
                 if (BlockVentInteraction(pc))
@@ -773,12 +777,12 @@ internal static class ShipStatusFixedUpdatePatch
     {
         Stopwatch = Stopwatch.StartNew();
         
-        while (ShipStatus.Instance)
+        while (GameStates.InGame && !GameStates.IsEnded && ShipStatus.Instance)
         {
             if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
             {
                 Stopwatch.Reset();
-                yield return new WaitForSecondsRealtime(AntiBlackout.SkipTasks ? 2f : 5f);
+                yield return new WaitForSecondsRealtime(5f);
                 Stopwatch.Start();
                 continue;
             }
@@ -831,7 +835,6 @@ internal static class ShipStatusFixedUpdatePatch
             Stopwatch.Start();
         }
         
-        if (ShipStatus.Instance)
-            Main.Instance.StartCoroutine(Postfix());
+        Logger.Msg("Coroutine finished", nameof(ShipStatusFixedUpdatePatch));
     }
 }

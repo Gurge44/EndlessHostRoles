@@ -70,7 +70,7 @@ public class Escort : RoleBase
     {
         if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return false;
 
-        killer.RpcRemoveAbilityUse();
+        killer.RpcRemoveAbilityUse(notify: false);
         killer.SetKillCooldown();
         target.BlockRole(Duration.GetFloat());
         killer.Notify(GetString("EscortTargetHacked"));

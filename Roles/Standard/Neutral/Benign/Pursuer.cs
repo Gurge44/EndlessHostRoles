@@ -79,7 +79,7 @@ public class Pursuer : RoleBase
     {
         if (!pc || !target || !pc.Is(CustomRoles.Pursuer)) return;
 
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
         clientList.Add(target.PlayerId);
         NotActiveList.Add(pc.PlayerId);
         pc.SetKillCooldown();

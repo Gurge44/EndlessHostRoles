@@ -9,8 +9,7 @@ public class Entombed : IAddon
 {
     public AddonTypes Type => AddonTypes.Harmful;
 
-    public static Dictionary<byte, SystemTypes> BlockedRoom = [];
-    private static long LastNotifyTS;
+    public static Dictionary<byte, SystemTypes> BlockedRoom;
     private static long MeetingEndTS;
     private static float GracePeriodLength;
 
@@ -21,12 +20,19 @@ public class Entombed : IAddon
 
     public static void AfterMeeting()
     {
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+        {
+            if (pc.Is(CustomRoles.Entombed))
+            {
+                BlockedRoom ??= [];
+                BlockedRoom[pc.PlayerId] = ShipStatus.Instance.AllRooms.RandomElement().RoomId;
+            }
+        }
+        
+        if (BlockedRoom == null) return;
+        
         MeetingEndTS = Utils.TimeStamp;
         GracePeriodLength = 5 + 5 / Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-        
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
-            if (pc.Is(CustomRoles.Entombed))
-                BlockedRoom[pc.PlayerId] = ShipStatus.Instance.AllRooms.RandomElement().RoomId;
 
         if (Utils.DoRPC)
         {
@@ -49,23 +55,19 @@ public class Entombed : IAddon
     {
         MeetingEndTS = long.Parse(reader.ReadString());
         GracePeriodLength = reader.ReadSingle();
+        BlockedRoom = [];
         Loop.Times(reader.ReadInt32(), _ => BlockedRoom[reader.ReadByte()] = (SystemTypes)reader.ReadByte());
     }
 
     public static void OnFixedUpdate(PlayerControl pc)
     {
-        if (!BlockedRoom.TryGetValue(pc.PlayerId, out SystemTypes blockedRoom)) return;
+        if (BlockedRoom == null || !BlockedRoom.TryGetValue(pc.PlayerId, out SystemTypes blockedRoom)) return;
 
         long now = Utils.TimeStamp;
         
         if (now - MeetingEndTS <= GracePeriodLength)
         {
-            if (LastNotifyTS != now)
-            {
-                LastNotifyTS = now;
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            }
-            
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             return;
         }
 
@@ -75,7 +77,7 @@ public class Entombed : IAddon
 
     public static string GetSelfSuffix(PlayerControl seer)
     {
-        if (!BlockedRoom.TryGetValue(seer.PlayerId, out SystemTypes blockedRoom) || !seer.IsAlive()) return string.Empty;
+        if (BlockedRoom == null || !BlockedRoom.TryGetValue(seer.PlayerId, out SystemTypes blockedRoom) || !seer.IsAlive()) return string.Empty;
         long elapsed = Utils.TimeStamp - MeetingEndTS;
         return string.Format(Translator.GetString(elapsed < GracePeriodLength ? "Entombed.SuffixGracePeriod" : "Entombed.SuffixActive"), Translator.GetString(blockedRoom.ToString()), GracePeriodLength - elapsed);
     }

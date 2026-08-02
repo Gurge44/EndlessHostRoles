@@ -147,7 +147,7 @@ public class Follower : RoleBase
         killer.Notify(GetString("FollowerBetPlayer"));
         if (BetTargetKnowFollower.GetBool()) target.Notify(CustomRoles.Follower.ColoredTextByRole(GetString("FollowerBetOnYou")));
 
-        Logger.Info($"Target selected: {killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Follower");
+        Logger.Info($"Target selected: {killer.GetNameWithRole()} => {target.GetNameWithRole()}", "Follower");
         return false;
     }
 

@@ -52,8 +52,9 @@ internal class Cherokious : RoleBase
         if (pc.GetAbilityUseLimit() < 1) return;
 
         PlayerControl target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
+        if (!target) return;
         if (target.Is(CustomRoles.Spy) && !Spy.OnKillAttempt(pc, target)) return;
-        if (target != null && pc.RpcCheckAndMurder(target)) pc.RpcRemoveAbilityUse();
+        if (pc.RpcCheckAndMurder(target)) pc.RpcRemoveAbilityUse();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

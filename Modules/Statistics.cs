@@ -328,7 +328,7 @@ public static class Statistics
                     (targetState.Role is Follower tc && tc.BetPlayer == killer.PlayerId))
                     Achievements.Type.WhatHaveIDone.CompleteAfterGameEnd();
 
-                if (targetState.MainRole == CustomRoles.Snitch && Snitch.IsExposed.TryGetValue(target.PlayerId, out bool exposed) && exposed)
+                if (targetState.MainRole == CustomRoles.Snitch && Snitch.IsExposed != null && Snitch.IsExposed.TryGetValue(target.PlayerId, out bool exposed) && exposed)
                     Achievements.Type.ThatWasClose.CompleteAfterGameEnd();
 
                 switch (killerState.MainRole)

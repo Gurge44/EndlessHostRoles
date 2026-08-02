@@ -19,12 +19,13 @@ public static class CollectionExtensions
         ///     Returns the key of a dictionary by its value
         /// </summary>
         /// <param name="value">The <typeparamref name="TValue" /> used to search for the corresponding key</param>
+        /// <param name="defaultValue">The return value if <paramref name="value"/> is not found in the <paramref name="dictionary"/></param>
         /// <returns>
-        ///     The key of the <paramref name="dictionary" /> that corresponds to the given <paramref name="value" />, or the
-        ///     default value of <typeparamref name="TKey" /> if the <paramref name="value" /> is not found in the
+        ///     The key of the <paramref name="dictionary" /> that corresponds to the given <paramref name="value" />, or
+        ///     <paramref name="defaultValue"/> if the <paramref name="value" /> is not found in the
         ///     <paramref name="dictionary" />
         /// </returns>
-        public TKey GetKeyByValue(TValue value)
+        public TKey GetKeyByValue(TValue value, TKey defaultValue = default)
         {
             foreach (KeyValuePair<TKey, TValue> pair in dictionary)
             {
@@ -32,8 +33,13 @@ public static class CollectionExtensions
                     return pair.Key;
             }
 
-            return default(TKey);
+            return defaultValue;
         }
+        
+        // foreach will only throw System.InvalidOperationException: collection was modified; enumeration operation may not execute.
+        // if the number of elements inside the dictionary changes.
+        // If Count stays the same for the entire iteration, it can be safely enumerated without ToList or ToArray.
+        // Changing values does NOT modify the collection!
 
         /// <summary>
         ///     Sets the value for all existing keys in a dictionary to a specific value
@@ -41,7 +47,7 @@ public static class CollectionExtensions
         /// <param name="value"></param>
         public void SetAllValues(TValue value)
         {
-            foreach (TKey key in dictionary.Keys.ToArray())
+            foreach (TKey key in dictionary.Keys)
                 dictionary[key] = value;
         }
 
@@ -51,7 +57,7 @@ public static class CollectionExtensions
         /// <param name="adjust">The function to adjust the values with</param>
         public void AdjustAllValues(Func<TValue, TValue> adjust)
         {
-            foreach (TKey key in dictionary.Keys.ToArray())
+            foreach (TKey key in dictionary.Keys)
                 dictionary[key] = adjust(dictionary[key]);
         }
 
@@ -182,6 +188,30 @@ public static class CollectionExtensions
             }
 
             return (list1, list2);
+        }
+
+        /// <summary>
+        ///     Splits a collection into two integers based on a predicate
+        /// </summary>
+        /// <param name="predicate">The predicate to split the collection by</param>
+        /// <returns>
+        ///     A tuple containing two integers: one that is the number of elements that satisfy the predicate, and one that is the number of elements that
+        ///     do not
+        /// </returns>
+        public (int TrueCount, int FalseCount) SplitCount(Func<T, bool> predicate)
+        {
+            var int1 = 0;
+            var int2 = 0;
+
+            foreach (T element in collection)
+            {
+                if (predicate(element))
+                    int1++;
+                else
+                    int2++;
+            }
+
+            return (int1, int2);
         }
 
         /// <summary>
@@ -347,55 +377,6 @@ public static class CollectionExtensions
         }
 
         /// <summary>
-        /// Takes the specified number of random elements from the collection.
-        /// </summary>
-        /// <param name="count">The number of random elements to pick.</param>
-        /// <returns>A new collection with the specified number of random elements from the original collection.</returns>
-        public IEnumerable<T> TakeRandom(int count)
-        {
-            if (collection == null || collection.Count == 0 || count <= 0)
-                yield break;
-
-            int n = collection.Count;
-
-            // If asking for >= all elements, just return everything
-            if (count >= n)
-            {
-                for (int i = 0; i < n; i++)
-                    yield return collection[i];
-                yield break;
-            }
-
-            // If k is small relative to n → pick unique indices via HashSet
-            // If k is large → invert selection (pick excluded indices instead)
-            if (count <= n / 2)
-            {
-                var chosen = new HashSet<int>();
-                while (chosen.Count < count)
-                {
-                    int idx = IRandom.Instance.Next(n);
-                    if (chosen.Add(idx))
-                        yield return collection[idx];
-                }
-            }
-            else
-            {
-                // More efficient to exclude (n - count) items
-                int excludeCount = n - count;
-                var excluded = new HashSet<int>();
-
-                while (excluded.Count < excludeCount)
-                    excluded.Add(IRandom.Instance.Next(n));
-
-                for (int i = 0; i < n; i++)
-                {
-                    if (!excluded.Contains(i))
-                        yield return collection[i];
-                }
-            }
-        }
-
-        /// <summary>
         ///     Returns a random element from a collection
         /// </summary>
         /// <returns>
@@ -420,44 +401,31 @@ public static class CollectionExtensions
         return collection.SelectMany(x => x);
     }
 
-    public static void NotifyPlayers(this IEnumerable<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
+    public static void NotifyPlayers(this IEnumerable<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true, SendOption sendOption = SendOption.Reliable)
     {
-        var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
+        var sender = CustomRpcSender.Create("NotifyPlayers", sendOption).StartPackedMessage();
         var hasValue = false;
 
         foreach (PlayerControl player in players)
         {
-            hasValue |= sender.Notify(player, text, time, overrideAll, log, setName);
-
-            if (sender.stream.Length > 500)
-            {
-                sender.SendMessage();
-                sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
-                hasValue = false;
-            }
+            hasValue |= CustomRpcSenderExtensions.Notify(ref sender, player, text, time, overrideAll, log, setName);
+            // RpcSetName will handle oversized packets
         }
 
-        sender.SendMessage(dispose: !hasValue);
+        sender.SendMessage(dispose: !hasValue || sender.stream.Length <= 11);
     }
-    public static void NotifyPlayers(this List<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
+    public static void NotifyPlayers(this List<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true, SendOption sendOption = SendOption.Reliable)
     {
-        var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
+        var sender = CustomRpcSender.Create("NotifyPlayers", sendOption).StartPackedMessage();
         var hasValue = false;
 
         for (int index = 0; index < players.Count; index++)
         {
-            PlayerControl player = players[index];
-            hasValue |= sender.Notify(player, text, time, overrideAll, log, setName);
-
-            if (sender.stream.Length > 500)
-            {
-                sender.SendMessage();
-                sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
-                hasValue = false;
-            }
+            hasValue |= CustomRpcSenderExtensions.Notify(ref sender, players[index], text, time, overrideAll, log, setName);
+            // RpcSetName will handle oversized packets
         }
 
-        sender.SendMessage(dispose: !hasValue);
+        sender.SendMessage(dispose: !hasValue || sender.stream.Length <= 11);
     }
 
     #region ToValidPlayers

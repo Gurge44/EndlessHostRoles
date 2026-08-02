@@ -164,19 +164,19 @@ public class Jackal : RoleBase
         var sender = CustomRpcSender.Create("Jackal.OnCheckMurder", SendOption.Reliable);
         var hasValue = false;
 
-        killer.RpcRemoveAbilityUse();
+        killer.RpcRemoveAbilityUse(notify: false);
         target.RpcSetCustomRole(CustomRoles.Sidekick);
         target.RpcChangeRoleBasis(CustomRoles.Sidekick);
         SidekickId = target.PlayerId;
 
         Main.ResetCamPlayerList.Add(target.PlayerId);
 
-        hasValue |= sender.Notify(killer, CustomRoles.Jackal.ColoredTextByRole(GetString("GangsterSuccessfullyRecruited")), setName: false);
+        hasValue |= CustomRpcSenderExtensions.Notify(ref sender, killer, CustomRoles.Jackal.ColoredTextByRole(GetString("GangsterSuccessfullyRecruited")), setName: false);
         hasValue |= sender.SetKillCooldown(killer, 3f);
         hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
         if (cleared) hasValue = false;
 
-        hasValue |= sender.Notify(target, CustomRoles.Jackal.ColoredTextByRole(GetString("BeRecruitedByJackal")), setName: false);
+        hasValue |= CustomRpcSenderExtensions.Notify(ref sender, target, CustomRoles.Jackal.ColoredTextByRole(GetString("BeRecruitedByJackal")), setName: false);
         hasValue |= sender.RpcGuardAndKill(target, killer);
         hasValue |= sender.RpcGuardAndKill(target, target);
         hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);

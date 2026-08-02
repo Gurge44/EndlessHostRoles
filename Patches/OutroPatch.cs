@@ -67,7 +67,7 @@ internal static class EndGamePatch
             long secondsIn = new DateTimeOffset(date.ToUniversalTime()).ToUnixTimeSeconds() - IntroCutsceneDestroyPatch.IntroDestroyTS;
             byte killerId = value.GetRealKiller();
             bool gmIsFm = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.StopAndGo;
-            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown;
+            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown or CustomGameMode.DoomTag;
             sb.Append($"\n{secondsIn / 60:00}:{secondsIn % 60:00} {Main.AllPlayerNames[key]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(key, pure: true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(killerId, pure: true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
@@ -101,7 +101,7 @@ internal static class EndGamePatch
         HashSet<PlayerControl> winner = Main.EnumeratePlayerControls().Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToHashSet();
 
         foreach (CustomRoles team in CustomWinnerHolder.WinnerRoles)
-            winner.UnionWith(Main.EnumeratePlayerControls().Where(p => p.Is(team) && !winner.Contains(p)));
+            winner.UnionWith(Main.EnumeratePlayerControls().Where(p => p.Is(team)));
 
         Main.WinnerNameList = [];
         Main.WinnerList = [];
@@ -124,6 +124,7 @@ internal static class EndGamePatch
         Main.LoversPlayers.Clear();
         Bloodmoon.OnMeetingStart();
         AFKDetector.ExemptedPlayers.Clear();
+        PerSecondUpdateScheduler.Reset();
 
         foreach (PlayerState state in Main.PlayerStates.Values)
             state.Role.Init();
@@ -486,8 +487,9 @@ internal static class SetEverythingUpPatch
 
             yield return null;
 
-            // Clear unused assets
+            GC.Collect();
             Resources.UnloadUnusedAssets();
+            GC.Collect();
             yield return null;
 
             Vector3 pos = main.ViewportToWorldPoint(new(0f, 1f, main.nearClipPlane));
@@ -599,6 +601,7 @@ internal static class SetEverythingUpPatch
                 case CustomGameMode.Deathrace:
                 case CustomGameMode.BedWars:
                 case CustomGameMode.Quiz:
+                case CustomGameMode.DoomTag:
                 {
                     foreach (byte id in cloneRoles.Where(EndGamePatch.SummaryText.ContainsKey))
                         sb.Append('\n').Append(EndGamePatch.SummaryText[id]);

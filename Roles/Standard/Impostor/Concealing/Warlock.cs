@@ -79,6 +79,9 @@ internal class Warlock : RoleBase
     public override void Init()
     {
         On = false;
+        WarlockTimer = [];
+        CursedPlayers = [];
+        IsCurseAndKill = [];
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -242,7 +245,7 @@ internal class Warlock : RoleBase
                         ResetCooldowns(true, true, true, pc);
 
                         targetw.SetRealKiller(pc);
-                        Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()} was killed", "Warlock");
+                        Logger.Info($"{targetw.GetNameWithRole()} was killed", "Warlock");
                         cp.Kill(targetw);
                         pc.Notify(Translator.GetString("WarlockControlKill"));
                         RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);

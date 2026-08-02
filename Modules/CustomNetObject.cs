@@ -22,6 +22,8 @@ namespace EHR
         public static readonly List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
 
+        protected virtual bool ConstantlyChangesPosition => false;
+        
         protected int Id;
         public PlayerControl playerControl;
         public Vector2 Position;
@@ -41,6 +43,8 @@ namespace EHR
             
             DataFlagRateLimiter.Enqueue(() =>
             {
+                if (!playerControl) return;
+                
                 Sprite = sprite;
 
                 string name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
@@ -94,7 +98,6 @@ namespace EHR
         public void TP(Vector2 position)
         {
             Position = position;
-            SnapToSendFrameCount = 30;
         }
         
         private bool TryReusePooledObject(string sprite, Vector2 position)
@@ -240,9 +243,25 @@ namespace EHR
             try
             {
                 if (!AmongUsClient.Instance.AmHost) return;
+
+                if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+                {
+                    // max ~60 calls per second in total
+                    int updateFrequency;
                 
-                if (SnapToSendFrameCount++ < 5) return;
-                SnapToSendFrameCount = 0;
+                    if (!ConstantlyChangesPosition)
+                    {
+                        updateFrequency = 30;
+                    }
+                    else
+                    {
+                        (int trueCount, int falseCount) = AllObjects.SplitCount(x => x.ConstantlyChangesPosition);
+                        updateFrequency = trueCount / 2 + falseCount;
+                    }
+
+                    if (++SnapToSendFrameCount < updateFrequency) return;
+                    SnapToSendFrameCount = 0;
+                }
             
                 if (AmongUsClient.Instance.AmClient)
                 {
@@ -408,6 +427,8 @@ namespace EHR
                 {
                     yield return DataFlagRateLimiter.Enqueue(() =>
                     {
+                        if (!playerControl) return;
+                        
                         string name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
                         int colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
                         string hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
@@ -594,6 +615,8 @@ namespace EHR
             if (Abyssbringer.ShouldDespawnCNOOnMeeting) Despawn();
             else base.OnMeeting();
         }
+
+        protected override bool ConstantlyChangesPosition => Abyssbringer.BlackHoleMovesTowardsNearestPlayer.GetBool();
     }
 
     internal sealed class SprayedArea : CustomNetObject
@@ -671,6 +694,8 @@ namespace EHR
 
             CreateNetObject(warning, position);
         }
+
+        protected override bool ConstantlyChangesPosition => !SpawnTimer.IsRunning && DisasterName is "Tsunami" or "Tornado";
 
         public SystemTypes? Room { get; }
         public string DisasterName { get; }
@@ -918,11 +943,13 @@ namespace EHR
         private Vector2 Direction;
         public bool Active;
 
+        protected override bool ConstantlyChangesPosition => Active;
+
         public Snowball(Vector2 from, Vector2 direction, PlayerControl thrower)
         {
             Thrower = thrower;
             Direction = direction;
-            CreateNetObject("<line-height=97%><cspace=0.16em><#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W</color>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W", from);
+            CreateNetObject($"<size={Snowdown.SnowballSize * 100}%><line-height=97%><cspace=0.16em><#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W</color>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W", from);
             Active = true;
         }
 
@@ -934,7 +961,7 @@ namespace EHR
             
             Vector2 newPos = Position + Direction * Time.fixedDeltaTime * Snowdown.SnowballThrowSpeed;
             
-            if ((PhysicsHelpers.AnythingBetween(Position, newPos, Constants.ShipOnlyMask, false)) ||
+            if (PhysicsHelpers.AnythingBetween(Position, newPos, Constants.ShipOnlyMask, false) ||
                 newPos.x < Snowdown.MapBounds.X.Left || newPos.x > Snowdown.MapBounds.X.Right || newPos.y < Snowdown.MapBounds.Y.Bottom || newPos.y > Snowdown.MapBounds.Y.Top)
             {
                 SetInactive();

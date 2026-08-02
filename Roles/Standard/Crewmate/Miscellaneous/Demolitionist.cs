@@ -26,7 +26,7 @@ internal class Demolitionist : RoleBase
 
     public static void OnDeath(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || killer.PlayerId == target.PlayerId || !killer.IsAlive() || !GameStates.IsInTask) return;
+        if (!killer || !target || killer.PlayerId == target.PlayerId || !killer.IsAlive() || killer.Is(CustomRoles.Focused) || !GameStates.IsInTask) return;
         
         string warningMark = Utils.ColorString(Color.yellow, "\u26a0");
         killer.Notify($"{warningMark} {CustomRoles.Demolitionist.ColoredTextByRole(Translator.GetString("OnDemolitionistDead"))} {warningMark}");

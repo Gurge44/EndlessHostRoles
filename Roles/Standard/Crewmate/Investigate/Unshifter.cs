@@ -61,7 +61,7 @@ public class Unshifter : RoleBase
         target.RpcShapeshift(target, true);
         target.RpcResetAbilityCooldown();
 
-        killer.RpcRemoveAbilityUse();
+        killer.RpcRemoveAbilityUse(notify: false);
         killer.SetKillCooldown();
 
         killer.Notify(GetString("UnshifterSuccess"));

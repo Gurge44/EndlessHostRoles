@@ -58,7 +58,8 @@ public class Carrier : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting || !Location.HasValue) return true;
+        if (!shapeshifting) return true;
+        if (!Location.HasValue) return false;
         target.TP(Location.Value);
         target.Notify(Translator.GetString("Carrier.TargetNotify"));
         return false;

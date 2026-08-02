@@ -103,6 +103,7 @@ public class Lightning : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        if (target.Is(CustomRoles.Pestilence)) return false;
         return !CheckLightningMurder(killer, target);
     }
 
@@ -135,7 +136,7 @@ public class Lightning : RoleBase
 
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
-                Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} is now converted to a 'non-spherical lightning' XD", "Lightning");
+                Logger.Info($"{target.GetNameWithRole()} is now converted to a 'non-spherical lightning' XD", "Lightning");
             }
         }, ConvertTime.GetFloat(), "Lightning Convert Player To Ghost");
     }

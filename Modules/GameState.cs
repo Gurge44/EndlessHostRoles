@@ -74,6 +74,11 @@ public class PlayerState(byte playerId)
         LossOfBlood,
         Frightened,
         Bankrupt,
+        Bugged,
+        Destroyed,
+        Shot,
+        Diseased,
+        Stoned,
 
         // Natural Disasters
         Meteor,
@@ -140,6 +145,8 @@ public class PlayerState(byte playerId)
         MainRole = role;
 
         Role.Add(PlayerId);
+        
+        ExtendedPlayerControl.NameWithRoleCache.Remove(PlayerId);
 
         Logger.Info($"ID {PlayerId} ({Player.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
@@ -153,10 +160,7 @@ public class PlayerState(byte playerId)
 
             if (role.IsVanilla() || role.IsVanillaEHR())
                 Main.AbilityUseLimit.Remove(PlayerId);
-        }
-
-        if (Main.IntroDestroyed && GameStates.InGame)
-        {
+            
             if (PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.IsInTask)
             {
                 HudManager.Instance.SetHudActive(true);
@@ -234,6 +238,8 @@ public class PlayerState(byte playerId)
         SetAddonCountTypes(role);
 
         Logger.Info($" ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetSubRole");
+        
+        ExtendedPlayerControl.NameWithRoleCache.Remove(PlayerId);
     }
 
     private void SetAddonCountTypes(CustomRoles role)
@@ -356,6 +362,8 @@ public class PlayerState(byte playerId)
         }
 
         Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 1, (int)role);
+
+        ExtendedPlayerControl.NameWithRoleCache.Remove(PlayerId);
     }
 
     public void SetDead()
@@ -366,7 +374,7 @@ public class PlayerState(byte playerId)
 
         if (AmongUsClient.Instance.AmHost)
         {
-            if (Enchanter.EnchantedPlayers.Contains(PlayerId))
+            if (Enchanter.EnchantedPlayers != null && Enchanter.EnchantedPlayers.Contains(PlayerId))
                 deathReason = AllDeathReason[..^8].RandomElement();
 
             RPC.SendDeathReason(PlayerId, deathReason, IsDead);
@@ -432,7 +440,7 @@ public class TaskState
 
     public void Init(PlayerControl player)
     {
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: InitTask", "TaskState.Init");
+        Logger.Info($"{player.GetNameWithRole()}: InitTask", "TaskState.Init");
         if (!player || player.Data?.Tasks == null) return;
 
         if (!Utils.HasTasks(player.Data, false))
@@ -444,14 +452,14 @@ public class TaskState
         HasTasks = true;
         CompletedTasksCount = 0;
         AllTasksCount = player.Data.Tasks.Count;
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
+        Logger.Info($"{player.GetNameWithRole()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
     }
 
     public void Update(PlayerControl player)
     {
         try
         {
-            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: UpdateTask", "TaskState.Update");
+            Logger.Info($"{player.GetNameWithRole()}: UpdateTask", "TaskState.Update");
             GameData.Instance.RecomputeTaskCounts();
             Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
 
@@ -529,7 +537,7 @@ public class TaskState
         CompletedTasksCount++;
 
         CompletedTasksCount = Math.Min(AllTasksCount, CompletedTasksCount);
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
+        Logger.Info($"{player.GetNameWithRole()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
     }
 }
 

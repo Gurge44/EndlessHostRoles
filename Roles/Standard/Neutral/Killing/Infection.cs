@@ -71,6 +71,7 @@ public class Infection : RoleBase
         InfectInfos.Clear();
         InfectActive = false;
         ShadeColor = Utils.GetRoleColor(CustomRoles.Infection).ShadeColor(0.25f);
+        Updates.Clear();
     }
 
     public override void Add(byte playerId)

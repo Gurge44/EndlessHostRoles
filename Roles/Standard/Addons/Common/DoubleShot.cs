@@ -6,7 +6,7 @@ namespace EHR.Roles;
 
 public class DoubleShot : IAddon
 {
-    public static Dictionary<byte, int> Tries = [];
+    private static Dictionary<byte, int> Tries;
 
     private static OptionItem MaxTries;
 
@@ -23,12 +23,14 @@ public class DoubleShot : IAddon
 
     public static void Init()
     {
-        Tries = [];
+        Tries = null;
     }
 
     public static bool CheckGuess(PlayerControl guesser, bool isUI)
     {
         if (!guesser.Is(CustomRoles.DoubleShot)) return false;
+
+        Tries ??= [];
 
         if (!Tries.TryGetValue(guesser.PlayerId, out int tries))
         {

@@ -57,8 +57,8 @@ internal static class GameEndChecker
         if (Predicate == null || ShouldNotCheck || !AmongUsClient.Instance.AmHost || Main.HasJustStarted) return;
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return;
         
+        if (LastGameEndCheckUpdated != -1 && !PerSecondUpdateScheduler.ShouldRunUpdate()) return;
         var now = TimeStamp;
-        if (LastGameEndCheckUpdated == now) return;
         LastGameEndCheckUpdated = now;
         Ended = false;
 
@@ -85,9 +85,7 @@ internal static class GameEndChecker
             LoadingEndScreen = true;
 
             foreach (var pc in Main.CachedAllPlayerControls())
-            {
                 Camouflage.RpcSetSkin(pc, true, true, true);
-            }
 
             NameNotifyManager.Reset();
             NotifyRoles(ForceLoop: true);
@@ -198,9 +196,9 @@ internal static class GameEndChecker
 
             if (WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.Error)
             {
-                if (WinnerTeam == CustomWinner.Coven || Summoner.Instances.Exists(x => WinnerIds.Contains(x.SummonerId)))
+                if ((WinnerTeam == CustomWinner.Coven || (Summoner.Instances != null && Summoner.Instances.Exists(x => WinnerIds.Contains(x.SummonerId)))) && Summoner.AdditionalWinners != null)
                     WinnerIds.UnionWith(Summoner.AdditionalWinners);
-                    
+
                 foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
                     CustomRoles role = pc.GetCustomRole();
@@ -431,12 +429,12 @@ internal static class GameEndChecker
 
                 if (toGhostImpostor)
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: changed to ImpostorGhost", "ResetRoleAndEndGame");
+                    Logger.Info($"{pc.GetNameWithRole()}: changed to ImpostorGhost", "ResetRoleAndEndGame");
                     pc.RpcSetRole(RoleTypes.ImpostorGhost);
                 }
                 else
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: changed to CrewmateGhost", "ResetRoleAndEndGame");
+                    Logger.Info($"{pc.GetNameWithRole()}: changed to CrewmateGhost", "ResetRoleAndEndGame");
                     pc.RpcSetRole(RoleTypes.CrewmateGhost);
                 }
             }
@@ -479,7 +477,7 @@ internal static class GameEndChecker
     {
         try
         {
-            if (Summoner.AdditionalWinners.Contains(state.Player.PlayerId)) return true;
+            if (Summoner.AdditionalWinners != null && Summoner.AdditionalWinners.Contains(state.Player.PlayerId)) return true;
             
             switch (state.MainRole)
             {
@@ -605,6 +603,11 @@ internal static class GameEndChecker
     public static void SetPredicateToSnowdown()
     {
         Predicate = new SnowdownGameEndPredicate();
+    }
+
+    public static void SetPredicateToDoomTag()
+    {
+        Predicate = new DoomTagGameEndPredicate();
     }
 
     private class NormalGameEndPredicate : GameEndPredicate
@@ -1380,6 +1383,20 @@ internal static class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return Snowdown.CheckGameEnd(out reason);
+        }
+    }
+
+    private class DoomTagGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return DoomTag.CheckForGameEnd(out reason);
         }
     }
 

@@ -121,7 +121,7 @@ public class Occultist : RoleBase
 
             OccultistPC.Notify(string.Format(Translator.GetString("OccultistRevived"), target.PlayerId.ColoredPlayerName()));
         }, onCanceled: () => Revives.Remove(target.PlayerId));
-        reporter.RpcRemoveAbilityUse();
+        reporter.RpcRemoveAbilityUse(notify: false);
         reporter.Notify(string.Format(Translator.GetString("OccultistReviving"), target.PlayerId.ColoredPlayerName()), ReviveTime.GetInt());
 
         return false;

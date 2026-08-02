@@ -35,6 +35,7 @@ public enum CustomGameMode
     Deathrace = 0x0F,
     Mingle = 0x10,
     Snowdown = 0x11,
+    DoomTag = 0x12,
     All = int.MaxValue
 }
 
@@ -56,13 +57,22 @@ public static class Options
     }
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public enum ModLanguages
     {
         UseGameLanguage,
         Hungarian,
         Polish,
         Indonesian,
-        Persian
+        Persian,
+        Arabic,
+        Slovak,
+        Romanian,
+        LatinSerbian,
+        Vietnamese,
+        Belarusian,
+        Turkish,
+        CyrillicSerbian
     }
 
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
@@ -89,7 +99,8 @@ public static class Options
         "BedWars",
         "Deathrace",
         "Mingle",
-        "Snowdown"
+        "Snowdown",
+        "DoomTag"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -434,7 +445,7 @@ public static class Options
     public static OptionItem MareHasIncreasedSpeed;
     public static OptionItem MareSpeedDuringLightsOut;
 
-    public static OptionItem AutoPlayAgain;
+    //public static OptionItem AutoPlayAgain;
     public static OptionItem AutoPlayAgainCountdown;
     public static OptionItem AutoStartTimer;
     
@@ -578,7 +589,7 @@ public static class Options
     public static OptionItem DisableAirshipCamera;
     public static OptionItem DisableAirshipVital;
     private static OptionItem DisableFungleDevices;
-    public static OptionItem DisableFungleCamera;
+    //public static OptionItem DisableFungleCamera;
     public static OptionItem DisableFungleVital;
     private static OptionItem DisableDevicesIgnoreConditions;
     public static OptionItem DisableDevicesIgnoreImpostors;
@@ -719,10 +730,10 @@ public static class Options
     public static OptionItem DisablePlayerVotedMessage;
 
     // Game Commands
+    public static OptionItem EnableAnagramCommand;
     public static OptionItem AnagramLanguage;
     public static OptionItem AnagramWordLength;
     public static OptionItem AnagramDifficulty;
-    public static OptionItem EightballCommandIndexes;
 
     public static OptionItem LadderDeath;
     public static OptionItem LadderDeathChance;
@@ -796,6 +807,7 @@ public static class Options
     public static OptionItem AutoKickStopWordsTimes;
     public static OptionItem KickMobilePlayer;
     public static OptionItem ApplyDenyNameList;
+    public static OptionItem BanDenyNameListPlayers;
     public static OptionItem KickPlayerFriendCodeNotExist;
     public static OptionItem KickLowLevelPlayer;
     public static OptionItem ApplyBanList;
@@ -928,6 +940,7 @@ public static class Options
         14 => CustomGameMode.Deathrace,
         15 => CustomGameMode.Mingle,
         16 => CustomGameMode.Snowdown,
+        17 => CustomGameMode.DoomTag,
         _ => CustomGameMode.Standard
     };
 
@@ -991,7 +1004,7 @@ public static class Options
 
             var grouped = Main.CustomRoleValues.GroupBy(x =>
             {
-                if (x is CustomRoles.GM or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.Jumper or CustomRoles.Detector or CustomRoles.Jet or CustomRoles.Dasher or CustomRoles.Locator or CustomRoles.Agent or CustomRoles.Venter or CustomRoles.Taskinator || x.IsForOtherGameMode() || x.IsVanilla() || x.IsVanillaEHR()) return 4;
+                if (x is CustomRoles.GM or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.Jumper or CustomRoles.Detector or CustomRoles.Jet or CustomRoles.Dasher or CustomRoles.Locator or CustomRoles.Agent or CustomRoles.Venter or CustomRoles.Taskinator or CustomRoles.Disguiser || x.IsForOtherGameMode() || x.IsVanilla() || x.IsVanillaEHR()) return 4;
                 if (x == CustomRoles.DoubleAgent) return 2;
                 if (x.IsAdditionRole()) return 3;
                 if (x.IsImpostor() || x.IsMadmate()) return 0;
@@ -1640,6 +1653,10 @@ public static class Options
         KickMobilePlayer = new BooleanOptionItem(19301, "KickMobilePlayer", false, TabGroup.SystemSettings);
         KickPlayerFriendCodeNotExist = new BooleanOptionItem(19302, "KickPlayerFriendCodeNotExist", false, TabGroup.SystemSettings, true);
         ApplyDenyNameList = new BooleanOptionItem(19303, "ApplyDenyNameList", true, TabGroup.SystemSettings, true);
+        
+        BanDenyNameListPlayers = new BooleanOptionItem(19320, "BanDenyNameListPlayers", false, TabGroup.SystemSettings, true)
+            .SetParent(ApplyDenyNameList);
+        
         ApplyBanList = new BooleanOptionItem(19304, "ApplyBanList", true, TabGroup.SystemSettings, true);
         ApplyModeratorList = new BooleanOptionItem(19305, "ApplyModeratorList", true, TabGroup.SystemSettings);
         ApplyVIPList = new BooleanOptionItem(19306, "ApplyVIPList", true, TabGroup.SystemSettings);
@@ -1675,10 +1692,10 @@ public static class Options
         AutoStartTimer = new IntegerOptionItem(44423, "AutoStartTimer", new(10, 600, 1), 20, TabGroup.SystemSettings)
             .SetValueFormat(OptionFormat.Seconds);
 
-        AutoPlayAgain = new BooleanOptionItem(44424, "AutoPlayAgain", false, TabGroup.SystemSettings);
+        //AutoPlayAgain = new BooleanOptionItem(44424, "AutoPlayAgain", false, TabGroup.SystemSettings);
 
-        AutoPlayAgainCountdown = new IntegerOptionItem(44425, "AutoPlayAgainCountdown", new(1, 90, 1), 10, TabGroup.SystemSettings)
-            .SetParent(AutoPlayAgain);
+        AutoPlayAgainCountdown = new IntegerOptionItem(44425, "AutoPlayAgainCountdown", new(1, 90, 1), 10, TabGroup.SystemSettings);
+            //.SetParent(AutoPlayAgain);
 
         AutoGMPollCommandAfterJoin = new BooleanOptionItem(19309, "AutoGMPollCommandAfterJoin", false, TabGroup.SystemSettings)
             .SetHeader(true);
@@ -1854,6 +1871,8 @@ public static class Options
         Mingle.SetupCustomOption();
         // Snowdown
         Snowdown.SetupCustomOption();
+        // DoomTag
+        DoomTag.SetupCustomOption();
 
         yield return null;
 
@@ -2420,11 +2439,11 @@ public static class Options
         DisableFungleDevices = new BooleanOptionItem(22925, "DisableFungleDevices", false, TabGroup.GameSettings)
             .SetParent(DisableDevices)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
-
+/*
         DisableFungleCamera = new BooleanOptionItem(22926, "DisableFungleCamera", false, TabGroup.GameSettings)
             .SetParent(DisableFungleDevices)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
-
+*/
         DisableFungleVital = new BooleanOptionItem(22927, "DisableFungleVital", false, TabGroup.GameSettings)
             .SetParent(DisableFungleDevices)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
@@ -3000,6 +3019,9 @@ public static class Options
             .SetHeader(true)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
+        EnableAnagramCommand = new BooleanOptionItem(23820, "EnableAnagramCommand", true, TabGroup.GameSettings)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
         AnagramLanguage = new StringOptionItem(23821, "AnagramLanguage", [
             "AnagramLang.Auto",
             "AnagramLang.English",
@@ -3011,6 +3033,7 @@ public static class Options
             "AnagramLang.BrazilianPortuguese",
             "AnagramLang.Romanian"
         ], 0, TabGroup.GameSettings)
+            .SetParent(EnableAnagramCommand)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
         AnagramWordLength = new StringOptionItem(23822, "AnagramWordLength", [
@@ -3018,6 +3041,7 @@ public static class Options
                 "2", "3", "4", "5", "6", "7", "8", "9", "10",
                 "11", "12", "13", "14", "15"
             ], 0, TabGroup.GameSettings, noTranslation: true)
+            .SetParent(EnableAnagramCommand)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
         AnagramDifficulty = new StringOptionItem(23823, "AnagramDifficulty", [
@@ -3027,9 +3051,7 @@ public static class Options
             "AnagramDiff.MediumHard",
             "AnagramDiff.Hard"
         ], 0, TabGroup.GameSettings)
-            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
-
-        EightballCommandIndexes = new IntegerOptionItem(23820, "EightballCommandIndexes", new(1, 100, 1), 20, TabGroup.GameSettings)
+            .SetParent(EnableAnagramCommand)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
 
@@ -3093,7 +3115,7 @@ public static class Options
 
         IntegrateNaturalDisasters = new BooleanOptionItem(24454, "IntegrateNaturalDisasters", false, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
-            .RegisterUpdateValueEvent((_, _, _) => GameOptionsMenuPatch.ReloadUI());
+            .RegisterUpdateValueEvent((_, _, _) => GameOptionsMenuPatch.ReCreateSettings(TabGroup.GameSettings));
 
         EnableGameTimeLimit = new BooleanOptionItem(24455, "EnableGameTimeLimit", false, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))

@@ -128,7 +128,7 @@ public class Vulture : RoleBase
         foreach (byte id in PlayerIdList)
         {
             PlayerControl pc = Utils.GetPlayerById(id);
-            if (pc == null) continue;
+            if (!pc) continue;
 
             if (pc.IsAlive())
             {
@@ -145,7 +145,7 @@ public class Vulture : RoleBase
 
     public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)
     {
-        if (pc.GetAbilityUseLimit() < 1f || target.Object == null || target.Object.Is(CustomRoles.Disregarded)) return true;
+        if (pc.GetAbilityUseLimit() < 1f || !target.Object || target.Object.Is(CustomRoles.Disregarded)) return true;
 
         if (CooldownTimer != null) return true;
 
@@ -159,7 +159,7 @@ public class Vulture : RoleBase
             return false;
         }
 
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
         CooldownTimer = new CountdownTimer(VultureReportCD.GetInt(), () =>
         {
             CooldownTimer = null;

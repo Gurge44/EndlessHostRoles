@@ -23,7 +23,7 @@ public static class ShowHostMeetingPatch
             Main.ForceRebuildCachesPlayerControls();
             GameEndChecker.ForceCheckEnd();
 
-            if (GameStates.IsInGame && HostControl == null)
+            if (GameStates.IsInGame && !HostControl)
             {
                 PlayerControl host = AmongUsClient.Instance.GetHost().Character;
                 NetworkedPlayerInfo.PlayerOutfit outfit = Main.PlayerStates[host.Data.PlayerId].NormalOutfit;

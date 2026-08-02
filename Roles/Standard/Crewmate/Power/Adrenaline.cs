@@ -70,7 +70,7 @@ public class Adrenaline : RoleBase
     {
         if (!base.OnCheckMurderAsTarget(killer, target) || target.GetAbilityUseLimit() < 1 || target.GetTaskState().CompletedTasksCount < MinTasksRequired.GetInt() || Timer != null) return true;
 
-        target.RpcRemoveAbilityUse();
+        target.RpcRemoveAbilityUse(notify: false);
         Timer = new CountdownTimer(Time.GetInt(), () =>
         {
             Timer = null;

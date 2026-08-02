@@ -44,12 +44,12 @@ public class Ventriloquist : RoleBase
         ChatCommands.TargetCommand(shapeshifter, command, command.Split(' '));
     }
 
-    private static void VentriloquisttOnClick(byte playerId /*, MeetingHud __instance*/)
+    private static void VentriloquistOnClick(byte playerId /*, MeetingHud __instance*/)
     {
         Logger.Msg($"Click: ID {playerId}", "Ventriloquist UI");
         PlayerControl pc = Utils.GetPlayerById(playerId);
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
-        
+
         var command = $"/target {playerId}";
 
         if (AmongUsClient.Instance.AmHost)
@@ -73,7 +73,7 @@ public class Ventriloquist : RoleBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.Hack.png", 160f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => VentriloquisttOnClick(pva.TargetPlayerId)));
+            button.OnClick.AddListener((Action)(() => VentriloquistOnClick(pva.TargetPlayerId)));
         }
     }
 

@@ -851,7 +851,7 @@ public static class BedWars
             NameNotifyManager.Notifies.Remove(pc.PlayerId);
             RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
             pc.ReviveFromTemporaryExile();
-            pc.RpcSetColor(Team.GetColorId());
+            pc.RpcChangeColor(Team.GetColorId());
             pc.TP(Base.SpawnPosition);
             pc.SetChatVisible(true);
             Utils.NotifyRoles(SpecifyTarget: pc, SendOption: SendOption.None);
@@ -1694,7 +1694,7 @@ public static class BedWars
 
                 if (count > 1)
                 {
-                    sb.Append(vanillaServer ? "X" : "<sub>");
+                    sb.Append(vanillaServer ? "x" : "<sub>");
                     sb.Append(count);
                     if (!vanillaServer) sb.Append("</sub>");
                 }
@@ -1734,8 +1734,8 @@ public static class BedWars
             if (!vanillaServer)
             {
                 if (lastSelected) finalSb.Append(baseColor);
-                finalSb.Append("▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔");
                 finalSb.AppendLine();
+                finalSb.AppendLine("▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔");
                 finalSb.Append(Utils.ColorString(Color.white, bottomText));
                 finalSb.AppendLine("</color>");
             }
