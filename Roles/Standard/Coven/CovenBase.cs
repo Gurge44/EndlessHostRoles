@@ -28,11 +28,9 @@ public abstract class CovenBase : RoleBase
             .ToDictionary(x => x.Key, x => x.Value);
         if (psDict.Count == 0) return;
 
-        var playerControls = Main.EnumeratePlayerControls().ToDictionary(pc => pc.PlayerId, pc => pc);
-
         KeyValuePair<byte, PlayerState> receiver = psDict.Shuffle()
             .OrderByDescending(x => !x.Value.IsDead)
-            .ThenByDescending(x => playerControls.TryGetValue(x.Key, out var pc) && pc.Is(CustomRoles.Priority))
+            .ThenByDescending(x => x.Value.SubRoles.Contains(CustomRoles.Priority))
             .ThenBy(x => ((CovenBase)x.Value.Role).NecronomiconReceivePriority)
             .First();
 

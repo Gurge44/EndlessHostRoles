@@ -29,13 +29,13 @@ public class Tyrant : RoleBase
     public override void Init()
     {
         On = false;
-        Degraded.Clear();
+        Degraded = [];
     }
 
     public override void Add(byte playerId)
     {
         On = true;
-        Degraded[playerId] = new();
+        Degraded[playerId] = [];
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
         TyrantId = playerId;
     }
@@ -91,32 +91,34 @@ public class Tyrant : RoleBase
                 removeList.Add(id);
         }
 
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncRoleData, SendOption.Reliable);
+        writer.Write(TyrantId);
+        writer.Write(2);
+        writer.Write(removeList.Count);
         foreach (byte id in removeList)
         {
             Degraded[TyrantId].Remove(id);
-            Utils.SendRPC(CustomRPC.SyncRoleData, TyrantId, 2, id);
+            writer.Write(id);
         }
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     public void ReceiveRPC(MessageReader reader)
     {
-        if (!Degraded.TryGetValue(TyrantId, out var degraded))
-            Degraded[TyrantId] = degraded = [];
-
         switch (reader.ReadPackedInt32())
         {
             case 1:
-                degraded.Add(reader.ReadByte());
+                Degraded[TyrantId].Add(reader.ReadByte());
                 break;
             case 2:
-                degraded.Remove(reader.ReadByte());
+                int length = reader.ReadInt32();
+                for (var i = 0; i < length; i++) Degraded[TyrantId].Remove(reader.ReadByte());
                 break;
         }
     }
 
-    public bool IsDegraded(PlayerControl target)
+    public static bool IsDegraded(PlayerControl target)
     {
-        if (target.PlayerId == TyrantId) return false;
         return Degraded.Values.Any(x => x.Contains(target.PlayerId)) || target.Is(CustomRoles.Degraded);
     }
 
