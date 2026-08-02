@@ -412,7 +412,7 @@ internal static class CustomRolesHelper
                 // Hide And Seek
                 CustomRoles.Hider => CustomRoles.Crewmate,
                 CustomRoles.Seeker => CustomRoles.Impostor,
-                CustomRoles.Fox => CustomRoles.Crewmate,
+                CustomRoles.Fox => Fox.HasVitals.GetBool() ? CustomRoles.Scientist : CustomRoles.Crewmate,
                 CustomRoles.Troll => CustomRoles.Crewmate,
                 CustomRoles.Jumper => CustomRoles.Engineer,
                 CustomRoles.Detector => CustomRoles.Crewmate,
