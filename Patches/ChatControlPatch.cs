@@ -276,7 +276,7 @@ public static class ChatManager
         var writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
         var hasValue = false;
 
-        if (filtered.Length < 20) ClearChat(aapc);
+        if (filtered.Length < 20) ClearChat();
 
         foreach (string str in filtered)
         {
@@ -332,7 +332,6 @@ public static class ChatManager
             if (toLocalPlayer) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, toEveryone ? -1 : receiver.OwnerId);
             writer.Write("<size=32767>.");
-            writer.Write(true);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
     }
