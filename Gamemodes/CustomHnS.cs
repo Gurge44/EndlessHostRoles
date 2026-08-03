@@ -33,7 +33,7 @@ internal static class CustomHnS
     public static int RandomNeutralsNum => IRandom.Instance.Next(MinNeutrals.GetInt(), MaxNeutrals.GetInt() + 1);
     public static int MaximumGameLength => MaxGameLength.GetInt();
     public static bool Chat => ChatDuringGame.GetBool();
-    public static bool SNS { set => ShiftAndSeek.SetValue(value ? 1 : 0); }
+    public static bool SNS { get => ShiftAndSeek.GetBool(); set => ShiftAndSeek.SetValue(value ? 1 : 0); }
 
     public static void SetupCustomOption()
     {

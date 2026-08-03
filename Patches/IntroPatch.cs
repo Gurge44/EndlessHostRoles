@@ -930,7 +930,7 @@ internal static class BeginCrewmatePatch
             }
             case CustomGameMode.HideAndSeek:
             {
-                __instance.TeamTitle.text = GetString("HideAndSeek");
+                __instance.TeamTitle.text = GetString(CustomHnS.SNS ? "HNS.ShiftAndSeek" : "HideAndSeek");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(52, 94, 235, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
                 __instance.ImpostorText.gameObject.SetActive(true);
