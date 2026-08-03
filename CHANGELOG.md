@@ -7,6 +7,7 @@
 - Fixed kicks after the voting ends on vanilla regions
 - Additional optimizations
 - Fixed a bug that lead to kicks with large packets
+- Fixed kicks caused by chat clearing
 - CHNS: Seekers are announced at the start if players can see each other's roles
 - First death recording now skips disconnects
 
