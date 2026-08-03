@@ -179,7 +179,7 @@ internal static class ExileControllerWrapUpPatch
         LateTask.New(() =>
         {
             if (ChatCommands.HasMessageDuringEjectionScreen)
-                ChatManager.ClearChat(Main.CachedAlivePlayerControls());
+                ChatManager.ClearChat();
         }, 3f, log: false);
     }
 
