@@ -27,7 +27,11 @@ You don’t need to get approval for every small fix or improvement, as long as 
 
 - Follow the **existing code style**.  
 - JetBrains Rider is recommended, as the editor settings are included in the repo, so they will sync automatically if used by contributors.  
-- Make sure your changes are consistent with the surrounding code.  
+- Make sure your changes are consistent with the surrounding code.
+
+### Use of AI
+
+All use of AI in contributions must follow our [AI Policy](./AI_POLICY.md). Contributions that do not comply will be closed.
 
 ---
 
