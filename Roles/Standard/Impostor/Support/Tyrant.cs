@@ -93,7 +93,7 @@ public class Tyrant : RoleBase
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncRoleData, SendOption.Reliable);
         writer.Write(TyrantId);
-        writer.Write(2);
+        writer.WritePacked(2);
         writer.Write(removeList.Count);
         foreach (byte id in removeList)
         {
