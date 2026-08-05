@@ -128,6 +128,7 @@ pluralbug#5217 | cf91054b4 |  | slurs in game |
 oakaverage#9192 | 0aebc840d | Tevell67 | slurs in game | 
 signingwry#3704 | 800955a89 |  | slurs in game | 
 stoneredox#2794 | 763ef0db5 |  | slurs in game | 
+loanlyric#0220 | f6b3f13ad |  | slurs in game | 
 
 ## Griefers, Toxic, Harrasing, Racist
 setmolar#4374 |  | 藏族顶针 | Toxic | 
