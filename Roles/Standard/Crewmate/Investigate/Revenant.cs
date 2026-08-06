@@ -37,6 +37,7 @@ internal class Revenant : RoleBase
 
     public override void OnReportDeadBody()
     {
+        ShouldBeRevived = false;
         PlayerControl pc = RevenantId.GetPlayer();
 
         if (pc && pc.IsAlive() && !pc.AllTasksCompleted())
@@ -65,5 +66,10 @@ internal class Revenant : RoleBase
                 pc.TPToRandomVent();
             }
         }, 2f, "Revenant Revive Delay");
+    }
+
+    public override void OnRevived(PlayerControl pc)
+    {
+        
     }
 }

@@ -99,14 +99,13 @@ public class Shadow : CovenBase
 
         OriginalOutfit = Camouflage.PlayerSkins[pc.PlayerId];
         Utils.RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set("​", 15, "", "", "", "", ""));
-        Utils.NotifyRoles(SpecifyTarget: pc);
 
         SelfTimer = new CountdownTimer(SelfCamoDuration.GetFloat(), () =>
         {
             SelfTimer = null;
             if (Camouflage.IsCamouflage || !pc) return;
             Utils.RpcChangeSkin(pc, OriginalOutfit);
-            Utils.NotifyRoles(SpecifyTarget: pc);
+            LateTask.New(() => Utils.NotifyRoles(SpecifyTarget: pc, NoCache: true), 0.2f);
             pc.RpcResetAbilityCooldown();
         }, cancelOnMeeting: false, onCanceled: () => SelfTimer = null);
 
@@ -164,14 +163,13 @@ public class Shadow : CovenBase
             TargetId = target.PlayerId;
             OriginalTargetOutfit = Camouflage.PlayerSkins[target.PlayerId];
             Utils.RpcChangeSkin(target, new NetworkedPlayerInfo.PlayerOutfit().Set("​", 15, "", "", "", "", ""));
-            Utils.NotifyRoles(SpecifyTarget: target);
 
             OthersCamoTimer = new CountdownTimer(OthersCamoDuration.GetFloat(), () =>
             {
                 OthersCamoTimer = null;
                 if (Camouflage.IsCamouflage || !target) return;
                 Utils.RpcChangeSkin(target, OriginalTargetOutfit);
-                Utils.NotifyRoles(SpecifyTarget: target);
+                LateTask.New(() => Utils.NotifyRoles(SpecifyTarget: target, NoCache: true), 0.2f);
             }, cancelOnMeeting: false, onCanceled: () => OthersCamoTimer = null);
         }
     }

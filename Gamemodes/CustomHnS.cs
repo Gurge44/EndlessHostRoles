@@ -98,9 +98,6 @@ internal static class CustomHnS
         Main.AllPlayerKillCooldown.SetAllValues(Seeker.KillCooldown.GetFloat());
         IsBlindTime = true;
         Utils.MarkEveryoneDirtySettingsV4();
-        
-        float time = Seeker.BlindTime.GetFloat() + 14f;
-        if (PlayersSeeRoles.GetBool()) Main.EnumerateAlivePlayerControls().NotifyPlayers(string.Format(Translator.GetString("HNSSeekers"), string.Join(", ", PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => x.Key.ColoredPlayerName()))), time + 3f, setName: false);
 
         LateTask.New(() =>
         {
@@ -113,7 +110,7 @@ internal static class CustomHnS
                 .Do(x => x.pc.SetKillCooldown());
 
             LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(noCache: false)), 3f, log: false);
-        }, time, "Blind Time Expire");
+        }, Seeker.BlindTime.GetFloat() + 14f, "Blind Time Expire");
     }
 
     public static List<CustomRoles> GetAllHnsRoles(Type[] types)
@@ -378,29 +375,66 @@ internal static class CustomHnS
         }
     }
 
+    private static readonly StringBuilder Suffix = new();
+
     public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool hud = false)
     {
-        if (Main.HasJustStarted || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || TimeLeft < 0) return string.Empty;
+        if (!Main.IntroDestroyed || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || TimeLeft < 0) return string.Empty;
 
-        string dangerMeter = GetDangerMeter(seer);
+        Suffix.Clear();
 
-        if (PlayerRoles.TryGetValue(seer.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) seerRole) && seerRole.Interface.Team == Team.Impostor && PlayerRoles.FindFirst(x => x.Value.Role == CustomRoles.Agent, out KeyValuePair<byte, (IHideAndSeekRole Interface, CustomRoles Role)> kvp))
+        if (PlayerRoles.TryGetValue(seer.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) seerRole))
         {
-            byte agent = kvp.Key;
-            dangerMeter += TargetArrow.GetArrows(seer, agent);
+            if (seerRole.Interface.Team == Team.Impostor)
+            {
+                if (PlayerRoles.FindFirst(x => x.Value.Role == CustomRoles.Agent, out KeyValuePair<byte, (IHideAndSeekRole Interface, CustomRoles Role)> kvp))
+                {
+                    byte agent = kvp.Key;
+                    Suffix.Append(TargetArrow.GetArrows(seer, agent));
+                }
+            }
+            else
+            {
+                Suffix.Append(GetDangerMeter(seer));
+                
+                if (PlayersSeeRoles.GetBool() && !CustomRoles.Agent.IsEnable() && IntroCutsceneDestroyPatch.IntroDestroyTS + 15 > Utils.TimeStamp)
+                {
+                    Suffix.AppendLine();
+                    Suffix.AppendFormat(Translator.GetString("HNSSeekers"), string.Join(", ", PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => x.Key.ColoredPlayerName())));
+                }
+            }
         }
 
-        if (TimeLeft == 60)
+        Suffix.AppendLine();
+
+        if (TimeLeft <= 60)
         {
-            SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
-            Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
+            Suffix.Append("<color=");
+            Suffix.Append(Utils.GetRoleColorCode(CustomRoles.Hider));
+            Suffix.Append('>');
+            Suffix.Append(Translator.GetString("TimeLeft"));
+            Suffix.Append(":</color> ");
+            Suffix.Append(TimeLeft);
+            Suffix.Append('s');
+        }
+        else
+        {
+            int minutes = TimeLeft / 60;
+            int seconds = TimeLeft % 60;
+            
+            if (hud)
+            {
+                Suffix.Append($"{minutes:00}");
+                Suffix.Append(':');
+                Suffix.Append($"{seconds:00}");
+            }
+            else
+            {
+                Suffix.AppendFormat(Translator.GetString("MinutesLeft"), $"{minutes}-{minutes + 1}");
+            }
         }
 
-        if (TimeLeft <= 60) return $"{dangerMeter}\n<color={Utils.GetRoleColorCode(CustomRoles.Hider)}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
-
-        int minutes = TimeLeft / 60;
-        int seconds = TimeLeft % 60;
-        return dangerMeter + "\n" + (hud ? $"{minutes:00}:{seconds:00}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{minutes}-{minutes + 1}")}");
+        return Suffix.ToString();
     }
 
     private static string GetDangerMeter(PlayerControl seer)

@@ -85,7 +85,7 @@ public class Altruist : RoleBase
 
             RevivedPlayers.Add(ReviveTarget);
 
-            if (killer != null && ReviveTargetsKillerGetsAlert.GetBool())
+            if (killer && ReviveTargetsKillerGetsAlert.GetBool())
             {
                 if (ReviveTargetsKillerGetsArrow.GetBool()) TargetArrow.Add(killer.PlayerId, ReviveTarget);
 
@@ -97,7 +97,7 @@ public class Altruist : RoleBase
             ReviveTarget = byte.MaxValue;
             ReviveTargetPos = Vector2.zero;
 
-            if (reporter.AmOwner && rtg != null && !rtg.Is(Team.Crewmate))
+            if (reporter.AmOwner && rtg && !rtg.Is(Team.Crewmate))
                 Achievements.Type.IWishIReported.Complete();
         }, onTick: () => Utils.NotifyRoles(SpecifySeer: reporter, SpecifyTarget: reporter), onCanceled: () =>
         {

@@ -2525,9 +2525,10 @@ public static class Utils
                 if (GameStates.IsOnlineGame || GameStates.IsLocalGame)
                     name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
 
-                var modeText = $"<size=1.8>{GetString($"Mode{Options.CurrentGameMode}")}</size>";
+                CustomGameMode gameMode = Options.CurrentGameMode;
+                var modeText = $"<size=1.8>{GetString(gameMode == CustomGameMode.HideAndSeek && CustomHnS.SNS ? "HNS.ShiftAndSeek" : $"Mode{gameMode}")}</size>";
 
-                name = Options.CurrentGameMode switch
+                name = gameMode switch
                 {
                     CustomGameMode.SoloPVP => $"<color=#f55252>{modeText}</color>\r\n{name}",
                     CustomGameMode.FFA => $"<color=#00ffff>{modeText}</color>\r\n{name}",

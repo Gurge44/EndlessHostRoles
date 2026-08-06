@@ -101,7 +101,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Telecommunication => new AntiAdminer(),
 
                 // Else, the role class is the role name - if the class doesn't exist, it defaults to VanillaRole
-                _ => Main.AllRoleClasses.FirstOrDefault(x => x.GetType().Name.Equals(role.ToString(), StringComparison.OrdinalIgnoreCase)) ?? new VanillaRole()
+                _ => Main.AllRoleClasses.Find(x => x.GetType().Name.Equals(role.ToString(), StringComparison.OrdinalIgnoreCase)) ?? new VanillaRole()
             };
 
             return Activator.CreateInstance(roleClass.GetType()) as RoleBase;
