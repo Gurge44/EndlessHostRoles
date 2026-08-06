@@ -127,9 +127,34 @@ frettedria#8062 | c29fae4c3 |  | slurs in game |
 pluralbug#5217 | cf91054b4 |  | slurs in game | 
 oakaverage#9192 | 0aebc840d | Tevell67 | slurs in game | 
 signingwry#3704 | 800955a89 |  | slurs in game | 
+stoneredox#2794 | 763ef0db5 |  | slurs in game | 
+loanlyric#0220 | f6b3f13ad |  | slurs in game | 
 
 ## Griefers, Toxic, Harrasing, Racist
-setmolar#4374 |  | 藏族顶针 | Toxic | 
+lovelycorn#7502 | f315db1a2 | Oldishfir | Racist
+foredrawl#9813 | 39ead1c32 | StarPlayer | Racist
+trunkfar#9271 | dd0d39dba | Dietcoke | Racist
+mattedcow#3812 | 2379ee927 | Zanygamma | Racist
+lyricparty#5784 | dd82fbe3e | K4YD4N | Racist
+awareonset#4192 | ffb36abbe | Kerbstereo | Racist
+dimhusky#2531 | d3e586f2d | Lunarninja | Racist
+savingpoem#4577 | f5c6137b6 | Nthripple | Racist
+avidscales#7246 | 8a8fbb784 | redoemods | Racist
+gorsesure#6671 | d32b478fc | wskiii1 | Racist
+giddypeak#7642 | 16346ab66 | Andern*** | Racist
+wovebat#7159 | da34ca130 | Okay | Racist
+carfiery#6215 | cb2cb12af | StarPlayer 2 | Racist
+stonetotal#2679 | 5eb93f32d | StarPlayer 3 | Racist
+asleepprow#8479 | 2496a0710 | StarPlayer 1 | Racist
+onceglad#6678 | 6e30f9d6e | Darkdome | Racist
+plummychip#4660 | b9ad0ae7a | StarPlayer 1 | Racist
+spammystic#4752 | 032854fbf | 4x4 | Racist
+binarywool#6122 | d9ee6fef4 | Candlesame | Racist
+mightyview#1979 | db3330592 | Clavessnub | Racist
+steepsong#7741 | 3469eeee3 | ICY | Racist
+drollseal#6035 | fceb74959 | StarPlayer | Racist
+keensubway#2098 | 6900dbd4b | lemonplayz | Racist
+setmolar#4374 |  | 藏族顶针 | Toxic |
 overtfeast#5802 |  | 黑影 | Toxic | 
 roomybump#8560 |  | 中国国民党 | Toxic | 
 whipsame#5558 |  | 齐心 习母 | Toxic | 
