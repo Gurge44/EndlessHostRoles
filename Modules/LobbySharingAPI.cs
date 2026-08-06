@@ -104,7 +104,7 @@ public static class LobbySharingAPI
         void StartMessageEdit()
         {
             string map = Options.RandomMapsMode.GetBool() ? "Random" : SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6 ? "Submerged" : Main.CurrentMap.ToString();
-            string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Translator.GetString(Options.CurrentGameMode.ToString(), SupportedLangs.English).ToUpper();
+            string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Options.CurrentGameMode.ToString();
             int playerCount = PlayerControl.AllPlayerControls.Count;
             int maxPlayers = Main.NormalOptions.MaxPlayers;
             Main.Instance.StartCoroutine(SendLobbyStatusChangedRequest(LastRoomCode, status.ToString().Replace('_', ' '), playerCount, maxPlayers, map, gameMode));
