@@ -143,6 +143,7 @@ public static class NameColorManager
         {
             CustomRoles.Transporter when target.IsImpostor() => "ffffff",
             CustomRoles.Silencer when Silencer.ForSilencer.Contains(target.PlayerId) => "000000",
+            CustomRoles.Tyrant when Tyrant.IsDegraded(target) => "000000",
             CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId) => "000000",
             CustomRoles.Executioner when Executioner.Target.TryGetValue(seer.PlayerId, out byte exeTarget) && exeTarget == target.PlayerId => "000000",
             CustomRoles.Lawyer when Lawyer.Target.TryGetValue(seer.PlayerId, out byte lawyerTarget) && lawyerTarget == target.PlayerId => "000000",

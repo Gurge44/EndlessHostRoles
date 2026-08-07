@@ -3,6 +3,7 @@ using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
+using Priority = HarmonyLib.Priority;
 
 namespace EHR;
 

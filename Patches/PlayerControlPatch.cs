@@ -559,7 +559,7 @@ internal static class CheckMurderPatch
                             killer.Kill(player);
                             Crusader.ForCrusade.Remove(target.PlayerId);
                             target.RpcGuardAndKill(killer);
-                            Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.PissedOff;
+                            Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Destroyed;
                             return false;
                     }
                 }

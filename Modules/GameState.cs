@@ -39,7 +39,6 @@ public class PlayerState(byte playerId)
         Quantization,
         Overtired,
         Ashamed,
-        PissedOff,
         Dismembered,
         LossOfHead,
         Trialed,
