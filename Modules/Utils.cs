@@ -352,7 +352,7 @@ public static class Utils
 
         foreach (PlayerControl seer in Main.CachedAllPlayerControls())
         {
-            if (seer.Is(CustomRoles.GM) || seer.Is(CustomRoles.Seer))
+            if (seer.Is(CustomRoles.GM) || seer.Is(CustomRoles.Seer) || (seer.Is(CustomRoles.Bluetooth) && target.IsImpostor()))
             {
                 seer.KillFlash();
                 continue;
@@ -4289,6 +4289,14 @@ public static class Utils
                         addons.ForEach(state.RemoveSubRole);
                     }
 
+                    break;
+                case CustomRoles.Tyrant:
+                    foreach (byte id in Tyrant.Degraded[target.PlayerId])
+                    {
+                        if (!Main.PlayerStates.TryGetValue(id, out var state)) continue;
+                        state.RemoveSubRole(CustomRoles.Degraded);
+                    }
+                    Tyrant.Degraded[target.PlayerId] = [];
                     break;
                 case CustomRoles.Swapper when disconnect:
                     Swapper.SwapTargets = (byte.MaxValue, byte.MaxValue);

@@ -17,6 +17,7 @@ using static EHR.Modules.CustomRoleSelector;
 using static EHR.Translator;
 using DateTime = Il2CppSystem.DateTime;
 using Exception = System.Exception;
+using Priority = HarmonyLib.Priority;
 
 namespace EHR;
 

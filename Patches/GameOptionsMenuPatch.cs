@@ -10,6 +10,7 @@ using HarmonyLib;
 using Il2CppSystem.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using Priority = HarmonyLib.Priority;
 
 // ReSharper disable PossibleLossOfFraction
 
