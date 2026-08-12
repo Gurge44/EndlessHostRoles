@@ -12,10 +12,14 @@ on:
 jobs:
   synchronize-with-crowdin:
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: crowdin action
         uses: crowdin/github-action@v2
