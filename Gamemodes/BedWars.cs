@@ -438,7 +438,8 @@ public static class BedWars
             Logger.Error("Cannot start BedWars game due to invalid game state.", "BedWars");
             yield break;
         }
-        
+
+        bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         // Assign players to teams
@@ -453,11 +454,11 @@ public static class BedWars
             .Flatten()
             .ToDictionary(x => x.Key, x => x.Value);
 
-        yield return WaitFrameIfNecessary();
+        yield return vanilla ? new WaitForSeconds(1f) : WaitFrameIfNecessary();
 
         Main.AllAlivePlayerControlsToList.SetChatVisible(true);
 
-        yield return WaitFrameIfNecessary();
+        yield return vanilla ? new WaitForSeconds(1f) : WaitFrameIfNecessary();
 
         MapNames map = Main.CurrentMap;
         Dictionary<BedWarsTeam, Base> bases = Bases[map];
@@ -518,12 +519,12 @@ public static class BedWars
 
             Data[pc.PlayerId] = data;
 
-            yield return WaitFrameIfNecessary();
+            yield return vanilla ? new WaitForSeconds(0.3f) : WaitFrameIfNecessary();
         }
         
         sender.SendMessage(dispose: PlayerControl.AllPlayerControls.Count <= 1);
 
-        yield return WaitFrameIfNecessary();
+        yield return vanilla ? new WaitForSeconds(1f) : WaitFrameIfNecessary();
 
         if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby)
         {
@@ -550,14 +551,14 @@ public static class BedWars
             if (bed != null) AllNetObjects[team] = new(bed, new(itemShop), new(upgradeShop));
             rooms.Add(Utils.ColorString(team.GetColor(), Translator.GetString(room)));
 
-            yield return WaitFrameIfNecessary();
+            yield return vanilla ? new WaitForSeconds(1f) : WaitFrameIfNecessary();
         }
 
-        yield return WaitFrameIfNecessary();
+        yield return vanilla ? new WaitForSeconds(1f) : WaitFrameIfNecessary();
 
         players.NotifyPlayers($"{rooms[0]}\n{string.Join(" | ", rooms.Skip(1))}", 20f, setName: false);
 
-        yield return WaitFrameIfNecessary();
+        yield return vanilla ? new WaitForSeconds(1f) : WaitFrameIfNecessary();
 
         foreach ((Item item, List<Vector2> positions) in ItemGeneratorPositions[map])
         {
@@ -578,7 +579,7 @@ public static class BedWars
                 if (generator != null) ItemGenerators.Add(generator);
             });
 
-            yield return WaitFrameIfNecessary();
+            yield return vanilla ? new WaitForSeconds(1f) : WaitFrameIfNecessary();
         }
 
         GracePeriodEnd = Utils.TimeStamp + GracePeriod;
