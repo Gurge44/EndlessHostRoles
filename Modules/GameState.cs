@@ -92,7 +92,7 @@ public class PlayerState(byte playerId)
         etc = -1
     }
 
-    public readonly PlayerControl Player = Utils.GetPlayerById(playerId, false);
+    public readonly PlayerControl Player = Utils.GetPlayerById(playerId);
 
     private readonly byte PlayerId = playerId;
     public readonly List<CustomRoles> SubRoles = [];

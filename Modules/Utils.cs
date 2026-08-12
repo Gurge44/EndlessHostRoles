@@ -1825,7 +1825,7 @@ public static class Utils
         {
             Logger.Info($"SendMessage called from {callerFilePath.Split('\\')[^1].Split('/')[^1]} at line {callerLineNumber}", "SendMessage");
 
-            PlayerControl receiver = GetPlayerById(sendTo, GameStates.InGame);
+            PlayerControl receiver = GetPlayerById(sendTo);
             if (sendTo != byte.MaxValue && !receiver || !force && title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return writer;
 
             if (!AmongUsClient.Instance.AmHost)
@@ -2680,31 +2680,18 @@ public static class Utils
         }
     }
 
-    public static PlayerControl GetPlayerById(int playerId, bool fast = true)
+    private static readonly PlayerControl[] IdToPC = new PlayerControl[256];
+
+    public static PlayerControl GetPlayerById(byte playerId) => IdToPC[playerId];
+
+    public static void UpdatePlayerIdCache()
     {
-        try
+        Array.Clear(IdToPC);
+
+        foreach (var pc in PlayerControl.AllPlayerControls)
         {
-            if (playerId == PlayerControl.LocalPlayer.PlayerId)
-                return PlayerControl.LocalPlayer;
-
-            byte id = (byte)playerId;
-
-            if (fast && GameStates.InGame &&
-                Main.PlayerStates.TryGetValue(id, out PlayerState state) &&
-                state.Player) { return state.Player; }
-
-            foreach (var pc in PlayerControl.AllPlayerControls)
-            {
-                if (pc.PlayerId == id)
-                    return pc;
-            }
-
-            return null;
-        }
-        catch (Exception e)
-        {
-            ThrowException(e);
-            return null;
+            if (pc)
+                IdToPC[pc.PlayerId] = pc;
         }
     }
 

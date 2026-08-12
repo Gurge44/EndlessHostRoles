@@ -99,8 +99,9 @@ public class Echo : RoleBase
         }
         else
         {
-            target = Utils.GetPlayerById(shapeshifter.shapeshiftTargetPlayerId);
-            if (target == null) return true;
+            if (shapeshifter.shapeshiftTargetPlayerId is > byte.MaxValue or < byte.MinValue) return true;
+            target = Utils.GetPlayerById((byte)shapeshifter.shapeshiftTargetPlayerId);
+            if (!target) return true;
 
             RevertSwap(shapeshifter, target);
             LateTask.New(() => target.Suicide(PlayerState.DeathReason.Echoed, shapeshifter), 0.2f, "Echo Unshift Kill");
@@ -123,8 +124,9 @@ public class Echo : RoleBase
         SkipCheck = true;
         LateTask.New(() => SkipCheck = false, 3f, log: false);
 
-        PlayerControl ssTarget = Utils.GetPlayerById(target.shapeshiftTargetPlayerId);
-        if (ssTarget == null || !killer.RpcCheckAndMurder(ssTarget, true)) return true;
+        if (target.shapeshiftTargetPlayerId is > byte.MaxValue or < byte.MinValue) return true;
+        PlayerControl ssTarget = Utils.GetPlayerById((byte)target.shapeshiftTargetPlayerId);
+        if (!ssTarget || !killer.RpcCheckAndMurder(ssTarget, true)) return true;
 
         RevertSwap(target, ssTarget);
         LateTask.New(() => killer.Kill(ssTarget), 0.2f, log: false);

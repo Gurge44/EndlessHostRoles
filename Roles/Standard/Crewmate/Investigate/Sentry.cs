@@ -165,8 +165,8 @@ internal class Sentry : RoleBase
 
             PlayerControl realTarget = null;
 
-            if (target.shapeshiftTargetPlayerId != byte.MaxValue)
-                realTarget = Utils.GetPlayerById(target.shapeshiftTargetPlayerId);
+            if (target.shapeshiftTargetPlayerId is <= byte.MaxValue and >= byte.MinValue)
+                realTarget = Utils.GetPlayerById((byte)target.shapeshiftTargetPlayerId);
 
             if (!realTarget) realTarget = target;
 
@@ -211,7 +211,7 @@ internal class Sentry : RoleBase
         
         bool shapeshifting = shapeshifter.PlayerId != target.PlayerId;
         PlayerControl ssTarget = shapeshifting ? target : shapeshifter;
-        PlayerControl ss = shapeshifting ? shapeshifter : Utils.GetPlayerById(shapeshifter.shapeshiftTargetPlayerId);
+        PlayerControl ss = shapeshifting ? shapeshifter : Utils.GetPlayerById((byte)shapeshifter.shapeshiftTargetPlayerId);
 
         string text = "\n" + string.Format(
             Translator.GetString("Sentry.Notify.Shapeshifted"),

@@ -1547,7 +1547,8 @@ internal static class ChatCommands
 
         if (gameMode == CustomGameMode.HideAndSeek)
         {
-            List<(CustomRoles Role, IHideAndSeekRole Interface)> hnsRoles = CustomHnS.GetAllHnsRoleTypes().Select(x => (Role: Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name), Interface: (IHideAndSeekRole)Activator.CreateInstance(x))).Where(x => x.Role is CustomRoles.Seeker or CustomRoles.Hider || x.Role.GetMode() != 0).ToList();
+            bool sns = CustomHnS.SNS;
+            List<(CustomRoles Role, IHideAndSeekRole Interface)> hnsRoles = CustomHnS.GetAllHnsRoleTypes().Select(x => (Role: Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name), Interface: (IHideAndSeekRole)Activator.CreateInstance(x))).Where(x => !sns ? (x.Role is CustomRoles.Seeker or CustomRoles.Hider || x.Role.GetMode() != 0) : (x.Role == CustomRoles.Disguiser || (x.Interface.Team != Team.Impostor && x.Role.GetMode() != 0))).ToList();
             Dictionary<Team, int> memberNum = new()
             {
                 [Team.Impostor] = Main.NormalOptions.NumImpostors,
@@ -2184,11 +2185,11 @@ internal static class ChatCommands
             return;
         }
 
-        if (args.Length < 2 || !int.TryParse(args[1], out int id2)) return;
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte id2)) return;
 
         PlayerControl target = Utils.GetPlayerById(id2);
 
-        if (target != null)
+        if (target)
         {
             target.Kill(target);
 
@@ -2207,11 +2208,11 @@ internal static class ChatCommands
             return;
         }
 
-        if (args.Length < 2 || !int.TryParse(args[1], out int id)) return;
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte id)) return;
 
         PlayerControl pc = Utils.GetPlayerById(id);
 
-        if (pc != null)
+        if (pc)
         {
             Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.etc;
             pc.RpcExileV2();

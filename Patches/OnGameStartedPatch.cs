@@ -168,7 +168,7 @@ internal static class ChangeRoleSettings
             ChatCommands.LastSpectators.UnionWith(ChatCommands.Spectators);
 
             RPCHandlerPatch.RemoveExpiredWhiteList();
-            
+            Utils.UpdatePlayerIdCache();
             LobbyViewSettingsPanePatch.ClearReferences();
 
             try
@@ -565,6 +565,7 @@ internal static class StartGameHostPatch
         if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended) yield break;
 
         Main.ForceRebuildCachesPlayerControls();
+        Utils.UpdatePlayerIdCache();
 
         Options.AutoSetFactionMinMaxSettings();
 

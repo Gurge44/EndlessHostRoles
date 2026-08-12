@@ -691,6 +691,7 @@ internal static class InnerNetClientSpawnPatch
 
         Logger.Msg($"Spawn player data: ID {client?.Character?.PlayerId}: {client?.PlayerName}", "CreatePlayer");
         Main.ForceRebuildCachesPlayerControls();
+        Utils.UpdatePlayerIdCache();
 
         if (client == null || !client.Character // client is null
                            || client.ColorId < 0 || Palette.PlayerColors.Length <= client.ColorId) // invalid client color

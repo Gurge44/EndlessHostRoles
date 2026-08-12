@@ -111,7 +111,7 @@ internal class Nemesis : RoleBase
 
         try
         {
-            int targetId = int.Parse(msg.Replace("/rv", string.Empty));
+            byte targetId = byte.Parse(msg.Replace("/rv", string.Empty));
             target = Utils.GetPlayerById(targetId);
         }
         catch

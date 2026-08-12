@@ -78,13 +78,14 @@ internal static class CustomHnS
         LastUpdate = Utils.TimeStamp;
 
         Type[] types = GetAllHnsRoleTypes();
-
         AllHnSRoles = GetAllHnsRoles(types);
+        bool sns = ShiftAndSeek.GetBool();
 
         HideAndSeekRoles = types
             .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
             .Where(x => x != null)
-            .Join(AllHnSRoles.FindAll(role => !ShiftAndSeek.GetBool() ? (role is CustomRoles.Seeker or CustomRoles.Hider || role.GetMode() != 0) : (role == CustomRoles.Disguiser || (role is not (CustomRoles.Seeker or CustomRoles.Locator or CustomRoles.Dasher or CustomRoles.Venter or CustomRoles.Agent) && role.GetMode() != 0))), x => x.GetType().Name.ToLower(), x => x.ToString().ToLower(), (Interface, Enum) => (Enum, Interface))
+            .Join(AllHnSRoles, x => x.GetType().Name.ToLower(), x => x.ToString().ToLower(), (Interface, Enum) => (Enum, Interface))
+            .Where(x => !sns ? (x.Enum is CustomRoles.Seeker or CustomRoles.Hider || x.Enum.GetMode() != 0) : (x.Enum == CustomRoles.Disguiser || (x.Interface.Team != Team.Impostor && x.Enum.GetMode() != 0)))
             .Where(x => (!x.Enum.OnlySpawnsWithPets() || Options.UsePets.GetBool()) && (x.Enum != CustomRoles.Agent || SeekerNum >= 2) && x.Interface.Count > 0 && (x.Interface.Team == Team.Neutral || x.Interface.Chance > IRandom.Instance.Next(100)))
             .OrderBy(x => x.Enum is CustomRoles.Seeker or CustomRoles.Hider ? 100 : IRandom.Instance.Next(100))
             .GroupBy(x => x.Interface.Team)
