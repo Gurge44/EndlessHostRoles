@@ -128,6 +128,6 @@ public class Aid : RoleBase
             return string.Format(Translator.GetString("AidCounterSelf"), timeLeft);
         }
 
-        return seer.PlayerId == AidId ? string.Join("\n", ShieldedPlayers.Select(x => string.Format(Translator.GetString("AidCounterTarget"), x.Key.ColoredPlayerName(), (int)Math.Ceiling(x.Value.Remaining.TotalSeconds)))) : string.Empty;
+        return seer.PlayerId == AidId ? ShieldedPlayers.Join("\n", x => string.Format(Translator.GetString("AidCounterTarget"), x.Key.ColoredPlayerName(), (int)Math.Ceiling(x.Value.Remaining.TotalSeconds))) : string.Empty;
     }
 }

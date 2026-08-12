@@ -87,14 +87,15 @@ public static class Speedrun
 
     public static string GetTaskBarText()
     {
-        return string.Join('\n', Main.PlayerStates
-            .Join(Main.EnumerateAlivePlayerControls(), x => x.Key, x => x.PlayerId, (kvp, _) => (
-                Name: kvp.Key.ColoredPlayerName(),
-                CompletedTasks: kvp.Value.TaskState.CompletedTasksCount,
-                AllTasks: kvp.Value.TaskState.AllTasksCount,
-                Time: AmongUsClient.Instance.AmHost ? $" ({Timers.GetValueOrDefault(kvp.Key)}s)" : string.Empty))
+        return Main.PlayerStates
+            .Where(x => !x.Value.IsDead)
+            .Select(x => (
+                Name: x.Key.ColoredPlayerName(),
+                CompletedTasks: x.Value.TaskState.CompletedTasksCount,
+                AllTasks: x.Value.TaskState.AllTasksCount,
+                Time: AmongUsClient.Instance.AmHost ? $" ({Timers.GetValueOrDefault(x.Key)}s)" : string.Empty))
             .OrderByDescending(x => x.CompletedTasks)
-            .Select(x => x.CompletedTasks < x.AllTasks ? $"{x.Name}: {x.CompletedTasks}/{x.AllTasks}{x.Time}" : $"{x.Name}: {Translator.GetString("Speedrun_KillingPlayer")}{x.Time}"));
+            .Join('\n', x => x.CompletedTasks < x.AllTasks ? $"{x.Name}: {x.CompletedTasks}/{x.AllTasks}{x.Time}" : $"{x.Name}: {Translator.GetString("Speedrun_KillingPlayer")}{x.Time}");
     }
 
     public static string GetSuffixText(PlayerControl pc)

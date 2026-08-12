@@ -234,7 +234,7 @@ public class Abyssbringer : RoleBase
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != AbyssbringerId || meeting || (seer.IsModdedClient() && !hud) || BlackHoles.Count == 0) return string.Empty;
 
-        return string.Format(Translator.GetString("Abyssbringer.Suffix"), BlackHoles.Count, string.Join('\n', BlackHoles.Select(x => GetBlackHoleFormatText(x.RoomName, x.PlayersConsumed))));
+        return string.Format(Translator.GetString("Abyssbringer.Suffix"), BlackHoles.Count, BlackHoles.Join('\n', x => GetBlackHoleFormatText(x.RoomName, x.PlayersConsumed)));
 
         string GetBlackHoleFormatText(string roomName, int playersConsumed)
         {

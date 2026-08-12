@@ -346,34 +346,72 @@ internal static class CustomHnS
         return targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor);
     }
 
+    private static readonly StringBuilder TaskBarText = new();
+
     public static string GetTaskBarText()
     {
-        string text = Main.PlayerStates.IntersectBy(PlayerRoles.Keys, x => x.Key).Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
-        return $"{text}</size>\r\n\r\n<#00ffa5>{Translator.GetString("HNS.TaskCount")}</color> {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}";
+        bool seeRoles = PlayersSeeRoles.GetBool();
+        bool agentEnabled = CustomRoles.Agent.IsEnable();
+        string deadText = Translator.GetString("Dead");
 
-        static string GetStateText(KeyValuePair<byte, PlayerState> state)
+        TaskBarText.Clear();
+        TaskBarText.Append("<size=80%>");
+
+        foreach ((byte id, PlayerState state) in Main.PlayerStates)
         {
-            string name = Main.AllPlayerNames.GetValueOrDefault(state.Key, $"ID {state.Key}");
-            name = Utils.ColorString(Main.PlayerColors.GetValueOrDefault(state.Key, Color.white), name);
-            bool isSeeker = PlayerRoles[state.Key].Interface.Team == Team.Impostor;
-            bool alive = !state.Value.IsDead;
+            if (!PlayerRoles.TryGetValue(id, out var playerRole)) continue;
 
-            TaskState taskState = state.Value.TaskState;
-            var stateText = string.Empty;
+            string name = Main.AllPlayerNames.TryGetValue(id, out string playerName) ? playerName : $"ID {id}";
+            name = Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), name);
+            TaskBarText.Append(name);
 
-            if (PlayersSeeRoles.GetBool())
-                stateText = $" ({GetRole().ToColoredString()}){GetTaskCount()}";
-            else if (isSeeker) stateText = $" ({CustomRoles.Seeker.ToColoredString()})";
+            if (seeRoles)
+            {
+                CustomRoles role = state.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.MainRole;
 
-            if (!alive) stateText += $"  <color=#ff0000>{Translator.GetString("Dead")}</color>";
+                TaskBarText.Append(' ');
+                TaskBarText.Append('(');
+                TaskBarText.Append(role.ToColoredString());
+                TaskBarText.Append(')');
 
-            stateText = $"{name}{stateText}";
-            return stateText;
+                TaskState taskState = state.TaskState;
 
-            CustomRoles GetRole() => state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
+                if (state.MainRole != CustomRoles.GM && !agentEnabled && taskState.HasTasks)
+                {
+                    TaskBarText.Append(' ');
+                    TaskBarText.Append('(');
+                    TaskBarText.Append(taskState.CompletedTasksCount);
+                    TaskBarText.Append('/');
+                    TaskBarText.Append(taskState.AllTasksCount);
+                    TaskBarText.Append(')');
+                }
+            }
+            else if (playerRole.Interface.Team == Team.Impostor)
+            {
+                TaskBarText.Append(' ');
+                TaskBarText.Append('(');
+                TaskBarText.Append(CustomRoles.Seeker.ToColoredString());
+                TaskBarText.Append(')');
+            }
 
-            string GetTaskCount() => state.Value.MainRole == CustomRoles.GM || CustomRoles.Agent.IsEnable() || !taskState.HasTasks ? string.Empty : $" ({taskState.CompletedTasksCount}/{taskState.AllTasksCount})";
+            if (state.IsDead)
+            {
+                TaskBarText.Append("  <color=#ff0000>");
+                TaskBarText.Append(deadText);
+                TaskBarText.Append("</color>");
+            }
+
+            TaskBarText.Append('\n');
         }
+
+        TaskBarText.Append("</size>\r\n\r\n<#00ffa5>");
+        TaskBarText.Append(Translator.GetString("HNS.TaskCount"));
+        TaskBarText.Append("</color> ");
+        TaskBarText.Append(GameData.Instance.CompletedTasks);
+        TaskBarText.Append('/');
+        TaskBarText.Append(GameData.Instance.TotalTasks);
+
+        return TaskBarText.ToString();
     }
 
     private static readonly StringBuilder Suffix = new();
@@ -401,7 +439,7 @@ internal static class CustomHnS
                 if (PlayersSeeRoles.GetBool() && !CustomRoles.Agent.IsEnable() && IntroCutsceneDestroyPatch.IntroDestroyTS + 15 > Utils.TimeStamp)
                 {
                     Suffix.AppendLine();
-                    Suffix.AppendFormat(Translator.GetString("HNSSeekers"), string.Join(", ", PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => x.Key.ColoredPlayerName())));
+                    Suffix.AppendFormat(Translator.GetString("HNSSeekers"), PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Join(", ", x => x.Key.ColoredPlayerName()));
                 }
             }
         }

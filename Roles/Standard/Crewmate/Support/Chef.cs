@@ -252,7 +252,7 @@ public class Chef : RoleBase
         if (meeting) return string.Empty;
 
         long now = Utils.TimeStamp;
-        if (ActiveEvents.TryGetValue(target.PlayerId, out List<PlayerEvent> events) && (seer.PlayerId == target.PlayerId || seer.PlayerId == ChefId)) return $"<size=80%>{string.Join('\n', events.Select(e => string.Format(Translator.GetString("ChefBoostSuffix"), GetEventString(e), e.Duration - (now - e.StartTimeStamp))))}</size>";
+        if (ActiveEvents.TryGetValue(target.PlayerId, out List<PlayerEvent> events) && (seer.PlayerId == target.PlayerId || seer.PlayerId == ChefId)) return $"<size=80%>{events.Join('\n', e => string.Format(Translator.GetString("ChefBoostSuffix"), GetEventString(e), e.Duration - (now - e.StartTimeStamp)))}</size>";
 
         if (RottenFood.TryGetValue(seer.PlayerId, out long ts) && seer.PlayerId == target.PlayerId) return string.Format(Translator.GetString("ChefRottenSuffix"), RottenTime.GetInt() - (now - ts));
 

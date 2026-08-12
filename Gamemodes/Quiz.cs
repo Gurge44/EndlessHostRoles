@@ -149,7 +149,7 @@ public static class Quiz
     public static string GetStatistics(byte id)
     {
         if (!NumCorrectAnswers.TryGetValue(id, out var data)) return string.Empty;
-        string str = string.Join(" | ", data.Select(x => $"{x.Key.ToString()[0]}-{x.Value.Sum()}"));
+        string str = data.Join(" | ", x => $"{x.Key.ToString()[0]}-{x.Value.Sum()}");
         return GetString("Quiz.EndResults.CorrectAnswerNum") + str;
     }
 
@@ -235,7 +235,7 @@ public static class Quiz
         if (!AllowKills) return string.Empty;
 
         requiredCorrect = Settings[CurrentDifficulty].CorrectRequirement.GetInt();
-        gotCorrect = NumCorrectAnswers[seer.PlayerId][CurrentDifficulty][Round];
+        gotCorrect = NumCorrectAnswers[seer.PlayerId][CurrentDifficulty][Round - 1];
         failed = gotCorrect < requiredCorrect;
 
         var ffaTimeLeft = FFAEndTS - Utils.TimeStamp;
@@ -276,7 +276,7 @@ public static class Quiz
         var aapc = Main.AllAlivePlayerControlsToList;
         bool showTutorial = !SubmergedCompatibility.IsSubmerged() && aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Count / 2;
 
-        var usedRooms = string.Join('\n', UsedRooms[Main.CurrentMap].Select(x => $"{x.Key}: {GetString(x.Value.ToString())}"));
+        var usedRooms = UsedRooms[Main.CurrentMap].Join('\n', x => $"{x.Key}: {GetString(x.Value.ToString())}");
         aapc.NotifyPlayers(string.Format(GetString("Quiz.Tutorial.Basics"), usedRooms), 11f);
         yield return new WaitForSecondsRealtime(showTutorial ? 9f : 5f);
         if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
@@ -454,8 +454,8 @@ public static class Quiz
         if (DyingPlayers.Count == 0) NumAllCorrectAnswers++;
         bool everyoneWasWrong = DyingPlayers.Count == aapcCount;
         if (!everyoneWasWrong) NumCorrectAnswers.IntersectBy(aapc.Select(x => x.PlayerId), x => x.Key).DoIf(x => !DyingPlayers.Contains(x.Key), x => x.Value[CurrentDifficulty][Round]++);
-        Logger.Info($"{(everyoneWasWrong ? "Everyone" : "Players who")} got the question wrong: {string.Join(", ", DyingPlayers.Select(x => Main.AllPlayerNames.GetValueOrDefault(x, $"Someone (ID {x})")))}", "Quiz");
-        Logger.Info($"Number of correct answers for everyone currently: {string.Join(", ", NumCorrectAnswers.Select(x => $"{Main.AllPlayerNames.GetValueOrDefault(x.Key, string.Empty)}: {x.Value[CurrentDifficulty][Round]}"))}", "Quiz");
+        Logger.Info($"{(everyoneWasWrong ? "Everyone" : "Players who")} got the question wrong: {DyingPlayers.Join(", ", x => Main.AllPlayerNames.GetValueOrDefault(x, $"Someone (ID {x})"))}", "Quiz");
+        Logger.Info($"Number of correct answers for everyone currently: {NumCorrectAnswers.Join(", ", x => $"{Main.AllPlayerNames.GetValueOrDefault(x.Key, string.Empty)}: {x.Value[CurrentDifficulty][Round]}")}", "Quiz");
 
         if (everyoneWasWrong) QuestionsAsked--;
         Utils.NotifyRoles();
@@ -475,7 +475,7 @@ public static class Quiz
 
         var correctRequirement = settings.CorrectRequirement.GetInt();
         List<byte> dyingPlayers = NumCorrectAnswers.Where(x => x.Value[CurrentDifficulty][Round] < correctRequirement).Select(x => x.Key).Where(x => Main.PlayerStates.TryGetValue(x, out var s) && !s.IsDead).ToList();
-        Logger.Info($"Round {Round + 1} of {CurrentDifficulty} difficulty ended. Dying players: {dyingPlayers.Count} | {string.Join(", ", dyingPlayers.Select(x => Main.AllPlayerNames[x]))}", "Quiz");
+        Logger.Info($"Round {Round + 1} of {CurrentDifficulty} difficulty ended. Dying players: {dyingPlayers.Count} | {dyingPlayers.Join(", ", x => Main.AllPlayerNames[x])}", "Quiz");
 
         Round++;
         QuestionsAsked = 0;
@@ -559,7 +559,7 @@ public static class Quiz
     {
         try
         {
-            var correctAnswers = string.Join('\n', NumCorrectAnswers.Select(x => $"{x.Key.ColoredPlayerName()}: {string.Join(' ', x.Value.Select(k => $"{k.Key.ToString()[0]}-{k.Value.Sum()}"))}"));
+            var correctAnswers = NumCorrectAnswers.Join('\n', x => $"{x.Key.ColoredPlayerName()}: {x.Value.Join(' ', k => $"{k.Key.ToString()[0]}-{k.Value.Sum()}")}");
             return string.Format(GetString("Quiz.TaskBarText"), CurrentDifficulty, Round + 1, QuestionsAsked + 1, correctAnswers);
         }
         catch { return string.Empty; }

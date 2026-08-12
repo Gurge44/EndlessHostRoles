@@ -183,7 +183,7 @@ internal static class StopAndGo
     private static IntegerValueRule CounterValueRule => new(1, 100, 1);
     private static IntegerValueRule ExtraTimeValue => new(0, 50, 1);
     private static int DefaultMinValue => 5;
-    private static int DefaultMaxValue => 30;
+    private static int DefaultMaxValue => 20;
 
     public static string GetHudText()
     {

@@ -1151,7 +1151,7 @@ public static class Options
                     
                     if (values.Count == 0) continue;
                     
-                    string possibleValues = string.Join("<br>", values.Select(x => $"`{x}`"));
+                    string possibleValues = values.Join("<br>", x => $"`{x}`");
                     
                     string defaultValue = option switch
                     {
@@ -3373,7 +3373,7 @@ public static class Options
             OptionItem.SyncAllOptions();
             
             if (CurrentGameMode == CustomGameMode.Standard)
-                Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedPlayerCount, string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
+                Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedPlayerCount, new[] { Team.Impostor, Team.Coven, Team.Neutral }.Join(", ", x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>"), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
 
             LastUsedPlayerCount = usedPlayerCount;
         }

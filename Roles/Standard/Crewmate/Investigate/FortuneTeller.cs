@@ -89,7 +89,7 @@ public class FortuneTeller : RoleBase
             roleList.Do(x => x.RoleList.Insert(IRandom.Instance.Next(x.RoleList.Count), x.Player.GetCustomRole()));
             AllPlayerRoleList = roleList.ToDictionary(x => x.Player.PlayerId, x => x.RoleList);
 
-            Logger.Info(string.Join(" ---- ", AllPlayerRoleList.Select(x => $"ID {x.Key} ({x.Key.GetPlayer().GetNameWithRole()}): {string.Join(", ", x.Value)}")), "FortuneTeller Roles");
+            Logger.Info(AllPlayerRoleList.Join(" ---- ", x => $"ID {x.Key} ({x.Key.GetPlayer().GetNameWithRole()}): {string.Join(", ", x.Value)}"), "FortuneTeller Roles");
         }, 8f, log: false);
     }
 
@@ -122,7 +122,7 @@ public class FortuneTeller : RoleBase
             msg = string.Format(GetString("FortuneTellerCheck.TaskDone"), target.GetRealName(), target.GetCustomRole().ToColoredString());
         else
         {
-            string roles = string.Join(", ", AllPlayerRoleList[target.PlayerId].Select(x => x.ToColoredString()));
+            string roles = AllPlayerRoleList[target.PlayerId].Join(", ", x => x.ToColoredString());
             msg = string.Format(GetString("FortuneTellerCheckResult"), target.GetRealName(), roles);
         }
 

@@ -2831,8 +2831,8 @@ public static class Utils
 
             if (Options.CurrentGameMode != CustomGameMode.Standard) return;
 
-            string seers = SeerList.Count == apc.Count ? "Everyone" : string.Join(", ", SeerList.Select(x => x.GetRealName()));
-            string targets = TargetList.Count == apc.Count ? "Everyone" : string.Join(", ", TargetList.Select(x => x.GetRealName()));
+            string seers = SeerList.Count == apc.Count ? "Everyone" : SeerList.Join(", ", x => x.GetRealName());
+            string targets = TargetList.Count == apc.Count ? "Everyone" : TargetList.Join(", ", x => x.GetRealName());
 
             if (seers.Length == 0) seers = "\u2205";
             if (targets.Length == 0) targets = "\u2205";

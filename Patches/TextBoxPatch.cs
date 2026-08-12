@@ -236,7 +236,7 @@ public static class TextBoxPatch
                     if (additionalInfo.Length == 0 && argName.Replace('[', '{').Replace(']', '}') is "{id}" or "{id1}" or "{id2}")
                     {
                         Dictionary<byte, string> allIds = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, x => x.PlayerId.ColoredPlayerName());
-                        additionalInfo = $"<b><u>{Translator.GetString("PlayerIdList").TrimEnd(' ')}</u></b>\n{string.Join('\n', allIds.Select(x => $"<b>{x.Key}</b> \uffeb <b>{x.Value}</b>"))}";
+                        additionalInfo = $"<b><u>{Translator.GetString("PlayerIdList").TrimEnd(' ')}</u></b>\n{allIds.Join('\n', x => $"<b>{x.Key}</b> \uffeb <b>{x.Value}</b>")}";
                         // OptionShower.CurrentPage = 0;
                     }
 
@@ -278,7 +278,7 @@ public static class TextBoxPatch
                             : argName switch
                             {
                                 "{id}" or "{id1}" or "{id2}" => $" ({byte.Parse(arg).ColoredPlayerName()})",
-                                "{ids}" => $" ({string.Join(", ", arg.Split(',').Select(x => byte.Parse(x).ColoredPlayerName()))})",
+                                "{ids}" => $" ({arg.Split(',').Join(", ", x => byte.Parse(x).ColoredPlayerName())})",
                                 "{role}" or "{addon}" or "[role]" when ChatCommands.GetRoleByName(arg, out CustomRoles role) => $" ({role.ToColoredString()})",
                                 "{color}" when ColorUtility.TryParseHtmlString($"#{arg}", out Color color) => $" ({Utils.ColorString(color, "COLOR")})",
                                 _ => string.Empty

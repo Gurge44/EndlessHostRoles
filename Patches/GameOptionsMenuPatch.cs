@@ -971,7 +971,7 @@ public static class StringOptionPatch
             _ => []
         };
 
-        return $"    <size=2>{string.Join('/', teams.Select(GetColoredShortTeamName))}</size>";
+        return $"    <size=2>{teams.Join('/', GetColoredShortTeamName)}</size>";
 
         string GetColoredShortTeamName(Team t) => Utils.ColorString(t.GetColor(), Translator.GetString($"ShortTeamName.{t}").ToUpper());
     }

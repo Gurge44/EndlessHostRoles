@@ -189,7 +189,7 @@ public class Druid : RoleBase
         Suffix.Clear().Append("\n<size=1.7>");
 
         Suffix.AppendLine($"<#00ffa5>{Triggers.Count}</color> trigger{(Triggers.Count == 1 ? string.Empty : 's')} active")
-            .Append(string.Join(", ", Triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")))
+            .Append(Triggers.Join(", ", trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}"))
             .Append("</size>");
 
         return Suffix.ToString();
@@ -202,7 +202,7 @@ public class Druid : RoleBase
         HudText.Clear();
 
         HudText.AppendLine($"<#00ffa5>{Triggers.Count}</color> trigger{(Triggers.Count == 1 ? string.Empty : 's')} active");
-        HudText.Append(string.Join('\n', Triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
+        HudText.Append(Triggers.Join('\n', trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}"));
 
         return HudText.ToString();
     }

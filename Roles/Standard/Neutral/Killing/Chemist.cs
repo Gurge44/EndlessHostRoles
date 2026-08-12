@@ -689,9 +689,9 @@ internal class Chemist : RoleBase
             (List<(int Count, Item Item)> ingredients, List<(int Count, Item Item)> results) = Processes[CurrentFactory][SelectedProcess];
 
             Func<(int Count, Item Item), string> selector = x => $"{x.Count} {Utils.ColorString(GetItemColor(x.Item), $"{GetChemicalForm(x.Item)}")}";
-            Suffix.Append(string.Join(", ", ingredients.Select(selector)));
+            Suffix.Append(ingredients.Join(", ", selector));
             Suffix.Append(" → ");
-            Suffix.Append(string.Join(", ", results.Select(selector)));
+            Suffix.Append(results.Join(", ", selector));
         }
 
         if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)

@@ -328,7 +328,7 @@ public static class Translator
 
     private static void CreateTemplateFile()
     {
-        File.WriteAllText($"{Main.DataPath}/{LanguageFolderName}/template.dat", string.Join('\n', TranslateMaps.Keys.Select(x => $"{x}:")));
+        File.WriteAllText($"{Main.DataPath}/{LanguageFolderName}/template.dat", TranslateMaps.Keys.Join('\n', x => $"{x}:"));
     }
 
     public static void ExportCustomTranslation()

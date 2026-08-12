@@ -346,6 +346,51 @@ public static class CollectionExtensions
 
             return list;
         }
+
+        public string Join(string separator, Func<T, string> selector)
+        {
+            separator ??= string.Empty;
+            selector ??= x => x.ToString();
+
+            using IEnumerator<T> enumerator = collection.GetEnumerator();
+
+            if (!enumerator.MoveNext())
+                return string.Empty;
+
+            StringBuilder sb = new();
+
+            sb.Append(selector(enumerator.Current));
+
+            while (enumerator.MoveNext())
+            {
+                sb.Append(separator);
+                sb.Append(selector(enumerator.Current));
+            }
+
+            return sb.ToString();
+        }
+
+        public string Join(char separator, Func<T, string> selector)
+        {
+            selector ??= x => x.ToString();
+
+            using IEnumerator<T> enumerator = collection.GetEnumerator();
+
+            if (!enumerator.MoveNext())
+                return string.Empty;
+
+            StringBuilder sb = new();
+
+            sb.Append(selector(enumerator.Current));
+
+            while (enumerator.MoveNext())
+            {
+                sb.Append(separator);
+                sb.Append(selector(enumerator.Current));
+            }
+
+            return sb.ToString();
+        }
     }
 
     /// <param name="collection">The collection</param>
@@ -387,6 +432,49 @@ public static class CollectionExtensions
         {
             if (collection.Count == 0) return default(T);
             return collection[IRandom.Instance.Next(collection.Count)];
+        }
+
+        public string Join(string separator, Func<T, string> selector)
+        {
+            separator ??= string.Empty;
+            selector ??= x => x.ToString();
+
+            int count = collection.Count;
+
+            if (count == 0)
+                return string.Empty;
+
+            StringBuilder sb = new();
+            sb.Append(selector(collection[0]));
+
+            for (int i = 1; i < count; i++)
+            {
+                sb.Append(separator);
+                sb.Append(selector(collection[i]));
+            }
+
+            return sb.ToString();
+        }
+
+        public string Join(char separator, Func<T, string> selector)
+        {
+            selector ??= x => x.ToString();
+
+            int count = collection.Count;
+
+            if (count == 0)
+                return string.Empty;
+
+            StringBuilder sb = new();
+            sb.Append(selector(collection[0]));
+
+            for (int i = 1; i < count; i++)
+            {
+                sb.Append(separator);
+                sb.Append(selector(collection[i]));
+            }
+
+            return sb.ToString();
         }
     }
 

@@ -149,7 +149,7 @@ public class Catcher : RoleBase
         {
             if (CaughtRoles.Count >= MinPlayersTrappedToShowInfo.GetInt())
             {
-                string roles = string.Join(", ", CaughtRoles.Values.Select(x => x.ToColoredString()));
+                string roles = CaughtRoles.Values.Join(", ", x => x.ToColoredString());
                 Utils.SendMessage("\n", CatcherId, Translator.GetString("Catcher.CaughtRoles") + roles, importance: MessageImportance.High);
             }
             else

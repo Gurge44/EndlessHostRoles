@@ -25,7 +25,7 @@ public static class PrivateTagManager
 
     private static void SaveTagsToFile()
     {
-        try { File.WriteAllText(TagFile, string.Join("\n", Tags.Select(x => $"{x.Key}={x.Value}"))); }
+        try { File.WriteAllText(TagFile, Tags.Join("\n", x => $"{x.Key}={x.Value}")); }
         catch (Exception e) { Utils.ThrowException(e); }
     }
 

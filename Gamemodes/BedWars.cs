@@ -290,7 +290,7 @@ public static class BedWars
         {
             WinnerData = (team.GetColor(), team.GetName() + Translator.GetString("Win"));
             CustomWinnerHolder.WinnerIds = Data.Where(x => x.Value.Team == team).Select(x => x.Key).ToHashSet();
-            Logger.Info($"Winners: {team.GetName()} - {string.Join(", ", CustomWinnerHolder.WinnerIds.Select(id => Main.AllPlayerNames.GetValueOrDefault(id, string.Empty)))}", "BedWars");
+            Logger.Info($"Winners: {team.GetName()} - {CustomWinnerHolder.WinnerIds.Join(", ", id => Main.AllPlayerNames.GetValueOrDefault(id, string.Empty))}", "BedWars");
             SendRPC();
             return true;
         }

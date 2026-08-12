@@ -220,7 +220,7 @@ public class Witch : RoleBase
         {
             LateTask.New(() =>
             {
-                string cursed = string.Join(", ", spelledPlayers.Select(x => x.ColoredPlayerName()));
+                string cursed = spelledPlayers.Join(", ", x => x.ColoredPlayerName());
                 string role = IsHM ? CustomRoles.HexMaster.ToColoredString() : CustomRoles.Witch.ToColoredString();
                 string text = string.Format(GetString("WitchCursedPlayersMessage"), cursed, role);
                 Utils.SendMessage(text, title: GetString("MessageTitle.Attention"), importance: MessageImportance.High);

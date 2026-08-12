@@ -53,8 +53,8 @@ public static class TemplateManager
         ["PlayerName"]           = () => DataManager.Player.Customization.Name,
         ["HostName"]             = () => Main.AllPlayerNames.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, PlayerControl.LocalPlayer.GetRealName()),
         ["Players"]              = () => string.Join(", ", Main.AllPlayerNames.Values),
-        ["AlivePlayers"]         = () => string.Join(", ", Main.EnumerateAlivePlayerControls().Select(x => x.GetRealName())),
-        ["DeadPlayers"]          = () => string.Join(", ", Main.EnumeratePlayerControls().Where(x => !x.IsAlive()).Select(x => x.GetRealName())),
+        ["AlivePlayers"]         = () => Main.EnumerateAlivePlayerControls().Join(", ", x => x.GetRealName()),
+        ["DeadPlayers"]          = () => Main.EnumeratePlayerControls().Where(x => !x.IsAlive()).Join(", ", x => x.GetRealName()),
         ["PlayerCount"]          = () => (GameData.Instance ? GameData.Instance.PlayerCount : 0).ToString(),
         ["AlivePlayerCount"]     = () => Main.EnumerateAlivePlayerControls().Count().ToString(),
         ["DeadPlayerCount"]      = () => Main.EnumeratePlayerControls().Count(x => !x.IsAlive()).ToString(),
@@ -507,14 +507,13 @@ public static class TemplateManager
 
             string msg = (roleBlocked, rankBlocked) switch
             {
-                (true, _) => string.Format(GetString("Message.TemplateRoleRequired"), string.Join('/', roleBlockSource.AllowedRoles
-                    .Select(r =>
+                (true, _) => string.Format(GetString("Message.TemplateRoleRequired"), roleBlockSource.AllowedRoles.Join('/', r =>
                     {
                         string name = r.TrimStart('!');
                         return Enum.TryParse(name, ignoreCase: true, out CustomRoles role)
                             ? GetString(role.ToString())
                             : name;
-                        }))),
+                    })),
                 (_, true) => string.Format(GetString("Message.TemplateRankRequired"), string.Join('/', rankBlockSource.AllowedRanks)),
                 _ => string.Format(GetString(playerId == 0xff ? "Message.TemplateNotFoundHost" : "Message.TemplateNotFoundClient"), str, string.Join(", ", tags))
             };

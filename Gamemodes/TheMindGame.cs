@@ -219,7 +219,7 @@ public static class TheMindGame
                     sb.Append('\n');
                     sb.Append('\n');
                     sb.Append("<size=80%>");
-                    sb.Append(string.Join('\n', AllItem.Select(x => $"{Translator.GetString($"TMG.Item.{x}")} (ID {ItemIds[seer.PlayerId][x]}) ({string.Format(Translator.GetString("TMG.Suffix.ItemCost"), ItemCosts[x])}) - {Translator.GetString($"TMG.ItemDescription.{x}")}")));
+                    sb.Append(AllItem.Join('\n', x => $"{Translator.GetString($"TMG.Item.{x}")} (ID {ItemIds[seer.PlayerId][x]}) ({string.Format(Translator.GetString("TMG.Suffix.ItemCost"), ItemCosts[x])}) - {Translator.GetString($"TMG.ItemDescription.{x}")}"));
                     sb.Append('\n');
                     sb.Append('\n');
                     sb.Append(Translator.GetString("TMG.Suffix.BuyItemHint"));
@@ -236,7 +236,7 @@ public static class TheMindGame
             sb.Append('\n');
             sb.Append(Translator.GetString("TMG.Suffix.YourItems"));
             sb.Append('\n');
-            sb.Append(string.Join(", ", items.GroupBy(x => x).Select(x => $"{x.Count()}x {Translator.GetString($"TMG.Item.{x.Key}")} (ID {ItemIds[seer.PlayerId][x.Key]})")));
+            sb.Append(items.GroupBy(x => x).Join(", ", x => $"{x.Count()}x {Translator.GetString($"TMG.Item.{x.Key}")} (ID {ItemIds[seer.PlayerId][x.Key]})"));
             sb.Append('\n');
             sb.Append('\n');
             sb.Append(Translator.GetString("TMG.Suffix.UseItemHint"));
@@ -439,7 +439,7 @@ public static class TheMindGame
             List<byte> auctionWinners = Pick.Where(x => x.Value == highestBid).Select(x => x.Key).ToList();
             auctionWinners.ForEach(x => SuperPoints[x] += AuctionValue);
 
-            yield return NotifyEveryone("TMG.Notify.AuctionEnd", 4, highestBid, string.Join(" & ", auctionWinners.ConvertAll(x => x.ColoredPlayerName())), AuctionValue);
+            yield return NotifyEveryone("TMG.Notify.AuctionEnd", 4, highestBid, auctionWinners.Join(" & ", x => x.ColoredPlayerName()), AuctionValue);
             if (Stop) yield break;
         }
 
@@ -633,7 +633,7 @@ public static class TheMindGame
         Dictionary<byte, int> round4Points = ranking.ToDictionary(x => x, x => (ranking.Count - ranking.IndexOf(x)) * 10);
         round4Points.Do(x => Points[x.Key] += x.Value);
 
-        join = string.Join('\n', round4Points.Select(x => $"{x.Key.ColoredPlayerName()}:  +{x.Value}"));
+        join = round4Points.Join('\n', x => $"{x.Key.ColoredPlayerName()}:  +{x.Value}");
         yield return NotifyEveryone("TMG.Notify.Round4PointGain", 5, join);
         if (Stop) yield break;
 

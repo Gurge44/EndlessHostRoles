@@ -486,14 +486,14 @@ internal class Bargainer : RoleBase
 
         if (seer.IsModdedClient()) result += "<size=150%>";
 
-        result += string.Join(' ', bg.ActiveItems.Select(x =>
+        result += bg.ActiveItems.Join(' ', x =>
         {
             long timeLeft = x.Duration - (Utils.TimeStamp - x.ActivateTimeStamp) + 1;
             string icon = Icons[x.Item];
             if (x.Item == Item.LensOfTruth && x.Target != byte.MaxValue) icon = Utils.ColorString(Main.PlayerColors[x.Target], icon);
 
             return seer.IsModdedClient() && timeLeft < 10 ? $"{icon} ({timeLeft}s)" : icon;
-        }));
+        });
 
         if (seer.IsModdedClient()) result += "</size>";
 

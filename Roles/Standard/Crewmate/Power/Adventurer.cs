@@ -460,9 +460,9 @@ internal class Adventurer : RoleBase
             ? string.Format(
                 Translator.GetString("AdventurerIngredientsDisplay"),
                 Translator.GetString($"AdventurerGun.{SelectedWeaponToCraft}"),
-                string.Join(' ', Ingredients[SelectedWeaponToCraft]
-                    .Select(x => $"{Utils.ColorString(ResourceDisplayData[x.Resource].Color, $"{ResourceDisplayData[x.Resource].Icon}")}" +
-                                 $"{Utils.ColorString(x.Count > ResourceCounts[x.Resource] ? Color.red : Color.white, $"{x.Count}")}")))
+                Ingredients[SelectedWeaponToCraft].Join(' ', x =>
+                    $"{Utils.ColorString(ResourceDisplayData[x.Resource].Color, $"{ResourceDisplayData[x.Resource].Icon}")}" +
+                    $"{Utils.ColorString(x.Count > ResourceCounts[x.Resource] ? Color.red : Color.white, $"{x.Count}")}"))
             : Translator.GetString("AdventurerVentToEnterCrafting");
 
         finalText += "</size>";

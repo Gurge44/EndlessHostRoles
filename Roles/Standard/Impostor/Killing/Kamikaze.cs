@@ -114,7 +114,7 @@ internal class Kamikaze : RoleBase
                     }
                 }
 
-                Logger.Info($"Murder {kamikazePc.GetRealName()}'s targets: {string.Join(", ", kk.MarkedPlayers.Select(x => GetPlayerById(x).GetNameWithRole()))}", "Kamikaze");
+                Logger.Info($"Murder {kamikazePc.GetRealName()}'s targets: {kk.MarkedPlayers.Join(", ", x => GetPlayerById(x).GetNameWithRole())}", "Kamikaze");
                 kk.MarkedPlayers.Clear();
             }
         }

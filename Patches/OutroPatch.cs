@@ -81,7 +81,7 @@ internal static class EndGamePatch
         {
             if (state.RoleHistory.Count > 0)
             {
-                string join = string.Join(" > ", state.RoleHistory.ConvertAll(x => x.ToColoredString()));
+                string join = state.RoleHistory.Join(" > ", x => x.ToColoredString());
                 sb.AppendLine($"{id.ColoredPlayerName()}: {join} > {state.MainRole.ToColoredString()}");
             }
         }

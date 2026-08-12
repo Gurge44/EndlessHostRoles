@@ -120,7 +120,7 @@ public class Wasp : RoleBase
         {
             LateTask.New(() =>
             {
-                string stung = string.Join(", ", MeetingKills.Select(x => x.ColoredPlayerName()));
+                string stung = MeetingKills.Join(", ", x => x.ColoredPlayerName());
                 string role = CustomRoles.Wasp.ToColoredString();
                 string text = string.Format(Translator.GetString("WaspStungPlayersMessage"), stung, role);
                 Utils.SendMessage(text, title: Translator.GetString("MessageTitle.Attention"), importance: MessageImportance.High);

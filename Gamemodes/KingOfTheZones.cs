@@ -579,10 +579,10 @@ public static class KingOfTheZones
         SystemTypes zone = !room ? SystemTypes.Hallway : room.RoomId;
 
         if (justStarted) Suffix.Append(GetString(Zones.Count == 1 ? "KOTZ.SuffixHelp.Zones.Single" : "KOTZ.SuffixHelp.Zones.Plural"));
-        Suffix.AppendLine(string.Join(" | ", Zones.Select(x => Utils.ColorString(ZoneDomination[x].GetColor(), (zone == x ? "<u>" : string.Empty) + GetString($"{x}") + (zone == x ? "</u>" : string.Empty) + (ZoneMoveSchedules.TryGetValue(x, out long moveTS) ? $"<size=80%> {(ZoneDowntimeExpire.TryGetValue(x, out long downtimeEndTS) ? Utils.ColorString(Color.gray, $"{downtimeEndTS - now}") : $"<#ffff44>{moveTS - now}</color>")}</size>" : string.Empty)))));
+        Suffix.AppendLine(Zones.Join(" | ", x => Utils.ColorString(ZoneDomination[x].GetColor(), (zone == x ? "<u>" : string.Empty) + GetString($"{x}") + (zone == x ? "</u>" : string.Empty) + (ZoneMoveSchedules.TryGetValue(x, out long moveTS) ? $"<size=80%> {(ZoneDowntimeExpire.TryGetValue(x, out long downtimeEndTS) ? Utils.ColorString(Color.gray, $"{downtimeEndTS - now}") : $"<#ffff44>{moveTS - now}</color>")}</size>" : string.Empty))));
 
         if (justStarted) Suffix.Append(GetString("KOTZ.SuffixHelp.Points"));
-        Suffix.AppendLine(string.Join(" | ", Points.IntersectBy(PlayerTeams.Values, x => x.Key).Select(x => Utils.ColorString(x.Key.GetColor(), $"{x.Value}"))));
+        Suffix.AppendLine(Points.IntersectBy(PlayerTeams.Values, x => x.Key).Join(" | ", x => Utils.ColorString(x.Key.GetColor(), $"{x.Value}")));
 
         int highestPoints = Points.Values.Max();
         bool tie = Points.Values.Count(x => x == highestPoints) > 1;
@@ -590,7 +590,7 @@ public static class KingOfTheZones
 
         if (tie && end)
         {
-            string tieTeams = string.Join(' ', Points.Where(x => x.Value == highestPoints).Select(x => Utils.ColorString(x.Key.GetColor(), "\u25a0")));
+            string tieTeams = Points.Where(x => x.Value == highestPoints).Join(' ', x => Utils.ColorString(x.Key.GetColor(), "\u25a0"));
             Suffix.Append("<size=80%>").AppendFormat(GetString("KOTZ.Suffix.Tie"), tieTeams).AppendLine("</size>");
         }
         else
@@ -966,7 +966,7 @@ public static class KingOfTheZones
                         }
                     }
 
-                    Logger.Info($"Zone domination: {string.Join(", ", ZoneDomination.Select(x => $"{x.Key} = {x.Value}"))}", "KOTZ");
+                    Logger.Info($"Zone domination: {ZoneDomination.Join(", ", x => $"{x.Key} = {x.Value}")}", "KOTZ");
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
 

@@ -173,7 +173,7 @@ internal class Tornado : RoleBase
     {
         if (seer.PlayerId != target.PlayerId || !IsEnable || (seer.IsModdedClient() && !hud) || seer.PlayerId != TornadoPC.PlayerId || Tornados == null) return string.Empty;
 
-        return string.Join(hud ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.RoomName)} {GetFormattedVectorText(x.Key.Location)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
+        return Tornados.Join(hud ? "\n" : ", ", x => $"Tornado {GetFormattedRoomName(x.Key.RoomName)} {GetFormattedVectorText(x.Key.Location)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)");
     }
 
     public override void ManipulateGameEndCheckCrew(PlayerState playerState, out bool keepGameGoing, out int countsAs)

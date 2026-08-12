@@ -393,7 +393,7 @@ public static class NaturalDisasters
 
             if (DeathMessageQueue.Count > 0 && DeathMessageQueue.FindFirst(x => x.recordTimeStamp + 3 <= now, out var expired))
             {
-                var names = string.Join(", ", DeathMessageQueue.Where(x => x.deathReason == expired.deathReason).Select(x => x.id.ColoredPlayerName()));
+                var names = DeathMessageQueue.Where(x => x.deathReason == expired.deathReason).Join(", ", x => x.id.ColoredPlayerName());
                 string msgOthers = string.Format(Translator.GetString($"ND_DRLaughMessageOthers-{IRandom.Instance.Next(4)}.{expired.deathReason}"), names);
                 Main.EnumerateAlivePlayerControls().NotifyPlayers($"<#ff0000>[╳]</color> {Utils.ColorString(DeathReasonColor(expired.deathReason), msgOthers)}");
                 DeathMessageQueue.RemoveAll(x => x.deathReason == expired.deathReason);

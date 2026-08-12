@@ -130,7 +130,7 @@ public static class Mingle
                 return true;
             case var p when p <= MaxWinningPlayers:
                 CustomWinnerHolder.WinnerIds = aapc.Select(x => x.PlayerId).ToHashSet();
-                Logger.Info($"Winners: {string.Join(", ", aapc.Select(x => x.GetRealName().RemoveHtmlTags()))}", "Mingle");
+                Logger.Info($"Winners: {aapc.Join(", ", x => x.GetRealName().RemoveHtmlTags())}", "Mingle");
                 Main.DoBlockNameChange = true;
                 return true;
             default:

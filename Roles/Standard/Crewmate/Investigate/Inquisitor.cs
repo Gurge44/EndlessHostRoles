@@ -55,9 +55,9 @@ public class Inquisitor : RoleBase
         if (knownRoles.Count <= 1)
             result = Translator.GetString("InquisitorNoInfo");
         else if (KnowExactRolesAfterTasksFinished.GetBool() && voter.GetTaskState().IsTaskFinished)
-            result = string.Join('\n', knownRoles.ConvertAll(x => $"{x.Id.ColoredPlayerName()}: {x.Role.ToColoredString()}"));
+            result = knownRoles.Join('\n', x => $"{x.Id.ColoredPlayerName()}: {x.Role.ToColoredString()}");
         else
-            result = string.Join(", ", knownRoles.ConvertAll(x => x.Id.ColoredPlayerName()));
+            result = knownRoles.Join(", ", x => x.Id.ColoredPlayerName());
         
         Utils.SendMessage("\n", voter.PlayerId, string.Format(Translator.GetString("InquisitorVoteResult"), target.PlayerId.ColoredPlayerName(), result), importance: MessageImportance.High);
         

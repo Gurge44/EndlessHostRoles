@@ -187,7 +187,7 @@ public class Gaslighter : RoleBase
         {
             LateTask.New(() =>
             {
-                string cursed = string.Join(", ", spelledPlayers.Select(x => x.ColoredPlayerName()));
+                string cursed = spelledPlayers.Join(", ", x => x.ColoredPlayerName());
                 string role = IRandom.Instance.Next(2) == 0 ? CustomRoles.HexMaster.ToColoredString() : CustomRoles.Witch.ToColoredString();
                 string text = string.Format(Translator.GetString("WitchCursedPlayersMessage"), cursed, role);
                 Utils.SendMessage(text, title: Translator.GetString("MessageTitle.Attention"), importance: MessageImportance.High);

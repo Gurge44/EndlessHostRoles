@@ -211,7 +211,7 @@ public class Wyrd : CovenBase
 
             if (!seerIsWyrd)
             {
-                var join = string.Join(", ", AllAction.Where(x => ActionSuicideSettings[x]).Select(x => Translator.GetString($"Wyrd.Suffix.SuicideWarningOnAction.{x}")));
+                var join = AllAction.Where(x => ActionSuicideSettings[x]).Join(", ", x => Translator.GetString($"Wyrd.Suffix.SuicideWarningOnAction.{x}"));
                 Suffix.AppendFormat(Translator.GetString("Wyrd.Suffix.SuicideWarnings"), join);
             }
         }

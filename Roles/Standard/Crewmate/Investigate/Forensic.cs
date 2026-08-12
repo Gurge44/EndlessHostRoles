@@ -63,7 +63,7 @@ internal class Forensic : RoleBase
             msg += "；" + string.Format(Translator.GetString("ForensicNoticeDeathReason"), Translator.GetString($"DeathReason.{Main.PlayerStates[tpc.PlayerId].deathReason}"));
 
         if (ForensicCanknowAddons.GetBool())
-            msg += "；" + string.Format(Translator.GetString("ForensicNoticeAddons"), string.Join(", ", tpc.GetCustomSubRoles().Select(x => x.ToColoredString())));
+            msg += "；" + string.Format(Translator.GetString("ForensicNoticeAddons"), tpc.GetCustomSubRoles().Join(", ", x => x.ToColoredString()));
 
         DateTime deathTimeStamp = Main.PlayerStates[tpc.PlayerId].RealKiller.TimeStamp;
         DateTime now = DateTime.Now;
@@ -75,10 +75,8 @@ internal class Forensic : RoleBase
         if (ForensicCanknowColorType.GetBool() && realKiller != null && timeSpanSeconds >= ForensicCanknowColorTypeMinBodyAge.GetInt())
         {
             var darker = new List<int> { 0, 1, 2, 6, 8, 9, 12, 15 };
-            bool isDarker = darker.Contains(realKiller.CurrentOutfit.ColorId);
-            Func<int, string> selector = x => Utils.ColorString(Palette.PlayerColors[x], Palette.GetColorName(x));
-            var colors = isDarker ? string.Join('/', darker.Select(selector)) : string.Join('/', Enumerable.Range(0, 18).Except(darker).Select(selector));
-            var str = Translator.GetString(isDarker ? "WhispererInfo.ColorDark" : "WhispererInfo.ColorLight");
+            var colors = (darker.Contains(realKiller.CurrentOutfit.ColorId) ? darker : Enumerable.Range(0, 18).Except(darker)).Join('/', x => Utils.ColorString(Palette.PlayerColors[x], Palette.GetColorName(x)));
+            var str = Translator.GetString(darker.Contains(realKiller.CurrentOutfit.ColorId) ? "WhispererInfo.ColorDark" : "WhispererInfo.ColorLight");
             msg += "；" + string.Format(Translator.GetString("ForensicNoticeColorType"), str, colors);
         }
 

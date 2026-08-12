@@ -250,7 +250,7 @@ public static class Deathrace
 
             var track = Track.ToList();
             if (!Clockwise) track.Reverse();
-            players.NotifyPlayers("<#ffffff>" + string.Format(Translator.GetString("Deathrace.Tutorial.Track"), string.Join(" » ", track.ConvertAll(x => Translator.GetString(x.ToString())))), 100f);
+            players.NotifyPlayers("<#ffffff>" + string.Format(Translator.GetString("Deathrace.Tutorial.Track"), track.Join(" » ", x => Translator.GetString(x.ToString()))), 100f);
             yield return new WaitForSecondsRealtime(Track.Count);
             NameNotifyManager.Reset();
 
@@ -394,7 +394,7 @@ public static class Deathrace
 
     public static string GetTaskBarText()
     {
-        return string.Join('\n', Data.Select(x => $"{x.Key.ColoredPlayerName()}: {string.Format(Translator.GetString("Deathrace.Lap"), x.Value.Lap + 1, LapsToWin)}"));
+        return Data.Join('\n', x => $"{x.Key.ColoredPlayerName()}: {string.Format(Translator.GetString("Deathrace.Lap"), x.Value.Lap + 1, LapsToWin)}");
     }
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)

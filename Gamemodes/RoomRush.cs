@@ -899,7 +899,7 @@ public static class RoomRush
 
         if (WinByPointsInsteadOfDeaths.GetBool())
         {
-            Logger.Info($"Points: {string.Join(", ", Points.Select(x => $"{Main.AllPlayerNames[x.Key]}: {x.Value}"))}", "RoomRush");
+            Logger.Info($"Points: {Points.Join(", ", x => $"{Main.AllPlayerNames[x.Key]}: {x.Value}")}", "RoomRush");
 
             if (Utils.DoRPC)
             {

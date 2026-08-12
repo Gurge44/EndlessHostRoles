@@ -264,7 +264,7 @@ public class Evolver : RoleBase
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != EvolverPC.PlayerId || (seer.IsModdedClient() && !hud) || meeting || ChooseTimer == 0 || Upgrades.Count == 0 || SelectedUpgradeIndex == -1) return string.Empty;
 
-        return string.Format(Translator.GetString("EvolverSuffix"), ChooseTimer, Translator.GetString($"EvolverUpgrade.{Upgrades[SelectedUpgradeIndex]}"), string.Join(", ", Upgrades.ConvertAll(x => Translator.GetString($"EvolverUpgrade.{x}"))));
+        return string.Format(Translator.GetString("EvolverSuffix"), ChooseTimer, Translator.GetString($"EvolverUpgrade.{Upgrades[SelectedUpgradeIndex]}"), Upgrades.Join(", ", x => Translator.GetString($"EvolverUpgrade.{x}")));
     }
 
     public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)

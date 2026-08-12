@@ -205,12 +205,12 @@ internal static class CustomRoleSelector
         Logger.Info($"Number of Coven members: {covenLimits.MinSetting.GetInt()} - {covenLimits.MaxSetting.GetInt()} => {numCovens}", "FactionLimits");
 
         Logger.Msg("=====================================================", "AllActiveRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.Impostor].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "ImpRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.NeutralKilling].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "NKRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.NonKillingNeutral].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "NNKRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.Crewmate].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "CrewRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.Madmate].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "MadmateRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.Coven].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "CovenRoles");
+        Logger.Info(roles[RoleAssignType.Impostor].Join(", ", x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}"), "ImpRoles");
+        Logger.Info(roles[RoleAssignType.NeutralKilling].Join(", ", x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}"), "NKRoles");
+        Logger.Info(roles[RoleAssignType.NonKillingNeutral].Join(", ", x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}"), "NNKRoles");
+        Logger.Info(roles[RoleAssignType.Crewmate].Join(", ", x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}"), "CrewRoles");
+        Logger.Info(roles[RoleAssignType.Madmate].Join(", ", x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}"), "MadmateRoles");
+        Logger.Info(roles[RoleAssignType.Coven].Join(", ", x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}"), "CovenRoles");
         Logger.Msg("=====================================================", "AllActiveRoles");
 
         Dictionary<RoleOptionType, int> subCategoryLimits;
@@ -232,7 +232,7 @@ internal static class CustomRoleSelector
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        if (subCategoryLimits.Count > 0) Logger.Info($"Sub-Category Limits: {string.Join(", ", subCategoryLimits.Select(x => $"{x.Key}: {x.Value}"))}", "SubCategoryLimits");
+        if (subCategoryLimits.Count > 0) Logger.Info($"Sub-Category Limits: {subCategoryLimits.Join(", ", x => $"{x.Key}: {x.Value}")}", "SubCategoryLimits");
 
         int nkLimit = subCategoryLimits[RoleOptionType.Neutral_Killing];
         int nnkLimit;
@@ -254,12 +254,12 @@ internal static class CustomRoleSelector
         roles.Keys.Do(type => ApplySubCategoryLimits(type, subCategoryLimits));
 
         Logger.Msg("===================================================", "PreSelectedRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "PreSelectedImpostorRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.NeutralKilling].Select(x => x.Role.ToString())), "PreSelectedNKRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.NonKillingNeutral].Select(x => x.Role.ToString())), "PreSelectedNNKRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.Crewmate].Select(x => x.Role.ToString())), "PreSelectedCrewRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.Madmate].Select(x => x.Role.ToString())), "PreSelectedMadmateRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.Coven].Select(x => x.Role.ToString())), "PreSelectedCovenRoles");
+        Logger.Info(roles[RoleAssignType.Impostor].Join(", ", x => x.Role.ToString()), "PreSelectedImpostorRoles");
+        Logger.Info(roles[RoleAssignType.NeutralKilling].Join(", ", x => x.Role.ToString()), "PreSelectedNKRoles");
+        Logger.Info(roles[RoleAssignType.NonKillingNeutral].Join(", ", x => x.Role.ToString()), "PreSelectedNNKRoles");
+        Logger.Info(roles[RoleAssignType.Crewmate].Join(", ", x => x.Role.ToString()), "PreSelectedCrewRoles");
+        Logger.Info(roles[RoleAssignType.Madmate].Join(", ", x => x.Role.ToString()), "PreSelectedMadmateRoles");
+        Logger.Info(roles[RoleAssignType.Coven].Join(", ", x => x.Role.ToString()), "PreSelectedCovenRoles");
         Logger.Msg("===================================================", "PreSelectedRoles");
 
         try
@@ -284,12 +284,12 @@ internal static class CustomRoleSelector
         catch (Exception e) { Utils.ThrowException(e); }
 
         Logger.Msg("======================================================", "SelectedRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "SelectedImpostorRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.NeutralKilling].Select(x => x.Role.ToString())), "SelectedNKRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.NonKillingNeutral].Select(x => x.Role.ToString())), "SelectedNNKRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.Crewmate].Select(x => x.Role.ToString())), "SelectedCrewRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.Madmate].Select(x => x.Role.ToString())), "SelectedMadmateRoles");
-        Logger.Info(string.Join(", ", roles[RoleAssignType.Coven].Select(x => x.Role.ToString())), "SelectedCovenRoles");
+        Logger.Info(roles[RoleAssignType.Impostor].Join(", ", x => x.Role.ToString()), "SelectedImpostorRoles");
+        Logger.Info(roles[RoleAssignType.NeutralKilling].Join(", ", x => x.Role.ToString()), "SelectedNKRoles");
+        Logger.Info(roles[RoleAssignType.NonKillingNeutral].Join(", ", x => x.Role.ToString()), "SelectedNNKRoles");
+        Logger.Info(roles[RoleAssignType.Crewmate].Join(", ", x => x.Role.ToString()), "SelectedCrewRoles");
+        Logger.Info(roles[RoleAssignType.Madmate].Join(", ", x => x.Role.ToString()), "SelectedMadmateRoles");
+        Logger.Info(roles[RoleAssignType.Coven].Join(", ", x => x.Role.ToString()), "SelectedCovenRoles");
         Logger.Msg("======================================================", "SelectedRoles");
 
         List<PlayerControl> allPlayers = Main.EnumerateAlivePlayerControls().ToList();
@@ -391,7 +391,7 @@ internal static class CustomRoleSelector
         if (rd.Next(0, 100) < Bomber.NukerChance.GetInt() && finalRolesList.Remove(CustomRoles.Bomber)) finalRolesList.Add(CustomRoles.Nuker);
 
         RoleResult.AddRange(allPlayers.Shuffle().Zip(finalRolesList.Shuffle()).ToDictionary(x => x.First.PlayerId, x => x.Second), false);
-        Logger.Info(string.Join(", ", RoleResult.Values.Select(x => x.ToString())), "RoleResults");
+        Logger.Info(RoleResult.Values.Join(", ", x => x.ToString()), "RoleResults");
 
         if (RoleResult.Count < allPlayers.Count) Logger.Error("Role assignment error: There are players who have not been assigned a role", "CustomRoleSelector");
 

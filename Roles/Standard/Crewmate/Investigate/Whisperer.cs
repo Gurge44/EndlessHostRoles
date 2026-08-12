@@ -144,9 +144,9 @@ public class Whisperer : RoleBase
                 {
                     0 => string.Format(Translator.GetString("WhispererInfo.Color"), GetColorInfo(GameData.Instance.GetPlayerById(ID).DefaultOutfit.ColorId, out string colors), colors),
                     1 => string.Format(Translator.GetString("WhispererInfo.Time"), (int)Math.Round((LastMeetingStart - TimeStamp).TotalSeconds)),
-                    2 => string.Format(Translator.GetString("WhispererInfo.Role"), state.MainRole.ToColoredString() + (state.SubRoles.Count == 0 ? string.Empty : string.Join(' ', state.SubRoles.ConvertAll(x => x.ToColoredString())))),
-                    3 => string.Format(Translator.GetString("WhispererInfo.KillerRole"), killerState.MainRole.ToColoredString() + (killerState.SubRoles.Count == 0 ? string.Empty : string.Join(' ', killerState.SubRoles.ConvertAll(x => x.ToColoredString())))),
-                    4 => string.Format(Translator.GetString(deathInfo.SameRoomPlayers.Length == 0 ? "WhispererInfo.AloneInRoomAtDeath" : "WhispererInfo.PlayersInSameRoomAtDeath"), string.Join(", ", deathInfo.SameRoomPlayers.Select(x => x.ColoredPlayerName()))),
+                    2 => string.Format(Translator.GetString("WhispererInfo.Role"), state.MainRole.ToColoredString() + (state.SubRoles.Count == 0 ? string.Empty : state.SubRoles.Join(' ', x => x.ToColoredString()))),
+                    3 => string.Format(Translator.GetString("WhispererInfo.KillerRole"), killerState.MainRole.ToColoredString() + (killerState.SubRoles.Count == 0 ? string.Empty : killerState.SubRoles.Join(' ', x => x.ToColoredString()))),
+                    4 => string.Format(Translator.GetString(deathInfo.SameRoomPlayers.Length == 0 ? "WhispererInfo.AloneInRoomAtDeath" : "WhispererInfo.PlayersInSameRoomAtDeath"), deathInfo.SameRoomPlayers.Join(", ", x => x.ColoredPlayerName())),
                     5 => string.Format(Translator.GetString(deathInfo.ActiveSabotage.HasValue ? "WhispererInfo.NoSabotageAtDeath" : "WhispererInfo.SabotageAtDeath"), Translator.GetString(deathInfo.ActiveSabotage.HasValue ? deathInfo.ActiveSabotage.ToString() : "None")),
                     6 => string.Format(Translator.GetString("WhispererInfo.DeathReason"), Translator.GetString($"DeathReason.{state.deathReason}")),
                     _ => string.Empty
@@ -190,8 +190,7 @@ public class Whisperer : RoleBase
     {
         var darker = new List<int> { 0, 1, 2, 6, 8, 9, 12, 15 };
         bool isDarker = darker.Contains(colorId);
-        Func<int, string> selector = x => Utils.ColorString(Palette.PlayerColors[x], Palette.GetColorName(x));
-        colors = isDarker ? string.Join('/', darker.Select(selector)) : string.Join('/', Enumerable.Range(0, 18).Except(darker).Select(selector));
+        colors = (isDarker ? darker : Enumerable.Range(0, 18).Except(darker)).Join('/', x => Utils.ColorString(Palette.PlayerColors[x], Palette.GetColorName(x)));
         return isDarker ? Translator.GetString("WhispererInfo.ColorDark") : Translator.GetString("WhispererInfo.ColorLight");
     }
 
