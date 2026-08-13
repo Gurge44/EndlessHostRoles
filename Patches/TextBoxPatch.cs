@@ -54,7 +54,6 @@ public static class TextBoxPatch
         __result = currentChar is not ('\b' or '\r' or '[');
         return false;
     }
-
     
     [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
     [HarmonyPostfix]
@@ -79,6 +78,9 @@ public static class TextBoxPatch
             {
                 Destroy();
                 IsInvalidCommand = false;
+                Color textColor = Main.DarkTheme.Value ? Color.white : Color.black;
+                __instance.compoText.Color(textColor);
+                __instance.outputText.color = textColor;
                 return;
             }
 
