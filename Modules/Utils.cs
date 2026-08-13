@@ -156,6 +156,47 @@ public static class Utils
         try { LoadingBarManager.Instance.ToggleLoadingBar(false); }
         catch (Exception e) { ThrowException(e); }
     }
+    
+    public static IEnumerator SendGameDataContinuously()
+    {
+        float waitTime = GameData.Instance.AllPlayers.Count switch
+        {
+            <= 15 => 1f,
+            <= 20 => 0.8f,
+            _ => 0.5f
+        };
+        
+        while (GameStates.InGame && !GameStates.IsEnded && ShipStatus.Instance)
+        {
+            if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
+            {
+                yield return new WaitForSecondsRealtime(10f);
+                continue;
+            }
+
+            for (var index = 0; index < GameData.Instance.AllPlayers.Count; index++)
+            {
+                NetworkedPlayerInfo playerInfo = GameData.Instance.AllPlayers[index];
+                
+                if (!playerInfo || (Astral.On && Main.PlayerStates.TryGetValue(playerInfo.PlayerId, out PlayerState state) && state.Role is Astral { Timer: not null }) || (SoulCollector.On && Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(playerInfo.PlayerId)))) continue;
+
+                playerInfo.IsDead = !playerInfo.Object.IsAlive();
+
+                var qa = playerInfo.SendGameData(SendOption.None);
+                yield return qa.Wait();
+
+                if (qa.Dropped || !GameStates.InGame || GameStates.IsEnded || !ShipStatus.Instance)
+                {
+                    Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
+                    yield break;
+                }
+
+                yield return new WaitForSecondsRealtime(waitTime);
+            }
+        }
+        
+        Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
+    }
 
     public static void CheckAndSetVentInteractions()
     {
