@@ -201,6 +201,7 @@ public enum CustomRoles
     Electric,
     Enigma,
     Escort,
+    Evader,
     Express,
     Farmer,
     Forensic,

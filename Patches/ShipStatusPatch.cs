@@ -181,7 +181,24 @@ internal static class UpdateSystemPatch
                 break;
             }
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
-                return SabotageSystemTypeUpdateSystemPatch.CheckSabotage(__instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>(), player, systemType);
+            {
+                bool allowed = SabotageSystemTypeUpdateSystemPatch.CheckSabotage(__instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>(), player, systemType);
+
+                if (allowed)
+                {
+                    List<PlayerControl> pcs = Main.CachedAlivePlayerControls();
+
+                    for (var index = 0; index < pcs.Count; index++)
+                    {
+                        PlayerControl pc = pcs[index];
+                        
+                        if (pc.Is(CustomRoles.Evader))
+                            pc.RpcMakeInvisible();
+                    }
+                }
+
+                return allowed;
+            }
             case SystemTypes.Security when amount == 1:
             {
                 bool camerasDisabled = Main.CurrentMap switch
@@ -232,12 +249,25 @@ internal static class UpdateSystemPatch
         {
             bool petcd = !Options.UsePhantomBasis.GetBool();
 
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            List<PlayerControl> pcs = Main.CachedAlivePlayerControls();
+
+            for (var index = 0; index < pcs.Count; index++)
             {
-                if (pc.Is(CustomRoles.Wiper))
+                PlayerControl pc = pcs[index];
+
+                switch (pc.GetCustomRole())
                 {
-                    if (petcd) pc.AddAbilityCD();
-                    else pc.RpcResetAbilityCooldown();
+                    case CustomRoles.Wiper:
+                    {
+                        if (petcd) pc.AddAbilityCD();
+                        else pc.RpcResetAbilityCooldown();
+                        break;
+                    }
+                    case CustomRoles.Evader:
+                    {
+                        pc.RpcMakeVisible();
+                        break;
+                    }
                 }
             }
         }
