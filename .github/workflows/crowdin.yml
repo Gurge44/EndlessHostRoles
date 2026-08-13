@@ -17,6 +17,8 @@ jobs:
       - name: upload sources to crowdin
         uses: crowdin/github-action@v2
         with:
+          crowdin_branch_name: main
+          localization_branch_name: main
           upload_sources: true
           download_sources: false
         env:
