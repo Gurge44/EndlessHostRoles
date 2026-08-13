@@ -31,7 +31,7 @@ namespace EHR
 
         private int SnapToSendFrameCount;
         
-        private bool IsPooled;
+        protected bool IsPooled;
 
         public void RpcChangeSprite(string sprite)
         {
@@ -695,7 +695,7 @@ namespace EHR
             CreateNetObject(warning, position);
         }
 
-        protected override bool ConstantlyChangesPosition => !SpawnTimer.IsRunning && DisasterName is "Tsunami" or "Tornado";
+        protected override bool ConstantlyChangesPosition => !SpawnTimer.IsRunning && DisasterName is "Tsunami" or "Tornado" && !IsPooled;
 
         public SystemTypes? Room { get; }
         public string DisasterName { get; }

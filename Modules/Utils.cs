@@ -2526,7 +2526,7 @@ public static class Utils
                     name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
 
                 CustomGameMode gameMode = Options.CurrentGameMode;
-                var modeText = $"<size=1.8>{GetString(gameMode == CustomGameMode.HideAndSeek && CustomHnS.SNS ? "HNS.ShiftAndSeek" : $"Mode{gameMode}")}</size>";
+                var modeText = $"<size=1.8>{GetString(gameMode == CustomGameMode.HideAndSeek && CustomHnS.SNS ? "ModeShiftAndSeek" : $"Mode{gameMode}")}</size>";
 
                 name = gameMode switch
                 {

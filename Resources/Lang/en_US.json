@@ -4464,6 +4464,7 @@
   "FFA_TeamNumber": "Number of Teams",
   "HideAndSeek": "HIDE AND SEEK",
   "ModeHideAndSeek": "Gamemode: Hide And Seek",
+  "ModeShiftAndSeek": "Gamemode: Shift And Seek",
   "ModeDescribe.HideAndSeek": "In the Hide And Seek gamemode, seekers have to kill all hiders, while hiders have to complete all tasks without being killed in order to win.\\nIf the time limit reaches 0, hiders win.\\nIf everyone apart from the Seekers die, the Seekers win.\\n\\nRoles: Hider, Seeker, Fox, Troll, Jumper, Detector, Jet, Dasher, Locator, Venter, Agent, Taskinator",
   "GameModeTutorial.HideAndSeek": "<size=90%>The current game mode is <#345eeb>Hide And Seek (Modded)</color>.</size>\\n<size=80%>Seekers must kill all hiders to win,\\nhiders must complete tasks to lower the timer.\\nIf the time limit ends, hiders win.</size>",
   "HNS.DangerMeter": "Show (Custom) Danger Meter",
