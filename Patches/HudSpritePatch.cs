@@ -570,6 +570,7 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Transporter when player.GetRoleTypes() == RoleTypes.Shapeshifter:
                 case CustomRoles.Swapster:
+                case CustomRoles.Transposer:
                 {
                     newAbilityButton = CustomButton.Get("Transport");
                     break;

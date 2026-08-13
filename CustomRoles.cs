@@ -118,6 +118,7 @@ public enum CustomRoles
     Swooper,
     Stealth,
     TimeThief,
+    Transposer,
     Trapster,
     Trickster,
     Twister,

@@ -1,7 +1,5 @@
-﻿using System;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
-using InnerNet;
 
 namespace EHR.Roles;
 

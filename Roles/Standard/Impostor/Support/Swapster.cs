@@ -44,14 +44,19 @@ internal class Swapster : RoleBase
 
     public override bool OnShapeshift(PlayerControl swapster, PlayerControl target, bool shapeshifting)
     {
-        if (swapster == null || target == null || swapster == target || !shapeshifting) return true;
+        if (!shapeshifting) return true;
 
         if (FirstSwapTarget.TryGetValue(swapster.PlayerId, out byte firstTargetId))
         {
             PlayerControl firstTarget = Utils.GetPlayerById(firstTargetId);
-            Vector2 pos = firstTarget.Pos();
-            firstTarget.TP(target);
-            target.TP(pos);
+
+            if (firstTarget && firstTarget.IsAlive())
+            {
+                Vector2 pos = firstTarget.Pos();
+                firstTarget.TP(target);
+                target.TP(pos);
+            }
+            
             FirstSwapTarget.Remove(swapster.PlayerId);
         }
         else

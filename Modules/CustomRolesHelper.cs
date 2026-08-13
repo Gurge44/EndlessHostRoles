@@ -186,6 +186,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Freezer => CustomRoles.Shapeshifter,
                 CustomRoles.Changeling => CustomRoles.Phantom,
                 CustomRoles.Swapster => CustomRoles.Shapeshifter,
+                CustomRoles.Transposer => CustomRoles.Shapeshifter,
                 CustomRoles.Kamikaze => CustomRoles.Impostor,
                 CustomRoles.Librarian => CustomRoles.Shapeshifter,
                 CustomRoles.Cantankerous => CustomRoles.Impostor,
@@ -802,6 +803,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Freezer or
                 CustomRoles.Changeling or
                 CustomRoles.Swapster or
+                CustomRoles.Transposer or
                 CustomRoles.Loner or
                 CustomRoles.Kamikaze or
                 CustomRoles.Librarian or
@@ -1071,6 +1073,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Glitch or
                 CustomRoles.Illusionist or
                 CustomRoles.Swapster or
+                CustomRoles.Transposer or
                 CustomRoles.Echo or
                 CustomRoles.Hangman or
                 CustomRoles.Generator;
@@ -1313,6 +1316,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Swiftclaw => RoleOptionType.Impostor_Concealing,
                 CustomRoles.Swooper => RoleOptionType.Impostor_Concealing,
                 CustomRoles.Stealth => RoleOptionType.Impostor_Concealing,
+                CustomRoles.Transposer => RoleOptionType.Impostor_Concealing,
                 CustomRoles.Trickster => RoleOptionType.Impostor_Concealing,
                 CustomRoles.Undertaker => RoleOptionType.Impostor_Concealing,
                 CustomRoles.Vampire => RoleOptionType.Impostor_Concealing,

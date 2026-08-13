@@ -55,11 +55,7 @@ internal class Transporter : RoleBase
     {
         if (!shapeshifting) return true;
 
-        if (shapeshifter == null || target == null || shapeshifter == target || !shapeshifter.IsAlive() || !target.IsAlive())
-            return false;
-
-        if (shapeshifter.GetAbilityUseLimit() < 1f)
-            return false;
+        if (!target.IsAlive() || shapeshifter.GetAbilityUseLimit() < 1f) return false;
 
         if (FirstSwapTarget.TryGetValue(shapeshifter.PlayerId, out byte firstTargetId))
         {
@@ -71,7 +67,7 @@ internal class Transporter : RoleBase
             
             PlayerControl firstTarget = firstTargetId.GetPlayer();
 
-            if (firstTarget == null || !firstTarget.IsAlive())
+            if (!firstTarget || !firstTarget.IsAlive())
             {
                 FirstSwapTarget.Remove(shapeshifter.PlayerId);
                 shapeshifter.Notify(CustomRoles.Impostor.ColoredTextByRole(Translator.GetString("ErrorTeleport")));
