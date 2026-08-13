@@ -1768,7 +1768,12 @@ internal static class FixedUpdatePatch
                 }
 
                 bool checkPos = inTask && !ExileController.Instance && !AntiBlackout.SkipTasks && alive && !Pelican.IsEaten(playerId) && Main.IntroDestroyed;
-                if (checkPos) Asthmatic.OnCheckPlayerPosition(player);
+
+                if (checkPos)
+                {
+                    Asthmatic.OnCheckPlayerPosition(player);
+                    Transfer.OnCheckPlayerPosition(player);
+                }
 
                 foreach (PlayerState state in Main.PlayerStates.Values)
                 {

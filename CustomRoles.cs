@@ -632,6 +632,7 @@ public enum CustomRoles
     Tiebreaker,
     Tired,
     Torch,
+    Transfer,
     Truant,
     Unbound,
     Undead,
