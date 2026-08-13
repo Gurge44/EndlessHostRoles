@@ -8755,6 +8755,7 @@
   "SuffixModeText.AutoHost": "Auto-hosting",
   "SuffixModeText.DoNotKillMe": "Don't kill me",
   "SuffixModeText.NoAndroidPlz": "No phones please",
+  "HideHostText": "Hide 'EHR-Host' Text",
   "HideGameSettings": "Hide Game Settings",
   "DIYGameSettings": "Enable only custom /n messages",
   "PlayerCanSetColor": "Players can use the /color command",

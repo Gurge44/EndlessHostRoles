@@ -780,6 +780,7 @@ public static class Options
     public static OptionItem AutoDisplayKillLog;
     public static OptionItem AutoDisplayLastResult;
     private static OptionItem SuffixMode;
+    public static OptionItem HideHostText;
     public static OptionItem HideGameSettings;
     public static OptionItem FormatNameMode;
     public static OptionItem DisableEmojiName;
@@ -1773,6 +1774,8 @@ public static class Options
 
         SuffixMode = new StringOptionItem(19324, "SuffixMode", SuffixModes, 0, TabGroup.SystemSettings, true)
             .SetHeader(true);
+        HideHostText = new BooleanOptionItem(19331, "HideHostText", false, TabGroup.SystemSettings, true)
+            .SetColor(new Color(0, 0, 255));
 
         HideGameSettings = new BooleanOptionItem(19450, "HideGameSettings", false, TabGroup.SystemSettings);
         DIYGameSettings = new BooleanOptionItem(19471, "DIYGameSettings", false, TabGroup.SystemSettings);

@@ -2520,7 +2520,7 @@ public static class Utils
         {
             if (!GameStates.IsLobby) return false;
 
-            if (player.AmOwner)
+            if (player.AmOwner && !Options.HideHostText.GetBool())
             {
                 if (GameStates.IsOnlineGame || GameStates.IsLocalGame)
                     name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
