@@ -5113,7 +5113,15 @@ public static class Utils
 
             if (ip.Contains("allofus"))
             {
-                name = $"AOU-{ip.Split('.')[0].ToUpper()}";
+                name = "AOU-";
+
+                for (var i = 0; i < ip.Length; i++)
+                {
+                    char c = ip[i];
+                    if (c == '.') break;
+                    name += char.ToUpper(c);
+                }
+
                 return name;
             }
 
