@@ -985,14 +985,9 @@ static class PreventLargePacketKickPatch
     {
         if (msg.Length <= 1200) return true;
 
-        var serverType = GameStates.CurrentServerType;
+        if (AmongUsClient.Instance.AmHost && GameStates.CurrentServerType is GameStates.ServerType.Niko or GameStates.ServerType.Modded) return true;
 
-        if (!AmongUsClient.Instance.AmHost || serverType is GameStates.ServerType.Local or GameStates.ServerType.Vanilla || (serverType == GameStates.ServerType.Niko && !AmongUsClient.Instance.AmHost))
-        {
-            Logger.Warn($" Blocked large packet from sending (size: {msg.Length})", nameof(PreventLargePacketKickPatch));
-            return false;
-        }
-
-        return true;
+        Logger.Warn($" Blocked large packet from sending (size: {msg.Length})", nameof(PreventLargePacketKickPatch));
+        return false;
     }
 }

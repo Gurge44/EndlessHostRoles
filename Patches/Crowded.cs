@@ -347,8 +347,9 @@ internal static class Crowded
     {
         public static void Prefix()
         {
-            Logger.Info($"Host Game is being called! Region: {CurrentServerTypeInCreateMenu}", "CreateGameOptions");
-            if (CurrentServerTypeInCreateMenu != ServerType.Vanilla) return;
+            ServerType serverTypeInCreateMenu = CurrentServerTypeInCreateMenu;
+            Logger.Info($"Host Game is being called! Region: {serverTypeInCreateMenu}", "CreateGameOptions");
+            if (serverTypeInCreateMenu != ServerType.Vanilla) return;
 
             var GameHostOptions = GameOptionsManager.Instance.GameHostOptions;
             var CurrentGameOptions = GameOptionsManager.Instance.CurrentGameOptions;

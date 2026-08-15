@@ -1880,7 +1880,8 @@ public static class Utils
             text = text.Replace("color=#", "#");
             title = title.Replace("color=", string.Empty);
 
-            bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
+            var serverType = GameStates.CurrentServerType;
+            bool vanilla = serverType == GameStates.ServerType.Vanilla;
 
             SendOption sendOption = SendOption.Reliable;
 
@@ -2010,7 +2011,7 @@ public static class Utils
             // ============================================================================
 
             int fullRpcSizeLimit = Options.MessageRpcSizeLimit.GetInt();
-            if (vanilla && fullRpcSizeLimit > 1200) fullRpcSizeLimit = 1200;
+            if ((vanilla || serverType == GameStates.ServerType.AOU) && fullRpcSizeLimit > 1200) fullRpcSizeLimit = 1200;
             
             string resetName = Main.AllPlayerNames.GetValueOrDefault(sender.PlayerId, string.Empty);
 
@@ -5107,6 +5108,12 @@ public static class Utils
                 else
                     name = "MNA";
 
+                return name;
+            }
+
+            if (ip.Contains("allofus"))
+            {
+                name = $"AOU-{ip.Split('.')[0].ToUpper()}";
                 return name;
             }
 

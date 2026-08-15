@@ -575,6 +575,7 @@ public static class GameStates
         Vanilla,
         Modded,
         Niko,
+        AOU,
         Local,
         Custom
     }
@@ -608,7 +609,9 @@ public static class GameStates
                 "Local Game" => ServerType.Custom,
                 "EU" or "NA" or "AS" => ServerType.Vanilla,
                 "MEU" or "MAS" or "MNA" => ServerType.Modded,
-                _ => regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) ? ServerType.Niko : ServerType.Custom
+                _ when regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) => ServerType.Niko,
+                _ when regionName.StartsWith("AOU", StringComparison.OrdinalIgnoreCase) => ServerType.AOU,
+                _ => ServerType.Custom
             };
         }
     }
@@ -625,7 +628,9 @@ public static class GameStates
                 "Local Game" => ServerType.Custom,
                 "EU" or "NA" or "AS" => ServerType.Vanilla,
                 "MEU" or "MAS" or "MNA" => ServerType.Modded,
-                _ => regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) ? ServerType.Niko : ServerType.Custom
+                _ when regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) => ServerType.Niko,
+                _ when regionName.StartsWith("AOU", StringComparison.OrdinalIgnoreCase) => ServerType.AOU,
+                _ => ServerType.Custom
             };
         }
     }
