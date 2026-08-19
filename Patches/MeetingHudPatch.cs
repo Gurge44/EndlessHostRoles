@@ -1,13 +1,14 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
+using InnerNet;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -1425,7 +1426,7 @@ internal static class MeetingHudCastVotePatch
 {
     public static readonly Dictionary<byte, (MeetingHud MeetingHud, PlayerVoteArea SourcePVA, PlayerControl SourcePC)> ShouldCancelVoteList = [];
 
-    public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
+    public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] PlayerId srcPlayerId, [HarmonyArgument(1)] PlayerId suspectPlayerId)
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
