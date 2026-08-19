@@ -1492,7 +1492,7 @@ internal static class MeetingHudCastVotePatch
         return skip || !voteCanceled; // skips and invalid votes are never canceled
     }
 
-    public static void Postfix([HarmonyArgument(0)] byte srcPlayerId)
+    public static void Postfix([HarmonyArgument(0)] PlayerId srcPlayerId)
     {
         if (!ShouldCancelVoteList.TryGetValue(srcPlayerId, out (MeetingHud MeetingHud, PlayerVoteArea SourcePVA, PlayerControl SourcePC) info)) return;
 
