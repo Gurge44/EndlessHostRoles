@@ -144,7 +144,7 @@ public enum CustomRoles
     Scientist,
     Tracker,
     Detective,
-    //Judge,
+    Judge,
 
     // Vanilla Remakes
     CrewmateEHR,

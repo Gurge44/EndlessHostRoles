@@ -640,6 +640,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomRoles.DetectiveEHR:
                     AURoleOptions.DetectiveSuspectLimit = CrewmateVanillaRoles.DetectiveSuspectLimit.GetFloat();
                     break;
+                case CustomRoles.JudgeEHR:
+                    AURoleOptions.JudgeTaskRequirementPercentage = CrewmateVanillaRoles.JudgeTaskRequirementPercentage.GetFloat();
+                    break;
             }
 
             // When impostor alert is off, and the player is a desync crewmate, set impostor alert as true

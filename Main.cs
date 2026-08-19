@@ -453,6 +453,7 @@ public class Main : BasePlugin
                 { CustomRoles.Tracker, "#34ad50" },
                 { CustomRoles.Noisemaker, "#ff4a62" },
                 { CustomRoles.Detective, "#625EEE" },
+                { CustomRoles.Judge, "#f8d85a" },
                 // Vanilla Remakes
                 { CustomRoles.CrewmateEHR, "#8cffff" },
                 { CustomRoles.EngineerEHR, "#FF6A00" },
@@ -461,6 +462,7 @@ public class Main : BasePlugin
                 { CustomRoles.TrackerEHR, "#34ad50" },
                 { CustomRoles.NoisemakerEHR, "#ff4a62" },
                 { CustomRoles.DetectiveEHR, "#625EEE" },
+                { CustomRoles.JudgeEHR, "#f8d85a" },
                 // Crewmates
                 { CustomRoles.DoubleAgent, "#ff1919" },
                 { CustomRoles.Luckey, "#b8d7a3" },

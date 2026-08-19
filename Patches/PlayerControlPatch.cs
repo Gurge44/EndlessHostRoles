@@ -2623,6 +2623,7 @@ internal static class PlayerControlLocalSetRolePatch
                 RoleTypes.Tracker => CustomRoles.TrackerEHR,
                 RoleTypes.Detective => CustomRoles.DetectiveEHR,
                 RoleTypes.Viper => CustomRoles.ViperEHR,
+                RoleTypes.Judge => CustomRoles.JudgeEHR,
                 _ => CustomRoles.NotAssigned
             };
 
