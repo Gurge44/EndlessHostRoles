@@ -23,10 +23,10 @@ public abstract class GameOptionsSender
         writer.StartMessage(0);
         writer.Write((byte)currentGameMode);
 
-        if (opt.TryCast(out NormalGameOptionsV10 normalOpt))
-            NormalGameOptionsV10.Serialize(writer, normalOpt);
-        else if (opt.TryCast(out HideNSeekGameOptionsV10 hnsOpt))
-            HideNSeekGameOptionsV10.Serialize(writer, hnsOpt);
+        if (opt.TryCast(out NormalGameOptionsV11 normalOpt))
+            NormalGameOptionsV11.Serialize(writer, normalOpt);
+        else if (opt.TryCast(out HideNSeekGameOptionsV11 hnsOpt))
+            HideNSeekGameOptionsV11.Serialize(writer, hnsOpt);
         else
             Logger.Error("Option cast failed", ToString());
 
