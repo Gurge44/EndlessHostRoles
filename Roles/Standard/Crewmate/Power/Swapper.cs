@@ -277,7 +277,7 @@ public class Swapper : RoleBase
     {
         foreach (PlayerVoteArea pva in __instance.playerStates)
         {
-            PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
+            PlayerControl pc = Utils.GetPlayerById(pva.PlayerId);
             if (!pc || !pc.IsAlive()) continue;
 
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
@@ -286,14 +286,14 @@ public class Swapper : RoleBase
             targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
             var renderer = targetBox.GetComponent<SpriteRenderer>();
 
-            if (pc.PlayerId == pva.TargetPlayerId && (SwapTargets.Item1 == pc.PlayerId || SwapTargets.Item2 == pc.PlayerId))
+            if (pc.PlayerId == pva.PlayerId && (SwapTargets.Item1 == pc.PlayerId || SwapTargets.Item2 == pc.PlayerId))
                 renderer.sprite = CustomButton.Get("SwapYes");
             else
                 renderer.sprite = CustomButton.Get("SwapNo");
 
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => SwapperOnClick(pva.TargetPlayerId, __instance)));
+            button.OnClick.AddListener((Action)(() => SwapperOnClick(pva.PlayerId, __instance)));
         }
     }
 

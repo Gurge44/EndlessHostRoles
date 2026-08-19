@@ -418,7 +418,7 @@ public class Inspector : RoleBase
     {
         foreach (PlayerVoteArea pva in __instance.playerStates)
         {
-            PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
+            PlayerControl pc = Utils.GetPlayerById(pva.PlayerId);
             if (!pc || !pc.IsAlive()) continue;
 
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
@@ -429,7 +429,7 @@ public class Inspector : RoleBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.InspectorIcon.png", 170f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => InspectorOnClick(pva.TargetPlayerId /*, __instance*/)));
+            button.OnClick.AddListener((Action)(() => InspectorOnClick(pva.PlayerId /*, __instance*/)));
         }
     }
 

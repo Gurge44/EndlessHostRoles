@@ -79,7 +79,7 @@ static class CoShowIntroPatch
 
             __instance.IsIntroDisplayed = true;
             __instance.LobbyTimerExtensionUI.HideAll();
-            __instance.SetMapButtonEnabled(false);
+            __instance.SetMapAndInfoButtonsEnabled(false);
             __instance.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -250f);
 
             yield return __instance.ShowEmblem(true);
@@ -96,7 +96,7 @@ static class CoShowIntroPatch
             yield return __instance.CoFadeFullScreen(Color.black, Color.clear);
             __instance.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -500f);
             __instance.IsIntroDisplayed = false;
-            __instance.SetMapButtonEnabled(true);
+            __instance.SetMapAndInfoButtonsEnabled(true);
             __instance.SetHudActive(true);
             __instance.CrewmatesKilled.gameObject.SetActive(GameManager.Instance.ShowCrewmatesKilled());
             GameManager.Instance.StartGame();

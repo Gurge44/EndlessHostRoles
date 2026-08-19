@@ -282,7 +282,7 @@ public class Summoner : CovenBase
     {
         foreach (PlayerVoteArea pva in __instance.playerStates)
         {
-            PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
+            PlayerControl pc = Utils.GetPlayerById(pva.PlayerId);
             if (!pc || pc.IsAlive()) continue;
 
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
@@ -293,7 +293,7 @@ public class Summoner : CovenBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.Summon.png", 130f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => SummonerOnClick(pva.TargetPlayerId)));
+            button.OnClick.AddListener((Action)(() => SummonerOnClick(pva.PlayerId)));
         }
     }
 

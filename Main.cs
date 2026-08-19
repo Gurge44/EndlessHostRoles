@@ -57,7 +57,7 @@ public class Main : BasePlugin
     public const string ModColor = "#00ffff";
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
-    public const string SupportedAUVersion = "2026.3.31";
+    public const string SupportedAUVersion = "2026.8.18";
 
     private static string StarData => Environment.GetEnvironmentVariable("STAR_DATA_PATH");    
 
@@ -191,7 +191,7 @@ public class Main : BasePlugin
 
     public Harmony Harmony { get; } = new(PluginGuid);
 
-    public static NormalGameOptionsV10 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
+    public static NormalGameOptionsV11 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
 
     // Client Options
     public static ConfigEntry<string> HideName { get; private set; }
@@ -579,7 +579,7 @@ public class Main : BasePlugin
                 { CustomRoles.Medic, "#00ff97" },
                 { CustomRoles.FortuneTeller, "#882c83" },
                 { CustomRoles.Glitch, "#39FF14" },
-                { CustomRoles.Judge, "#f8d85a" },
+                { CustomRoles.JudgeOld, "#f8d85a" },
                 { CustomRoles.Mortician, "#333c49" },
                 { CustomRoles.Medium, "#a200ff" },
                 { CustomRoles.Observer, "#a8e0fa" },

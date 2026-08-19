@@ -129,7 +129,7 @@ public class Negotiator : RoleBase
         if (Starspawn.IsDayBreak) return false;
         if (target == null || voter == null || voter.PlayerId == target.PlayerId || TargetId != byte.MaxValue || voter.GetAbilityUseLimit() < 1f || MinVotingTimeLeftToNegotiate.GetInt() > MeetingTimeManager.VotingTimeLeft || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
-        bool votedLast = MeetingHud.Instance.playerStates.All(x => x.TargetPlayerId == voter.PlayerId || x.DidVote);
+        bool votedLast = MeetingHud.Instance.playerStates.All(x => x.PlayerId == voter.PlayerId || x.DidVote);
 
         TargetId = target.PlayerId;
         Penalty = votedLast ? NegotiationType.HarmfulAddon : NegotiationType.Suicide;

@@ -465,7 +465,7 @@ public class MeetingHudPagingBehaviour(IntPtr ptr) : AbstractPagingBehaviour(ptr
     {
         base.Update();
         // Sometimes the timer text is spammed with the page counter for some eccentric reason, so this is just a Band-Aid fix for it
-        if (meetingHud.state is MeetingHud.VoteStates.Animating or MeetingHud.VoteStates.Proceeding || meetingHud.TimerText.text.Contains($" ({PageIndex + 1}/{MaxPageIndex + 1})")) return; // TimerText does not update there
+        if (meetingHud.state is MeetingHud.MeetingStates.Animating or MeetingHud.MeetingStates.Proceeding || meetingHud.TimerText.text.Contains($" ({PageIndex + 1}/{MaxPageIndex + 1})")) return; // TimerText does not update there
         meetingHud.TimerText.text += $" ({PageIndex + 1}/{MaxPageIndex + 1})";
     }
 

@@ -206,7 +206,7 @@ public class President : RoleBase
                 Utils.SendMessage("\n", pc.PlayerId, Utils.GetRemainingKillers(showAll: true), importance: MessageImportance.High);
                 break;
             case Decree.GovernmentRecruiting:
-                if (MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.TargetPlayerId == pc.PlayerId)?.DidVote == true) return;
+                if (MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.PlayerId == pc.PlayerId)?.DidVote == true) return;
 
                 president.IsRecruiting = true;
                 break;
