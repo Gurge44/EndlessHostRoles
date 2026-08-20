@@ -1135,14 +1135,16 @@ internal static class ExtendedPlayerControl
         {
             try
             {
-                if (NameWithRoleCache.TryGetValue(player?.PlayerId ?? 250, out string cache)) return cache;
+                if (!player) return "Unknown Player";
+                if (NameWithRoleCache.TryGetValue(player.PlayerId, out string cache)) return cache;
+                if (!player.Data) return "Unknown Player";
                 bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle and not CustomGameMode.Snowdown;
-                return NameWithRoleCache[player?.PlayerId ?? 250] = $"{player?.Data?.PlayerName}" + (addRoleName ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+                return NameWithRoleCache[player.PlayerId] = $"{player.Data.PlayerName}" + (addRoleName ? $" ({player.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
             }
             catch (Exception e)
             {
                 ThrowException(e);
-                return !player || !player.Data ? "Unknown Player" : player.Data.PlayerName;
+                return "Unknown Player";
             }
         }
 

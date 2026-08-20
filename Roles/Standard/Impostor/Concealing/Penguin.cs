@@ -305,7 +305,7 @@ public class Penguin : RoleBase
 
         if (AbductVictim)
         {
-            if (!Penguin_.IsAlive() || Pelican.IsEaten(PenguinId) || !AbductVictim.IsAlive())
+            if (!Penguin_ || !Penguin_.IsAlive() || Pelican.IsEaten(PenguinId) || !AbductVictim.IsAlive())
             {
                 RemoveVictim();
                 return;

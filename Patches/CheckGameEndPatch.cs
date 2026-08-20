@@ -426,17 +426,7 @@ internal static class GameEndChecker
             void SetGhostRole(bool toGhostImpostor)
             {
                 if (!pc.Data.IsDead) playersToRevive.Add(pc.PlayerId);
-
-                if (toGhostImpostor)
-                {
-                    Logger.Info($"{pc.GetNameWithRole()}: changed to ImpostorGhost", "ResetRoleAndEndGame");
-                    pc.RpcSetRole(RoleTypes.ImpostorGhost);
-                }
-                else
-                {
-                    Logger.Info($"{pc.GetNameWithRole()}: changed to CrewmateGhost", "ResetRoleAndEndGame");
-                    pc.RpcSetRole(RoleTypes.CrewmateGhost);
-                }
+                pc.RpcSetRole(toGhostImpostor ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost);
             }
         }
 

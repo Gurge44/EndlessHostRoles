@@ -494,6 +494,8 @@ internal static class StartGameHostPatch
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
+        yield return null;
+
         try
         {
             GC.Collect();

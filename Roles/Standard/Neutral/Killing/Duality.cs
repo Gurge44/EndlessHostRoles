@@ -1,4 +1,5 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Modules.Extensions;
 using Hazel;
@@ -69,6 +70,8 @@ public class Duality : RoleBase
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
+        if (!killer.IsAlive()) return;
+        
         LateTask.New(() =>
         {
             KillingPhase = false;
@@ -80,8 +83,13 @@ public class Duality : RoleBase
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
+        if (!pc.IsAlive()) return;
+
         KillingPhase = true;
-        pc.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId, setRoleMap: true);
+        var sender = CustomRpcSender.Create($"Duality to killing phase ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Someone")})", SendOption.Reliable);
+        sender.RpcSetRole(pc, RoleTypes.Impostor, pc.OwnerId);
+        if (!pc.IsImpostor()) Main.CachedAlivePlayerControls().DoIf(x => x.IsImpostor(), x => sender.RpcSetRole(x, RoleTypes.Crewmate, pc.OwnerId));
+        sender.SendMessage();
         ResetTimer();
     }
 
@@ -93,17 +101,17 @@ public class Duality : RoleBase
     void ResetTimer(int add = 0)
     {
         var pc = DualityId.GetPlayer();
-        if (pc == null || !pc.IsAlive()) return;
+        if (!pc || !pc.IsAlive()) return;
         Timer?.Dispose();
         Timer = new CountdownTimer(Time.GetInt() + add, () =>
         {
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
             pc.Suicide();
             if (pc.AmOwner) Achievements.Type.OutOfTime.Complete();
             Timer = null;
         }, onTick: () =>
         {
-            if (pc == null || !pc.IsAlive())
+            if (!pc || !pc.IsAlive())
             {
                 Timer.Dispose();
                 return;

@@ -707,6 +707,9 @@ public static class CustomRpcSenderExtensions
         {
             if (!player) return false;
 
+            if (!Mathf.Approximately(time, -1f) && Committed.ReduceKCD != null && Committed.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
+                time = Math.Max(time - reduction, 0.01f);
+
             Logger.Info($"{player.GetNameWithRole()}'s KCD set to {(Math.Abs(time - -1f) < 0.5f ? Main.AllPlayerKillCooldown[player.PlayerId] : time)}s", "SetKCD");
 
             if (player.GetCustomRole().UsesPetInsteadOfKill())

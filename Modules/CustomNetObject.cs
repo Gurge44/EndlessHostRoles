@@ -349,8 +349,8 @@ namespace EHR
                 if (PlayerControl.AllPlayerControls.Contains(playerControl))
                     PlayerControl.AllPlayerControls.Remove(playerControl);
 
-                playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
-                playerControl.cosmetics.colorBlindText.color = Color.clear;
+                try { playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear; } catch { }
+                try { playerControl.cosmetics.colorBlindText.color = Color.clear; } catch { }
                 Position = position;
                 Sprite = sprite;
                 ++MaxId;

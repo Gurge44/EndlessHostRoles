@@ -55,7 +55,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
     public static DataFlagRateLimiter.QueuedAction SendAllImmediately()
     {
-        if (AntiBlackout.SkipTasks) return null;
+        if (AntiBlackout.SkipTasks && !AntiBlackout.AllowSyncSettings) return null;
         
         ForceWaitFrame = true;
         
@@ -264,7 +264,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     
     protected override void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex)
     {
-        if (AntiBlackout.SkipTasks) return;
+        if (AntiBlackout.SkipTasks && !AntiBlackout.AllowSyncSettings) return;
         
         if (PackedWriter == null) // Single write
         {

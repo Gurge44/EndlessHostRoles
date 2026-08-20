@@ -4,13 +4,16 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
+using EHR.Roles;
 using Hazel;
+using UnityEngine;
 
 namespace EHR;
 
 public static class AntiBlackout
 {
     public static bool SkipTasks;
+    public static bool AllowSyncSettings;
     private static Dictionary<(byte SeerID, byte TargetID), (RoleTypes RoleType, CustomRoles CustomRole)> CachedRoleMap = [];
 
     // Optimally, there's 1 living impostor and at least 2 living crewmates in everyone's POV.
@@ -128,35 +131,102 @@ public static class AntiBlackout
 
         LateTask.New(() =>
         {
+            List<PlayerControl> rpcGuardAndKill = [];
             var elapsedSeconds = (int)ExileControllerWrapUpPatch.Stopwatch.Elapsed.TotalSeconds;
-            var sender = CustomRpcSender.Create("Exile Dead Players After Meeting", SendOption.Reliable);
-            var hasValue = false;
+            var senderPacked = CustomRpcSender.Create("AntiBlackout Packed Sender", SendOption.Reliable).StartPackedMessage();
+            var senderToAll = CustomRpcSender.Create("Exile Dead Players After Meeting", SendOption.Reliable);
+            var hasValuePacked = false;
+            var hasValueToAll = false;
             
             foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 try
                 {
+                    if (pc.OwnerId < 0) continue;
+                    
                     if (pc.IsAlive())
                     {
                         // Due to the role base change, we need to reset the cooldowns for abilities.
                         if (!Utils.ShouldNotApplyAbilityCooldownAfterMeeting(pc))
-                            pc.RpcResetAbilityCooldown();
+                        {
+                            if (senderPacked.RpcResetAbilityCooldown(pc))
+                                hasValuePacked = true;
+                        }
+
+                        float time = -1f;
 
                         if (Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float kcd))
                         {
-                            float time = kcd - elapsedSeconds;
-                            if (time > 0) pc.SetKillCooldown(time);
+                            time = kcd - elapsedSeconds;
+                            if (time <= 0) continue;
+                        }
+
+                        if (!Mathf.Approximately(time, -1f) && Committed.ReduceKCD != null && Committed.ReduceKCD.TryGetValue(pc.PlayerId, out float reduction))
+                        {
+                            time -= reduction;
+                            if (time <= 0) continue;
+                        }
+
+                        Logger.Info($"{pc.GetNameWithRole()}'s KCD set to {(time < 0f ? Main.AllPlayerKillCooldown[pc.PlayerId] : time)}s", "SetKCD");
+
+                        if (pc.GetCustomRole().UsesPetInsteadOfKill())
+                        {
+                            if (time < 0f)
+                                pc.AddKCDAsAbilityCD();
+                            else
+                                pc.AddAbilityCD((int)Math.Round(time));
+
+                            if (pc.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight and not CustomRoles.Renegade and not CustomRoles.Sidekick) continue;
+                        }
+
+                        pc.AddKillTimerToDict(cd: time);
+
+                        if (time >= 0f)
+                            Main.AllPlayerKillCooldown[pc.PlayerId] = time * 2;
+                        else
+                            Main.AllPlayerKillCooldown[pc.PlayerId] *= 2;
+
+                        if (pc.Is(CustomRoles.Glitch) && Main.PlayerStates[pc.PlayerId].Role is Glitch gc)
+                        {
+                            gc.LastKill = Utils.TimeStamp + ((int)(time / 2) - Glitch.KillCooldown.GetInt());
+                            gc.KCDTimer = (int)(time / 2);
+                        }
+                        else if (!pc.IsModdedClient() || !Options.DisableShieldAnimations.GetBool())
+                        {
+                            pc.MarkDirtySettings();
+                            rpcGuardAndKill.Add(pc);
                         }
                         else
-                            pc.SetKillCooldown();
+                        {
+                            time = Main.AllPlayerKillCooldown[pc.PlayerId] / 2;
+
+                            if (pc.AmOwner)
+                                PlayerControl.LocalPlayer.SetKillTimer(time);
+                            else
+                            {
+                                senderPacked.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, pc.OwnerId);
+                                senderPacked.Write(time);
+                                senderPacked.EndRpc();
+                                hasValuePacked = true;
+                            }
+                        }
+
+                        if (pc.GetCustomRole() is not CustomRoles.Inhibitor and not CustomRoles.Saboteur)
+                        {
+                            LateTask.New(() =>
+                            {
+                                pc.ResetKillCooldown(sync: false);
+                                pc.MarkDirtySettings();
+                            }, 0.3f, log: false);
+                        }
                     }
                     else
                     {
                         if (pc.AmOwner && Utils.TempReviveHostRunning) continue;
 
                         // Ensure that the players who are considered dead by the mod are actually dead in the game.
-                        sender.RpcExiled(pc);
-                        hasValue = true;
+                        senderToAll.RpcExiled(pc);
+                        hasValueToAll = true;
 
                         if (GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole) && ghostRole.Instance.RoleTypes == RoleTypes.GuardianAngel)
                             pc.AddAbilityCD(ghostRole.Instance.Cooldown);
@@ -164,8 +234,16 @@ public static class AntiBlackout
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
+
+            AllowSyncSettings = true;
+            PlayerGameOptionsSender.SendAllImmediately();
+            AllowSyncSettings = false;
             
-            sender.SendMessage(dispose: !hasValue);
+            rpcGuardAndKill.ForEach(pc => hasValuePacked |= senderPacked.RpcGuardAndKill(pc, fromSetKCD: true));
+
+            LateTask.New(() => senderPacked.SendMessage(dispose: !hasValuePacked), 0.1f);
+            
+            senderToAll.SendMessage(dispose: !hasValueToAll);
 
             // Only execute AfterMeetingTasks after everything is reset.
             LateTask.New(() =>
