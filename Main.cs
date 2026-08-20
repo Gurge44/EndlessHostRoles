@@ -43,7 +43,7 @@ public class Main : BasePlugin
     public const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "8.0.0";
     public const string PluginDisplayVersion = "8.0.0";
-    public const bool TestBuild = true;
+    public const int TestBuildNumber = 2; // 0 = Release
 
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
@@ -1012,7 +1012,7 @@ public class Main : BasePlugin
                 Modules.AutoHaunt.Start();
 
             Logger.Msg("========= EHR loaded! =========", "Plugin Load");
-            Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");
+            Logger.Msg($"EHR Version: {PluginVersion}, Test Build Number: {TestBuildNumber}", "Plugin Load");
         };
 
         try

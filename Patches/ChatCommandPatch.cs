@@ -1124,7 +1124,7 @@ internal static class ChatCommands
         PollCommand(player, msg, msg.Split(' '));
     }
 
-    public static void PresetPollCommand(PlayerControl player, string text, string[] args)
+    private static void PresetPollCommand(PlayerControl player, string text, string[] args)
     {
         var presetConfigs = new[] { Main.Preset1, Main.Preset2, Main.Preset3, Main.Preset4, Main.Preset5, Main.Preset6, Main.Preset7, Main.Preset8, Main.Preset9, Main.Preset10, Main.Preset11, Main.Preset12, Main.Preset13, Main.Preset14, Main.Preset15, Main.Preset16, Main.Preset17, Main.Preset18, Main.Preset19, Main.Preset20 };
         string presetNames = string.Join(' ', presetConfigs.Select((cfg, i) => (cfg.Value == (string)cfg.DefaultValue ? GetString($"Preset_{i + 1}") : cfg.Value).Replace(' ', '_')));
