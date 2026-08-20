@@ -1110,15 +1110,16 @@ internal static class ChatCommands
     {
         GMPollGameModes = Main.CustomGameModeValues[..^1].Where(x => Options.GMPollGameModesSettings[x].GetBool()).ToList();
         if (GMPollGameModes.Contains(CustomGameMode.HideAndSeek)) GMPollGameModes.Add((CustomGameMode)100);
-        string gmNames = GMPollGameModes.Join(' ', x => GetString((int)x == 100 ? "HNS.ShiftAndSeek" : x.ToString().Replace(' ', '-')));
+        string gmNames = GMPollGameModes.Join(' ', x => GetString((int)x == 100 ? "HNS.ShiftAndSeek" : x.ToString()).Replace(' ', '_'));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
+        Logger.Info(msg, "debug");
         PollCommand(player, msg, msg.Split(' '));
     }
     
     public static void MapPollCommand(PlayerControl player, string text, string[] args)
     {
         MPollMaps = Main.MapNamesValues.Where(x => Options.MPollMapsSettings[x].GetBool()).ToList();
-        string mNames = MPollMaps.Join(' ', x => GetString(x.ToString().Replace(' ', '-')));
+        string mNames = MPollMaps.Join(' ', x => GetString(x.ToString()).Replace(' ', '_'));
         var msg = $"/poll {GetString("MapPoll.Question").TrimEnd('?')}? {mNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
@@ -1126,7 +1127,7 @@ internal static class ChatCommands
     public static void PresetPollCommand(PlayerControl player, string text, string[] args)
     {
         var presetConfigs = new[] { Main.Preset1, Main.Preset2, Main.Preset3, Main.Preset4, Main.Preset5, Main.Preset6, Main.Preset7, Main.Preset8, Main.Preset9, Main.Preset10, Main.Preset11, Main.Preset12, Main.Preset13, Main.Preset14, Main.Preset15, Main.Preset16, Main.Preset17, Main.Preset18, Main.Preset19, Main.Preset20 };
-        string presetNames = string.Join(' ', presetConfigs.Select((cfg, i) => (cfg.Value == (string)cfg.DefaultValue ? GetString($"Preset_{i + 1}") : cfg.Value).Replace(' ', '-')));
+        string presetNames = string.Join(' ', presetConfigs.Select((cfg, i) => (cfg.Value == (string)cfg.DefaultValue ? GetString($"Preset_{i + 1}") : cfg.Value).Replace(' ', '_')));
 
         var msg = $"/poll {GetString("PresetPoll.Question").TrimEnd('?')}? {presetNames}";
         PollCommand(player, msg, msg.Split(' '));
