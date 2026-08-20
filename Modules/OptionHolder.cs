@@ -798,6 +798,7 @@ public static class Options
     public static OptionItem EveryoneSeesDeadPlayersRoles;
     public static OptionItem UsePhantomBasis;
     public static OptionItem UsePhantomBasisForNKs;
+    public static OptionItem UseJudgeAbilityAsTrigger;
     public static OptionItem UseMeetingShapeshift;
     public static OptionItem UseMeetingShapeshiftForGuessing;
     public static OptionItem AutoKickStart;
@@ -2502,7 +2503,12 @@ public static class Options
             .SetParent(UsePhantomBasis)
             .SetColor(new Color32(255, 255, 44, byte.MaxValue));
 
-        UseMeetingShapeshift = new BooleanOptionItem(23865, "UseMeetingShapeshift", true, TabGroup.TaskSettings)
+        UseJudgeAbilityAsTrigger = new BooleanOptionItem(23865, "UseJudgeAbilityAsTrigger", true, TabGroup.TaskSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
+            .SetColor(Palette.Orange);
+
+        UseMeetingShapeshift = new BooleanOptionItem(23867, "UseMeetingShapeshift", false, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(Palette.Orange);

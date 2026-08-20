@@ -35,7 +35,7 @@ public class Inquisitor : RoleBase
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
-    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    public override bool OnJudge(PlayerControl voter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (!voter || !target || voter.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;

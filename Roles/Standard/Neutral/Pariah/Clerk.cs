@@ -42,7 +42,7 @@ public class Clerk : RoleBase
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
-    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    public override bool OnJudge(PlayerControl voter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;

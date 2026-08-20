@@ -1067,7 +1067,16 @@ internal static class MeetingHudStartPatch
                 sender.SendMessage();
             }, 3f, "SetName To Chat");
 
-            if (Options.UseMeetingShapeshift.GetBool())
+            if (Options.UseJudgeAbilityAsTrigger.GetBool())
+            {
+                LateTask.New(() =>
+                {
+                    if (!MeetingHud.Instance || MeetingHud.Instance.state is MeetingHud.MeetingStates.Results or MeetingHud.MeetingStates.Proceeding) return;
+
+                    Main.EnumerateAlivePlayerControls().DoIf(x => x.UsesJudgeAbilityAsTrigger(), x => x.RpcSetRoleDesync(RoleTypes.Judge, x.OwnerId));
+                }, 1f, "Set Shapeshifter Role For Meeting Use");
+            }
+            else if (Options.UseMeetingShapeshift.GetBool())
             {
                 LateTask.New(() =>
                 {
@@ -1376,17 +1385,26 @@ internal static class MeetingHudOnDestroyPatch
 
             Main.LastVotedPlayerInfo = null;
 
-            if (meetingSS && !AntiBlackout.SkipTasks)
+            if (!AntiBlackout.SkipTasks)
             {
-                bool restrictions = Options.GuesserNumRestrictions.GetBool();
-
-                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                if (Options.UseJudgeAbilityAsTrigger.GetBool())
                 {
-                    if (pc.UsesMeetingShapeshift() || (meetingSSForGuessing && !pc.IsModdedClient() && GuessManager.StartMeetingPatch.CanGuess(pc, restrictions)))
-                        pc.RpcSetRoleDesync(pc.GetRoleTypes(), pc.OwnerId);
+                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                        if (pc.UsesJudgeAbilityAsTrigger())
+                            pc.RpcSetRoleDesync(pc.GetRoleTypes(), pc.OwnerId);
+                }
+                else if (meetingSS)
+                {
+                    bool restrictions = Options.GuesserNumRestrictions.GetBool();
 
-                    if (pc.IsImpostor())
-                        pc.RpcSetRoleGlobal(pc.GetRoleTypes());
+                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    {
+                        if (pc.UsesMeetingShapeshift() || (meetingSSForGuessing && !pc.IsModdedClient() && GuessManager.StartMeetingPatch.CanGuess(pc, restrictions)))
+                            pc.RpcSetRoleDesync(pc.GetRoleTypes(), pc.OwnerId);
+
+                        if (pc.IsImpostor())
+                            pc.RpcSetRoleGlobal(pc.GetRoleTypes());
+                    }
                 }
             }
         }
@@ -1603,30 +1621,46 @@ internal static class MeetingHudHandleRpcPatch
 {
     public static bool Prefix([HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
-        if (callId == (byte)RpcCalls.CloseMeeting)
+        switch (callId)
         {
-            if (AmongUsClient.Instance.AmHost)
+            case (byte)RpcCalls.QueueOverruleVotes:
+            {
+                byte judgePlayerId = reader.ReadByte();
+                byte targetPlayerId = reader.ReadByte();
+
+                PlayerControl judge = judgePlayerId.GetPlayer();
+                PlayerControl target = targetPlayerId.GetPlayer();
+
+                if (judge && target && judge.UsesJudgeAbilityAsTrigger() && Main.PlayerStates.TryGetValue(judgePlayerId, out PlayerState state))
+                    return !state.Role.OnJudge(judge, target);
+                break;
+            }
+            case (byte)RpcCalls.CloseMeeting when AmongUsClient.Instance.AmHost:
             {
                 EAC.WarnHost(4);
                 Logger.Warn("MeetingHud.HandleRpc CloseMeeting is being called, impossible to receive as host.", "MeetingHudHandleRpcPatch");
                 return false;
             }
-
-            Logger.Info("Received Close Meeting Rpc", "MeetingHudHandleRpcPatch");
-
-            if (reader.BytesRemaining > 6)
+            case (byte)RpcCalls.CloseMeeting:
             {
-                try
-                {
-                    string temp = reader.ReadString();
+                Logger.Info("Received Close Meeting Rpc", "MeetingHudHandleRpcPatch");
 
-                    if (temp.Contains("<size"))
+                if (reader.BytesRemaining > 6)
+                {
+                    try
                     {
-                        Logger.Info($"Read Name From Rpc: {temp}", "MeetingHudHandleRpcPatch");
-                        CheckForEndVotingPatch.EjectionText = temp;
+                        string temp = reader.ReadString();
+
+                        if (temp.Contains("<size"))
+                        {
+                            Logger.Info($"Read Name From Rpc: {temp}", "MeetingHudHandleRpcPatch");
+                            CheckForEndVotingPatch.EjectionText = temp;
+                        }
                     }
+                    catch { }
                 }
-                catch { }
+
+                break;
             }
         }
 

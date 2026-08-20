@@ -22,7 +22,7 @@ internal class Godfather : RoleBase
         On = false;
     }
 
-    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    public override bool OnJudge(PlayerControl voter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (voter == null || target == null || voter.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;

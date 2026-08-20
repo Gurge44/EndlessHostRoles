@@ -92,7 +92,7 @@ public class Ricochet : RoleBase
         return true;
     }
 
-    public override bool OnVote(PlayerControl pc, PlayerControl target)
+    public override bool OnJudge(PlayerControl pc, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (target == null || pc == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;

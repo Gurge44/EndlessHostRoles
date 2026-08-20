@@ -90,7 +90,7 @@ public class Cleanser : RoleBase
         cs.CleanserUses = Limit;
     }
 
-    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    public override bool OnJudge(PlayerControl voter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (DidVote[voter.PlayerId] || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;

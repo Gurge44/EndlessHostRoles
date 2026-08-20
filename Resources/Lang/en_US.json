@@ -9123,6 +9123,7 @@
   "EveryoneSeesDeadPlayersRoles": "Everyone Sees Dead Players' Roles",
   "UsePhantomBasis": "Use Vanish Button (Phantom basis) as Ability Trigger",
   "UsePhantomBasisForNKs": "Even for <#ffab1b>Neutral</color> <#ff1919>Killing</color> (Desynced) roles <#ffff00>(EXPERIMENTAL)</color>",
+  "UseJudgeAbilityAsTrigger": "Use Judge Ability in Meetings to Select Targets Instead of Commands/Votes",
   "UseMeetingShapeshift": "Use Shapeshift Menu in Meetings to Select Targets Instead of Commands/Votes",
   "UseMeetingShapeshiftForGuessing": "Even For Guessing (can cause frequent disconnects) (EXTREMELY EXPERIMENTAL ALPHA VERSION)",
   "EveryoneCanVent": "Everyone Can Vent",

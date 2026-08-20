@@ -93,7 +93,7 @@ public class FortuneTeller : RoleBase
         }, 8f, log: false);
     }
 
-    public override bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnJudge(PlayerControl player, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null) return false;

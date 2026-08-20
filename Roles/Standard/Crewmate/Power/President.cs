@@ -240,7 +240,7 @@ public class President : RoleBase
         return target.PlayerId == PresidentId && IsRevealed;
     }
 
-    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    public override bool OnJudge(PlayerControl voter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (voter.PlayerId != PresidentId || !IsRecruiting || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;

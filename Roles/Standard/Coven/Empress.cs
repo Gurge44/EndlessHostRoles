@@ -99,7 +99,7 @@ public class Empress : CovenBase
         SetKillCooldown(EmpressId);
     }
 
-    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    public override bool OnJudge(PlayerControl voter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak || voter == null || target == null || Main.DontCancelVoteList.Contains(voter.PlayerId) || voter.PlayerId != target.PlayerId || Empowered) return false;
 

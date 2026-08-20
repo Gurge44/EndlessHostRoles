@@ -57,7 +57,7 @@ internal class NiceEraser : RoleBase
         PlayerIdList.Remove(playerId);
     }
 
-    public override bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnJudge(PlayerControl player, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null) return false;

@@ -57,7 +57,7 @@ public class Oracle : RoleBase
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetFloat());
     }
 
-    public override bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnJudge(PlayerControl player, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null) return false;

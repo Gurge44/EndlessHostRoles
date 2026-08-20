@@ -922,6 +922,13 @@ internal static class CustomRolesHelper
             return type.GetMethod("OnMeetingShapeshift")?.DeclaringType == type;
         }
 
+        public bool UsesJudgeAbilityAsTrigger()
+        {
+            if (!Options.UseJudgeAbilityAsTrigger.GetBool()) return false;
+            Type type = role.GetRoleClass().GetType();
+            return type.GetMethod("OnJudge")?.DeclaringType == type;
+        }
+
         public bool PetActivatedAbility()
         {
             if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) return true;

@@ -98,7 +98,7 @@ internal class EvilEraser : RoleBase
         return true;
     }
 
-    public override bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnJudge(PlayerControl player, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null || EraseMethod.GetInt() == 0) return false;
