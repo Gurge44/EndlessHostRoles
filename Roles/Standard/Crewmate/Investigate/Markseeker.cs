@@ -89,7 +89,7 @@ internal class Markseeker : RoleBase
     {
         foreach (PlayerVoteArea pva in __instance.playerStates)
         {
-            PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
+            PlayerControl pc = Utils.GetPlayerById(pva.PlayerId);
             if (!pc || !pc.IsAlive()) continue;
 
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
@@ -100,7 +100,7 @@ internal class Markseeker : RoleBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.prophecies.png", 160f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => MarkseekerOnClick(pva.TargetPlayerId)));
+            button.OnClick.AddListener((Action)(() => MarkseekerOnClick(pva.PlayerId)));
         }
     }
 

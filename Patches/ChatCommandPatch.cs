@@ -2389,7 +2389,7 @@ internal static class ChatCommands
         if (text.Length < 6 || !GameStates.IsMeeting) return;
 
         string toVote = text[6..].Replace(" ", string.Empty);
-        if (!byte.TryParse(toVote, out byte voteId) || MeetingHud.Instance.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote is true or null) return;
+        if (!byte.TryParse(toVote, out byte voteId) || MeetingHud.Instance.playerStates?.FirstOrDefault(x => x.PlayerId == player.PlayerId)?.DidVote is true or null) return;
 
         if (voteId > PlayerControl.AllPlayerControls.Count) return;
 
@@ -3530,7 +3530,7 @@ internal static class ChatCommands
 
         var commandEntered = false;
 
-        if (text.StartsWith('/') && !player.IsModdedClient() && (!GameStates.IsMeeting || MeetingHud.Instance.state is not MeetingHud.VoteStates.Results and not MeetingHud.VoteStates.Proceeding))
+        if (text.StartsWith('/') && !player.IsModdedClient() && (!GameStates.IsMeeting || MeetingHud.Instance.state is not MeetingHud.MeetingStates.Results and not MeetingHud.MeetingStates.Proceeding))
         {
             Utils.CheckServerCommand(ref text, out bool spamRequired);
             if (!spamRequired) canceled = true;

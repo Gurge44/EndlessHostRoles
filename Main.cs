@@ -41,9 +41,9 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     public const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "7.9.0";
-    public const string PluginDisplayVersion = "7.9.0";
-    public const bool TestBuild = false;
+    public const string PluginVersion = "7.9.1";
+    public const string PluginDisplayVersion = "7.9.1 Test 1";
+    public const bool TestBuild = true;
 
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
@@ -57,7 +57,7 @@ public class Main : BasePlugin
     public const string ModColor = "#00ffff";
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
-    public const string SupportedAUVersion = "2026.3.31";
+    public const string SupportedAUVersion = "2026.8.18";
 
     private static string StarData => Environment.GetEnvironmentVariable("STAR_DATA_PATH");    
 
@@ -191,7 +191,7 @@ public class Main : BasePlugin
 
     public Harmony Harmony { get; } = new(PluginGuid);
 
-    public static NormalGameOptionsV10 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
+    public static NormalGameOptionsV11 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
 
     // Client Options
     public static ConfigEntry<string> HideName { get; private set; }
@@ -453,6 +453,7 @@ public class Main : BasePlugin
                 { CustomRoles.Tracker, "#34ad50" },
                 { CustomRoles.Noisemaker, "#ff4a62" },
                 { CustomRoles.Detective, "#625EEE" },
+                { CustomRoles.Judge, "#f8d85a" },
                 // Vanilla Remakes
                 { CustomRoles.CrewmateEHR, "#8cffff" },
                 { CustomRoles.EngineerEHR, "#FF6A00" },
@@ -461,6 +462,7 @@ public class Main : BasePlugin
                 { CustomRoles.TrackerEHR, "#34ad50" },
                 { CustomRoles.NoisemakerEHR, "#ff4a62" },
                 { CustomRoles.DetectiveEHR, "#625EEE" },
+                { CustomRoles.JudgeEHR, "#f8d85a" },
                 // Crewmates
                 { CustomRoles.DoubleAgent, "#ff1919" },
                 { CustomRoles.Luckey, "#b8d7a3" },
@@ -579,7 +581,7 @@ public class Main : BasePlugin
                 { CustomRoles.Medic, "#00ff97" },
                 { CustomRoles.FortuneTeller, "#882c83" },
                 { CustomRoles.Glitch, "#39FF14" },
-                { CustomRoles.Judge, "#f8d85a" },
+                { CustomRoles.JudgeOld, "#f8d85a" },
                 { CustomRoles.Mortician, "#333c49" },
                 { CustomRoles.Medium, "#a200ff" },
                 { CustomRoles.Observer, "#a8e0fa" },
@@ -947,9 +949,9 @@ public class Main : BasePlugin
         ClassInjector.RegisterTypeInIl2Cpp<ShapeShifterPagingBehaviour>();
         ClassInjector.RegisterTypeInIl2Cpp<VitalsPagingBehaviour>();
 
-        NormalGameOptionsV10.RecommendedImpostors = NormalGameOptionsV10.MaxImpostors = Enumerable.Repeat(128, 128).ToArray();
-        NormalGameOptionsV10.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
-        HideNSeekGameOptionsV10.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
+        NormalGameOptionsV11.RecommendedImpostors = NormalGameOptionsV11.MaxImpostors = Enumerable.Repeat(128, 128).ToArray();
+        NormalGameOptionsV11.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
+        HideNSeekGameOptionsV11.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
 
         PrivateTagManager.LoadTagsFromFile();
 

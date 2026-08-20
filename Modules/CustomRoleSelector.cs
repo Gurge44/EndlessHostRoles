@@ -20,7 +20,8 @@ internal static class CustomRoleSelector
         [RoleTypes.Tracker] = 0,
         [RoleTypes.Phantom] = 0,
         [RoleTypes.Viper] = 0,
-        [RoleTypes.Detective] = 0
+        [RoleTypes.Detective] = 0,
+        [RoleTypes.Judge] = 0
     };
 
     public static readonly Dictionary<CustomGameMode, CustomRoles> GameModeRoles = new()
@@ -523,6 +524,7 @@ internal static class CustomRoleSelector
             [RoleTypes.Phantom] = 0,
             [RoleTypes.Viper] = 0,
             [RoleTypes.Detective] = 0,
+            [RoleTypes.Judge] = 0,
         };
 
         foreach (CustomRoles role in RoleResult.Values)

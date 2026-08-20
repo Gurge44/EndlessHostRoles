@@ -266,11 +266,11 @@ internal static class Crowded
         }
     }
 
-    [HarmonyPatch(typeof(NormalGameOptionsV10), nameof(NormalGameOptionsV10.AreInvalid))]
+    [HarmonyPatch(typeof(NormalGameOptionsV11), nameof(NormalGameOptionsV11.AreInvalid))]
     public static class InvalidOptionsPatches
     {
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
-        public static bool Prefix(NormalGameOptionsV10 __instance, [HarmonyArgument(0)] int maxExpectedPlayers)
+        public static bool Prefix(NormalGameOptionsV11 __instance, [HarmonyArgument(0)] int maxExpectedPlayers)
         {
             return __instance.MaxPlayers > maxExpectedPlayers ||
                    __instance.NumImpostors < 1 ||
@@ -465,7 +465,7 @@ public class MeetingHudPagingBehaviour(IntPtr ptr) : AbstractPagingBehaviour(ptr
     {
         base.Update();
         // Sometimes the timer text is spammed with the page counter for some eccentric reason, so this is just a Band-Aid fix for it
-        if (meetingHud.state is MeetingHud.VoteStates.Animating or MeetingHud.VoteStates.Proceeding || meetingHud.TimerText.text.Contains($" ({PageIndex + 1}/{MaxPageIndex + 1})")) return; // TimerText does not update there
+        if (meetingHud.state is MeetingHud.MeetingStates.Animating or MeetingHud.MeetingStates.Proceeding || meetingHud.TimerText.text.Contains($" ({PageIndex + 1}/{MaxPageIndex + 1})")) return; // TimerText does not update there
         meetingHud.TimerText.text += $" ({PageIndex + 1}/{MaxPageIndex + 1})";
     }
 

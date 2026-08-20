@@ -19,7 +19,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     public PlayerControl player = player;
 
     private static IGameOptions BasedGameOptions =>
-        Main.RealOptionsData.Restore(new NormalGameOptionsV10(new UnityLogger().CastFast<ILogger>()).CastFast<IGameOptions>());
+        Main.RealOptionsData.Restore(new NormalGameOptionsV11(new UnityLogger().CastFast<ILogger>()).CastFast<IGameOptions>());
 
     protected override bool IsDirty { get; set; }
 
@@ -639,6 +639,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     break;
                 case CustomRoles.DetectiveEHR:
                     AURoleOptions.DetectiveSuspectLimit = CrewmateVanillaRoles.DetectiveSuspectLimit.GetFloat();
+                    break;
+                case CustomRoles.JudgeEHR:
+                    AURoleOptions.JudgeTaskRequirementPercentage = CrewmateVanillaRoles.JudgeTaskRequirementPercentage.GetFloat();
                     break;
             }
 

@@ -54,7 +54,8 @@ internal static class ChangeRoleSettings
                 RoleTypes.Phantom,
                 RoleTypes.Tracker,
                 RoleTypes.Detective,
-                RoleTypes.Viper
+                RoleTypes.Viper,
+                RoleTypes.Judge
             }.Do(x => Main.NormalOptions.roleOptions.SetRoleRate(x, 0, 0));
 
             if (Main.NormalOptions.MapId > 5 && !(Main.NormalOptions.MapId == 6 && SubmergedCompatibility.Loaded) && !Main.LIMap)
@@ -381,7 +382,7 @@ internal static class StartGameHostPatch
 
     public static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
 
-    private static RoleOptionsCollectionV10 RoleOpt => Main.NormalOptions.roleOptions;
+    private static RoleOptionsCollectionV11 RoleOpt => Main.NormalOptions.roleOptions;
 
     private static System.Collections.IEnumerator WaitAndSmoothlyUpdate(this LoadingBarManager loadingBarManager, float startPercent, float targetPercent, float duration, string loadingText)
     {
@@ -1188,7 +1189,7 @@ internal static class StartGameHostPatch
 
             if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
-                if (target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.Detective or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel))
+                if (target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.Detective or RoleTypes.Judge or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel))
                     displayRole = RoleTypes.Crewmate;
 
                 if (target.Is(Team.Impostor) && roleType is not (RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom or RoleTypes.Viper or RoleTypes.ImpostorGhost))

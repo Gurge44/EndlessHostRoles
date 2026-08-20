@@ -113,7 +113,7 @@ public class Collector : RoleBase
 
     public static void CollectorVotes(PlayerControl target, PlayerVoteArea ps) //集票者投票给谁
     {
-        if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Collector)) CollectorVoteFor.TryAdd(target.PlayerId, ps.TargetPlayerId);
+        if (CheckForEndVotingPatch.CheckRole(ps.PlayerId, CustomRoles.Collector)) CollectorVoteFor.TryAdd(target.PlayerId, ps.PlayerId);
     }
 
     public static void CollectAmount(Dictionary<byte, int> VotingData, MeetingHud __instance) //得到集票者收集到的票
@@ -122,7 +122,7 @@ public class Collector : RoleBase
         {
             if (pva == null) continue;
 
-            PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
+            PlayerControl pc = Utils.GetPlayerById(pva.PlayerId);
             if (pc == null) continue;
 
             foreach ((byte key, int value) in VotingData)

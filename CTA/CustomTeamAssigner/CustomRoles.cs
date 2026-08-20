@@ -144,6 +144,7 @@ public enum CustomRoles
     Scientist,
     Tracker,
     Detective,
+    Judge,
 
     // Vanilla Remakes
     CrewmateEHR,
@@ -153,6 +154,7 @@ public enum CustomRoles
     ScientistEHR,
     TrackerEHR,
     DetectiveEHR,
+    JudgeEHR,
 
     // Crewmates
 
@@ -224,7 +226,7 @@ public enum CustomRoles
     Inquisitor,
     Jailor,
     Journalist,
-    Judge,
+    JudgeOld,
     LazyGuy,
     Leery,
     Lighter,

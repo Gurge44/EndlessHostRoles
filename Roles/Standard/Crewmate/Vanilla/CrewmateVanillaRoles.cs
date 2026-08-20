@@ -15,6 +15,7 @@ internal class CrewmateVanillaRoles : IVanillaSettingHolder
     public static OptionItem TrackerDuration;
     public static OptionItem TrackerDelay;
     public static OptionItem DetectiveSuspectLimit;
+    public static OptionItem JudgeTaskRequirementPercentage;
     public TabGroup Tab => TabGroup.CrewmateRoles;
 
     public void SetupCustomOption()
@@ -72,5 +73,11 @@ internal class CrewmateVanillaRoles : IVanillaSettingHolder
         DetectiveSuspectLimit = new FloatOptionItem(5082, "DetectiveSuspectLimit", new(0f, 30f, 1f), 4f, Tab)
             .SetParent(CustomRoleSpawnChances[CustomRoles.DetectiveEHR])
             .SetValueFormat(OptionFormat.Players);
+
+        SetupRoleOptions(5090, Tab, CustomRoles.JudgeEHR);
+
+        JudgeTaskRequirementPercentage = new FloatOptionItem(5092, "JudgeTaskRequirementPercentage", new(0f, 100f, 25f), 50f, Tab)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.JudgeEHR])
+            .SetValueFormat(OptionFormat.Percent);
     }
 }

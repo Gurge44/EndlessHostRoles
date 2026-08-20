@@ -847,7 +847,7 @@ internal static class ShapeshiftPatch
 {
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        if (MeetingHud.Instance && MeetingHud.Instance.state == MeetingHud.VoteStates.Results) return true;
+        if (MeetingHud.Instance && MeetingHud.Instance.state == MeetingHud.MeetingStates.Results) return true;
         
         bool meetingSS = Options.UseMeetingShapeshift.GetBool() && GameStates.IsMeeting;
         if ((!Main.ProcessShapeshifts && !meetingSS) || shapeshifter.PlayerId >= 254) return true;
@@ -864,7 +864,7 @@ internal static class ShapeshiftPatch
 
         if (AmongUsClient.Instance.AmHost && meetingSS)
         {
-            if (MeetingHud.Instance.state is MeetingHud.VoteStates.Discussion or MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted)
+            if (MeetingHud.Instance.state is MeetingHud.MeetingStates.Discussion or MeetingHud.MeetingStates.Voted or MeetingHud.MeetingStates.NotVoted)
                 Main.PlayerStates[shapeshifter.PlayerId].Role.OnMeetingShapeshift(shapeshifter, target);
 
             shapeshifter.RpcRejectShapeshift();
@@ -2425,7 +2425,7 @@ internal static class GameDataCompleteTaskPatch
     {
         try
         {
-            if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) return;
+            if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) return;
 
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHnS.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
             {
@@ -2623,6 +2623,7 @@ internal static class PlayerControlLocalSetRolePatch
                 RoleTypes.Tracker => CustomRoles.TrackerEHR,
                 RoleTypes.Detective => CustomRoles.DetectiveEHR,
                 RoleTypes.Viper => CustomRoles.ViperEHR,
+                RoleTypes.Judge => CustomRoles.JudgeEHR,
                 _ => CustomRoles.NotAssigned
             };
 

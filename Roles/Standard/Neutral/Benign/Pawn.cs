@@ -65,9 +65,9 @@ public class Pawn : RoleBase
     public static void CreatePawnButton(MeetingHud __instance)
     {
         PlayerVoteArea localPva = __instance.playerStates
-            .FirstOrDefault(pva => pva.TargetPlayerId == PlayerControl.LocalPlayer.PlayerId);
+            .FirstOrDefault(pva => pva.PlayerId == PlayerControl.LocalPlayer.PlayerId);
 
-        PlayerControl pc = Utils.GetPlayerById(localPva.TargetPlayerId);
+        PlayerControl pc = Utils.GetPlayerById(localPva.PlayerId);
         if (!pc || !pc.IsAlive()) return;
 
         GameObject template = localPva.Buttons.transform.Find("CancelButton").gameObject;
@@ -78,7 +78,7 @@ public class Pawn : RoleBase
         renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.PawnPromotion.png", 160f);
         var button = targetBox.GetComponent<PassiveButton>();
         button.OnClick.RemoveAllListeners();
-        button.OnClick.AddListener((Action)(() => GuessManager.GuesserOnClick(localPva.TargetPlayerId, __instance, true)));
+        button.OnClick.AddListener((Action)(() => GuessManager.GuesserOnClick(localPva.PlayerId, __instance, true)));
     }
 
     //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]

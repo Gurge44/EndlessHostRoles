@@ -63,9 +63,9 @@ public static class GuessManager
     public static bool GuesserMsg(PlayerControl pc, string msg, bool isUI = false)
     {
         if (!AmongUsClient.Instance.AmHost) return false;
-        if (!GameStates.IsMeeting || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || !pc) return false;
+        if (!GameStates.IsMeeting || MeetingHud.Instance.state is MeetingHud.MeetingStates.Results or MeetingHud.MeetingStates.Proceeding || !pc) return false;
 
-        bool hasGuessingRole = pc.GetCustomRole() is CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.Judge or CustomRoles.Swapper or CustomRoles.Councillor or CustomRoles.NecroGuesser or CustomRoles.Augur;
+        bool hasGuessingRole = pc.GetCustomRole() is CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.JudgeOld or CustomRoles.Swapper or CustomRoles.Councillor or CustomRoles.NecroGuesser or CustomRoles.Augur;
         if (!hasGuessingRole && !pc.Is(CustomRoles.Guesser) && !Options.GuesserMode.GetBool()) return false;
 
         int operate; // 1: ID, 2: Guess
@@ -91,7 +91,7 @@ public static class GuessManager
                     return true;
                 }
 
-                if (!Options.CanGuessDuringDiscussionTime.GetBool() && MeetingHud.Instance && MeetingHud.Instance.state is MeetingHud.VoteStates.Discussion or MeetingHud.VoteStates.Animating && Main.RealOptionsData.GetInt(Int32OptionNames.DiscussionTime) > 0)
+                if (!Options.CanGuessDuringDiscussionTime.GetBool() && MeetingHud.Instance && MeetingHud.Instance.state is MeetingHud.MeetingStates.Discussion or MeetingHud.MeetingStates.Animating && Main.RealOptionsData.GetInt(Int32OptionNames.DiscussionTime) > 0)
                 {
                     ShowMessage("GuessDuringDiscussion");
                     return true;
@@ -610,21 +610,21 @@ public static class GuessManager
 
             foreach (PlayerVoteArea playerVoteArea in meetingHud.playerStates)
             {
-                if (playerVoteArea.VotedFor != pc.PlayerId) continue;
+                if (playerVoteArea.VotedForId != pc.PlayerId) continue;
 
                 playerVoteArea.UnsetVote();
                 meetingHud.SetDirtyBit(1U);
 
-                PlayerControl voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
+                PlayerControl voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.PlayerId);
                 if (!voteAreaPlayer) continue;
 
                 if (!voteAreaPlayer.AmOwner)
                 {
-                    meetingHud.RpcClearVote(voteAreaPlayer.OwnerId);
+                    meetingHud.RpcClearVote(playerVoteArea.PlayerId);
                     meetingHud.SetDirtyBit(1U);
                 }
                 else
-                    meetingHud.ClearVote();
+                    meetingHud.ClearVote(playerVoteArea.PlayerId, true);
             }
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.GuessKill, SendOption.Reliable);
@@ -654,7 +654,7 @@ public static class GuessManager
             meetingHud.SetForegroundForDead();
         }
 
-        PlayerVoteArea voteArea = MeetingHud.Instance.playerStates.First(x => x.TargetPlayerId == pc.PlayerId);
+        PlayerVoteArea voteArea = meetingHud.playerStates.First(x => x.PlayerId == pc.PlayerId);
 
         if (voteArea.DidVote)
         {
@@ -663,7 +663,7 @@ public static class GuessManager
             if (AmongUsClient.Instance.AmHost)
             {
                 meetingHud.SetDirtyBit(1U);
-                meetingHud.RpcClearVote(pc.OwnerId);
+                meetingHud.RpcClearVote(voteArea.PlayerId);
                 meetingHud.SetDirtyBit(1U);
             }
         }
@@ -684,14 +684,12 @@ public static class GuessManager
 
             foreach (PlayerVoteArea playerVoteArea in meetingHud.playerStates)
             {
-                if (playerVoteArea.VotedFor != pc.PlayerId) continue;
+                if (playerVoteArea.VotedForId != pc.PlayerId) continue;
 
                 playerVoteArea.UnsetVote();
 
-                PlayerControl voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
-                if (!voteAreaPlayer.AmOwner) continue;
-
-                meetingHud.ClearVote();
+                PlayerControl voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.PlayerId);
+                meetingHud.ClearVote(playerVoteArea.PlayerId, voteAreaPlayer.AmOwner);
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -740,13 +738,13 @@ public static class GuessManager
     {
         foreach (PlayerVoteArea pva in __instance.playerStates)
         {
-            PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
+            PlayerControl pc = Utils.GetPlayerById(pva.PlayerId);
 
             if (!pc) continue;
 
             bool skip = PlayerControl.LocalPlayer.Is(CustomRoles.NecroGuesser) switch
             {
-                true => pc.IsAlive() || pc.Is(CustomRoles.Gravestone) || (Options.SeeEjectedRolesInMeeting.GetBool() && Main.PlayerStates[pva.TargetPlayerId].deathReason == PlayerState.DeathReason.Vote),
+                true => pc.IsAlive() || pc.Is(CustomRoles.Gravestone) || (Options.SeeEjectedRolesInMeeting.GetBool() && Main.PlayerStates[pva.PlayerId].deathReason == PlayerState.DeathReason.Vote),
                 false => !pc.IsAlive()
             };
 
@@ -761,7 +759,7 @@ public static class GuessManager
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
             PlayerVoteArea pva1 = pva;
-            button.OnClick.AddListener((Action)(() => GuesserOnClick(pva1.TargetPlayerId, __instance)));
+            button.OnClick.AddListener((Action)(() => GuesserOnClick(pva1.PlayerId, __instance)));
         }
     }
 
@@ -799,7 +797,7 @@ public static class GuessManager
     public static void GuesserOnClick(byte playerId, MeetingHud __instance, bool specificRoleChoosing = false)
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (!pc || !pc.IsAlive() || GuesserUI || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || Starspawn.IsDayBreak) return;
+        if (!pc || !pc.IsAlive() || GuesserUI || MeetingHud.Instance.state is MeetingHud.MeetingStates.Results or MeetingHud.MeetingStates.Proceeding || Starspawn.IsDayBreak) return;
 
         try
         {
@@ -1032,7 +1030,7 @@ public static class GuessManager
                         }
                         else
                         {
-                            if (MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || !PlayerControl.LocalPlayer.IsAlive()) return;
+                            if (MeetingHud.Instance.state is MeetingHud.MeetingStates.Results or MeetingHud.MeetingStates.Proceeding || !PlayerControl.LocalPlayer.IsAlive()) return;
 
                             Logger.Msg($"Click: {pc.GetNameWithRole()} => {role}", "Guesser UI");
 

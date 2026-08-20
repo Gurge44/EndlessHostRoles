@@ -352,7 +352,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Hangman => CustomRoles.Shapeshifter,
                 CustomRoles.Sunnyboy => CustomRoles.Scientist,
                 CustomRoles.Specter => Options.PhantomCanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
-                CustomRoles.Judge => CustomRoles.Crewmate,
+                CustomRoles.JudgeOld => CustomRoles.Crewmate,
                 CustomRoles.Councillor => CustomRoles.Impostor,
                 CustomRoles.Mortician => CustomRoles.Crewmate,
                 CustomRoles.Medium => CustomRoles.Crewmate,
@@ -411,6 +411,7 @@ internal static class CustomRolesHelper
                 CustomRoles.NoisemakerEHR => CustomRoles.Noisemaker,
                 CustomRoles.DetectiveEHR => CustomRoles.Detective,
                 CustomRoles.ViperEHR => CustomRoles.Viper,
+                CustomRoles.JudgeEHR => CustomRoles.Judge,
 
                 // Hide And Seek
                 CustomRoles.Hider => CustomRoles.Crewmate,
@@ -468,6 +469,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Shapeshifter => CustomRoles.ShapeshifterEHR,
                 CustomRoles.Detective => CustomRoles.DetectiveEHR,
                 CustomRoles.Viper => CustomRoles.ViperEHR,
+                CustomRoles.Judge => CustomRoles.JudgeEHR,
                 _ => role.IsImpostor() ? CustomRoles.ImpostorEHR : CustomRoles.CrewmateEHR
             };
         }
@@ -1368,6 +1370,8 @@ internal static class CustomRolesHelper
                 CustomRoles.NoisemakerEHR => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Detective => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.DetectiveEHR => RoleOptionType.Crewmate_Miscellaneous,
+                CustomRoles.Judge => RoleOptionType.Crewmate_Miscellaneous,
+                CustomRoles.JudgeEHR => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Addict => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.CameraMan => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Carrier => RoleOptionType.Crewmate_Miscellaneous,
@@ -1481,7 +1485,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Ventguard => RoleOptionType.Crewmate_Support,
                 CustomRoles.Wizard => RoleOptionType.Crewmate_Support,
                 CustomRoles.Drainer => RoleOptionType.Crewmate_Killing,
-                CustomRoles.Judge => RoleOptionType.Crewmate_Killing,
+                CustomRoles.JudgeOld => RoleOptionType.Crewmate_Killing,
                 CustomRoles.NiceGuesser => RoleOptionType.Crewmate_Killing,
                 CustomRoles.Retributionist => RoleOptionType.Crewmate_Killing,
                 CustomRoles.Sentinel => RoleOptionType.Crewmate_Killing,
@@ -1674,6 +1678,7 @@ internal static class CustomRolesHelper
                 CustomRoles.GuardianAngel or
                 CustomRoles.Impostor or
                 CustomRoles.Detective or
+                CustomRoles.Judge or
                 CustomRoles.Viper or
                 CustomRoles.Phantom or
                 CustomRoles.Shapeshifter;
@@ -1689,6 +1694,7 @@ internal static class CustomRolesHelper
                 CustomRoles.GuardianAngelEHR or
                 CustomRoles.ImpostorEHR or
                 CustomRoles.DetectiveEHR or
+                CustomRoles.JudgeEHR or
                 CustomRoles.ViperEHR or
                 CustomRoles.PhantomEHR or
                 CustomRoles.ShapeshifterEHR;

@@ -135,7 +135,7 @@ public class CopyCat : RoleBase
                 CustomRoles.Workaholic or CustomRoles.Pawn => CustomRoles.Snitch,
                 CustomRoles.Sunnyboy or CustomRoles.Fabricator => new[] {CustomRoles.Doctor, CustomRoles.ScientistEHR}.RandomElement(),
                 CustomRoles.Vindicator or CustomRoles.Pickpocket => CustomRoles.Mayor,
-                CustomRoles.Councillor or CustomRoles.Magistrate => CustomRoles.Judge,
+                CustomRoles.Councillor or CustomRoles.Magistrate => CustomRoles.JudgeOld,
                 CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.NecroGuesser or CustomRoles.Augur => CustomRoles.NiceGuesser,
                 CustomRoles.Vengeance => CustomRoles.Adrenaline,
                 CustomRoles.Occultist => CustomRoles.Altruist,

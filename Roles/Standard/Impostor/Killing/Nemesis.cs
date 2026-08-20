@@ -203,7 +203,7 @@ internal class Nemesis : RoleBase
     {
         foreach (PlayerVoteArea pva in __instance.playerStates)
         {
-            PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
+            PlayerControl pc = Utils.GetPlayerById(pva.PlayerId);
             if (!pc || !pc.IsAlive()) continue;
 
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
@@ -214,7 +214,7 @@ internal class Nemesis : RoleBase
             renderer.sprite =  Utils.LoadSprite("EHR.Resources.Images.Skills.MeetingKillButton.png", 140f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => NemesisOnClick(pva.TargetPlayerId)));
+            button.OnClick.AddListener((Action)(() => NemesisOnClick(pva.PlayerId)));
         }
     }
 
