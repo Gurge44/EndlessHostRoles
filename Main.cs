@@ -581,7 +581,7 @@ public class Main : BasePlugin
                 { CustomRoles.Medic, "#00ff97" },
                 { CustomRoles.FortuneTeller, "#882c83" },
                 { CustomRoles.Glitch, "#39FF14" },
-                { CustomRoles.JudgeOld, "#f8d85a" },
+                { CustomRoles.Prosecutor, "#f8d85a" },
                 { CustomRoles.Mortician, "#333c49" },
                 { CustomRoles.Medium, "#a200ff" },
                 { CustomRoles.Observer, "#a8e0fa" },

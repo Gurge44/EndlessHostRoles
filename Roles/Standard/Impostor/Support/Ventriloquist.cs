@@ -38,10 +38,17 @@ public class Ventriloquist : RoleBase
         playerId.SetAbilityUseLimit(UseLimit.GetFloat());
     }
 
+    public override bool OnJudge(PlayerControl pc, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return false;
+        var command = $"/target {target.PlayerId}";
+        ChatCommands.TargetCommand(pc, command, command.Split(' '));
+        return true;
+    }
+
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        var command = $"/target {target.PlayerId}";
-        ChatCommands.TargetCommand(shapeshifter, command, command.Split(' '));
+        OnJudge(shapeshifter, target);
     }
 
     private static void VentriloquistOnClick(byte playerId /*, MeetingHud __instance*/)

@@ -111,6 +111,7 @@ public class Empress : CovenBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return;
         Empower(shapeshifter);
     }
 

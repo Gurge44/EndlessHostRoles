@@ -226,7 +226,7 @@ public enum CustomRoles
     Inquisitor,
     Jailor,
     Journalist,
-    JudgeOld,
+    Prosecutor,
     LazyGuy,
     Leery,
     Lighter,

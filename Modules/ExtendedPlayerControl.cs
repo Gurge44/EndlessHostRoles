@@ -57,14 +57,14 @@ internal static class ExtendedPlayerControl
         public bool UsesMeetingShapeshift()
         {
             CustomRoles role = player.GetCustomRole();
-            // if (player.IsModdedClient() && role is CustomRoles.Councillor or CustomRoles.Inspector or CustomRoles.JudgeOld or CustomRoles.Retributionist or CustomRoles.Starspawn or CustomRoles.Swapper or CustomRoles.Ventriloquist) return false;
+            // if (player.IsModdedClient() && role is CustomRoles.Councillor or CustomRoles.Inspector or CustomRoles.Prosecutor or CustomRoles.Retributionist or CustomRoles.Starspawn or CustomRoles.Swapper or CustomRoles.Ventriloquist) return false;
             return role.UsesMeetingShapeshift();
         }
 
         public bool UsesJudgeAbilityAsTrigger()
         {
             CustomRoles role = player.GetCustomRole();
-            if (player.IsModdedClient() && role is CustomRoles.Councillor or CustomRoles.Inspector or CustomRoles.JudgeOld or CustomRoles.Retributionist or CustomRoles.Starspawn or CustomRoles.Swapper or CustomRoles.Ventriloquist) return false;
+            if (player.IsModdedClient() && role is CustomRoles.Councillor or CustomRoles.Inspector or CustomRoles.Prosecutor or CustomRoles.Retributionist or CustomRoles.Starspawn or CustomRoles.Swapper or CustomRoles.Ventriloquist) return false;
             return role.UsesJudgeAbilityAsTrigger();
         }
 

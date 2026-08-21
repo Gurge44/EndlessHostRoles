@@ -55,7 +55,7 @@ public class Soothsayer : RoleBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        OnJudge(shapeshifter, target);
     }
 
     public static void OnAnyoneDeath(PlayerControl killer)

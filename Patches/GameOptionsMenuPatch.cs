@@ -1370,6 +1370,10 @@ public static class GameSettingMenuPatch
             field.transform.SetParent(parentLeftPanel.parent, false);
             field.gameObject.SetActive(true);
         }
+        else
+        {
+            Main.Instance.StartCoroutine(KeepSearchBarDarkThemed());
+        }
         field.transform.localScale = new(0.3f, 0.59f, 1);
         field.transform.localPosition = new(-0.47f, 2.15f, -5f);
         field.textArea.outputText.transform.localScale = new(3.5f, 2f, 1f);
@@ -1442,6 +1446,21 @@ public static class GameSettingMenuPatch
             gameSettings.scrollBar.ScrollToTop();
             GameOptionsMenuPatch.ReCreateSettings(gameSettings);
             textField.Clear();
+        }
+
+        IEnumerator KeepSearchBarDarkThemed()
+        {
+            while (InputField)
+            {
+                if (Main.DarkTheme.Value && GameSettingMenu.Instance && InputField.gameObject.activeSelf)
+                {
+                    InputField.background.color = ChatControllerAwakePatch.DarkBackgroundColor;
+                    InputField.textArea.compoText.Color(Color.white);
+                    InputField.textArea.outputText.color = Color.white;
+                }
+
+                yield return null;
+            }
         }
     }
 

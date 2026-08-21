@@ -144,7 +144,7 @@ public class Negotiator : RoleBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        OnJudge(shapeshifter, target);
     }
 
     public static void ReceiveCommand(PlayerControl pc, int index)

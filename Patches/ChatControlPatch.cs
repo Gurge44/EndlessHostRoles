@@ -18,7 +18,7 @@ static class ChatControllerAwakePatch
     private static SpriteRenderer OpenBanMenuIcon;
     private static SpriteRenderer OpenKeyboardIcon;
 
-    private static readonly Color32 DarkBackgroundColor = new(40, 40, 40, byte.MaxValue);
+    public static readonly Color32 DarkBackgroundColor = new(40, 40, 40, byte.MaxValue);
     
     public static void Postfix(ChatController __instance) 
     {

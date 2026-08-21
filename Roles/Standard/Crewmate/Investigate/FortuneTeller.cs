@@ -134,7 +134,7 @@ public class FortuneTeller : RoleBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        OnJudge(shapeshifter, target);
     }
 
     public static void OnRoleChange(byte id, CustomRoles previousRole, CustomRoles newRole)

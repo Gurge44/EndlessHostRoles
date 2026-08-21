@@ -368,6 +368,13 @@ public class Inspector : RoleBase
         return true;
     }
 
+    public override bool OnJudge(PlayerControl pc, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return false;
+        PickForCompare(target.PlayerId, pc.PlayerId);
+        return true;
+    }
+
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return;

@@ -36,10 +36,17 @@ public class Exorcist : RoleBase
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
+    public override bool OnJudge(PlayerControl pc, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return false;
+        const string command = "/exo";
+        ChatCommands.ExoCommand(pc, command, command.Split(' '));
+        return true;
+    }
+
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        const string command = "/exo";
-        ChatCommands.ExoCommand(shapeshifter, command, command.Split(' '));
+        OnJudge(shapeshifter, target);
     }
 
     private static void ExorcistOnClick(GameObject exorcistButton)

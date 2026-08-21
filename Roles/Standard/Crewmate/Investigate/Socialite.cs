@@ -119,7 +119,7 @@ public class Socialite : RoleBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        OnJudge(shapeshifter, target);
     }
 
     public void ReceiveRPC(MessageReader reader)

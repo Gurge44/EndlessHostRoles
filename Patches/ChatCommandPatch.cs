@@ -985,7 +985,7 @@ internal static class ChatCommands
     {
         if (Starspawn.IsDayBreak) return;
 
-        if (!player.IsAlive() || Main.PlayerStates[player.PlayerId].Role is not Markseeker { IsEnable: true } ms || ms.MarkedId != byte.MaxValue) return;
+        if (!player.IsAlive() || Main.PlayerStates[player.PlayerId].Role is not Markseeker { IsEnable: true, MarkedId: byte.MaxValue } ms) return;
 
         ms.MarkedId = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out byte targetId) ? targetId : byte.MaxValue;
 

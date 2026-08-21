@@ -1316,7 +1316,7 @@ internal static class MeetingHudUpdatePatch
 
                 switch (myRole)
                 {
-                    case CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.JudgeOld or CustomRoles.Swapper or CustomRoles.Councillor or CustomRoles.Guesser when !PlayerControl.LocalPlayer.IsAlive():
+                    case CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Prosecutor or CustomRoles.Swapper or CustomRoles.Councillor or CustomRoles.Guesser when !PlayerControl.LocalPlayer.IsAlive():
                         ClearShootButton(__instance, true);
                         break;
                     case CustomRoles.Nemesis when !PlayerControl.LocalPlayer.IsAlive() && !GameObject.Find("ShootButton"):
@@ -1632,7 +1632,22 @@ internal static class MeetingHudHandleRpcPatch
                 PlayerControl target = targetPlayerId.GetPlayer();
 
                 if (judge && target && judge.UsesJudgeAbilityAsTrigger() && Main.PlayerStates.TryGetValue(judgePlayerId, out PlayerState state))
-                    return !state.Role.OnJudge(judge, target);
+                {
+                    state.Role.OnJudge(judge, target);
+
+                    var meetingHud = MeetingHud.Instance;
+
+                    if (meetingHud && meetingHud.playerStates.FindFirst(x => x.PlayerId == judgePlayerId, out PlayerVoteArea pva))
+                    {
+                        pva.UnsetVote();
+                        meetingHud.RpcClearVote(pva.PlayerId);
+                        meetingHud.UpdateForeground();
+                        pva.VotedForId = byte.MaxValue;
+                    }
+                    
+                    return false;
+                }
+
                 break;
             }
             case (byte)RpcCalls.CloseMeeting when AmongUsClient.Instance.AmHost:

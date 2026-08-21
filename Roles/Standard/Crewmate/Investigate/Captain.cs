@@ -53,7 +53,7 @@ public class Captain : RoleBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        OnJudge(shapeshifter, target);
     }
 
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)

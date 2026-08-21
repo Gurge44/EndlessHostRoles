@@ -44,24 +44,18 @@ internal class Markseeker : RoleBase
     {
         MarkedId = reader.ReadByte();
     }
-
-/*
+    
     public override bool OnJudge(PlayerControl player, PlayerControl target)
     {
-        if (Starspawn.IsDayBreak) return false;
-        if (player == null || target == null || player.PlayerId == target.PlayerId || MarkedId != byte.MaxValue || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
-
-        MarkedId = target.PlayerId;
-
-        Main.DontCancelVoteList.Add(player.PlayerId);
+        if (Starspawn.IsDayBreak || !player || !target) return false;
+        var command = $"/mark {target.PlayerId}";
+        ChatCommands.MarkCommand(player, command, command.Split(' '));
         return true;
     }
-*/
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        var command = $"/mark {target.PlayerId}";
-        ChatCommands.MarkCommand(shapeshifter, command, command.Split(' '));
+        OnJudge(shapeshifter, target);
     }
 
     public static void OnDeath(PlayerControl player)

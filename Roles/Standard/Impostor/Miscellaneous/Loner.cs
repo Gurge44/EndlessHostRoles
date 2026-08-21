@@ -34,23 +34,29 @@ public class Loner : RoleBase
         Done = false;
     }
 
-    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    public override bool OnJudge(PlayerControl pc, PlayerControl target)
     {
-        if (Starspawn.IsDayBreak) return;
-        if (shapeshifter == null || target == null || shapeshifter.PlayerId == target.PlayerId || Done) return;
+        if (Starspawn.IsDayBreak) return false;
+        if (pc == null || target == null || pc.PlayerId == target.PlayerId || Done) return false;
 
         PickedPlayer = target.PlayerId;
         PickedRole = Main.CustomRoleValues.Where(x => x.IsImpostor() && !x.IsVanilla() && !CustomRoleSelector.RoleResult.ContainsValue(x) && x.GetMode() != 0).RandomElement();
         if (PickedRole == CustomRoles.Crewmate) PickedRole = CustomRoles.ImpostorEHR;
 
-        Utils.SendMessage("\n", shapeshifter.PlayerId, string.Format(Translator.GetString("Loner.Picked"), PickedPlayer.ColoredPlayerName(), PickedRole.ToColoredString()), importance: MessageImportance.High);
+        Utils.SendMessage("\n", pc.PlayerId, string.Format(GetString("Loner.Picked"), PickedPlayer.ColoredPlayerName(), PickedRole.ToColoredString()), importance: MessageImportance.High);
+        return true;
+    }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnJudge(shapeshifter, target);
     }
 
     public override void AfterMeetingTasks()
     {
         var pc = PickedPlayer.GetPlayer();
 
-        if (!Done && PickedPlayer != byte.MaxValue && PickedRole != CustomRoles.Crewmate && pc != null)
+        if (!Done && PickedPlayer != byte.MaxValue && PickedRole != CustomRoles.Crewmate && pc)
         {
             Done = true;
             pc.RpcSetCustomRole(PickedRole);

@@ -121,7 +121,7 @@ public class Gangster : RoleBase
                    (pc.Is(CustomRoles.Sheriff) && !SheriffCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Mayor) && !MayorCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.NiceGuesser) && !NGuesserCanBeMadmate.GetBool()) ||
-                   (pc.Is(CustomRoles.JudgeOld) && !JudgeCanBeMadmate.GetBool()) ||
+                   (pc.Is(CustomRoles.Prosecutor) && !JudgeCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Marshall) && !MarshallCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Investigator) && !InvestigatorCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.President) && !PresidentCanBeMadmate.GetBool()) ||
