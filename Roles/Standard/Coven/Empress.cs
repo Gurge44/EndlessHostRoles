@@ -99,7 +99,7 @@ public class Empress : CovenBase
         SetKillCooldown(EmpressId);
     }
 
-    public override bool OnJudge(PlayerControl voter, PlayerControl target)
+    public override bool OnVote(PlayerControl voter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak || voter == null || target == null || Main.DontCancelVoteList.Contains(voter.PlayerId) || voter.PlayerId != target.PlayerId || Empowered) return false;
 
@@ -109,10 +109,16 @@ public class Empress : CovenBase
         return true;
     }
 
+    public override bool OnJudge(PlayerControl voter, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return false;
+        Empower(voter);
+        return true;
+    }
+
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        if (Starspawn.IsDayBreak) return;
-        Empower(shapeshifter);
+        OnJudge(shapeshifter, target);
     }
 
     private void Empower(PlayerControl voter)
