@@ -13,8 +13,7 @@ public static class MatchInfoGuidePatch
     public static bool CreateModdedSettings(MatchInfoGuide __instance)
     {
         int num = 6;
-        (OptionItem MinSetting, OptionItem MaxSetting) impSettings = Options.FactionMinMaxSettings[Team.Impostor];
-        __instance.CreateSettingsEntry(StringNames.GameNumImpostors, $"{impSettings.MinSetting.GetInt()}-{impSettings.MaxSetting.GetInt()}");
+        CreateTeamSizeSettingEntries(__instance);
         __instance.CreateSettingsEntry(StringNames.GameKillCooldown, GameManager.Instance.AllGameSettingData[StringNames.GameKillCooldown].GetValueString(GameManager.Instance.LogicOptions.GetKillCooldown()));
         __instance.CreateSettingsEntry(StringNames.GameEmergencyCooldown, GameManager.Instance.AllGameSettingData[StringNames.GameEmergencyCooldown].GetValueString(GameManager.Instance.LogicOptions.GetEmergencyCooldown()));
         __instance.CreateSettingsEntry(StringNames.GameVisualTasks, __instance.GetBoolString(GameManager.Instance.LogicOptions.GetVisualTasks()));
@@ -31,6 +30,16 @@ public static class MatchInfoGuidePatch
         __instance.CreatePlayerEntries();
         ReColorTabButtons(__instance);
         return false;
+    }
+
+    private static void CreateTeamSizeSettingEntries(MatchInfoGuide __instance)
+    {
+        foreach ((Team team, (OptionItem minSetting, OptionItem maxSetting)) in Options.FactionMinMaxSettings)
+        {
+            int min = minSetting.GetInt(), max = maxSetting.GetInt();
+            string value = min == max ? min.ToString() : $"{min}-{max}";
+            CreateModdedSettingEntry(__instance, Utils.ColorString(team.GetColor(), $"# {Translator.GetString($"Type{team}")}"), value);
+        }
     }
 
     private static int CreateModdedRoleEntries(MatchInfoGuide __instance)
