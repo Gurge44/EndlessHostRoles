@@ -43,7 +43,7 @@ public class Main : BasePlugin
     public const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "8.0.0";
     public const string PluginDisplayVersion = "8.0.0";
-    public const int TestBuildNumber = 2; // 0 = Release
+    public const int TestBuildNumber = 3; // 0 = Release
 
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
