@@ -10322,6 +10322,7 @@
   "UseVoteCancelling": "Use Vote Cancelling Method instead of Commands",
   "UseVoteCancellingAfterVote": "Can Vote Normally After Using Ability (Vote)",
   "UsesMeetingShapeshiftNotice": "<#ffff00>⚠ As this role, instead of commands and votes, you need to use the shapeshift menu in meetings to select your target!</color>",
+  "UsesJudgeAbilityAsTriggerNotice": "<#ffff00>⚠ As this role, instead of commands and votes, you need to 'judge' your selected target!</color> <size=70%>(They won't actually be judged. This is just an ability trigger!)</size>",
   "VIPTag": "<#ffff00>VIP</color>",
   "VanillaCrewmateCannotBeGuessed": "Crewmate role cannot be guessed",
   "VengefulCanVent": "<color=#ba2749>Vengeful Romantic</color> Can Vent",

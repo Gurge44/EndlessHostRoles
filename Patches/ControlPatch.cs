@@ -630,7 +630,8 @@ public static class InGameRoleInfoMenu
         });
 
         if (role.UsesPetInsteadOfKill()) Sb.Append($"\n\n{GetString("UsesPetInsteadOfKillNotice")}");
-        if (player.UsesMeetingShapeshift()) Sb.Append($"\n\n{GetString("UsesMeetingShapeshiftNotice")}");
+        if (player.UsesJudgeAbilityAsTrigger()) Sb.Append($"\n\n{GetString("UsesJudgeAbilityAsTriggerNotice")}");
+        else if (player.UsesMeetingShapeshift()) Sb.Append($"\n\n{GetString("UsesMeetingShapeshiftNotice")}");
 
         Sb.Insert(0, $"{TitleSb}\n");
 

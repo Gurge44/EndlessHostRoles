@@ -2522,7 +2522,8 @@ internal static class ChatCommands
 
             Utils.SendMessage(sb.ToString(), player.PlayerId, titleSb.ToString(), importance: MessageImportance.High);
             if (role.UsesPetInsteadOfKill()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesPetInsteadOfKillNotice"));
-            if (player.UsesMeetingShapeshift()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesMeetingShapeshiftNotice"));
+            if (player.UsesJudgeAbilityAsTrigger()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesJudgeAbilityAsTriggerNotice"));
+            else if (player.UsesMeetingShapeshift()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesMeetingShapeshiftNotice"));
         }
         else
             Utils.SendMessage((player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), player.PlayerId);
@@ -3427,7 +3428,8 @@ internal static class ChatCommands
 
                 if (settings.Length > 0) Utils.SendMessage("\n", playerId, settings.ToString());
                 if (rl.UsesPetInsteadOfKill()) Utils.SendMessage("\n", playerId, GetString("UsesPetInsteadOfKillNotice"));
-                if (rl.UsesMeetingShapeshift()) Utils.SendMessage("\n", playerId, GetString("UsesMeetingShapeshiftNotice"));
+                if (rl.UsesJudgeAbilityAsTrigger()) Utils.SendMessage("\n", playerId, GetString("UsesJudgeAbilityAsTriggerNotice"));
+                else if (rl.UsesMeetingShapeshift()) Utils.SendMessage("\n", playerId, GetString("UsesMeetingShapeshiftNotice"));
 
                 Utils.SendMessage(sb.ToString(), playerId, title, importance: MessageImportance.High);
                 return;

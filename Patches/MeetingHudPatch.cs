@@ -762,7 +762,8 @@ internal static class MeetingHudStartPatch
 
                 if (Settings.Length > 0) RoleDescMsgs.Add(new("\n", pc.PlayerId, Settings.ToString()));
                 if (role.UsesPetInsteadOfKill()) RoleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesPetInsteadOfKillNotice")));
-                if (pc.UsesMeetingShapeshift()) RoleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesMeetingShapeshiftNotice")));
+                if (pc.UsesJudgeAbilityAsTrigger()) RoleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesJudgeAbilityAsTriggerNotice")));
+                else if (pc.UsesMeetingShapeshift()) RoleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesMeetingShapeshiftNotice")));
 
                 RoleDescMsgs.Add(new(Sb.ToString(), pc.PlayerId, TitleSb.ToString()));
             }
