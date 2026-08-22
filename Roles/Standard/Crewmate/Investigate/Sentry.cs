@@ -87,7 +87,8 @@ internal class Sentry : RoleBase
 
         AvailableDevices = DisableDevice.DevicePos.Where(x =>
         {
-            bool correctMap = x.Key.Contains(Main.CurrentMap.ToString(), StringComparison.OrdinalIgnoreCase);
+            string mapName = SubmergedCompatibility.IsSubmerged() ? "Submerged" : Main.LIMap ? "LI" : Main.CurrentMap.ToString();
+            bool correctMap = x.Key.Contains(mapName, StringComparison.OrdinalIgnoreCase);
             var devicesOpt = (UsableDevicesStrings)UsableDevicesForInfoView.GetValue();
 
             bool enabled = devicesOpt switch

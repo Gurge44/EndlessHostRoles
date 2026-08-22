@@ -299,6 +299,34 @@ internal class AntiAdminer : RoleBase
 
                         break;
                     }
+                    case 7:
+                    {
+                        foreach (var (key, position) in DisableDevice.DevicePos)
+                        {
+                            if (!key.StartsWith("LIVital") && !key.StartsWith("LIAdmin") && !key.StartsWith("LICamera")) continue;
+
+                            if (FastVector2.DistanceWithinRange(playerPos, position, usableDistance))
+                            {
+                                if (key.StartsWith("LIVital"))
+                                {
+                                    vital = true;
+                                    AddDeviceUse(playerId, Device.Vitals);
+                                }
+                                else if (key.StartsWith("LIAdmin"))
+                                {
+                                    admin = true;
+                                    AddDeviceUse(playerId, Device.Admin);
+                                }
+                                else if (key.StartsWith("LICamera"))
+                                {
+                                    camera = true;
+                                    AddDeviceUse(playerId, Device.Camera);
+                                }
+                            }
+                        }
+                        
+                        break;
+                    }
                 }
             }
             catch (Exception ex) { Logger.Error(ex.ToString(), "AntiAdminer"); }
