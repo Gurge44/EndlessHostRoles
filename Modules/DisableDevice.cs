@@ -39,6 +39,29 @@ internal static class DisableDevice
         ["SubmergedCamera"] = new(-3.41f, -34.56f)
     };
 
+    public static void AddCustomDevicesPos()
+    {
+        var keysToRemove = DevicePos.Keys
+            .Where(k => k.StartsWith("LI", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        foreach (var key in keysToRemove)
+            DevicePos.Remove(key);
+
+        int adminId = 0;
+        int cameraId = 0;
+        int vitalId = 0;
+
+        foreach (var admin in Object.FindObjectsOfType<MapConsole>(true))
+            DevicePos[$"LIAdmin{adminId++}"] = admin.transform.position;
+
+        foreach (var console in Object.FindObjectsOfType<SystemConsole>(true))
+        {
+            if (console.name == "Surv_Panel") DevicePos[$"LICamera{cameraId++}"] = console.transform.position;
+            else if (console.name.Contains("Vital")) DevicePos[$"LIVital{vitalId++}"] = console.transform.position;
+        }
+    }
+
     private static bool DoDisable => Options.DisableDevices.GetBool();
 
     public static float UsableDistance => Main.CurrentMap switch
@@ -166,6 +189,8 @@ public class RemoveDisableDevicesPatch
 {
     public static void Postfix()
     {
+        if (Main.LIMap) DisableDevice.AddCustomDevicesPos();
+
         bool rogueForce = Rogue.On && Main.PlayerStates.Values.Any(x => x.Role is Rogue { DisableDevices: true });
         if (!Options.DisableDevices.GetBool() && !rogueForce) return;
 
