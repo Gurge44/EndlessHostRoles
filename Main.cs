@@ -931,6 +931,7 @@ public class Main : BasePlugin
         BanManager.Init();
         TemplateManager.Init();
         SpamManager.Init();
+        AmciRegistration.Apply();
 
         IRandom.SetInstance(new NetRandomWrapper());
 
