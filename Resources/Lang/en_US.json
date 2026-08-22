@@ -1095,7 +1095,7 @@
   "MedicShieldBreaksOnKillAttempt": "<color=#00ff97>Medic</color> Shield Breaks on Kill Attempt",
   "MedicShieldDeactivatesWhenMedicDies": "Shield deactivates when the <color=#00ff97>Medic</color> dies",
   "MedicShieldedCanBeGuessed": "Guessing ignores <color=#00ff97>Medic</color> shield",
-  "MedicShieldedCanBeJudged": "Judging ignores <color=#00ff97>Medic</color> shield",
+  "MedicShieldedCanBeJudged": "Prosecution ignores <color=#00ff97>Medic</color> shield",
   "MedicWhoCanSeeProtect": "Who can see shield",
   "MedicalerButtonText": "Protect",
   "Medium": "Medium",
