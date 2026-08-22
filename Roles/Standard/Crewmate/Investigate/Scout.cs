@@ -97,6 +97,11 @@ public class Scout : RoleBase
         return TrackerTarget != null && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
     }
 
+    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    {
+        return UseJudgeAbilityAsTrigger.GetBool() || UseMeetingShapeshift.GetBool() ? base.OnVote(voter, target) : OnJudge(voter, target);
+    }
+
     public override bool OnJudge(PlayerControl player, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;

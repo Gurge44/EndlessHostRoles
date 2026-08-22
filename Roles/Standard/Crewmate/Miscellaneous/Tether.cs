@@ -114,6 +114,11 @@ public class Tether : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
+    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    {
+        return UseJudgeAbilityAsTrigger.GetBool() || UseMeetingShapeshift.GetBool() ? base.OnVote(voter, target) : OnJudge(voter, target);
+    }
+
     public override bool OnJudge(PlayerControl pc, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;

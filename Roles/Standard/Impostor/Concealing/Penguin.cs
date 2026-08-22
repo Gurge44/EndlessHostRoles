@@ -301,7 +301,7 @@ public class Penguin : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!IsEnable) return;
+        if (!IsEnable || AbductTimer == null) return;
 
         if (AbductVictim)
         {
@@ -374,7 +374,7 @@ public class Penguin : RoleBase
                 }
             }
         }
-        else if (AbductTimer != null)
+        else
         {
             AbductTimer = null;
             Utils.SendRPC(CustomRPC.PenguinSync, PenguinId, 2, true);

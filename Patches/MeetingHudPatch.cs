@@ -105,7 +105,7 @@ internal static class CheckForEndVotingPatch
                         __instance.UpdateForeground();
                         pva.VotedForId = byte.MaxValue;
                     }
-                    else if (voteTarget && !pc.GetCustomRole().CancelsVote() && !pc.UsesMeetingShapeshift())
+                    else if (voteTarget && !pc.GetCustomRole().CancelsVote() && !pc.UsesMeetingShapeshift() && !pc.UsesJudgeAbilityAsTrigger())
                         Main.PlayerStates[pc.PlayerId].Role.OnVote(pc, voteTarget);
                     else if (pc.Is(CustomRoles.Godfather)) Godfather.GodfatherTarget = byte.MaxValue;
                 }
@@ -1209,6 +1209,8 @@ internal static class MeetingHudStartPatch
                 pva.NameText.SetText(name);
             }
         }
+        
+        SendChatNotePatch.Voted.Clear();
 
         // -------------------------------------------------------------------------------------------
 
@@ -1492,7 +1494,7 @@ internal static class MeetingHudCastVotePatch
 
         var voteCanceled = false;
 
-        if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !skip && pcSrc.GetCustomRole().CancelsVote() && !pcSrc.UsesMeetingShapeshift() && Main.PlayerStates[srcPlayerId].Role.OnVote(pcSrc, pcTarget))
+        if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !skip && pcSrc.GetCustomRole().CancelsVote() && !pcSrc.UsesMeetingShapeshift() && !pcSrc.UsesJudgeAbilityAsTrigger() && Main.PlayerStates[srcPlayerId].Role.OnVote(pcSrc, pcTarget))
         {
             ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pvaSrc, pcSrc));
             voteCanceled = true;
@@ -1532,12 +1534,23 @@ internal static class MeetingHudCastVotePatch
     }
 }
 
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.ClearVote))]
+static class ClearVotePatch
+{
+    public static void Postfix(PlayerId voterIdToClear)
+    {
+        SendChatNotePatch.Voted.Remove(voterIdToClear.Value);
+    }
+}
+
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSendChatNote))]
 static class SendChatNotePatch
 {
-    public static bool Prefix()
+    public static readonly HashSet<byte> Voted = [];
+    
+    public static bool Prefix(byte srcPlayerId, ChatNoteTypes noteType)
     {
-        return !Options.DisablePlayerVotedMessage.GetBool();
+        return noteType != ChatNoteTypes.DidVote || Voted.Add(srcPlayerId);
     }
 }
 
@@ -1626,8 +1639,13 @@ internal static class MeetingHudHandleRpcPatch
         {
             case (byte)RpcCalls.QueueOverruleVotes:
             {
-                byte judgePlayerId = reader.ReadByte();
-                byte targetPlayerId = reader.ReadByte();
+                byte judgePlayerId, targetPlayerId;
+                {
+                    MessageReader subReader = MessageReader.Get(reader);
+                    judgePlayerId = subReader.ReadByte();
+                    targetPlayerId = subReader.ReadByte();
+                    subReader.Recycle();
+                }
 
                 PlayerControl judge = judgePlayerId.GetPlayer();
                 PlayerControl target = targetPlayerId.GetPlayer();
