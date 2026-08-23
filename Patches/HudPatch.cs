@@ -1273,13 +1273,29 @@ internal static class TaskPanelBehaviourPatch
                 {
                     byte playerId = player.PlayerId;
 
-                    FinalTextBuilder.Append("\r\n\r\n")
-                        .Append(GetString("PVP.ATK")).Append(": ").Append(SoloPVP.PlayerATK[playerId].ToString("N1"))
-                        .Append("\r\n")
-                        .Append(GetString("PVP.DF")).Append(": ").Append(SoloPVP.PlayerDF[playerId].ToString("N1"))
-                        .Append("\r\n")
-                        .Append(GetString("PVP.RCO")).Append(": ").Append(SoloPVP.PlayerHPReco[playerId].ToString("N1"))
-                        .Append("\r\n").Append("<size=80%>");
+                    FinalTextBuilder.Append('\r');
+                    FinalTextBuilder.Append('\n');
+                    FinalTextBuilder.Append('\r');
+                    FinalTextBuilder.Append('\n');
+                    FinalTextBuilder.Append(GetString("PVP.ATK"));
+                    FinalTextBuilder.Append(':');
+                    FinalTextBuilder.Append(' ');
+                    FinalTextBuilder.Append(SoloPVP.PlayerATK.GetValueOrDefault(playerId).ToString("N1"));
+                    FinalTextBuilder.Append('\r');
+                    FinalTextBuilder.Append('\n');
+                    FinalTextBuilder.Append(GetString("PVP.DF"));
+                    FinalTextBuilder.Append(':');
+                    FinalTextBuilder.Append(' ');
+                    FinalTextBuilder.Append(SoloPVP.PlayerDF.GetValueOrDefault(playerId).ToString("N1"));
+                    FinalTextBuilder.Append('\r');
+                    FinalTextBuilder.Append('\n');
+                    FinalTextBuilder.Append(GetString("PVP.RCO"));
+                    FinalTextBuilder.Append(':');
+                    FinalTextBuilder.Append(' ');
+                    FinalTextBuilder.Append(SoloPVP.PlayerHPReco.GetValueOrDefault(playerId).ToString("N1"));
+                    FinalTextBuilder.Append('\r');
+                    FinalTextBuilder.Append('\n');
+                    FinalTextBuilder.Append("<size=80%>");
 
                     SortedPlayers.Clear();
                     foreach (var key in playerStates.Keys)
