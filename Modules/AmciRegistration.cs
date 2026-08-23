@@ -10,7 +10,7 @@ namespace EHR.Modules;
 /// The matchmaker picks this up automatically and injects a mod filter into
 /// every lobby search, so Find Game exclusively returns EHR lobbies to EHR clients.
 ///
-/// The hosting side is handled by <see cref="HostGamePatch"/>, which appends
+/// The hosting side is handled by <see cref="TryGetModRegistrationGuidPatch"/>, which appends
 /// EHR's GUID to the host packet so Innersloth's servers register the lobby
 /// as modded and remove it from the vanilla matchmaking pool.
 /// </summary>
