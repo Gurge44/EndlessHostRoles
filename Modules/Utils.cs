@@ -3927,10 +3927,10 @@ public static class Utils
                     nums[Options.GameStateInfo.MadmateCount]++;
                 else if (pc.IsNeutralKiller())
                     nums[Options.GameStateInfo.NKCount]++;
-                else if (pc.IsCrewmate())
-                    nums[Options.GameStateInfo.CrewCount]++;
                 else if (pc.Is(Team.Impostor))
                     nums[Options.GameStateInfo.ImpCount]++;
+                else if (pc.Is(Team.Crewmate))
+                    nums[Options.GameStateInfo.CrewCount]++;
                 else if (pc.Is(Team.Neutral))
                     nums[Options.GameStateInfo.NNKCount]++;
                 else if (pc.Is(Team.Coven))

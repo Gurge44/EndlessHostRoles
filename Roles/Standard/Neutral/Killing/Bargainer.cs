@@ -79,8 +79,7 @@ internal class Bargainer : RoleBase
     {
         get
         {
-            var mapName = Main.CurrentMap.ToString();
-            if (SubmergedCompatibility.IsSubmerged()) mapName = "Submerged";
+            var mapName = SubmergedCompatibility.IsSubmerged() ? "Submerged" : Main.LIMap ? "LI" : Main.CurrentMap.ToString();
             return DisableDevice.DevicePos.Where(x => x.Key.StartsWith(mapName)).Select(x => x.Value);
         }
     }
