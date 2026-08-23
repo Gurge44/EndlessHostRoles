@@ -3929,7 +3929,7 @@ public static class Utils
                     nums[Options.GameStateInfo.NKCount]++;
                 else if (pc.Is(Team.Impostor))
                     nums[Options.GameStateInfo.ImpCount]++;
-                else if (pc.IsCrewmate())
+                else if (pc.Is(Team.Crewmate))
                     nums[Options.GameStateInfo.CrewCount]++;
                 else if (pc.Is(Team.Neutral))
                     nums[Options.GameStateInfo.NNKCount]++;
