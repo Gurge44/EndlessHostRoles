@@ -1,8 +1,4 @@
-using System;
-using AmongUs.GameOptions;
 using HarmonyLib;
-using Hazel;
-using InnerNet;
 
 namespace EHR.Modules;
 
@@ -29,7 +25,8 @@ public static class AmciRegistration
     /// <summary>
     /// Writes EHR's GUID into the game's mod registration slot so the matchmaker
     /// can filter lobby searches to EHR lobbies only. 
-    /// Call once from <see cref="Main.Load"/>
+    /// Call once from <see cref="Main.Load"/>.
+    /// The base game code does the rest.
     /// </summary>
     public static void Apply()
     {
@@ -37,33 +34,19 @@ public static class AmciRegistration
         Logger.Info($"AMCI mod GUID registered: {ModGuidString}", nameof(AmciRegistration));
     }
 
-    /// <summary>
-    /// Replaces the standard HostGame packet with the modded variant and appends
-    /// EHR's GUID, so Innersloth's servers register this lobby as a modded EHR
-    /// lobby and remove it from vanilla matchmaking.
-    /// </summary>
-    [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.HostGame))]
-    public static class HostGamePatch
+    // Fixes not being able to host local games when the mod GUID is registered
+    [HarmonyPatch(typeof(CurrentModRegistration), nameof(CurrentModRegistration.TryGetModRegistrationGuid))]
+    public static class TryGetModRegistrationGuidPatch
     {
-        public static bool Prefix(InnerNetClient __instance, IGameOptions settings, GameFilterOptions filterOpts)
+        public static bool Prefix(ref bool __result)
         {
-            if (!Guid.TryParse(ModGuidString, out Guid guid))
+            if (GameStates.IsLocalGame)
             {
-                Logger.Warn("Failed to parse AMCI mod GUID, falling back to standard HostGame", nameof(AmciRegistration));
-                return true;
+                __result = false;
+                return false;
             }
 
-            MessageWriter msg = MessageWriter.Get(SendOption.Reliable);
-            msg.StartMessage(Tags.HostModdedGame);
-            msg.WriteBytesAndSize(__instance.gameOptionsFactory.ToBytes(settings, AprilFoolsMode.IsAprilFoolsModeToggledOn));
-            msg.Write(CrossplayMode.GetCrossplayFlags());
-            filterOpts.Serialize(msg);
-            msg.Write(guid.ToByteArray());
-            msg.EndMessage();
-            __instance.SendOrDisconnect(msg);
-            msg.Recycle();
-
-            return false;
+            return true;
         }
     }
 }
