@@ -3927,7 +3927,7 @@ public static class Utils
                     nums[Options.GameStateInfo.MadmateCount]++;
                 else if (pc.IsNeutralKiller())
                     nums[Options.GameStateInfo.NKCount]++;
-                else if (pc.Is(Team.Impostor))
+                else if (pc.Is(Team.Impostor) || pc.Is(CustomRoles.DoubleAgent))
                     nums[Options.GameStateInfo.ImpCount]++;
                 else if (pc.Is(Team.Crewmate))
                     nums[Options.GameStateInfo.CrewCount]++;
