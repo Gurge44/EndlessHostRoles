@@ -1112,7 +1112,6 @@ internal static class ChatCommands
         if (GMPollGameModes.Contains(CustomGameMode.HideAndSeek)) GMPollGameModes.Add((CustomGameMode)100);
         string gmNames = GMPollGameModes.Join(' ', x => GetString((int)x == 100 ? "HNS.ShiftAndSeek" : x.ToString()).Replace(' ', '_'));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
-        Logger.Info(msg, "debug");
         PollCommand(player, msg, msg.Split(' '));
     }
     

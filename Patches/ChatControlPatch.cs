@@ -24,18 +24,6 @@ static class ChatControllerAwakePatch
     {
         if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == QuickChatModes.QuickChatOnly)
             DataManager.Settings.Multiplayer.ChatMode = QuickChatModes.FreeChatOrQuickChat;
-
-        if (GameSettingMenu.Instance)
-        {
-            FreeChatInputField field = GameSettingMenuPatch.InputField;
-
-            if (field && field.gameObject.activeSelf)
-            {
-                field.background.color = DarkBackgroundColor;
-                field.textArea.compoText.Color(Color.white);
-                field.textArea.outputText.color = Color.white;
-            }
-        }
         
         var chatBubble = __instance.chatBubblePool.Prefab.CastFast<ChatBubble>();
         chatBubble.TextArea.overrideColorTags = false;

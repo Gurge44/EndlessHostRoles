@@ -1159,6 +1159,7 @@ public static class GameSettingMenuPatch
     }
 
     private static readonly System.Collections.Generic.Dictionary<int, GameObject> ExtraObjectsCache = [];
+    private static Coroutine KeepSearchBarDarkThemedCoroutine;
 
     // Thanks: Drakos for the preset button and search bar code (https://github.com/0xDrMoe/TownofHost-Enhanced/pull/1115)
     private static void SetupExtendedUI(GameSettingMenu __instance)
@@ -1370,9 +1371,9 @@ public static class GameSettingMenuPatch
             field.transform.SetParent(parentLeftPanel.parent, false);
             field.gameObject.SetActive(true);
         }
-        else
+        else if (Main.DarkTheme.Value)
         {
-            Main.Instance.StartCoroutine(KeepSearchBarDarkThemed());
+            KeepSearchBarDarkThemedCoroutine ??= Main.Instance.StartCoroutine(KeepSearchBarDarkThemed());
         }
         field.transform.localScale = new(0.3f, 0.59f, 1);
         field.transform.localPosition = new(-0.47f, 2.15f, -5f);
@@ -1450,9 +1451,9 @@ public static class GameSettingMenuPatch
 
         IEnumerator KeepSearchBarDarkThemed()
         {
-            while (InputField)
+            while (true)
             {
-                if (Main.DarkTheme.Value && GameSettingMenu.Instance && InputField.gameObject.activeSelf)
+                if (InputField && GameSettingMenu.Instance && InputField.gameObject.activeSelf)
                 {
                     InputField.background.color = ChatControllerAwakePatch.DarkBackgroundColor;
                     InputField.textArea.compoText.Color(Color.white);
@@ -1461,6 +1462,7 @@ public static class GameSettingMenuPatch
 
                 yield return null;
             }
+            // ReSharper disable once IteratorNeverReturns
         }
     }
 

@@ -1954,7 +1954,7 @@ internal static class CustomRolesHelper
             CustomRoles.Rascal when !pc.IsCrewmate() => false,
             CustomRoles.LazyGuy when pc.GetCustomRole().IsAdditionRole() => false,
             CustomRoles.Stealer when pc.Is(CustomRoles.Vindicator) => false,
-            CustomRoles.Priority when Main.PlayerStates[pc.PlayerId].Role is not CovenBase coven || coven.CanNeverGetNecronomicon => false,
+            CustomRoles.Priority when !Main.PlayerStates.TryGetValue(pc.PlayerId, out PlayerState state) || state.Role is not CovenBase coven || coven.CanNeverGetNecronomicon => false,
             CustomRoles.Bloodlust when !pc.GetCustomRole().IsCrewmate() || pc.GetCustomRole().IsTaskBasedCrewmate() || pc.GetCustomRole() is CustomRoles.Medic => false,
             CustomRoles.Mare when pc.GetCustomRole() is CustomRoles.Inhibitor or CustomRoles.Saboteur or CustomRoles.Swift or CustomRoles.Nemesis or CustomRoles.Sniper or CustomRoles.Fireworker or CustomRoles.Swooper or CustomRoles.Vampire => false,
             CustomRoles.Torch when pc.GetCustomRole() is CustomRoles.Lighter or CustomRoles.Ignitor or CustomRoles.Investigator or CustomRoles.Eclipse or CustomRoles.Decryptor => false,

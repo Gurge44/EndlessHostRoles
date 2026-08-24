@@ -181,7 +181,7 @@ public static class Options
         "TempBan"
     ];
 
-    public static readonly string[] ConfirmEjectionsMode =
+    private static readonly string[] ConfirmEjectionsMode =
     [
         "ConfirmEjections.None",
         "ConfirmEjections.Team",
