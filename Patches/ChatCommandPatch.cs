@@ -859,7 +859,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (!targetState.MainRole.Is(Team.Crewmate) || targetState.MainRole == CustomRoles.GM)
+        if (!targetState.MainRole.Is(Team.Crewmate) || targetState.MainRole is CustomRoles.GM or CustomRoles.Trickster)
         {
             RPC.PlaySoundRPC(player.PlayerId, Sounds.SabotageSound);
             Utils.SendMessage("\n", player.PlayerId, GetString("Imitator.TargetMustBeCrew"), importance: MessageImportance.High);

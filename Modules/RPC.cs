@@ -1453,7 +1453,7 @@ internal static class RPC
 
         SendOption sendOption = SendOption.Reliable;
 
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && Options.CurrentGameMode != CustomGameMode.Standard)
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
             sendOption = SendOption.None;
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, sendOption);
