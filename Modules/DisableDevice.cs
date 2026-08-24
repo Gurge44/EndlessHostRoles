@@ -194,7 +194,7 @@ public class RemoveDisableDevicesPatch
 {
     public static void Postfix()
     {
-        if (Main.LIMap) DisableDevice.AddCustomDevicesPos();
+        if (Main.LIMap) LateTask.New(() => DisableDevice.AddCustomDevicesPos(), 10f, "DisableDevice");
 
         bool rogueForce = Rogue.On && Main.PlayerStates.Values.Any(x => x.Role is Rogue { DisableDevices: true });
         if (!Options.DisableDevices.GetBool() && !rogueForce) return;
