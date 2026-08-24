@@ -106,8 +106,8 @@ internal class Sentry : RoleBase
                 {
                     AdditionalDevicesStrings.None => false,
                     AdditionalDevicesStrings.DoorLog => x.Key.Contains("DoorLog"),
-                    AdditionalDevicesStrings.Binoculars => x.Key.Contains("Camera") && x.Key.Contains("Fungle"),
-                    AdditionalDevicesStrings.DoorLogAndBinoculars => x.Key.Contains("DoorLog") || (x.Key.Contains("Camera") && x.Key.Contains("Fungle")),
+                    AdditionalDevicesStrings.Binoculars => x.Key.Contains("Camera") && x.Key.Contains("Fungle") || x.Key.Contains("Binocular"),
+                    AdditionalDevicesStrings.DoorLogAndBinoculars => x.Key.Contains("DoorLog") || (x.Key.Contains("Camera") && x.Key.Contains("Fungle")) || x.Key.Contains("Binocular"),
                     _ => false
                 };
             }

@@ -6,6 +6,7 @@ using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
+using static EHR.Modules.LevelImposterCompatibility;
 
 namespace EHR;
 
@@ -50,16 +51,20 @@ internal static class DisableDevice
 
         int adminId = 0;
         int cameraId = 0;
+        int binoId = 0;
         int vitalId = 0;
 
-        foreach (var admin in Object.FindObjectsOfType<MapConsole>(true))
+        foreach (var admin in AllAdminTables)
             DevicePos[$"LIAdmin{adminId++}"] = admin.transform.position;
 
-        foreach (var console in Object.FindObjectsOfType<SystemConsole>(true))
-        {
-            if (console.name == "Surv_Panel") DevicePos[$"LICamera{cameraId++}"] = console.transform.position;
-            else if (console.name.Contains("Vital")) DevicePos[$"LIVital{vitalId++}"] = console.transform.position;
-        }
+        foreach (var camera in AllCameraPanels)
+            DevicePos[$"LICamera{cameraId++}"] = camera.transform.position;
+
+        foreach (var bino in AllBinoculars)
+            DevicePos[$"LIBinocular{binoId++}"] = bino.transform.position;
+
+        foreach (var vital in AllVitals)
+            DevicePos[$"LIVital{vitalId++}"] = vital.transform.position;
     }
 
     private static bool DoDisable => Options.DisableDevices.GetBool();
