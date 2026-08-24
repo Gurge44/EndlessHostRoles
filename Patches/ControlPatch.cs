@@ -367,7 +367,7 @@ internal static class ControllerManagerUpdatePatch
             if (isMeeting)
             {
                 if (KeysDown(RpcClearVoteKey))
-                    MeetingHud.Instance.RpcClearVote((byte)AmongUsClient.Instance.ClientId);
+                    MeetingHud.Instance.RpcClearVote(PlayerControl.LocalPlayer.PlayerId);
             }
             else if (!isMeeting && !chatIsOpen)
             {
