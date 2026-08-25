@@ -606,6 +606,7 @@ Click this badge to view our translation project:
 - DoArc (ES)
 - Kurma (ID)
 - Gurge44 (HU)
+- Æ (KO)
 
 # Sponsors
 | <img src="https://cdn.brandfetch.io/idXCVMKbd8/w/180/h/180/theme/dark/logo.png?c=1bxid64Mup7aczewSAYMX&t=1777121415987" alt="SignPath Logo" width="44"/> | Free code signing on Windows provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org) |
