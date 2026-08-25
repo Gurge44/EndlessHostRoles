@@ -18,6 +18,7 @@ Support for Among Us v18.0 (2026. 08. 18.)
 - EHR Judge => Prosecutor
 - Roles with a voting ability can now use the vanilla judging mechanic to trigger their ability! (Game Modifiers > `Use Judge Ability in Meetings to Select Targets Instead of Commands/Votes`)
 - More compatibility with LevelImposter - by Zypherus & Newholiday
+- EHR users can now see public EHR lobbies in the Find Game menu
 
 ## Additions
 - New role: Transposer (Impostor Concealing)

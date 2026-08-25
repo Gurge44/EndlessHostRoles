@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -11,19 +12,20 @@ namespace EHR.Gamemodes;
 internal static class DoomTag
 {
     private static Dictionary<byte, byte> TargetMap = [];
-    private static Dictionary<byte, long> LowerVisionList = [];
+    private static HashSet<byte> LowerVisionList = [];
     private static bool FrenzyMode;
     private static float DefaultSpeed;
 
     public static OptionItem BaseKillCooldown;
     private static OptionItem PunishmentMode;
     private static OptionItem LowerVisionMultiplier;
+    private static OptionItem FreezeDuration;
     private static OptionItem FrenzyPlayerCount;
     private static OptionItem FrenzyKillCooldown;
     private static OptionItem FrenzySpeedMultiplier;
     private static OptionItem ShowTargetArrow;
 
-    private static readonly string[] PunishmentModeOptions = ["DoomTag.PunishSuicide", "DoomTag.PunishLowerVision"];
+    private static readonly string[] PunishmentModeOptions = ["DoomTag.PunishSuicide", "DoomTag.PunishLowerVision", "DoomTag.PunishFreeze"];
 
     public static void SetupCustomOption()
     {
@@ -40,13 +42,25 @@ internal static class DoomTag
 
         PunishmentMode = new StringOptionItem(id++, "DoomTag.PunishmentMode", PunishmentModeOptions, 0, tab)
             .SetGameMode(gameMode)
-            .SetColor(color);
+            .SetColor(color)
+            .RegisterUpdateValueEvent((_, _, newValue) =>
+            {
+                LowerVisionMultiplier.SetHidden(newValue != 1);
+                FreezeDuration.SetHidden(newValue != 2);
+            })
+            .SetRunEventOnLoad(true);
 
-        LowerVisionMultiplier = new FloatOptionItem(id++, "DoomTag.LowerVisionMultiplier", new(0f, 10f, 0.5f), 0.5f, tab)
+        LowerVisionMultiplier = new FloatOptionItem(id++, "DoomTag.LowerVisionMultiplier", new(0f, 10f, 0.5f), 0.25f, tab)
             .SetParent(PunishmentMode)
             .SetGameMode(gameMode)
             .SetColor(color)
             .SetValueFormat(OptionFormat.Multiplier);
+
+        FreezeDuration = new FloatOptionItem(id++, "DoomTag.FreezeDuration", new(0f, 120f, 0.5f), 10f, tab)
+            .SetParent(PunishmentMode)
+            .SetGameMode(gameMode)
+            .SetColor(color)
+            .SetValueFormat(OptionFormat.Seconds);
 
         FrenzyPlayerCount = new IntegerOptionItem(id++, "DoomTag.FrenzyPlayerCount", new(1, 127, 1), 3, tab)
             .SetGameMode(gameMode)
@@ -94,11 +108,11 @@ internal static class DoomTag
 
         TargetMap = [];
 
-        var allPlayers = Main.CachedAlivePlayerControls();
-        if (Main.GM.Value) allPlayers.Remove(PlayerControl.LocalPlayer);
-        allPlayers.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
+        var allPlayers = Main.EnumerateAlivePlayerControls();
+        if (Main.GM.Value) allPlayers = allPlayers.Without(PlayerControl.LocalPlayer);
+        allPlayers = allPlayers.Where(x => !ChatCommands.Spectators.Contains(x.PlayerId));
 
-        List<byte> playerIds = allPlayers.ConvertAll(x => x.PlayerId).Shuffle();
+        List<byte> playerIds = allPlayers.Select(x => x.PlayerId).Shuffle();
 
         if (playerIds.Count < 2)
         {
@@ -115,7 +129,7 @@ internal static class DoomTag
                 TargetMap.Remove(TargetMap.GetKeyByValue(targetId));
             TargetMap[hunterId] = targetId;
             if (ShowTargetArrow.GetBool()) TargetArrow.Add(hunterId, targetId);
-            Logger.Info($"{hunterId.ColoredPlayerName()} 2 targets 2 {targetId.ColoredPlayerName()}", "DoomTag");
+            Logger.Info($"{Main.AllPlayerNames.GetValueOrDefault(hunterId, string.Empty)} targets {Main.AllPlayerNames.GetValueOrDefault(targetId, string.Empty)}", "DoomTag");
         }
 
         SyncTargetMapRPC();
@@ -151,7 +165,7 @@ internal static class DoomTag
                     TargetMap.Remove(TargetMap.GetKeyByValue(nextTarget));
                 TargetMap[killerId] = nextTarget;
                 if (ShowTargetArrow.GetBool()) TargetArrow.Add(killerId, nextTarget);
-                Logger.Info($"{killer.GetRealName()}'s new target is {nextTarget.ColoredPlayerName()}", "DoomTag");
+                Logger.Info($"{killer.GetRealName()}'s new target is {Main.AllPlayerNames.GetValueOrDefault(nextTarget, string.Empty)}", "DoomTag");
             }
             else
             {
@@ -171,7 +185,7 @@ internal static class DoomTag
         }
         else
         {
-            Logger.Info($"{killer.GetRealName()} killed wrong target {target.GetRealName()} (expected: {expectedTarget.ColoredPlayerName()})", "DoomTag");
+            Logger.Info($"{killer.GetRealName()} killed wrong target {target.GetRealName()} (expected: {Main.AllPlayerNames.GetValueOrDefault(expectedTarget, string.Empty)})", "DoomTag");
 
             if (PunishmentMode.GetInt() == 0)
                 killer.Kill(target);
@@ -206,9 +220,22 @@ internal static class DoomTag
 
             case 1:
                 float visionMultiplier = LowerVisionMultiplier.GetFloat();
-                LowerVisionList[killer.PlayerId] = Utils.TimeStamp;
+                LowerVisionList.Add(killer.PlayerId);
                 killer.MarkDirtySettings();
                 killer.Notify(string.Format(GetString("DoomTag.WrongKillLowerVision"), visionMultiplier));
+                break;
+            
+            case 2:
+                Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;
+                killer.MarkDirtySettings();
+                float time = FreezeDuration.GetFloat();
+                killer.Notify(GetString("DoomTag.WrongKillFreeze"), time - 1f);
+                LateTask.New(() =>
+                {
+                    if (!killer || !killer.IsAlive() || GameStates.IsEnded) return;
+                    Main.AllPlayerSpeed[killer.PlayerId] = DefaultSpeed;
+                    killer.MarkDirtySettings();
+                }, time);
                 break;
         }
     }
@@ -216,32 +243,36 @@ internal static class DoomTag
     private static void HandleDeadPlayer(byte deadPlayerId)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (!TargetMap.Remove(deadPlayerId)) return;
 
         byte hunterId = TargetMap.GetKeyByValue(deadPlayerId, byte.MaxValue);
         byte nextTarget = GetTarget(deadPlayerId);
 
+        TargetMap.Remove(deadPlayerId);
+
         TargetArrow.RemoveAllTarget(deadPlayerId);
         LowerVisionList.Remove(deadPlayerId);
 
-        if (hunterId != byte.MaxValue && nextTarget != byte.MaxValue && nextTarget != hunterId)
+        if (hunterId != byte.MaxValue)
         {
             TargetArrow.RemoveAllTarget(hunterId);
-            if (TargetMap.ContainsValue(nextTarget))
-                TargetMap.Remove(TargetMap.GetKeyByValue(nextTarget));
-            TargetMap[hunterId] = nextTarget;
-            if (ShowTargetArrow.GetBool()) TargetArrow.Add(hunterId, nextTarget);
 
-            LateTask.New(() =>
+            if (nextTarget != byte.MaxValue && nextTarget != hunterId && Main.PlayerStates.TryGetValue(nextTarget, out var state) && !state.IsDead)
             {
-                PlayerControl hunter = Utils.GetPlayerById(hunterId);
-                if (hunter) Utils.NotifyRoles(SpecifySeer: hunter, SpecifyTarget: hunter);
-            }, 0.3f);
-        }
-        else if (hunterId != byte.MaxValue)
-        {
-            TargetMap.Remove(hunterId);
-            TargetArrow.RemoveAllTarget(hunterId);
+                if (TargetMap.ContainsValue(nextTarget))
+                    TargetMap.Remove(TargetMap.GetKeyByValue(nextTarget));
+                TargetMap[hunterId] = nextTarget;
+                if (ShowTargetArrow.GetBool()) TargetArrow.Add(hunterId, nextTarget);
+
+                LateTask.New(() =>
+                {
+                    PlayerControl hunter = Utils.GetPlayerById(hunterId);
+                    if (hunter) Utils.NotifyRoles(SpecifySeer: hunter, SpecifyTarget: hunter);
+                }, 0.3f);
+            }
+            else
+            {
+                TargetMap.Remove(hunterId);
+            }
         }
 
         CheckFrenzyMode();
@@ -370,7 +401,7 @@ internal static class DoomTag
         try { AURoleOptions.GuardianAngelCooldown = 900f; }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        if (LowerVisionList.ContainsKey(playerId))
+        if (LowerVisionList.Contains(playerId))
         {
             float vision = LowerVisionMultiplier.GetFloat();
             opt.SetVision(false);
