@@ -204,12 +204,12 @@ public class CustomLogger
           <style>
               body { font-family: Arial, sans-serif; background-color: #1e1e1e; color: #aaaaaa; margin: 0; padding: 1rem; font-family: "Roboto Mono", "Consolas", "Courier New", monospace; }
               .log-entry-unity { margin: 0; padding: 0; border-radius: 5px; letter-spacing: 0.1rem; background-color: transparent; }
-              .info-unity { font-size: 0.8rem; color: #777777; }
+              .info-unity { font-size: 0.8rem; color: gray; }
               .warning-unity { color: #ffff99; }
               .error-unity { color: red; border-radius: 10px; margin: 1rem; }
               .fatal-unity { background: linear-gradient(to bottom, #ff9999, #cc0000); color: black; border: 3px solid yellow; border-radius: 15px; padding: 1rem; }
-              .debug-unity { color: gray; font-size: 0.8rem; }
-              .message-unity { font-size: 0.8rem; }
+              .debug-unity { color: black; font-size: 0.8rem; }
+              .message-unity { font-size: 0.8rem; color: gray; }
               .log-entry { margin: 0; padding: 0; border-radius: 5px; letter-spacing: 0.1rem; }
               .info { background-color: transparent; }
               .warning { background-color: #ffff44; color: black; }
