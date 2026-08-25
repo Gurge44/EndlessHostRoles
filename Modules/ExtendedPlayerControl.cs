@@ -811,6 +811,8 @@ internal static class ExtendedPlayerControl
         public void KillFlash()
         {
             if (GameStates.IsLobby || !player) return;
+            
+            Logger.Info($"Showing kill flash for {player.GetNameWithRole()}", "KillFlash");
 
             // Kill flash (blackout + reactor flash) processing
 
@@ -830,6 +832,7 @@ internal static class ExtendedPlayerControl
             if (reactorCheck && !player.IsModdedClient())
             {
                 Main.PlayerStates[player.PlayerId].IsBlackOut = true; // Blackout
+                player.MarkDirtySettings();
 
                 LateTask.New(() =>
                 {
@@ -849,8 +852,6 @@ internal static class ExtendedPlayerControl
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
             else if (!reactorCheck) player.ReactorFlash(canBlind: false); // Reactor flash
-
-            player.MarkDirtySettings();
         }
 
         public void RpcGuardAndKill(PlayerControl target = null, bool forObserver = false, bool fromSetKCD = false)
@@ -1072,7 +1073,7 @@ internal static class ExtendedPlayerControl
             Due to the addition of logs, it is no longer possible to guard no one, so it has been changed to the player guarding themselves for 0 seconds instead.
             This change disables Guardian Angel as a position.
             Reset host cooldown directly.
-        */
+            */
         }
 
         public void RpcDesyncUpdateSystem(SystemTypes systemType, int amount)
@@ -1082,6 +1083,7 @@ internal static class ExtendedPlayerControl
             messageWriter.WriteNetObject(player);
             messageWriter.Write((byte)amount);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+            Logger.Info($"SystemTypes: {systemType}, amount: {amount}", "RpcDesyncUpdateSystem");
         }
 
         public void MarkDirtySettings()

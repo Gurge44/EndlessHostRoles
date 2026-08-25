@@ -346,8 +346,6 @@ public static class Utils
 
     private static void TargetDies(PlayerControl killer, PlayerControl target)
     {
-        if (target.IsAlive() || GameStates.IsMeeting) return;
-
         CustomRoles targetRole = target.GetCustomRole();
 
         foreach (PlayerControl seer in Main.CachedAllPlayerControls())
