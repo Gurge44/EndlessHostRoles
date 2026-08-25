@@ -1923,6 +1923,7 @@ internal static class ExtendedPlayerControl
 
         public void RpcExiled()
         {
+            if (!AmongUsClient.Instance.AmHost) return;
             player.Exiled();
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.Reliable);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1930,6 +1931,7 @@ internal static class ExtendedPlayerControl
 
         public void RpcExileV2()
         {
+            if (!AmongUsClient.Instance.AmHost) return;
             player.RpcExiled();
             FixedUpdatePatch.LoversSuicide(player.PlayerId);
         }

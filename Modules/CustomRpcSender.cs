@@ -875,6 +875,7 @@ public static class CustomRpcSenderExtensions
 
         public bool RpcExiled(PlayerControl target, bool autoStartRpc = true, int targetClientId = -1, bool exileForHost = true)
         {
+            if (!AmongUsClient.Instance.AmHost) return false;
             if (exileForHost) target.Exiled();
             if (autoStartRpc) sender.AutoStartRpc(target.NetId, RpcCalls.Exiled, targetClientId).EndRpc();
             else sender.StartRpc(target.NetId, RpcCalls.Exiled).EndRpc();
@@ -883,6 +884,7 @@ public static class CustomRpcSenderExtensions
 
         public bool RpcExileV2(PlayerControl target, bool autoStartRpc = true, int targetClientId = -1, bool exileForHost = true)
         {
+            if (!AmongUsClient.Instance.AmHost) return false;
             sender.RpcExiled(target, autoStartRpc, targetClientId, exileForHost);
             FixedUpdatePatch.LoversSuicide(target.PlayerId);
             return true;
