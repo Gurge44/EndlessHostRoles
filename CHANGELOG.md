@@ -32,10 +32,9 @@ Support for Among Us v18.0 (2026. 08. 18.)
 
 Thanks to TommyXL for fixing the build errors after the update!
 
-> [!WARNING]
-> If you're joining a lobby hosted on vanilla regions (NA/EU/AS), please make sure you have a vanilla region selected in the Create Game menu, otherwise authentication will fail.
+I know this release is very, very late, but I wanted to actually support the new update, not just a Band-Aid fire extinguish. Hope you enjoy still!
 
 > [!TIP]
-> **Play on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA) for an overall better experience. Mobile and PC users can install them [from my website](https://ehr.gurge44.eu/regions).
+> **Play on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA/AOU-EU) for an overall better experience. Mobile and PC users can install them [from my website](https://ehr.gurge44.eu/regions).
 
 ---

@@ -208,8 +208,13 @@ public class Jackal : RoleBase
             PlayerControl sk = SidekickId.GetPlayer();
             if (!sk || !sk.Is(CustomRoles.Sidekick)) return;
 
-            sk.RpcSetCustomRole(CustomRoles.Jackal);
-            if (!PromotedSKCanRecruit.GetBool()) sk.SetAbilityUseLimit(0);
+            GameEndChecker.ShouldNotCheck = true;
+            try
+            {
+                sk.RpcSetCustomRole(CustomRoles.Jackal);
+                if (!PromotedSKCanRecruit.GetBool()) sk.SetAbilityUseLimit(0);
+            }
+            finally { GameEndChecker.ShouldNotCheck = false; }
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -219,7 +224,7 @@ public class Jackal : RoleBase
         Instances.ForEach(x =>
         {
             var pc = x.JackalId.GetPlayer();
-            if (!pc || pc.IsAlive()) return;
+            if (pc && pc.IsAlive()) return;
             
             x.PromoteSidekick();
         });
