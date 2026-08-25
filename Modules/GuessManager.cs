@@ -294,7 +294,7 @@ public static class GuessManager
                         case CustomRoles.Specter:
                             ShowMessage("GuessPhantom");
                             return true;
-                        case CustomRoles.Snitch when pc.IsSnitchTarget() && target.GetTaskState().RemainingTasksCount <= Snitch.RemainingTasksToBeFound:
+                        case CustomRoles.Snitch when target.Is(CustomRoles.Snitch) && pc.IsSnitchTarget() && target.GetTaskState().RemainingTasksCount <= Snitch.RemainingTasksToBeFound:
                             ShowMessage("EGGuessSnitchTaskDone");
                             return true;
                         case CustomRoles.Merchant when Merchant.IsBribedKiller(pc, target):
