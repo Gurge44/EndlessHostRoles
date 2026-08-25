@@ -5072,7 +5072,7 @@ public static class Utils
             {
                 name = "AOU-";
 
-                for (var i = 0; i < ip.Length; i++)
+                for (var i = 8; i < ip.Length; i++)
                 {
                     char c = ip[i];
                     if (c == '.') break;
