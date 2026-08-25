@@ -415,7 +415,7 @@ internal static class ChatCommands
         if (!Starspawn.IsDayBreak)
         {
             if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-            if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Prosecutor.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Swapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Inspector.InspectorCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -3513,7 +3513,7 @@ internal static class ChatCommands
         if (!Starspawn.IsDayBreak)
         {
             if (GuessManager.GuesserMsg(player, text) ||
-                Judge.TrialMsg(player, text) ||
+                Prosecutor.TrialMsg(player, text) ||
                 Swapper.SwapMsg(player, text) ||
                 Inspector.InspectorCheckMsg(player, text) ||
                 Councillor.MurderMsg(player, text))

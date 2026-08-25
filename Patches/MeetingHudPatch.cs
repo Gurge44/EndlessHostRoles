@@ -1218,7 +1218,7 @@ internal static class MeetingHudStartPatch
 
         GuessManager.StartMeetingPatch.Postfix(__instance);
         Inspector.StartMeetingPatch.Postfix(__instance);
-        Judge.StartMeetingPatch.Postfix(__instance);
+        Prosecutor.StartMeetingPatch.Postfix(__instance);
         Swapper.StartMeetingPatch.Postfix(__instance);
         Councillor.StartMeetingPatch.Postfix(__instance);
         Nemesis.StartMeetingPatch.Postfix(__instance);

@@ -1103,7 +1103,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.Judge:
                 {
-                    Judge.ReceiveRPC(reader, __instance);
+                    Prosecutor.ReceiveRPC(reader, __instance);
                     break;
                 }
                 case CustomRPC.MeetingKill:
