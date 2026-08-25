@@ -303,7 +303,7 @@ internal class AntiAdminer : RoleBase
                     {
                         foreach (var (key, position) in DisableDevice.DevicePos)
                         {
-                            if (!key.StartsWith("LIVital") && !key.StartsWith("LIAdmin") && !key.StartsWith("LICamera")) continue;
+                            if (!key.StartsWith("LI")) continue;
 
                             if (FastVector2.DistanceWithinRange(playerPos, position, usableDistance))
                             {
@@ -317,7 +317,7 @@ internal class AntiAdminer : RoleBase
                                     admin = true;
                                     AddDeviceUse(playerId, Device.Admin);
                                 }
-                                else if (key.StartsWith("LICamera"))
+                                else if (key.StartsWith("LICamera") || key.StartsWith("LIBinocular"))
                                 {
                                     camera = true;
                                     AddDeviceUse(playerId, Device.Camera);

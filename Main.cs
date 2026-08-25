@@ -1006,6 +1006,9 @@ public class Main : BasePlugin
             try { SubmergedCompatibility.Initialize(); }
             catch (Exception e) { Utils.ThrowException(e); }
 
+            try { LevelImposterCompatibility.Init(); }
+            catch (Exception e) { Utils.ThrowException(e); }
+
             try { HandleRoleColorFiles(); }
             catch (Exception e) { Utils.ThrowException(e); }
 
