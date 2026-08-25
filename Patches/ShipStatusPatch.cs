@@ -182,7 +182,7 @@ internal static class UpdateSystemPatch
             }
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
             {
-                var sabotageSystemType = SabotageSystemTypeUpdateSystemPatch.Instance ?? __instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>();
+                var sabotageSystemType = __instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>();
                 return SabotageSystemTypeUpdateSystemPatch.CheckSabotage(sabotageSystemType, player, systemType);
             }
             case SystemTypes.Security when amount == 1:
