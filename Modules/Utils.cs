@@ -4172,7 +4172,7 @@ public static class Utils
                     {
                         LateTask.New(() =>
                         {
-                            if (GameStates.IsEnded) return;
+                            if (GameStates.IsEnded || !pc || !pc.IsAlive() || Main.Invisible.Contains(pc.PlayerId)) return;
                             string petId = PetsHelper.GetPetId();
                             PetsHelper.SetPet(pc, petId);
                             pc.Data.DefaultOutfit.PetSequenceId += 10;

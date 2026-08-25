@@ -1373,6 +1373,14 @@ internal static class MeetingHudOnDestroyPatch
         {
             GameEndChecker.ShouldNotCheck = true;
             LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 15f, "Re-enable GameEndChecker after meeting");
+
+            try
+            {
+                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    if (pc.Is(CustomRoles.Evader))
+                        pc.RpcMakeInvisible();
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
             
             bool meetingSS = Options.UseMeetingShapeshift.GetBool();
             bool meetingSSForGuessing = Options.UseMeetingShapeshiftForGuessing.GetBool();
