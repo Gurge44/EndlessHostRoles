@@ -114,6 +114,9 @@ public class Judge : RoleBase
                 {
                     Logger.Info($"{pc.GetNameWithRole()} trialed {target.GetNameWithRole()}", "Judge");
                     bool judgeSuicide;
+                    
+                    MeetingUseLimit.TryAdd(pc.PlayerId, TrialLimitPerMeeting.GetInt());
+                    TotalUseLimit.TryAdd(pc.PlayerId, TrialLimitPerGame.GetInt());
 
                     if (pc.GetAbilityUseLimit() < 1 || MeetingUseLimit[pc.PlayerId] < 1 || TotalUseLimit[pc.PlayerId] < 1)
                     {
