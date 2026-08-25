@@ -276,6 +276,7 @@ internal class Bargainer : RoleBase
 
     private void CycleItem(PlayerControl pc)
     {
+        if (!InShop) return;
         List<Item> list = OrderedItems.ToList();
         SelectedItem = list[(list.IndexOf(SelectedItem) + 1) % list.Count];
         Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 2, (int)SelectedItem);

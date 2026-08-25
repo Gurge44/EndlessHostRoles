@@ -332,17 +332,17 @@ internal static class EffectExtenstions
 
                         break;
                     case Effect.AllDoorsOpen:
-                        try { DoorsReset.OpenAllDoors(); }
+                        try { DoorsReset.SetDoors(DoorsReset.ResetMode.AllOpen); }
                         catch { }
 
                         break;
                     case Effect.AllDoorsClose:
-                        try { DoorsReset.CloseAllDoors(); }
+                        try { DoorsReset.SetDoors(DoorsReset.ResetMode.AllClosed); }
                         catch { }
 
                         break;
                     case Effect.SetDoorsRandomly:
-                        try { DoorsReset.OpenOrCloseAllDoorsRandomly(); }
+                        try { DoorsReset.SetDoors(DoorsReset.ResetMode.RandomByDoor); }
                         catch { }
 
                         break;

@@ -401,7 +401,7 @@ internal class AntiAdminer : RoleBase
         if (pc.GetAbilityUseLimit() >= 1)
         {
             pc.RpcRemoveAbilityUse();
-            DoorsReset.OpenAllDoors();
+            DoorsReset.SetDoors(DoorsReset.ResetMode.AllOpen);
         }
         else
             pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));

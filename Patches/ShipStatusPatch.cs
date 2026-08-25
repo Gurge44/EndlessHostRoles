@@ -182,22 +182,8 @@ internal static class UpdateSystemPatch
             }
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
             {
-                bool allowed = SabotageSystemTypeUpdateSystemPatch.CheckSabotage(__instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>(), player, systemType);
-
-                if (allowed)
-                {
-                    List<PlayerControl> pcs = Main.CachedAlivePlayerControls();
-
-                    for (var index = 0; index < pcs.Count; index++)
-                    {
-                        PlayerControl pc = pcs[index];
-                        
-                        if (pc.Is(CustomRoles.Evader))
-                            pc.RpcMakeInvisible();
-                    }
-                }
-
-                return allowed;
+                var sabotageSystemType = SabotageSystemTypeUpdateSystemPatch.Instance ?? __instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>();
+                return SabotageSystemTypeUpdateSystemPatch.CheckSabotage(sabotageSystemType, player, systemType);
             }
             case SystemTypes.Security when amount == 1:
             {
@@ -255,20 +241,24 @@ internal static class UpdateSystemPatch
             {
                 PlayerControl pc = pcs[index];
 
-                switch (pc.GetCustomRole())
+                try
                 {
-                    case CustomRoles.Wiper:
+                    switch (pc.GetCustomRole())
                     {
-                        if (petcd) pc.AddAbilityCD();
-                        else pc.RpcResetAbilityCooldown();
-                        break;
-                    }
-                    case CustomRoles.Evader:
-                    {
-                        pc.RpcMakeVisible();
-                        break;
+                        case CustomRoles.Wiper:
+                        {
+                            if (petcd) pc.AddAbilityCD();
+                            else pc.RpcResetAbilityCooldown();
+                            break;
+                        }
+                        case CustomRoles.Evader:
+                        {
+                            pc.RpcMakeVisible();
+                            break;
+                        }
                     }
                 }
+                catch (Exception e) { Utils.ThrowException(e); }
             }
         }
     }

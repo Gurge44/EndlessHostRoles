@@ -75,6 +75,8 @@ public class Transposer : RoleBase
 
                 try
                 {
+                    Main.CheckShapeshift[firstTargetId] = true;
+                    Main.CheckShapeshift[target.PlayerId] = true;
                     firstTarget.Shapeshift(target, false);
                     target.Shapeshift(firstTarget, false);
                 }

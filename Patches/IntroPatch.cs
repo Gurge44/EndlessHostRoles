@@ -1468,5 +1468,7 @@ internal static class IntroCutsceneDestroyPatch
         }, 4f, "Airship Spawn FailSafe");
 
         MatchInfoHudButton.defaultDistanceFromEdge = MatchInfoHudButton.adjustedDistanceFromEdge;
+        
+        ExtendedPlayerControl.NameWithRoleCache.Clear();
     }
 }

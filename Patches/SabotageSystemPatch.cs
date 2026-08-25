@@ -425,28 +425,61 @@ public static class SabotageSystemTypeUpdateSystemPatch
             newReader.Recycle();
         }
 
-        if (SubmergedCompatibility.IsSubmerged()) return CheckSabotage(__instance, player, systemTypes);
-
-        if (Options.EnableCustomSabotages.GetBool())
+        if (!SubmergedCompatibility.IsSubmerged() && Options.EnableCustomSabotages.GetBool() && Options.EnableGrabOxygenMaskCustomSabotage.GetBool() && systemTypes == SystemTypes.Comms)
         {
-            if (Options.EnableGrabOxygenMaskCustomSabotage.GetBool() && systemTypes == SystemTypes.Comms)
+            if (!SabotageDoubleTrigger.WaitingForDoubleTrigger)
             {
-                if (!SabotageDoubleTrigger.WaitingForDoubleTrigger)
+                SabotageDoubleTrigger.SetUp(player, () =>
                 {
-                    SabotageDoubleTrigger.SetUp(player, () =>
-                    {
-                        new GrabOxygenMaskSabotage().Deteriorate();
-                        __instance.Timer = IsCooldownModificationEnabled ? ModifiedCooldownSec : 30f;
-                        __instance.IsDirty = true;
-                    });
-                    return false;
-                }
-
-                SabotageDoubleTrigger.Reset();
+                    new GrabOxygenMaskSabotage().Deteriorate();
+                    __instance.Timer = IsCooldownModificationEnabled ? ModifiedCooldownSec : 30f;
+                    __instance.IsDirty = true;
+                });
+                return false;
             }
+
+            SabotageDoubleTrigger.Reset();
         }
 
-        return CheckSabotage(__instance, player, systemTypes);
+        bool allowed = CheckSabotage(__instance, player, systemTypes);
+        
+        if (allowed)
+        {
+            var pcs = Main.CachedAlivePlayerControls();
+
+            for (var index = 0; index < pcs.Count; index++)
+            {
+                PlayerControl pc = pcs[index];
+
+                try
+                {
+                    switch (pc.GetCustomRole())
+                    {
+                        case CustomRoles.Evader:
+                            pc.RpcMakeInvisible();
+                            break;
+                        case CustomRoles.Sensor when pc.GetAbilityUseLimit() >= 1f:
+                            pc.RpcRemoveAbilityUse();
+                            TargetArrow.Add(pc.PlayerId, player.PlayerId);
+                            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                            LateTask.New(() =>
+                            {
+                                TargetArrow.Remove(pc.PlayerId, player.PlayerId);
+                                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                            }, Sensor.ArrowDuration.GetInt(), "Sensor Arrow");
+                            break;
+                    }
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+            }
+            
+            if (QuizMaster.On) QuizMaster.Data.NumSabotages++;
+
+            if (Main.CurrentMap == MapNames.Skeld)
+                LateTask.New(() => DoorsReset.SetDoors(DoorsReset.ResetMode.AllOpen), 1f, "Opening All Doors On Sabotage (Skeld)");
+        }
+        
+        return allowed;
     }
 
     public static bool CheckSabotage(SabotageSystemType __instance, PlayerControl player, SystemTypes systemTypes)
@@ -501,29 +534,6 @@ public static class SabotageSystemTypeUpdateSystemPatch
         {
             player.Notify(Translator.GetString("TraineeNotify"));
             allow = false;
-        }
-
-        if (allow)
-        {
-            if (QuizMaster.On) QuizMaster.Data.NumSabotages++;
-
-            if (Main.CurrentMap == MapNames.Skeld)
-                LateTask.New(DoorsReset.OpenAllDoors, 1f, "Opening All Doors On Sabotage (Skeld)");
-
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
-            {
-                if (pc.Is(CustomRoles.Sensor) && pc.GetAbilityUseLimit() >= 1f)
-                {
-                    pc.RpcRemoveAbilityUse();
-                    TargetArrow.Add(pc.PlayerId, player.PlayerId);
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                    LateTask.New(() =>
-                    {
-                        TargetArrow.Remove(pc.PlayerId, player.PlayerId);
-                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                    }, Sensor.ArrowDuration.GetInt(), "Sensor Arrow");
-                }
-            }
         }
 
         return allow;
