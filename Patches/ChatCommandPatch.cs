@@ -1321,10 +1321,14 @@ internal static class ChatCommands
             if (pc == null) return;
 
             if (ForcedSpectators.Remove(targetId))
+            {
                 Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("SpectateCommand.RemovedForcedSpectator"), targetId.ColoredPlayerName()));
+                return;
+            }
 
             if (ForcedSpectators.Add(targetId))
                 Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("SpectateCommand.ForcedSpectator"), targetId.ColoredPlayerName()));
+            
             return;
         }
 

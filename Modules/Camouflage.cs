@@ -209,7 +209,7 @@ public static class Camouflage
         }
 
         // if the current Outfit is the same, return
-        if (newOutfit.Compare(target.Data.DefaultOutfit))
+        if (IsCamouflage && newOutfit.Compare(target.Data.DefaultOutfit))
         {
             Logger.Info("Outfit is the same, returning", "Camouflage.RpcSetSkin");
             return;

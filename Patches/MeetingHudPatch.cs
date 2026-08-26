@@ -22,6 +22,7 @@ internal static class CheckForEndVotingPatch
     public static string EjectionText = string.Empty;
     public static NetworkedPlayerInfo TempExiledPlayer;
     public static bool ShouldSkip;
+    public static bool CommsWasCalled;
 
     private static readonly List<MeetingHud.VoterState> StatesList = [];
     private static MeetingHud.VoterState[] States = [];
@@ -1074,6 +1075,13 @@ internal static class MeetingHudStartPatch
                 {
                     if (!MeetingHud.Instance || MeetingHud.Instance.state is MeetingHud.MeetingStates.Results or MeetingHud.MeetingStates.Proceeding) return;
 
+                    if (Utils.IsActive(SystemTypes.Comms))
+                    {
+                        CheckForEndVotingPatch.CommsWasCalled = true;
+                        if (Main.NormalOptions.MapId is 1 or 5) ShipStatus.Instance.UpdateSystem(SystemTypes.Comms, PlayerControl.LocalPlayer, 17);
+                        ShipStatus.Instance.UpdateSystem(SystemTypes.Comms, PlayerControl.LocalPlayer, 16);
+                    }
+
                     Main.EnumerateAlivePlayerControls().DoIf(x => x.UsesJudgeAbilityAsTrigger(), x => x.RpcSetRoleDesync(RoleTypes.Judge, x.OwnerId));
                 }, 1f, "Set Shapeshifter Role For Meeting Use");
             }
@@ -1381,6 +1389,16 @@ internal static class MeetingHudOnDestroyPatch
                         pc.RpcMakeInvisible();
             }
             catch (Exception e) { Utils.ThrowException(e); }
+
+            try
+            {
+                if (CheckForEndVotingPatch.CommsWasCalled)
+                {
+                    CheckForEndVotingPatch.CommsWasCalled = false;
+                    ShipStatus.Instance.UpdateSystem(SystemTypes.Comms, PlayerControl.LocalPlayer, 128);
+                }
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
             
             bool meetingSS = Options.UseMeetingShapeshift.GetBool();
             bool meetingSSForGuessing = Options.UseMeetingShapeshiftForGuessing.GetBool();
@@ -1590,6 +1608,34 @@ static class MeetingHud_Start
             playerMaterialColors.color = new Color(0.25f, 0.25f, 0.25f);
             PlayerMaterial.SetColors(7, playerMaterialColors);
         }
+    }
+}
+
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CmdQueueOverruleVotes))]
+static class MeetingHudCmdQueueOverruleVotesPatch
+{
+    public static bool Prefix(MeetingHud __instance, [HarmonyArgument(1)] PlayerId targetPlayerId)
+    {
+        if (!AmongUsClient.Instance.AmHost) return true;
+
+        PlayerControl target = targetPlayerId.Value.GetPlayer();
+
+        if (target && PlayerControl.LocalPlayer.UsesJudgeAbilityAsTrigger() && Main.PlayerStates.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out PlayerState state))
+        {
+            state.Role.OnJudge(PlayerControl.LocalPlayer, target);
+
+            if (__instance.playerStates.FindFirst(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId, out PlayerVoteArea pva))
+            {
+                pva.UnsetVote();
+                __instance.RpcClearVote(pva.PlayerId);
+                __instance.UpdateForeground();
+                pva.VotedForId = byte.MaxValue;
+            }
+                    
+            return false;
+        }
+
+        return true;
     }
 }
 

@@ -223,7 +223,58 @@ jobs:
           path: ./EHR*.zip
 
   # ---------------------------------------------------------
-  # 5) Create GitHub Release
+  # 5) Upload releases to CurseForge
+  # ---------------------------------------------------------
+  publish-curseforge:
+    runs-on: ubuntu-latest
+    needs: [package]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download packaged ZIPs
+        uses: actions/download-artifact@v4
+        with:
+          name: final-zips
+          path: release-artifacts
+
+      - name: Read changelog
+        id: changelog
+        run: |
+          {
+            echo 'content<<EOF'
+            cat CHANGELOG.md
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload Epic / Microsoft Store build to CurseForge
+        uses: itsmeow/curseforge-upload@v3
+        with:
+          token: ${{ secrets.CURSEFORGE_API_TOKEN }}
+          project_id: ${{ secrets.CURSEFORGE_PROJECT_ID }}
+          game_endpoint: among-us
+          file_path: release-artifacts/EHR.v${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip
+          display_name: EHR v${{ github.event.inputs.version }} (x64 - Epic/MS Store)
+          release_type: release
+          changelog_type: markdown
+          changelog: ${{ steps.changelog.outputs.content }}
+          game_versions: "18.0.0"
+
+      - name: Upload Steam build to CurseForge
+        uses: itsmeow/curseforge-upload@v3
+        with:
+          token: ${{ secrets.CURSEFORGE_API_TOKEN }}
+          project_id: ${{ secrets.CURSEFORGE_PROJECT_ID }}
+          game_endpoint: among-us
+          file_path: release-artifacts/EHR.v${{ github.event.inputs.version }}_Steam.zip
+          display_name: EHR v${{ github.event.inputs.version }} (x86 - Steam)
+          release_type: release
+          changelog_type: markdown
+          changelog: ${{ steps.changelog.outputs.content }}
+          game_versions: "18.0.0"
+
+  # ---------------------------------------------------------
+  # 6) Create GitHub Release
   # ---------------------------------------------------------
   release:
     runs-on: ubuntu-latest

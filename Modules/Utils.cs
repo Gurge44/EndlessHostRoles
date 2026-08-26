@@ -280,46 +280,46 @@ public static class Utils
             switch (type)
             {
                 case SystemTypes.Electrical:
-                    {
-                        if (mapId == 5) return false;
-                        return ShipStatusSystem.SwitchSystem != null && ShipStatusSystem.SwitchSystem.IsActive;
-                    }
+                {
+                    if (mapId == 5) return false;
+                    return ShipStatusSystem.SwitchSystem != null && ShipStatusSystem.SwitchSystem.IsActive;
+                }
                 case SystemTypes.Reactor:
+                {
+                    return mapId switch
                     {
-                        return mapId switch
-                        {
-                            2 => false,
-                            4 => ShipStatusSystem.HeliSabotageSystem && ShipStatusSystem.HeliSabotageSystem.IsActive,
-                            _ => ShipStatusSystem.ReactorSystemType != null && ShipStatusSystem.ReactorSystemType.IsActive
-                        };
-                    }
+                        2 => false,
+                        4 => ShipStatusSystem.HeliSabotageSystem && ShipStatusSystem.HeliSabotageSystem.IsActive,
+                        _ => ShipStatusSystem.ReactorSystemType != null && ShipStatusSystem.ReactorSystemType.IsActive
+                    };
+                }
                 case SystemTypes.Laboratory:
-                    {
-                        if (mapId != 2) return false;
-                        return ShipStatusSystem.ReactorSystemType != null && ShipStatusSystem.ReactorSystemType.IsActive;
-                    }
+                {
+                    if (mapId != 2) return false;
+                    return ShipStatusSystem.ReactorSystemType != null && ShipStatusSystem.ReactorSystemType.IsActive;
+                }
                 case SystemTypes.LifeSupp:
-                    {
-                        if (mapId is 2 or 4 or 5) return false;
-                        return ShipStatusSystem.LifeSuppSystemType != null && ShipStatusSystem.LifeSuppSystemType.IsActive;
-                    }
+                {
+                    if (mapId is 2 or 4 or 5) return false;
+                    return ShipStatusSystem.LifeSuppSystemType != null && ShipStatusSystem.LifeSuppSystemType.IsActive;
+                }
                 case SystemTypes.Comms:
-                    {
-                        if (mapId is 1 or 5)
-                            return ShipStatusSystem.HqHudSystemType != null && ShipStatusSystem.HqHudSystemType.IsActive;
+                {
+                    if (mapId is 1 or 5)
+                        return ShipStatusSystem.HqHudSystemType != null && ShipStatusSystem.HqHudSystemType.IsActive;
 
-                        return ShipStatusSystem.HudOverrideSystemType != null && ShipStatusSystem.HudOverrideSystemType.IsActive;
-                    }
+                    return ShipStatusSystem.HudOverrideSystemType != null && ShipStatusSystem.HudOverrideSystemType.IsActive;
+                }
                 case SystemTypes.HeliSabotage:
-                    {
-                        if (mapId != 4) return false;
-                        return ShipStatusSystem.HeliSabotageSystem && ShipStatusSystem.HeliSabotageSystem.IsActive;
-                    }
+                {
+                    if (mapId != 4) return false;
+                    return ShipStatusSystem.HeliSabotageSystem && ShipStatusSystem.HeliSabotageSystem.IsActive;
+                }
                 case SystemTypes.MushroomMixupSabotage:
-                    {
-                        if (mapId != 5) return false;
-                        return ShipStatusSystem.MushroomMixupSabotageSystem && ShipStatusSystem.MushroomMixupSabotageSystem.IsActive;
-                    }
+                {
+                    if (mapId != 5) return false;
+                    return ShipStatusSystem.MushroomMixupSabotageSystem && ShipStatusSystem.MushroomMixupSabotageSystem.IsActive;
+                }
                 default:
                     return false;
             }
