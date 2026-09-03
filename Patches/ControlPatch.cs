@@ -125,7 +125,6 @@ internal static class ControllerManagerUpdatePatch
 
                             int caretPos = Mathf.Clamp(textArea.caretPos, 0, currentText.Length);
 
-                            TextBoxPatch.Pasting = true;
                             textArea.SetText(currentText.Insert(caretPos, clipboard));
                             textArea.caretPos = caretPos + clipboard.Length;
                         }

@@ -17,17 +17,18 @@ public static class TextBoxPatch
 
     public static bool IsInvalidCommand;
 
-    public static bool Pasting;
 
-[HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.IsCharAllowed))]
+    [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.IsCharAllowed))]
     [HarmonyPrefix]
-    public static bool AllowAllCharacters(char i, ref bool __result)
+    // Use the character provided by IsCharAllowed directly.
+    // Tracking a separate character position desyncs when the caret is moved.
+    public static bool ValidateChatCharacter(char i, ref bool __result)
     {
         __result = i is not ('\b' or '\r' or '[');
         return false;
     }
 
-[HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
+    [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
     [HarmonyPostfix]
     public static void ShowCommandHelp(TextBoxTMP __instance)
     {
