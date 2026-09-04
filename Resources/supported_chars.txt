@@ -1,5 +1,5 @@
 This serves as a complete* list of all special icons supported by Among Us
-Created by quine.fr (https://github.com/VOID4487/EndlessHostRoles/edit/main/Resources/supported_chars.txt)
+Created by quine.fr (https://github.com/VOID4487/EndlessHostRoles/Resources/supported_chars.txt)
 
 Category: ASCII Symbols
 $+<=>^`|~
