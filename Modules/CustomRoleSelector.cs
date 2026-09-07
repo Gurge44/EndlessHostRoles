@@ -108,8 +108,6 @@ internal static class CustomRoleSelector
 
             switch (role)
             {
-                case CustomRoles.Bargainer when Main.LIMap:
-                case CustomRoles.AntiAdminer when Main.LIMap:
                 case CustomRoles.CameraMan when Main.LIMap:
                 case CustomRoles.Weatherman when Main.LIMap || GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
                 case CustomRoles.Doctor when Options.EveryoneSeesDeathReasons.GetBool():

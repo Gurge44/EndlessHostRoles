@@ -11,7 +11,6 @@ public static class DoorsReset
 
     private static bool IsEnabled;
     private static ResetMode Mode;
-    private static DoorsSystemType DoorsSystem => ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType system) ? system.CastFast<DoorsSystemType>() : null;
 
     public static void Initialize()
     {
@@ -30,71 +29,35 @@ public static class DoorsReset
     /// <summary>Reset door status according to settings</summary>
     public static void ResetDoors()
     {
-        if (!IsEnabled || DoorsSystem == null) return;
+        if (!IsEnabled) return;
 
         Logger.Info("Reset Completed", "DoorsReset");
 
-        switch (Mode)
-        {
-            case ResetMode.AllOpen:
-                OpenAllDoors();
-                break;
-            case ResetMode.AllClosed:
-                CloseAllDoors();
-                break;
-            case ResetMode.RandomByDoor:
-                OpenOrCloseAllDoorsRandomly();
-                break;
-            default:
-                Logger.Warn($"Invalid Reset Doors Mode: {Mode}", "DoorsReset");
-                break;
-        }
+        SetDoors(Mode);
     }
 
-    /// <summary>Open all doors on the map</summary>
-    public static void OpenAllDoors()
+    public static void SetDoors(ResetMode resetMode)
     {
-        if (!ShipStatus.Instance) return;
+        if (!ShipStatus.Instance || !ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType system)) return;
 
-        foreach (OpenableDoor door in ShipStatus.Instance.AllDoors)
+        bool autoOpenDoors = system.TryCast(out AutoDoorsSystemType autoDoorsSystemType);
+
+        for (var index = 0; index < ShipStatus.Instance.AllDoors.Count; index++)
         {
-            if (door == null) continue;
-            SetDoorOpenState(door, true);
+            OpenableDoor door = ShipStatus.Instance.AllDoors[index];
+            if (!door) continue;
+            bool open = resetMode switch
+            {
+                ResetMode.AllOpen => true,
+                ResetMode.AllClosed => false,
+                _ => IRandom.Instance.Next(2) > 0
+            };
+            SetDoorOpenState(door, open);
+            if (autoOpenDoors) autoDoorsSystemType.dirtyBits |= (uint)(1 << index);
         }
 
-        DoorsSystemType doorsSystem = DoorsSystem;
-        doorsSystem?.IsDirty = true;
-    }
-
-    /// <summary>Close all doors on the map</summary>
-    public static void CloseAllDoors()
-    {
-        if (!ShipStatus.Instance) return;
-
-        foreach (OpenableDoor door in ShipStatus.Instance.AllDoors)
-        {
-            if (door == null) continue;
-
-            SetDoorOpenState(door, false);
-        }
-
-        DoorsSystemType doorsSystem = DoorsSystem;
-        doorsSystem?.IsDirty = true;
-    }
-
-    /// <summary>Randomly opens and closes all doors on the map</summary>
-    public static void OpenOrCloseAllDoorsRandomly()
-    {
-        if (!ShipStatus.Instance) return;
-
-        foreach (OpenableDoor door in ShipStatus.Instance.AllDoors)
-        {
-            bool isOpen = IRandom.Instance.Next(2) > 0;
-            SetDoorOpenState(door, isOpen);
-        }
-
-        DoorsSystemType doorsSystem = DoorsSystem;
-        doorsSystem?.IsDirty = true;
+        if (autoOpenDoors || !system.TryCast(out DoorsSystemType doorsSystemType)) return;
+        doorsSystemType.IsDirty = true;
     }
 
     /// <summary>Sets the open/close status of the door. Do nothing for doors that cannot be closed by sabotage</summary>

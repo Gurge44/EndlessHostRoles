@@ -156,6 +156,11 @@ public abstract class RoleBase : IComparable<RoleBase>
         return false;
     }
 
+    public virtual bool OnJudge(PlayerControl voter, PlayerControl target)
+    {
+        return false;
+    }
+
     public virtual void OnReportDeadBody() { }
 
     public virtual bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)

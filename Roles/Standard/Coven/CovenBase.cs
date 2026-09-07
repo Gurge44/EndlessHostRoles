@@ -24,7 +24,7 @@ public abstract class CovenBase : RoleBase
     private static void GiveNecronomicon()
     {
         Dictionary<byte, PlayerState> psDict = Main.PlayerStates
-            .Where(x => x.Value.Role is CovenBase { HasNecronomicon: false } coven && !coven.CanNeverGetNecronomicon)
+            .Where(x => x.Value.Role is CovenBase { HasNecronomicon: false, CanNeverGetNecronomicon: false })
             .ToDictionary(x => x.Key, x => x.Value);
         if (psDict.Count == 0) return;
 

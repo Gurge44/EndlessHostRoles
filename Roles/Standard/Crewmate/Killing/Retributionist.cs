@@ -57,11 +57,11 @@ public class Retributionist : RoleBase
 
     public override void AfterMeetingTasks()
     {
-        if (RetributionistPC == null || !RetributionistPC.IsAlive() || CanUseKillButton(RetributionistPC)) return;
+        if (!RetributionistPC || !RetributionistPC.IsAlive() || CanUseKillButton(RetributionistPC)) return;
 
         PlayerControl campTarget = Camping.GetPlayer();
 
-        if (ResetCampedPlayerAfterEveryMeeting.GetBool() || campTarget == null || !campTarget.IsAlive())
+        if (ResetCampedPlayerAfterEveryMeeting.GetBool() || !campTarget || !campTarget.IsAlive())
         {
             Notified = false;
             Camping = byte.MaxValue;
@@ -104,10 +104,17 @@ public class Retributionist : RoleBase
         }
     }
 
+    public override bool OnJudge(PlayerControl pc, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return false;
+        var command = $"/retribute {target.PlayerId}";
+        ChatCommands.RetributeCommand(pc, command, command.Split(' '));
+        return true;
+    }
+
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        var command = $"/retribute {target.PlayerId}";
-        ChatCommands.RetributeCommand(shapeshifter, command, command.Split(' '));
+        OnJudge(shapeshifter, target);
     }
 
     public void ReceiveRPC(MessageReader reader)

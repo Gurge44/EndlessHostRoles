@@ -134,7 +134,7 @@ public static class HudSpritePatch
                             newAbilityButton = CustomButton.Get("Kill");
                             break;
                         }
-                        case CustomRoles.JudgeOld:
+                        case CustomRoles.Prosecutor:
                         {
                             newAbilityButton = CustomButton.Get("JudgeIcon");
                             break;

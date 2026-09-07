@@ -18,24 +18,12 @@ static class ChatControllerAwakePatch
     private static SpriteRenderer OpenBanMenuIcon;
     private static SpriteRenderer OpenKeyboardIcon;
 
-    private static readonly Color32 DarkBackgroundColor = new(40, 40, 40, byte.MaxValue);
+    public static readonly Color32 DarkBackgroundColor = new(40, 40, 40, byte.MaxValue);
     
     public static void Postfix(ChatController __instance) 
     {
         if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == QuickChatModes.QuickChatOnly)
             DataManager.Settings.Multiplayer.ChatMode = QuickChatModes.FreeChatOrQuickChat;
-
-        if (GameSettingMenu.Instance)
-        {
-            FreeChatInputField field = GameSettingMenuPatch.InputField;
-
-            if (field && field.gameObject.activeSelf)
-            {
-                field.background.color = DarkBackgroundColor;
-                field.textArea.compoText.Color(Color.white);
-                field.textArea.outputText.color = Color.white;
-            }
-        }
         
         var chatBubble = __instance.chatBubblePool.Prefab.CastFast<ChatBubble>();
         chatBubble.TextArea.overrideColorTags = false;

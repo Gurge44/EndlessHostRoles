@@ -97,7 +97,12 @@ public class Scout : RoleBase
         return TrackerTarget != null && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
     }
 
-    public override bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    {
+        return UseJudgeAbilityAsTrigger.GetBool() || UseMeetingShapeshift.GetBool() ? base.OnVote(voter, target) : OnJudge(voter, target);
+    }
+
+    public override bool OnJudge(PlayerControl player, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (!player || !target || player.GetAbilityUseLimit() < 1f || player.PlayerId == target.PlayerId || TrackerTarget == null || TrackerTarget[player.PlayerId].Contains(target.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
@@ -115,7 +120,7 @@ public class Scout : RoleBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        OnJudge(shapeshifter, target);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

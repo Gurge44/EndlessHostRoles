@@ -6,6 +6,7 @@ using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
+using static EHR.Modules.LevelImposterCompatibility;
 
 namespace EHR;
 
@@ -38,6 +39,33 @@ internal static class DisableDevice
         ["SubmergedRightAdmin"] = new(-7.07f, 10.16f),
         ["SubmergedCamera"] = new(-3.41f, -34.56f)
     };
+
+    public static void AddCustomDevicesPos()
+    {
+        var keysToRemove = DevicePos.Keys
+            .Where(k => k.StartsWith("LI", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        foreach (var key in keysToRemove)
+            DevicePos.Remove(key);
+
+        int adminId = 0;
+        int cameraId = 0;
+        int binoId = 0;
+        int vitalId = 0;
+
+        foreach (var admin in AllAdminTables)
+            DevicePos[$"LIAdmin{adminId++}"] = admin.transform.position;
+
+        foreach (var camera in AllCameraPanels)
+            DevicePos[$"LICamera{cameraId++}"] = camera.transform.position;
+
+        foreach (var bino in AllBinoculars)
+            DevicePos[$"LIBinocular{binoId++}"] = bino.transform.position;
+
+        foreach (var vital in AllVitals)
+            DevicePos[$"LIVital{vitalId++}"] = vital.transform.position;
+    }
 
     private static bool DoDisable => Options.DisableDevices.GetBool();
 
@@ -166,6 +194,8 @@ public class RemoveDisableDevicesPatch
 {
     public static void Postfix()
     {
+        if (Main.LIMap) LateTask.New(() => DisableDevice.AddCustomDevicesPos(), 10f, "DisableDevice");
+
         bool rogueForce = Rogue.On && Main.PlayerStates.Values.Any(x => x.Role is Rogue { DisableDevices: true });
         if (!Options.DisableDevices.GetBool() && !rogueForce) return;
 

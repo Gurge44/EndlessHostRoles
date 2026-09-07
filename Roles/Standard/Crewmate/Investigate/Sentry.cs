@@ -87,7 +87,8 @@ internal class Sentry : RoleBase
 
         AvailableDevices = DisableDevice.DevicePos.Where(x =>
         {
-            bool correctMap = x.Key.Contains(Main.CurrentMap.ToString(), StringComparison.OrdinalIgnoreCase);
+            string mapName = SubmergedCompatibility.IsSubmerged() ? "Submerged" : Main.LIMap ? "LI" : Main.CurrentMap.ToString();
+            bool correctMap = x.Key.Contains(mapName, StringComparison.OrdinalIgnoreCase);
             var devicesOpt = (UsableDevicesStrings)UsableDevicesForInfoView.GetValue();
 
             bool enabled = devicesOpt switch
@@ -105,8 +106,8 @@ internal class Sentry : RoleBase
                 {
                     AdditionalDevicesStrings.None => false,
                     AdditionalDevicesStrings.DoorLog => x.Key.Contains("DoorLog"),
-                    AdditionalDevicesStrings.Binoculars => x.Key.Contains("Camera") && x.Key.Contains("Fungle"),
-                    AdditionalDevicesStrings.DoorLogAndBinoculars => x.Key.Contains("DoorLog") || (x.Key.Contains("Camera") && x.Key.Contains("Fungle")),
+                    AdditionalDevicesStrings.Binoculars => x.Key.Contains("Camera") && x.Key.Contains("Fungle") || x.Key.Contains("Binocular"),
+                    AdditionalDevicesStrings.DoorLogAndBinoculars => x.Key.Contains("DoorLog") || (x.Key.Contains("Camera") && x.Key.Contains("Fungle")) || x.Key.Contains("Binocular"),
                     _ => false
                 };
             }

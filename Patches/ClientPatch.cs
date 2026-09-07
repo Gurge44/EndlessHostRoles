@@ -1,10 +1,8 @@
 using System;
-using System.Reflection;
 using AmongUs.Data;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes;
 using InnerNet;
 using TMPro;
 using UnityEngine;
@@ -183,59 +181,5 @@ static class CheckOnlinePermissionsPatch
     public static void Prefix()
     {
         DataManager.Player.Ban.banPoints = 0f;
-    }
-}
-
-[HarmonyPatch]
-internal static class AuthTimeoutPatch
-{
-    // From Reactor.gg
-    // https://github.com/NuclearPowered/Reactor/blob/master/Reactor/Patches/Miscellaneous/CustomServersPatch.cs
-    
-    [HarmonyPatch(typeof(AuthManager), nameof(AuthManager.CoConnect))]
-    [HarmonyPrefix]
-    public static bool CoConnect_Prefix()
-    {
-        return GameStates.CurrentServerTypeInCreateMenu is GameStates.ServerType.Vanilla or GameStates.ServerType.Local;
-    }
-    
-    [HarmonyPatch(typeof(AuthManager), nameof(AuthManager.CoWaitForNonce))]
-    [HarmonyPrefix]
-    public static bool CoWaitforNonce_Prefix()
-    {
-        return GameStates.CurrentServerTypeInCreateMenu is GameStates.ServerType.Vanilla or GameStates.ServerType.Local;
-    }
-
-    // If you don't patch this, you still need to wait for 5 s.
-    // I have no idea why this is happening
-    [HarmonyPatch]
-    public static class EnableUdpPatch
-    {
-        public static MethodBase TargetMethod()
-        {
-            return Utils.GetStateMachineMoveNext<AmongUsClient>(nameof(AmongUsClient.CoJoinOnlinePublicGame))!;
-        }
-
-        public static void Prefix(Il2CppObjectBase __instance)
-        {
-            var stateMachine = new StateMachineWrapper<AmongUsClient>(__instance);
-
-            // Skip to state 1 which just calls CoJoinOnlineGameDirect
-            if (stateMachine.State == 0 && !ServerManager.Instance.IsHttp)
-            {
-                stateMachine.State = 1;
-                var lambdaType = stateMachine.GetParameter<Il2CppObjectBase>("__8__1").GetType();
-                var newDisplayClass = Activator.CreateInstance(lambdaType);
-                if (newDisplayClass == null)
-                {
-                    throw new InvalidOperationException($"Could not create display class of type '{lambdaType}'.");
-                }
-
-                var displayClass = new CompilerGeneratedObjectWrapper(newDisplayClass);
-                displayClass.SetField("matchmakerToken", string.Empty);
-
-                stateMachine.SetParameter("__8__1", newDisplayClass);
-            }
-        }
     }
 }

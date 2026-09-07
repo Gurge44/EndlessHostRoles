@@ -115,10 +115,18 @@ internal static class ControllerManagerUpdatePatch
                         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
                             ClipboardHelper.PutClipboardString(chat.freeChatField.textArea.text);
 
-                        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.V))
+                        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) &&
+                            Input.GetKeyDown(KeyCode.V))
                         {
-                            TextBoxPatch.Pasting = true;
-                            chat.freeChatField.textArea.SetText(chat.freeChatField.textArea.text + GUIUtility.systemCopyBuffer.Trim());
+                            var textArea = chat.freeChatField.textArea;
+
+                            string currentText = textArea.text ?? string.Empty;
+                            string clipboard = GUIUtility.systemCopyBuffer ?? string.Empty;
+
+                            int caretPos = Mathf.Clamp(textArea.caretPos, 0, currentText.Length);
+
+                            textArea.SetText(currentText.Insert(caretPos, clipboard));
+                            textArea.caretPos = caretPos + clipboard.Length;
                         }
 
                         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.X))
@@ -367,7 +375,7 @@ internal static class ControllerManagerUpdatePatch
             if (isMeeting)
             {
                 if (KeysDown(RpcClearVoteKey))
-                    MeetingHud.Instance.RpcClearVote(AmongUsClient.Instance.ClientId);
+                    MeetingHud.Instance.RpcClearVote(PlayerControl.LocalPlayer.PlayerId);
             }
             else if (!isMeeting && !chatIsOpen)
             {
@@ -630,7 +638,8 @@ public static class InGameRoleInfoMenu
         });
 
         if (role.UsesPetInsteadOfKill()) Sb.Append($"\n\n{GetString("UsesPetInsteadOfKillNotice")}");
-        if (player.UsesMeetingShapeshift()) Sb.Append($"\n\n{GetString("UsesMeetingShapeshiftNotice")}");
+        if (player.UsesJudgeAbilityAsTrigger()) Sb.Append($"\n\n{GetString("UsesJudgeAbilityAsTriggerNotice")}");
+        else if (player.UsesMeetingShapeshift()) Sb.Append($"\n\n{GetString("UsesMeetingShapeshiftNotice")}");
 
         Sb.Insert(0, $"{TitleSb}\n");
 

@@ -206,7 +206,7 @@ public class Councillor : RoleBase
                         LateTask.New(() =>
                         {
                             if (!MakeEvilJudgeClear.GetBool())
-                                Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, CustomRoles.JudgeOld.ColoredTextByRole(GetString("TrialKillTitle")), importance: MessageImportance.High);
+                                Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, CustomRoles.Prosecutor.ColoredTextByRole(GetString("TrialKillTitle")), importance: MessageImportance.High);
                             else
                                 Utils.SendMessage(string.Format(GetString("MurderKill"), name), 255, CustomRoles.Councillor.ColoredTextByRole(GetString("MurderKillTitle")), importance: MessageImportance.High);
                         }, 0.6f, "Guess Msg");
@@ -256,10 +256,16 @@ public class Councillor : RoleBase
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     }
 
+    public override bool OnJudge(PlayerControl pc, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return false;
+        MurderMsg(pc, $"/tl {target.PlayerId}");
+        return true;
+    }
+
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        if (Starspawn.IsDayBreak) return;
-        MurderMsg(shapeshifter, $"/tl {target.PlayerId}");
+        OnJudge(shapeshifter, target);
     }
 
     private static void SendRPC(byte playerId)

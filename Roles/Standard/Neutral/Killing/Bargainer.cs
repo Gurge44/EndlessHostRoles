@@ -79,8 +79,7 @@ internal class Bargainer : RoleBase
     {
         get
         {
-            var mapName = Main.CurrentMap.ToString();
-            if (SubmergedCompatibility.IsSubmerged()) mapName = "Submerged";
+            var mapName = SubmergedCompatibility.IsSubmerged() ? "Submerged" : Main.LIMap ? "LI" : Main.CurrentMap.ToString();
             return DisableDevice.DevicePos.Where(x => x.Key.StartsWith(mapName)).Select(x => x.Value);
         }
     }
@@ -277,6 +276,7 @@ internal class Bargainer : RoleBase
 
     private void CycleItem(PlayerControl pc)
     {
+        if (!InShop) return;
         List<Item> list = OrderedItems.ToList();
         SelectedItem = list[(list.IndexOf(SelectedItem) + 1) % list.Count];
         Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 2, (int)SelectedItem);

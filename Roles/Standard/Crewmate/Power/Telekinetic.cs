@@ -148,7 +148,7 @@ public class Telekinetic : RoleBase
                 Timer += 30;
                 break;
             case Mode.Doors:
-                DoorsReset.OpenAllDoors();
+                DoorsReset.SetDoors(DoorsReset.ResetMode.AllOpen);
                 Timer += 35;
                 Freeze();
                 break;

@@ -57,7 +57,12 @@ internal class NiceEraser : RoleBase
         PlayerIdList.Remove(playerId);
     }
 
-    public override bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    {
+        return Options.UseJudgeAbilityAsTrigger.GetBool() || Options.UseMeetingShapeshift.GetBool() ? base.OnVote(voter, target) : OnJudge(voter, target);
+    }
+
+    public override bool OnJudge(PlayerControl player, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null) return false;
@@ -96,7 +101,7 @@ internal class NiceEraser : RoleBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        OnJudge(shapeshifter, target);
     }
 
     public override void OnReportDeadBody()

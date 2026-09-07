@@ -65,7 +65,7 @@ public static class GuessManager
         if (!AmongUsClient.Instance.AmHost) return false;
         if (!GameStates.IsMeeting || MeetingHud.Instance.state is MeetingHud.MeetingStates.Results or MeetingHud.MeetingStates.Proceeding || !pc) return false;
 
-        bool hasGuessingRole = pc.GetCustomRole() is CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.JudgeOld or CustomRoles.Swapper or CustomRoles.Councillor or CustomRoles.NecroGuesser or CustomRoles.Augur;
+        bool hasGuessingRole = pc.GetCustomRole() is CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.Prosecutor or CustomRoles.Swapper or CustomRoles.Councillor or CustomRoles.NecroGuesser or CustomRoles.Augur;
         if (!hasGuessingRole && !pc.Is(CustomRoles.Guesser) && !Options.GuesserMode.GetBool()) return false;
 
         int operate; // 1: ID, 2: Guess
@@ -294,7 +294,7 @@ public static class GuessManager
                         case CustomRoles.Specter:
                             ShowMessage("GuessPhantom");
                             return true;
-                        case CustomRoles.Snitch when pc.IsSnitchTarget() && target.GetTaskState().RemainingTasksCount <= Snitch.RemainingTasksToBeFound:
+                        case CustomRoles.Snitch when target.Is(CustomRoles.Snitch) && pc.IsSnitchTarget() && target.GetTaskState().RemainingTasksCount <= Snitch.RemainingTasksToBeFound:
                             ShowMessage("EGGuessSnitchTaskDone");
                             return true;
                         case CustomRoles.Merchant when Merchant.IsBribedKiller(pc, target):
@@ -319,6 +319,7 @@ public static class GuessManager
                         case CustomRoles.Ankylosaurus:
                             ShowMessage("GuessAnkylosaurus");
                             return true;
+                        case CustomRoles.Evader:
                         case CustomRoles.Tree:
                         case CustomRoles.Car:
                         case CustomRoles.DonutDelivery when DonutDelivery.IsUnguessable(pc, target):

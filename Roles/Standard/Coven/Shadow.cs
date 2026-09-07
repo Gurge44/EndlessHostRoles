@@ -196,4 +196,9 @@ public class Shadow : CovenBase
             Utils.RpcChangeSkin(pc, OriginalOutfit);
         }
     }
+
+    public override void OnReceiveNecronomicon()
+    {
+        SetKillCooldown(ShadowId);
+    }
 }

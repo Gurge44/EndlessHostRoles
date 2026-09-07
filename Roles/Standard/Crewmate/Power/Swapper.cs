@@ -220,6 +220,13 @@ public class Swapper : RoleBase
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
+    public override bool OnJudge(PlayerControl voter, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return false;
+        SwapMsg(voter, $"/sw {target.PlayerId}");
+        return true;
+    }
+
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return;

@@ -75,6 +75,8 @@ public class Transposer : RoleBase
 
                 try
                 {
+                    Main.CheckShapeshift[firstTargetId] = true;
+                    Main.CheckShapeshift[target.PlayerId] = true;
                     firstTarget.Shapeshift(target, false);
                     target.Shapeshift(firstTarget, false);
                 }
@@ -94,6 +96,7 @@ public class Transposer : RoleBase
                     if (firstTarget && firstTarget.IsAlive() && firstTarget.IsShifted())
                     {
                         hasValue = true;
+                        Main.CheckShapeshift[firstTargetId] = false;
                         try { firstTarget.Shapeshift(firstTarget, false); } catch { }
                         writer.StartRpc(firstTarget.NetId, RpcCalls.Shapeshift)
                             .WriteNetObject(firstTarget)
@@ -104,6 +107,7 @@ public class Transposer : RoleBase
                     if (target && target.IsAlive() && target.IsShifted())
                     {
                         hasValue = true;
+                        Main.CheckShapeshift[target.PlayerId] = false;
                         try { target.Shapeshift(target, false); } catch { }
                         writer.StartRpc(target.NetId, RpcCalls.Shapeshift)
                             .WriteNetObject(target)

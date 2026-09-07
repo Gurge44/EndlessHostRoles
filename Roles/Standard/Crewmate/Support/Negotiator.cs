@@ -126,6 +126,11 @@ public class Negotiator : RoleBase
 
     public override bool OnVote(PlayerControl voter, PlayerControl target)
     {
+        return Options.UseJudgeAbilityAsTrigger.GetBool() || Options.UseMeetingShapeshift.GetBool() ? base.OnVote(voter, target) : OnJudge(voter, target);
+    }
+
+    public override bool OnJudge(PlayerControl voter, PlayerControl target)
+    {
         if (Starspawn.IsDayBreak) return false;
         if (target == null || voter == null || voter.PlayerId == target.PlayerId || TargetId != byte.MaxValue || voter.GetAbilityUseLimit() < 1f || MinVotingTimeLeftToNegotiate.GetInt() > MeetingTimeManager.VotingTimeLeft || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
@@ -144,7 +149,7 @@ public class Negotiator : RoleBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        OnJudge(shapeshifter, target);
     }
 
     public static void ReceiveCommand(PlayerControl pc, int index)

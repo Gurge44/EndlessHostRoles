@@ -156,47 +156,6 @@ public static class Utils
         try { LoadingBarManager.Instance.ToggleLoadingBar(false); }
         catch (Exception e) { ThrowException(e); }
     }
-    
-    public static IEnumerator SendGameDataContinuously()
-    {
-        float waitTime = GameData.Instance.AllPlayers.Count switch
-        {
-            <= 15 => 1f,
-            <= 20 => 0.8f,
-            _ => 0.5f
-        };
-        
-        while (GameStates.InGame && !GameStates.IsEnded && ShipStatus.Instance)
-        {
-            if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
-            {
-                yield return new WaitForSecondsRealtime(10f);
-                continue;
-            }
-
-            for (var index = 0; index < GameData.Instance.AllPlayers.Count; index++)
-            {
-                NetworkedPlayerInfo playerInfo = GameData.Instance.AllPlayers[index];
-                
-                if (!playerInfo || (Astral.On && Main.PlayerStates.TryGetValue(playerInfo.PlayerId, out PlayerState state) && state.Role is Astral { Timer: not null }) || (SoulCollector.On && Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(playerInfo.PlayerId)))) continue;
-
-                playerInfo.IsDead = !playerInfo.Object.IsAlive();
-
-                var qa = playerInfo.SendGameData(SendOption.None);
-                yield return qa.Wait();
-
-                if (qa.Dropped || !GameStates.InGame || GameStates.IsEnded || !ShipStatus.Instance)
-                {
-                    Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
-                    yield break;
-                }
-
-                yield return new WaitForSecondsRealtime(waitTime);
-            }
-        }
-        
-        Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
-    }
 
     public static void CheckAndSetVentInteractions()
     {
@@ -321,46 +280,46 @@ public static class Utils
             switch (type)
             {
                 case SystemTypes.Electrical:
-                    {
-                        if (mapId == 5) return false;
-                        return ShipStatusSystem.SwitchSystem != null && ShipStatusSystem.SwitchSystem.IsActive;
-                    }
+                {
+                    if (mapId == 5) return false;
+                    return ShipStatusSystem.SwitchSystem != null && ShipStatusSystem.SwitchSystem.IsActive;
+                }
                 case SystemTypes.Reactor:
+                {
+                    return mapId switch
                     {
-                        return mapId switch
-                        {
-                            2 => false,
-                            4 => ShipStatusSystem.HeliSabotageSystem && ShipStatusSystem.HeliSabotageSystem.IsActive,
-                            _ => ShipStatusSystem.ReactorSystemType != null && ShipStatusSystem.ReactorSystemType.IsActive
-                        };
-                    }
+                        2 => false,
+                        4 => ShipStatusSystem.HeliSabotageSystem && ShipStatusSystem.HeliSabotageSystem.IsActive,
+                        _ => ShipStatusSystem.ReactorSystemType != null && ShipStatusSystem.ReactorSystemType.IsActive
+                    };
+                }
                 case SystemTypes.Laboratory:
-                    {
-                        if (mapId != 2) return false;
-                        return ShipStatusSystem.ReactorSystemType != null && ShipStatusSystem.ReactorSystemType.IsActive;
-                    }
+                {
+                    if (mapId != 2) return false;
+                    return ShipStatusSystem.ReactorSystemType != null && ShipStatusSystem.ReactorSystemType.IsActive;
+                }
                 case SystemTypes.LifeSupp:
-                    {
-                        if (mapId is 2 or 4 or 5) return false;
-                        return ShipStatusSystem.LifeSuppSystemType != null && ShipStatusSystem.LifeSuppSystemType.IsActive;
-                    }
+                {
+                    if (mapId is 2 or 4 or 5) return false;
+                    return ShipStatusSystem.LifeSuppSystemType != null && ShipStatusSystem.LifeSuppSystemType.IsActive;
+                }
                 case SystemTypes.Comms:
-                    {
-                        if (mapId is 1 or 5)
-                            return ShipStatusSystem.HqHudSystemType != null && ShipStatusSystem.HqHudSystemType.IsActive;
+                {
+                    if (mapId is 1 or 5)
+                        return ShipStatusSystem.HqHudSystemType != null && ShipStatusSystem.HqHudSystemType.IsActive;
 
-                        return ShipStatusSystem.HudOverrideSystemType != null && ShipStatusSystem.HudOverrideSystemType.IsActive;
-                    }
+                    return ShipStatusSystem.HudOverrideSystemType != null && ShipStatusSystem.HudOverrideSystemType.IsActive;
+                }
                 case SystemTypes.HeliSabotage:
-                    {
-                        if (mapId != 4) return false;
-                        return ShipStatusSystem.HeliSabotageSystem && ShipStatusSystem.HeliSabotageSystem.IsActive;
-                    }
+                {
+                    if (mapId != 4) return false;
+                    return ShipStatusSystem.HeliSabotageSystem && ShipStatusSystem.HeliSabotageSystem.IsActive;
+                }
                 case SystemTypes.MushroomMixupSabotage:
-                    {
-                        if (mapId != 5) return false;
-                        return ShipStatusSystem.MushroomMixupSabotageSystem && ShipStatusSystem.MushroomMixupSabotageSystem.IsActive;
-                    }
+                {
+                    if (mapId != 5) return false;
+                    return ShipStatusSystem.MushroomMixupSabotageSystem && ShipStatusSystem.MushroomMixupSabotageSystem.IsActive;
+                }
                 default:
                     return false;
             }
@@ -387,8 +346,6 @@ public static class Utils
 
     private static void TargetDies(PlayerControl killer, PlayerControl target)
     {
-        if (target.IsAlive() || GameStates.IsMeeting) return;
-
         CustomRoles targetRole = target.GetCustomRole();
 
         foreach (PlayerControl seer in Main.CachedAllPlayerControls())
@@ -1103,7 +1060,7 @@ public static class Utils
                    (pc.Is(CustomRoles.Mayor) && !Options.MayorCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.NiceGuesser) && !Options.NGuesserCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Snitch) && !Options.SnitchCanBeMadmate.GetBool()) ||
-                   (pc.Is(CustomRoles.JudgeOld) && !Options.JudgeCanBeMadmate.GetBool()) ||
+                   (pc.Is(CustomRoles.Prosecutor) && !Options.JudgeCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Marshall) && !Options.MarshallCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Investigator) && !Options.InvestigatorCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.President) && !Options.PresidentCanBeMadmate.GetBool()) ||
@@ -3968,10 +3925,10 @@ public static class Utils
                     nums[Options.GameStateInfo.MadmateCount]++;
                 else if (pc.IsNeutralKiller())
                     nums[Options.GameStateInfo.NKCount]++;
-                else if (pc.IsCrewmate())
-                    nums[Options.GameStateInfo.CrewCount]++;
-                else if (pc.Is(Team.Impostor))
+                else if (pc.Is(Team.Impostor) || pc.Is(CustomRoles.DoubleAgent))
                     nums[Options.GameStateInfo.ImpCount]++;
+                else if (pc.Is(Team.Crewmate))
+                    nums[Options.GameStateInfo.CrewCount]++;
                 else if (pc.Is(Team.Neutral))
                     nums[Options.GameStateInfo.NNKCount]++;
                 else if (pc.Is(Team.Coven))
@@ -4215,7 +4172,7 @@ public static class Utils
                     {
                         LateTask.New(() =>
                         {
-                            if (GameStates.IsEnded) return;
+                            if (GameStates.IsEnded || !pc || !pc.IsAlive() || Main.Invisible.Contains(pc.PlayerId)) return;
                             string petId = PetsHelper.GetPetId();
                             PetsHelper.SetPet(pc, petId);
                             pc.Data.DefaultOutfit.PetSequenceId += 10;
@@ -5115,7 +5072,7 @@ public static class Utils
             {
                 name = "AOU-";
 
-                for (var i = 0; i < ip.Length; i++)
+                for (var i = 8; i < ip.Length; i++)
                 {
                     char c = ip[i];
                     if (c == '.') break;

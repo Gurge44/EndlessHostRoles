@@ -352,7 +352,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Hangman => CustomRoles.Shapeshifter,
                 CustomRoles.Sunnyboy => CustomRoles.Scientist,
                 CustomRoles.Specter => Options.PhantomCanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
-                CustomRoles.JudgeOld => CustomRoles.Crewmate,
+                CustomRoles.Prosecutor => CustomRoles.Crewmate,
                 CustomRoles.Councillor => CustomRoles.Impostor,
                 CustomRoles.Mortician => CustomRoles.Crewmate,
                 CustomRoles.Medium => CustomRoles.Crewmate,
@@ -922,6 +922,13 @@ internal static class CustomRolesHelper
             return type.GetMethod("OnMeetingShapeshift")?.DeclaringType == type;
         }
 
+        public bool UsesJudgeAbilityAsTrigger()
+        {
+            if (!Options.UseJudgeAbilityAsTrigger.GetBool()) return false;
+            Type type = role.GetRoleClass().GetType();
+            return type.GetMethod("OnJudge")?.DeclaringType == type;
+        }
+
         public bool PetActivatedAbility()
         {
             if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) return true;
@@ -1485,7 +1492,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Ventguard => RoleOptionType.Crewmate_Support,
                 CustomRoles.Wizard => RoleOptionType.Crewmate_Support,
                 CustomRoles.Drainer => RoleOptionType.Crewmate_Killing,
-                CustomRoles.JudgeOld => RoleOptionType.Crewmate_Killing,
+                CustomRoles.Prosecutor => RoleOptionType.Crewmate_Killing,
                 CustomRoles.NiceGuesser => RoleOptionType.Crewmate_Killing,
                 CustomRoles.Retributionist => RoleOptionType.Crewmate_Killing,
                 CustomRoles.Sentinel => RoleOptionType.Crewmate_Killing,
@@ -1947,7 +1954,7 @@ internal static class CustomRolesHelper
             CustomRoles.Rascal when !pc.IsCrewmate() => false,
             CustomRoles.LazyGuy when pc.GetCustomRole().IsAdditionRole() => false,
             CustomRoles.Stealer when pc.Is(CustomRoles.Vindicator) => false,
-            CustomRoles.Priority when Main.PlayerStates[pc.PlayerId].Role is not CovenBase coven || coven.CanNeverGetNecronomicon => false,
+            CustomRoles.Priority when !Main.PlayerStates.TryGetValue(pc.PlayerId, out PlayerState state) || state.Role is not CovenBase coven || coven.CanNeverGetNecronomicon => false,
             CustomRoles.Bloodlust when !pc.GetCustomRole().IsCrewmate() || pc.GetCustomRole().IsTaskBasedCrewmate() || pc.GetCustomRole() is CustomRoles.Medic => false,
             CustomRoles.Mare when pc.GetCustomRole() is CustomRoles.Inhibitor or CustomRoles.Saboteur or CustomRoles.Swift or CustomRoles.Nemesis or CustomRoles.Sniper or CustomRoles.Fireworker or CustomRoles.Swooper or CustomRoles.Vampire => false,
             CustomRoles.Torch when pc.GetCustomRole() is CustomRoles.Lighter or CustomRoles.Ignitor or CustomRoles.Investigator or CustomRoles.Eclipse or CustomRoles.Decryptor => false,

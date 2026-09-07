@@ -57,8 +57,15 @@ internal static class ExtendedPlayerControl
         public bool UsesMeetingShapeshift()
         {
             CustomRoles role = player.GetCustomRole();
-            // if (player.IsModdedClient() && role is CustomRoles.Councillor or CustomRoles.Inspector or CustomRoles.JudgeOld or CustomRoles.Retributionist or CustomRoles.Starspawn or CustomRoles.Swapper or CustomRoles.Ventriloquist) return false;
+            // if (player.IsModdedClient() && role is CustomRoles.Councillor or CustomRoles.Inspector or CustomRoles.Prosecutor or CustomRoles.Retributionist or CustomRoles.Starspawn or CustomRoles.Swapper or CustomRoles.Ventriloquist) return false;
             return role.UsesMeetingShapeshift();
+        }
+
+        public bool UsesJudgeAbilityAsTrigger()
+        {
+            CustomRoles role = player.GetCustomRole();
+            if (player.IsModdedClient() && role is CustomRoles.Councillor or CustomRoles.Inspector or CustomRoles.Prosecutor or CustomRoles.Retributionist or CustomRoles.Starspawn or CustomRoles.Swapper or CustomRoles.Ventriloquist) return false;
+            return role.UsesJudgeAbilityAsTrigger();
         }
 
         public bool CanUseVent()
@@ -804,6 +811,8 @@ internal static class ExtendedPlayerControl
         public void KillFlash()
         {
             if (GameStates.IsLobby || !player) return;
+            
+            Logger.Info($"Showing kill flash for {player.GetNameWithRole()}", "KillFlash");
 
             // Kill flash (blackout + reactor flash) processing
 
@@ -823,6 +832,7 @@ internal static class ExtendedPlayerControl
             if (reactorCheck && !player.IsModdedClient())
             {
                 Main.PlayerStates[player.PlayerId].IsBlackOut = true; // Blackout
+                player.MarkDirtySettings();
 
                 LateTask.New(() =>
                 {
@@ -842,8 +852,6 @@ internal static class ExtendedPlayerControl
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
             else if (!reactorCheck) player.ReactorFlash(canBlind: false); // Reactor flash
-
-            player.MarkDirtySettings();
         }
 
         public void RpcGuardAndKill(PlayerControl target = null, bool forObserver = false, bool fromSetKCD = false)
@@ -1065,7 +1073,7 @@ internal static class ExtendedPlayerControl
             Due to the addition of logs, it is no longer possible to guard no one, so it has been changed to the player guarding themselves for 0 seconds instead.
             This change disables Guardian Angel as a position.
             Reset host cooldown directly.
-        */
+            */
         }
 
         public void RpcDesyncUpdateSystem(SystemTypes systemType, int amount)
@@ -1075,6 +1083,7 @@ internal static class ExtendedPlayerControl
             messageWriter.WriteNetObject(player);
             messageWriter.Write((byte)amount);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+            Logger.Info($"SystemTypes: {systemType}, amount: {amount}", "RpcDesyncUpdateSystem");
         }
 
         public void MarkDirtySettings()
@@ -1916,6 +1925,7 @@ internal static class ExtendedPlayerControl
 
         public void RpcExiled()
         {
+            if (!AmongUsClient.Instance.AmHost) return;
             player.Exiled();
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.Reliable);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1923,6 +1933,7 @@ internal static class ExtendedPlayerControl
 
         public void RpcExileV2()
         {
+            if (!AmongUsClient.Instance.AmHost) return;
             player.RpcExiled();
             FixedUpdatePatch.LoversSuicide(player.PlayerId);
         }

@@ -644,6 +644,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     AURoleOptions.JudgeTaskRequirementPercentage = CrewmateVanillaRoles.JudgeTaskRequirementPercentage.GetFloat();
                     break;
             }
+            
+            if (player.UsesJudgeAbilityAsTrigger())
+                AURoleOptions.JudgeTaskRequirementPercentage = 0f;
 
             // When impostor alert is off, and the player is a desync crewmate, set impostor alert as true
             if (role.IsDesyncRole() && role.IsCrewmate() && !CrewmateVanillaRoles.NoiseMakerImpostorAlert.GetBool())

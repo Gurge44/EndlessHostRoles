@@ -415,7 +415,7 @@ internal static class ChatCommands
         if (!Starspawn.IsDayBreak)
         {
             if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-            if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Prosecutor.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Swapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Inspector.InspectorCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -859,7 +859,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (!targetState.MainRole.Is(Team.Crewmate) || targetState.MainRole == CustomRoles.GM)
+        if (!targetState.MainRole.Is(Team.Crewmate) || targetState.MainRole is CustomRoles.GM or CustomRoles.Trickster)
         {
             RPC.PlaySoundRPC(player.PlayerId, Sounds.SabotageSound);
             Utils.SendMessage("\n", player.PlayerId, GetString("Imitator.TargetMustBeCrew"), importance: MessageImportance.High);
@@ -985,7 +985,7 @@ internal static class ChatCommands
     {
         if (Starspawn.IsDayBreak) return;
 
-        if (!player.IsAlive() || Main.PlayerStates[player.PlayerId].Role is not Markseeker { IsEnable: true } ms || ms.MarkedId != byte.MaxValue) return;
+        if (!player.IsAlive() || Main.PlayerStates[player.PlayerId].Role is not Markseeker { IsEnable: true, MarkedId: byte.MaxValue } ms) return;
 
         ms.MarkedId = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out byte targetId) ? targetId : byte.MaxValue;
 
@@ -1110,7 +1110,7 @@ internal static class ChatCommands
     {
         GMPollGameModes = Main.CustomGameModeValues[..^1].Where(x => Options.GMPollGameModesSettings[x].GetBool()).ToList();
         if (GMPollGameModes.Contains(CustomGameMode.HideAndSeek)) GMPollGameModes.Add((CustomGameMode)100);
-        string gmNames = GMPollGameModes.Join(' ', x => GetString((int)x == 100 ? "HNS.ShiftAndSeek" : x.ToString().Replace(' ', '-')));
+        string gmNames = GMPollGameModes.Join(' ', x => GetString((int)x == 100 ? "HNS.ShiftAndSeek" : x.ToString()).Replace(' ', '_'));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
@@ -1118,15 +1118,15 @@ internal static class ChatCommands
     public static void MapPollCommand(PlayerControl player, string text, string[] args)
     {
         MPollMaps = Main.MapNamesValues.Where(x => Options.MPollMapsSettings[x].GetBool()).ToList();
-        string mNames = MPollMaps.Join(' ', x => GetString(x.ToString().Replace(' ', '-')));
+        string mNames = MPollMaps.Join(' ', x => GetString(x.ToString()).Replace(' ', '_'));
         var msg = $"/poll {GetString("MapPoll.Question").TrimEnd('?')}? {mNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
 
-    public static void PresetPollCommand(PlayerControl player, string text, string[] args)
+    private static void PresetPollCommand(PlayerControl player, string text, string[] args)
     {
         var presetConfigs = new[] { Main.Preset1, Main.Preset2, Main.Preset3, Main.Preset4, Main.Preset5, Main.Preset6, Main.Preset7, Main.Preset8, Main.Preset9, Main.Preset10, Main.Preset11, Main.Preset12, Main.Preset13, Main.Preset14, Main.Preset15, Main.Preset16, Main.Preset17, Main.Preset18, Main.Preset19, Main.Preset20 };
-        string presetNames = string.Join(' ', presetConfigs.Select((cfg, i) => (cfg.Value == (string)cfg.DefaultValue ? GetString($"Preset_{i + 1}") : cfg.Value).Replace(' ', '-')));
+        string presetNames = string.Join(' ', presetConfigs.Select((cfg, i) => (cfg.Value == (string)cfg.DefaultValue ? GetString($"Preset_{i + 1}") : cfg.Value).Replace(' ', '_')));
 
         var msg = $"/poll {GetString("PresetPoll.Question").TrimEnd('?')}? {presetNames}";
         PollCommand(player, msg, msg.Split(' '));
@@ -1321,10 +1321,14 @@ internal static class ChatCommands
             if (pc == null) return;
 
             if (ForcedSpectators.Remove(targetId))
+            {
                 Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("SpectateCommand.RemovedForcedSpectator"), targetId.ColoredPlayerName()));
+                return;
+            }
 
             if (ForcedSpectators.Add(targetId))
                 Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("SpectateCommand.ForcedSpectator"), targetId.ColoredPlayerName()));
+            
             return;
         }
 
@@ -2394,7 +2398,7 @@ internal static class ChatCommands
         if (voteId > PlayerControl.AllPlayerControls.Count) return;
 
         PlayerControl votedPlayer = voteId.GetPlayer();
-        if (!player.UsesMeetingShapeshift() && Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && votedPlayer != null && state.Role.OnVote(player, votedPlayer)) return;
+        if (!player.UsesMeetingShapeshift() && !player.UsesJudgeAbilityAsTrigger() && Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && votedPlayer != null && state.Role.OnVote(player, votedPlayer)) return;
 
         MeetingHud.Instance.CastVote(player.PlayerId, voteId);
     }
@@ -2521,7 +2525,8 @@ internal static class ChatCommands
 
             Utils.SendMessage(sb.ToString(), player.PlayerId, titleSb.ToString(), importance: MessageImportance.High);
             if (role.UsesPetInsteadOfKill()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesPetInsteadOfKillNotice"));
-            if (player.UsesMeetingShapeshift()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesMeetingShapeshiftNotice"));
+            if (player.UsesJudgeAbilityAsTrigger()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesJudgeAbilityAsTriggerNotice"));
+            else if (player.UsesMeetingShapeshift()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesMeetingShapeshiftNotice"));
         }
         else
             Utils.SendMessage((player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), player.PlayerId);
@@ -3426,7 +3431,8 @@ internal static class ChatCommands
 
                 if (settings.Length > 0) Utils.SendMessage("\n", playerId, settings.ToString());
                 if (rl.UsesPetInsteadOfKill()) Utils.SendMessage("\n", playerId, GetString("UsesPetInsteadOfKillNotice"));
-                if (rl.UsesMeetingShapeshift()) Utils.SendMessage("\n", playerId, GetString("UsesMeetingShapeshiftNotice"));
+                if (rl.UsesJudgeAbilityAsTrigger()) Utils.SendMessage("\n", playerId, GetString("UsesJudgeAbilityAsTriggerNotice"));
+                else if (rl.UsesMeetingShapeshift()) Utils.SendMessage("\n", playerId, GetString("UsesMeetingShapeshiftNotice"));
 
                 Utils.SendMessage(sb.ToString(), playerId, title, importance: MessageImportance.High);
                 return;
@@ -3511,7 +3517,7 @@ internal static class ChatCommands
         if (!Starspawn.IsDayBreak)
         {
             if (GuessManager.GuesserMsg(player, text) ||
-                Judge.TrialMsg(player, text) ||
+                Prosecutor.TrialMsg(player, text) ||
                 Swapper.SwapMsg(player, text) ||
                 Inspector.InspectorCheckMsg(player, text) ||
                 Councillor.MurderMsg(player, text))

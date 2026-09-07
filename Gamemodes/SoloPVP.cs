@@ -110,19 +110,22 @@ internal static class SoloPVP
         }, 3f);
         Utils.SendRPC(CustomRPC.SoloPVPSync, 1);
 
-        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
-            PlayerHPMax.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
-            PlayerHP.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
-            PlayerHPReco.TryAdd(pc.PlayerId, SoloPVP_RecoverPerSecond.GetFloat());
-            PlayerATK.TryAdd(pc.PlayerId, SoloPVP_ATK.GetFloat());
-            PlayerDF.TryAdd(pc.PlayerId, 0f);
-
-            PlayerScore.TryAdd(pc.PlayerId, 0);
-            Utils.SendRPC(CustomRPC.SoloPVPSync, 2, pc.PlayerId, 0);
-
-            LastHurt.TryAdd(pc.PlayerId, Utils.TimeStamp);
-            LastCountdownTime.TryAdd(pc.PlayerId, Utils.TimeStamp);
+            try
+            {
+                PlayerHPMax.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
+                PlayerHP.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
+                PlayerHPReco.TryAdd(pc.PlayerId, SoloPVP_RecoverPerSecond.GetFloat());
+                PlayerATK.TryAdd(pc.PlayerId, SoloPVP_ATK.GetFloat());
+                PlayerDF.TryAdd(pc.PlayerId, 0f);
+                PlayerScore.TryAdd(pc.PlayerId, 0);
+                LastHurt.TryAdd(pc.PlayerId, Utils.TimeStamp);
+                LastCountdownTime.TryAdd(pc.PlayerId, Utils.TimeStamp);
+            
+                Utils.SendRPC(CustomRPC.SoloPVPSync, 2, pc.PlayerId, 0);
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
     }
 
@@ -342,7 +345,7 @@ internal static class SoloPVP
             if (!GameStates.IsInTask || ExileController.Instance || !Main.IntroDestroyed || Options.CurrentGameMode != CustomGameMode.SoloPVP || !AmongUsClient.Instance.AmHost || id >= 254) return;
 
             long now = Utils.TimeStamp;
-            if (LastCountdownTime[id] == now) return;
+            if (!LastCountdownTime.TryGetValue(id, out long ts) || ts == now) return;
             LastCountdownTime[id] = now;
 
             if (LastHurt[id] + SoloPVP_RecoverAfterSecond.GetInt() < now && PlayerHP[id] < PlayerHPMax[id] && __instance.SoloAlive() && !__instance.inVent)

@@ -368,8 +368,6 @@ public static class SabotageSystemTypeUpdateSystemPatch
     public static bool IsCooldownModificationEnabled;
     public static float ModifiedCooldownSec;
 
-    public static SabotageSystemType Instance;
-
     public static void Initialize()
     {
         IsCooldownModificationEnabled = Options.SabotageCooldownControl.GetBool();
@@ -415,7 +413,6 @@ public static class SabotageSystemTypeUpdateSystemPatch
 
     public static bool Prefix(SabotageSystemType __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
-        Instance = __instance;
         if (Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.Snowdown) || __instance.Timer > 0f) return false;
 
         SystemTypes systemTypes;
@@ -425,33 +422,77 @@ public static class SabotageSystemTypeUpdateSystemPatch
             newReader.Recycle();
         }
 
-        if (SubmergedCompatibility.IsSubmerged()) return CheckSabotage(__instance, player, systemTypes);
-
-        if (Options.EnableCustomSabotages.GetBool())
+        if (!SubmergedCompatibility.IsSubmerged() && Options.EnableCustomSabotages.GetBool() && Options.EnableGrabOxygenMaskCustomSabotage.GetBool() && systemTypes == SystemTypes.Comms)
         {
-            if (Options.EnableGrabOxygenMaskCustomSabotage.GetBool() && systemTypes == SystemTypes.Comms)
+            if (!SabotageDoubleTrigger.WaitingForDoubleTrigger)
             {
-                if (!SabotageDoubleTrigger.WaitingForDoubleTrigger)
+                SabotageDoubleTrigger.SetUp(player, () =>
                 {
-                    SabotageDoubleTrigger.SetUp(player, () =>
-                    {
-                        new GrabOxygenMaskSabotage().Deteriorate();
-                        __instance.Timer = IsCooldownModificationEnabled ? ModifiedCooldownSec : 30f;
-                        __instance.IsDirty = true;
-                    });
-                    return false;
-                }
-
-                SabotageDoubleTrigger.Reset();
+                    new GrabOxygenMaskSabotage().Deteriorate();
+                    __instance.Timer = IsCooldownModificationEnabled ? ModifiedCooldownSec : 30f;
+                    __instance.IsDirty = true;
+                });
+                return false;
             }
+
+            SabotageDoubleTrigger.Reset();
         }
 
-        return CheckSabotage(__instance, player, systemTypes);
+        bool allowed = CheckSabotage(__instance, player, systemTypes);
+        
+        if (allowed)
+        {
+            var pcs = Main.CachedAlivePlayerControls();
+
+            for (var index = 0; index < pcs.Count; index++)
+            {
+                PlayerControl pc = pcs[index];
+
+                try
+                {
+                    switch (pc.GetCustomRole())
+                    {
+                        case CustomRoles.Evader:
+                            pc.RpcMakeInvisible();
+                            break;
+                        case CustomRoles.Sensor when pc.GetAbilityUseLimit() >= 1f:
+                            pc.RpcRemoveAbilityUse();
+                            TargetArrow.Add(pc.PlayerId, player.PlayerId);
+                            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                            LateTask.New(() =>
+                            {
+                                TargetArrow.Remove(pc.PlayerId, player.PlayerId);
+                                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                            }, Sensor.ArrowDuration.GetInt(), "Sensor Arrow");
+                            break;
+                    }
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+            }
+
+            try
+            {
+                if (QuizMaster.On) QuizMaster.Data.NumSabotages++;
+
+                if (Main.CurrentMap == MapNames.Skeld)
+                    LateTask.New(() => DoorsReset.SetDoors(DoorsReset.ResetMode.AllOpen), 1f, "Opening All Doors On Sabotage (Skeld)");
+            }
+            catch { }
+
+            try
+            {
+                if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state))
+                    state.Role.OnSabotage(player);
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+        }
+        
+        return allowed;
     }
 
     public static bool CheckSabotage(SabotageSystemType __instance, PlayerControl player, SystemTypes systemTypes)
     {
-        if (__instance.Timer > 0f || !CheckDisabledSabotage(systemTypes) || Stasis.IsTimeFrozen || Pelican.IsEaten(player.PlayerId)) return false;
+        if (__instance.Timer > 0f || !CheckDisabledSabotage(systemTypes) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || Pelican.IsEaten(player.PlayerId)) return false;
 
         if (systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
         {
@@ -481,52 +522,27 @@ public static class SabotageSystemTypeUpdateSystemPatch
             return false;
         }
 
-        if (!Rhapsode.CheckAbilityUse(player) || Stasis.IsTimeFrozen || TimeMaster.Rewinding) return false;
+        if (!Rhapsode.CheckAbilityUse(player)) return false;
+
+        if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting)
+        {
+            player.Notify(Translator.GetString("TraineeNotify"));
+            return false;
+        }
 
         if (player.Is(CustomRoles.Mischievous)) return true;
 
         if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
         if (!player.Is(Team.Impostor) && !player.IsAlive()) return false;
 
-        bool allow = player.GetCustomRole() switch
+        return player.GetCustomRole() switch
         {
             CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,
             CustomRoles.Sidekick when Jackal.CanSabotageSK.GetBool() => true,
             CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
             CustomRoles.Parasite or CustomRoles.Renegade when player.IsAlive() => true,
-            _ => Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player) && Main.PlayerStates[player.PlayerId].Role.OnSabotage(player)
+            _ => Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && state.Role.CanUseSabotage(player)
         };
-
-        if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting)
-        {
-            player.Notify(Translator.GetString("TraineeNotify"));
-            allow = false;
-        }
-
-        if (allow)
-        {
-            if (QuizMaster.On) QuizMaster.Data.NumSabotages++;
-
-            if (Main.CurrentMap == MapNames.Skeld)
-                LateTask.New(DoorsReset.OpenAllDoors, 1f, "Opening All Doors On Sabotage (Skeld)");
-
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
-            {
-                if (pc.Is(CustomRoles.Sensor) && pc.GetAbilityUseLimit() >= 1f)
-                {
-                    pc.RpcRemoveAbilityUse();
-                    TargetArrow.Add(pc.PlayerId, player.PlayerId);
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                    LateTask.New(() =>
-                    {
-                        TargetArrow.Remove(pc.PlayerId, player.PlayerId);
-                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                    }, Sensor.ArrowDuration.GetInt(), "Sensor Arrow");
-                }
-            }
-        }
-
-        return allow;
     }
 
     public static bool CheckDisabledSabotage(SystemTypes systemTypes)

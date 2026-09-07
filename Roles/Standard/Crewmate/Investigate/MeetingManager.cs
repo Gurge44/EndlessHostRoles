@@ -48,7 +48,7 @@ public class MeetingManager : RoleBase
     {
         if (PlayerIdList == null) return;
         foreach (byte id in PlayerIdList)
-            LateTask.New(() => Utils.SendMessage(dp == pc ? string.Format(GetString("MeetingManagerMessageAboutJudgeSuicide"), dp.GetRealName().Replace("\n", " + "), CustomRoles.JudgeOld.ToColoredString()) : string.Format(GetString("MeetingManagerMessageAboutGuessedRole"), dp.GetAllRoleName().Replace("\n", " + ")), id, CustomRoles.MeetingManager.ColoredTextByRole(GetString("MeetingManagerMessageTitle")), importance: MessageImportance.High), 1f, "Meeting Manager Messages");
+            LateTask.New(() => Utils.SendMessage(dp == pc ? string.Format(GetString("MeetingManagerMessageAboutJudgeSuicide"), dp.GetRealName().Replace("\n", " + "), CustomRoles.Prosecutor.ToColoredString()) : string.Format(GetString("MeetingManagerMessageAboutGuessedRole"), dp.GetAllRoleName().Replace("\n", " + ")), id, CustomRoles.MeetingManager.ColoredTextByRole(GetString("MeetingManagerMessageTitle")), importance: MessageImportance.High), 1f, "Meeting Manager Messages");
     }
 
     public static void OnSwap(PlayerControl tg1, PlayerControl tg2)

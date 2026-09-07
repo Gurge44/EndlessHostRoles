@@ -77,10 +77,17 @@ public class Starspawn : RoleBase
         return false;
     }
 
+    public override bool OnJudge(PlayerControl pc, PlayerControl target)
+    {
+        if (IsDayBreak) return false;
+        const string command = "/daybreak";
+        ChatCommands.DayBreakCommand(pc, command, command.Split(' '));
+        return true;
+    }
+
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        const string command = "/daybreak";
-        ChatCommands.DayBreakCommand(shapeshifter, command, command.Split(' '));
+        OnJudge(shapeshifter, target);
     }
 
     public void ReceiveRPC(MessageReader reader)

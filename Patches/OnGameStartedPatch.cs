@@ -642,7 +642,7 @@ internal static class StartGameHostPatch
                                 if (!finderBanned) finderList.Add(player.PlayerId);
                                 if (!noisyBanned) noisyList.Add(player.PlayerId);
                                 
-                                if (!examinerBanned && !kp.Value.UsesMeetingShapeshift())
+                                if (!examinerBanned && !kp.Value.UsesMeetingShapeshift() && !kp.Value.UsesJudgeAbilityAsTrigger())
                                     examinerList.Add(player.PlayerId);
                             }
                         }

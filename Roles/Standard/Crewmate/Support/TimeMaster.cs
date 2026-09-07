@@ -258,6 +258,7 @@ internal class TimeMaster : RoleBase
                 4 => FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["AirshipVital"], usableDistance),
                 5 => FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["FungleVital"], usableDistance),
                 6 when SubmergedCompatibility.IsSubmerged() => FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["SubmergedVital"], usableDistance),
+                7 => DisableDevice.DevicePos.Any(kvp => kvp.Key.StartsWith("LIVital") && FastVector2.DistanceWithinRange(pos, kvp.Value, usableDistance)),
                 _ => false
             };
         }

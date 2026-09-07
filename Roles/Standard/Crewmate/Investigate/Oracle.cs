@@ -57,7 +57,12 @@ public class Oracle : RoleBase
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetFloat());
     }
 
-    public override bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    {
+        return UseJudgeAbilityAsTrigger.GetBool() || UseMeetingShapeshift.GetBool() ? base.OnVote(voter, target) : OnJudge(voter, target);
+    }
+
+    public override bool OnJudge(PlayerControl player, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null) return false;
@@ -95,6 +100,6 @@ public class Oracle : RoleBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        OnJudge(shapeshifter, target);
     }
 }

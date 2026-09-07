@@ -235,7 +235,8 @@ internal static class RPCHandlerPatch
         [RpcCalls.CheckSpore] = 5,
         [RpcCalls.CheckShapeshift] = 25,
         [RpcCalls.CheckVanish] = 25,
-        [RpcCalls.CheckAppear] = 25
+        [RpcCalls.CheckAppear] = 25,
+        [RpcCalls.QueueOverruleVotes] = 3
     };
 
     public static void WhiteListFromRateLimitUntil(byte id, long timestamp)
@@ -1102,7 +1103,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.Judge:
                 {
-                    Judge.ReceiveRPC(reader, __instance);
+                    Prosecutor.ReceiveRPC(reader, __instance);
                     break;
                 }
                 case CustomRPC.MeetingKill:
@@ -1452,7 +1453,7 @@ internal static class RPC
 
         SendOption sendOption = SendOption.Reliable;
 
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && Options.CurrentGameMode != CustomGameMode.Standard)
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
             sendOption = SendOption.None;
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, sendOption);

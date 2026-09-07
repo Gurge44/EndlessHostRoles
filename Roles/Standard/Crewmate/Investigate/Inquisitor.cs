@@ -37,6 +37,11 @@ public class Inquisitor : RoleBase
 
     public override bool OnVote(PlayerControl voter, PlayerControl target)
     {
+        return Options.UseJudgeAbilityAsTrigger.GetBool() || Options.UseMeetingShapeshift.GetBool() ? base.OnVote(voter, target) : OnJudge(voter, target);
+    }
+
+    public override bool OnJudge(PlayerControl voter, PlayerControl target)
+    {
         if (Starspawn.IsDayBreak) return false;
         if (!voter || !target || voter.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
@@ -68,6 +73,6 @@ public class Inquisitor : RoleBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        OnJudge(shapeshifter, target);
     }
 }

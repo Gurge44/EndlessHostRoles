@@ -138,7 +138,7 @@ internal static class VersionShowerStartPatch
     {
 #pragma warning disable CS0162 // Unreachable code detected
         // ReSharper disable once HeuristicUnreachableCode
-        string testBuildIndicator = Main.TestBuild ? " <#ff0000>TEST</color>" : string.Empty;
+        string testBuildIndicator = Main.TestBuildNumber > 0 ? $" <#ff0000>TEST <#bb0000>{Main.TestBuildNumber}</color></color>" : string.Empty;
 #pragma warning restore CS0162 // Unreachable code detected
 
         Main.CredentialsText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";

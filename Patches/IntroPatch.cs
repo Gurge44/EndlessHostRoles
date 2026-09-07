@@ -814,7 +814,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Judge
                     or CustomRoles.JudgeEHR
-                    or CustomRoles.JudgeOld
+                    or CustomRoles.Prosecutor
                 => GetIntroSound(RoleTypes.Judge),
 
                 CustomRoles.Phantom
@@ -1400,7 +1400,6 @@ internal static class IntroCutsceneDestroyPatch
             LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 6f, "NotifyEveryoneAsync On Game Start");
             LateTask.New(Utils.MarkEveryoneDirtySettings, 0.5f, "SyncAllSettings On Game Start");
             LateTask.New(() => Main.Instance.StartCoroutine(ShipStatusFixedUpdatePatch.Postfix()), 5f, "ShipStatusFixedUpdatePatch Postfix Start");
-            LateTask.New(() => Main.Instance.StartCoroutine(Utils.SendGameDataContinuously()), 10f, "SendGameDataContinuously Start");
 
             Utils.CheckAndSetVentInteractions();
         }
@@ -1467,5 +1466,9 @@ internal static class IntroCutsceneDestroyPatch
             if (Main.CurrentMap == MapNames.Airship && FastVector2.DistanceWithinRange(PlayerControl.LocalPlayer.Pos(), new Vector2(-25f, 40f), 8f) && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
                 PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8));
         }, 4f, "Airship Spawn FailSafe");
+
+        MatchInfoHudButton.defaultDistanceFromEdge = MatchInfoHudButton.adjustedDistanceFromEdge;
+        
+        ExtendedPlayerControl.NameWithRoleCache.Clear();
     }
 }

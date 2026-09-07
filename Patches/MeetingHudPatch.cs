@@ -22,6 +22,7 @@ internal static class CheckForEndVotingPatch
     public static string EjectionText = string.Empty;
     public static NetworkedPlayerInfo TempExiledPlayer;
     public static bool ShouldSkip;
+    public static bool CommsWasCalled;
 
     private static readonly List<MeetingHud.VoterState> StatesList = [];
     private static MeetingHud.VoterState[] States = [];
@@ -105,7 +106,7 @@ internal static class CheckForEndVotingPatch
                         __instance.UpdateForeground();
                         pva.VotedForId = byte.MaxValue;
                     }
-                    else if (voteTarget && !pc.GetCustomRole().CancelsVote() && !pc.UsesMeetingShapeshift())
+                    else if (voteTarget && !pc.GetCustomRole().CancelsVote() && !pc.UsesMeetingShapeshift() && !pc.UsesJudgeAbilityAsTrigger())
                         Main.PlayerStates[pc.PlayerId].Role.OnVote(pc, voteTarget);
                     else if (pc.Is(CustomRoles.Godfather)) Godfather.GodfatherTarget = byte.MaxValue;
                 }
@@ -762,7 +763,8 @@ internal static class MeetingHudStartPatch
 
                 if (Settings.Length > 0) RoleDescMsgs.Add(new("\n", pc.PlayerId, Settings.ToString()));
                 if (role.UsesPetInsteadOfKill()) RoleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesPetInsteadOfKillNotice")));
-                if (pc.UsesMeetingShapeshift()) RoleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesMeetingShapeshiftNotice")));
+                if (pc.UsesJudgeAbilityAsTrigger()) RoleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesJudgeAbilityAsTriggerNotice")));
+                else if (pc.UsesMeetingShapeshift()) RoleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesMeetingShapeshiftNotice")));
 
                 RoleDescMsgs.Add(new(Sb.ToString(), pc.PlayerId, TitleSb.ToString()));
             }
@@ -1067,7 +1069,23 @@ internal static class MeetingHudStartPatch
                 sender.SendMessage();
             }, 3f, "SetName To Chat");
 
-            if (Options.UseMeetingShapeshift.GetBool())
+            if (Options.UseJudgeAbilityAsTrigger.GetBool())
+            {
+                LateTask.New(() =>
+                {
+                    if (!MeetingHud.Instance || MeetingHud.Instance.state is MeetingHud.MeetingStates.Results or MeetingHud.MeetingStates.Proceeding) return;
+
+                    if (Utils.IsActive(SystemTypes.Comms))
+                    {
+                        CheckForEndVotingPatch.CommsWasCalled = true;
+                        if (Main.NormalOptions.MapId is 1 or 5) ShipStatus.Instance.UpdateSystem(SystemTypes.Comms, PlayerControl.LocalPlayer, 17);
+                        ShipStatus.Instance.UpdateSystem(SystemTypes.Comms, PlayerControl.LocalPlayer, 16);
+                    }
+
+                    Main.EnumerateAlivePlayerControls().DoIf(x => x.UsesJudgeAbilityAsTrigger(), x => x.RpcSetRoleDesync(RoleTypes.Judge, x.OwnerId));
+                }, 1f, "Set Shapeshifter Role For Meeting Use");
+            }
+            else if (Options.UseMeetingShapeshift.GetBool())
             {
                 LateTask.New(() =>
                 {
@@ -1199,6 +1217,8 @@ internal static class MeetingHudStartPatch
                 pva.NameText.SetText(name);
             }
         }
+        
+        SendChatNotePatch.Voted.Clear();
 
         // -------------------------------------------------------------------------------------------
 
@@ -1206,7 +1226,7 @@ internal static class MeetingHudStartPatch
 
         GuessManager.StartMeetingPatch.Postfix(__instance);
         Inspector.StartMeetingPatch.Postfix(__instance);
-        Judge.StartMeetingPatch.Postfix(__instance);
+        Prosecutor.StartMeetingPatch.Postfix(__instance);
         Swapper.StartMeetingPatch.Postfix(__instance);
         Councillor.StartMeetingPatch.Postfix(__instance);
         Nemesis.StartMeetingPatch.Postfix(__instance);
@@ -1307,7 +1327,7 @@ internal static class MeetingHudUpdatePatch
 
                 switch (myRole)
                 {
-                    case CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.JudgeOld or CustomRoles.Swapper or CustomRoles.Councillor or CustomRoles.Guesser when !PlayerControl.LocalPlayer.IsAlive():
+                    case CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Prosecutor or CustomRoles.Swapper or CustomRoles.Councillor or CustomRoles.Guesser when !PlayerControl.LocalPlayer.IsAlive():
                         ClearShootButton(__instance, true);
                         break;
                     case CustomRoles.Nemesis when !PlayerControl.LocalPlayer.IsAlive() && !GameObject.Find("ShootButton"):
@@ -1361,6 +1381,24 @@ internal static class MeetingHudOnDestroyPatch
         {
             GameEndChecker.ShouldNotCheck = true;
             LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 15f, "Re-enable GameEndChecker after meeting");
+
+            try
+            {
+                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    if (pc.Is(CustomRoles.Evader))
+                        pc.RpcMakeInvisible();
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            try
+            {
+                if (CheckForEndVotingPatch.CommsWasCalled)
+                {
+                    CheckForEndVotingPatch.CommsWasCalled = false;
+                    ShipStatus.Instance.UpdateSystem(SystemTypes.Comms, PlayerControl.LocalPlayer, 128);
+                }
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
             
             bool meetingSS = Options.UseMeetingShapeshift.GetBool();
             bool meetingSSForGuessing = Options.UseMeetingShapeshiftForGuessing.GetBool();
@@ -1376,17 +1414,26 @@ internal static class MeetingHudOnDestroyPatch
 
             Main.LastVotedPlayerInfo = null;
 
-            if (meetingSS && !AntiBlackout.SkipTasks)
+            if (!AntiBlackout.SkipTasks)
             {
-                bool restrictions = Options.GuesserNumRestrictions.GetBool();
-
-                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                if (Options.UseJudgeAbilityAsTrigger.GetBool())
                 {
-                    if (pc.UsesMeetingShapeshift() || (meetingSSForGuessing && !pc.IsModdedClient() && GuessManager.StartMeetingPatch.CanGuess(pc, restrictions)))
-                        pc.RpcSetRoleDesync(pc.GetRoleTypes(), pc.OwnerId);
+                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                        if (pc.UsesJudgeAbilityAsTrigger())
+                            pc.RpcSetRoleDesync(pc.GetRoleTypes(), pc.OwnerId);
+                }
+                else if (meetingSS)
+                {
+                    bool restrictions = Options.GuesserNumRestrictions.GetBool();
 
-                    if (pc.IsImpostor())
-                        pc.RpcSetRoleGlobal(pc.GetRoleTypes());
+                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    {
+                        if (pc.UsesMeetingShapeshift() || (meetingSSForGuessing && !pc.IsModdedClient() && GuessManager.StartMeetingPatch.CanGuess(pc, restrictions)))
+                            pc.RpcSetRoleDesync(pc.GetRoleTypes(), pc.OwnerId);
+
+                        if (pc.IsImpostor())
+                            pc.RpcSetRoleGlobal(pc.GetRoleTypes());
+                    }
                 }
             }
         }
@@ -1473,7 +1520,7 @@ internal static class MeetingHudCastVotePatch
 
         var voteCanceled = false;
 
-        if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !skip && pcSrc.GetCustomRole().CancelsVote() && !pcSrc.UsesMeetingShapeshift() && Main.PlayerStates[srcPlayerId].Role.OnVote(pcSrc, pcTarget))
+        if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !skip && pcSrc.GetCustomRole().CancelsVote() && !pcSrc.UsesMeetingShapeshift() && !pcSrc.UsesJudgeAbilityAsTrigger() && Main.PlayerStates[srcPlayerId].Role.OnVote(pcSrc, pcTarget))
         {
             ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pvaSrc, pcSrc));
             voteCanceled = true;
@@ -1513,12 +1560,23 @@ internal static class MeetingHudCastVotePatch
     }
 }
 
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.ClearVote))]
+static class ClearVotePatch
+{
+    public static void Postfix(PlayerId voterIdToClear)
+    {
+        SendChatNotePatch.Voted.Remove(voterIdToClear.Value);
+    }
+}
+
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSendChatNote))]
 static class SendChatNotePatch
 {
-    public static bool Prefix()
+    public static readonly HashSet<byte> Voted = [];
+    
+    public static bool Prefix(byte srcPlayerId, ChatNoteTypes noteType)
     {
-        return !Options.DisablePlayerVotedMessage.GetBool();
+        return noteType != ChatNoteTypes.DidVote || Voted.Add(srcPlayerId);
     }
 }
 
@@ -1550,6 +1608,34 @@ static class MeetingHud_Start
             playerMaterialColors.color = new Color(0.25f, 0.25f, 0.25f);
             PlayerMaterial.SetColors(7, playerMaterialColors);
         }
+    }
+}
+
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CmdQueueOverruleVotes))]
+static class MeetingHudCmdQueueOverruleVotesPatch
+{
+    public static bool Prefix(MeetingHud __instance, [HarmonyArgument(1)] PlayerId targetPlayerId)
+    {
+        if (!AmongUsClient.Instance.AmHost) return true;
+
+        PlayerControl target = targetPlayerId.Value.GetPlayer();
+
+        if (target && PlayerControl.LocalPlayer.UsesJudgeAbilityAsTrigger() && Main.PlayerStates.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out PlayerState state))
+        {
+            state.Role.OnJudge(PlayerControl.LocalPlayer, target);
+
+            if (__instance.playerStates.FindFirst(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId, out PlayerVoteArea pva))
+            {
+                pva.UnsetVote();
+                __instance.RpcClearVote(pva.PlayerId);
+                __instance.UpdateForeground();
+                pva.VotedForId = byte.MaxValue;
+            }
+                    
+            return false;
+        }
+
+        return true;
     }
 }
 
@@ -1603,30 +1689,66 @@ internal static class MeetingHudHandleRpcPatch
 {
     public static bool Prefix([HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
-        if (callId == (byte)RpcCalls.CloseMeeting)
+        switch (callId)
         {
-            if (AmongUsClient.Instance.AmHost)
+            case (byte)RpcCalls.QueueOverruleVotes:
+            {
+                byte judgePlayerId, targetPlayerId;
+                {
+                    MessageReader subReader = MessageReader.Get(reader);
+                    judgePlayerId = subReader.ReadByte();
+                    targetPlayerId = subReader.ReadByte();
+                    subReader.Recycle();
+                }
+
+                PlayerControl judge = judgePlayerId.GetPlayer();
+                PlayerControl target = targetPlayerId.GetPlayer();
+
+                if (judge && target && judge.UsesJudgeAbilityAsTrigger() && Main.PlayerStates.TryGetValue(judgePlayerId, out PlayerState state))
+                {
+                    state.Role.OnJudge(judge, target);
+
+                    var meetingHud = MeetingHud.Instance;
+
+                    if (meetingHud && meetingHud.playerStates.FindFirst(x => x.PlayerId == judgePlayerId, out PlayerVoteArea pva))
+                    {
+                        pva.UnsetVote();
+                        meetingHud.RpcClearVote(pva.PlayerId);
+                        meetingHud.UpdateForeground();
+                        pva.VotedForId = byte.MaxValue;
+                    }
+                    
+                    return false;
+                }
+
+                break;
+            }
+            case (byte)RpcCalls.CloseMeeting when AmongUsClient.Instance.AmHost:
             {
                 EAC.WarnHost(4);
                 Logger.Warn("MeetingHud.HandleRpc CloseMeeting is being called, impossible to receive as host.", "MeetingHudHandleRpcPatch");
                 return false;
             }
-
-            Logger.Info("Received Close Meeting Rpc", "MeetingHudHandleRpcPatch");
-
-            if (reader.BytesRemaining > 6)
+            case (byte)RpcCalls.CloseMeeting:
             {
-                try
-                {
-                    string temp = reader.ReadString();
+                Logger.Info("Received Close Meeting Rpc", "MeetingHudHandleRpcPatch");
 
-                    if (temp.Contains("<size"))
+                if (reader.BytesRemaining > 6)
+                {
+                    try
                     {
-                        Logger.Info($"Read Name From Rpc: {temp}", "MeetingHudHandleRpcPatch");
-                        CheckForEndVotingPatch.EjectionText = temp;
+                        string temp = reader.ReadString();
+
+                        if (temp.Contains("<size"))
+                        {
+                            Logger.Info($"Read Name From Rpc: {temp}", "MeetingHudHandleRpcPatch");
+                            CheckForEndVotingPatch.EjectionText = temp;
+                        }
                     }
+                    catch { }
                 }
-                catch { }
+
+                break;
             }
         }
 

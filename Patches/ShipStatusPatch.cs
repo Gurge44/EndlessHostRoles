@@ -182,22 +182,8 @@ internal static class UpdateSystemPatch
             }
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
             {
-                bool allowed = SabotageSystemTypeUpdateSystemPatch.CheckSabotage(__instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>(), player, systemType);
-
-                if (allowed)
-                {
-                    List<PlayerControl> pcs = Main.CachedAlivePlayerControls();
-
-                    for (var index = 0; index < pcs.Count; index++)
-                    {
-                        PlayerControl pc = pcs[index];
-                        
-                        if (pc.Is(CustomRoles.Evader))
-                            pc.RpcMakeInvisible();
-                    }
-                }
-
-                return allowed;
+                var sabotageSystemType = __instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>();
+                return SabotageSystemTypeUpdateSystemPatch.CheckSabotage(sabotageSystemType, player, systemType);
             }
             case SystemTypes.Security when amount == 1:
             {
@@ -245,32 +231,40 @@ internal static class UpdateSystemPatch
             }
         }
 
-        if (ShipStatusSystem.AllSabotage.Contains(systemType) && !Utils.IsActive(systemType))
+        // LateTask is needed because 2-part sabotages such as O2 aren't immediately deactivated when both consoles are completed, only after the next FixedUpdate
+        LateTask.New(() =>
         {
-            bool petcd = !Options.UsePhantomBasis.GetBool();
-
-            List<PlayerControl> pcs = Main.CachedAlivePlayerControls();
-
-            for (var index = 0; index < pcs.Count; index++)
+            if (ShipStatusSystem.AllSabotage.Contains(systemType) && !Utils.IsActive(systemType))
             {
-                PlayerControl pc = pcs[index];
+                bool petcd = !Options.UsePhantomBasis.GetBool();
 
-                switch (pc.GetCustomRole())
+                List<PlayerControl> pcs = Main.CachedAlivePlayerControls();
+
+                for (var index = 0; index < pcs.Count; index++)
                 {
-                    case CustomRoles.Wiper:
+                    PlayerControl pc = pcs[index];
+
+                    try
                     {
-                        if (petcd) pc.AddAbilityCD();
-                        else pc.RpcResetAbilityCooldown();
-                        break;
+                        switch (pc.GetCustomRole())
+                        {
+                            case CustomRoles.Wiper:
+                            {
+                                if (petcd) pc.AddAbilityCD();
+                                else pc.RpcResetAbilityCooldown();
+                                break;
+                            }
+                            case CustomRoles.Evader:
+                            {
+                                pc.RpcMakeVisible();
+                                break;
+                            }
+                        }
                     }
-                    case CustomRoles.Evader:
-                    {
-                        pc.RpcMakeVisible();
-                        break;
-                    }
+                    catch (Exception e) { Utils.ThrowException(e); }
                 }
             }
-        }
+        }, 0.1f);
     }
 
     public static void CheckAndOpenDoorsRange(ShipStatus __instance, int amount, int min, int max)

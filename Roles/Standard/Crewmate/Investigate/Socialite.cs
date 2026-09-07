@@ -102,7 +102,12 @@ public class Socialite : RoleBase
         return true;
     }
 
-    public override bool OnVote(PlayerControl pc, PlayerControl target)
+    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    {
+        return Options.UseJudgeAbilityAsTrigger.GetBool() || Options.UseMeetingShapeshift.GetBool() ? base.OnVote(voter, target) : OnJudge(voter, target);
+    }
+
+    public override bool OnJudge(PlayerControl pc, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
@@ -119,7 +124,7 @@ public class Socialite : RoleBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        OnJudge(shapeshifter, target);
     }
 
     public void ReceiveRPC(MessageReader reader)

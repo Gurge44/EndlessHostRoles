@@ -41,7 +41,12 @@ public class Soothsayer : RoleBase
         Instances?.Remove(this);
     }
 
-    public override bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnVote(PlayerControl voter, PlayerControl target)
+    {
+        return Options.UseJudgeAbilityAsTrigger.GetBool() || Options.UseMeetingShapeshift.GetBool() ? base.OnVote(voter, target) : OnJudge(voter, target);
+    }
+
+    public override bool OnJudge(PlayerControl player, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null || player.PlayerId == target.PlayerId) return false;
@@ -55,7 +60,7 @@ public class Soothsayer : RoleBase
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        OnVote(shapeshifter, target);
+        OnJudge(shapeshifter, target);
     }
 
     public static void OnAnyoneDeath(PlayerControl killer)

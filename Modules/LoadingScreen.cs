@@ -10,7 +10,7 @@ internal static class LoadingScreen
 {
     private const int HintCount = 40;
     private const int JokeHintCount = 6;
-    private static Vector3 Position;
+    private static Camera Camera;
     private static SpriteRenderer LoadingAnimation;
     private static readonly HashSet<int> ToldHints = [];
     private static float HintHideTimer;
@@ -26,8 +26,8 @@ internal static class LoadingScreen
             LoadingAnimation.sprite = Utils.LoadSprite("EHR.Resources.Loading.png", 300f);
             LoadingAnimation.sortingOrder = 100;
 
-            var camera = HudManager.Instance.GetComponentInChildren<Camera>();
-            LoadingAnimation.transform.position = Position = AspectPosition.ComputeWorldPosition(camera, AspectPosition.EdgeAlignments.LeftBottom, new Vector3(0.6f, 0.6f, camera.nearClipPlane + 0.1f));
+            Camera = HudManager.Instance.GetComponentInChildren<Camera>();
+            LoadingAnimation.transform.position = AspectPosition.ComputeWorldPosition(Camera, AspectPosition.EdgeAlignments.LeftBottom, new Vector3(0.6f, 0.6f, Camera.nearClipPlane + 0.1f));
         }
         catch (Exception ex) { Logger.Error(ex.ToString(), "LoadingScreen.UpdateLoadingAnimation"); }
     }
@@ -87,7 +87,7 @@ internal static class LoadingScreen
 
             if (LoadingAnimation)
             {
-                LoadingAnimation.transform.position = Position;
+                LoadingAnimation.transform.position = AspectPosition.ComputeWorldPosition(Camera, AspectPosition.EdgeAlignments.LeftBottom, new Vector3(0.6f, 0.6f, Camera.nearClipPlane + 0.1f));
                 LoadingAnimation.transform.Rotate(Vector3.back, 200f * Time.deltaTime);
             }
 

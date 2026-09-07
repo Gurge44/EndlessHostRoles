@@ -109,9 +109,16 @@ public class Empress : CovenBase
         return true;
     }
 
+    public override bool OnJudge(PlayerControl voter, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return false;
+        Empower(voter);
+        return true;
+    }
+
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        Empower(shapeshifter);
+        OnJudge(shapeshifter, target);
     }
 
     private void Empower(PlayerControl voter)
