@@ -72,28 +72,62 @@ public static class CaptureTheFlag
         return TeamData[team.GetOppositeTeam()].FlagCarrier == id;
     }
 
-    private static (Vector2 Position, string RoomName) BlueFlagBase => Main.CurrentMap switch
+    /*private static (Vector2 Position, string RoomName) BlueFlagBase => Main.CurrentMap switch
     {
-        MapNames.Skeld => (new(16.5f, -4.8f), Translator.GetString(SystemTypes.Nav)),
-        MapNames.MiraHQ => (new(-4.5f, 2.0f), Translator.GetString(SystemTypes.Launchpad)),
+        MapNames.Skeld => (, Translator.GetString(SystemTypes.Nav)),
+        MapNames.MiraHQ => (, Translator.GetString(SystemTypes.Launchpad)),
         MapNames.Dleks => (new(-16.5f, -4.8f), Translator.GetString(SystemTypes.Nav)),
-        MapNames.Polus => (new(9.5f, -12.5f), Translator.GetString(SystemTypes.Electrical)),
-        MapNames.Airship => (new(-23.5f, -1.6f), Translator.GetString(SystemTypes.Cockpit)),
-        MapNames.Fungle => (new(-15.5f, -7.5f), Translator.GetString(SystemTypes.Kitchen)),
-        (MapNames)6 => (new(-13.31f, -34.56f), Translator.GetString(SystemTypes.Engine)),
+        MapNames.Polus => (, Translator.GetString(SystemTypes.Electrical)),
+        MapNames.Airship => (, Translator.GetString(SystemTypes.Cockpit)),
+        MapNames.Fungle => (, Translator.GetString(SystemTypes.Kitchen)),
+        (MapNames)6 => (, Translator.GetString(SystemTypes.Engine)),
         _ => (Vector2.zero, string.Empty)
     };
 
     private static (Vector2 Position, string RoomName) YellowFlagBase => Main.CurrentMap switch
     {
-        MapNames.Skeld => (new(-20.5f, -5.5f), Translator.GetString(SystemTypes.Reactor)),
-        MapNames.MiraHQ => (new(17.8f, 23.0f), Translator.GetString(SystemTypes.Greenhouse)),
+        MapNames.Skeld => (, Translator.GetString(SystemTypes.Reactor)),
+        MapNames.MiraHQ => (, Translator.GetString(SystemTypes.Greenhouse)),
         MapNames.Dleks => (new(20.5f, -5.5f), Translator.GetString(SystemTypes.Reactor)),
-        MapNames.Polus => (new(36.5f, -7.5f), Translator.GetString(SystemTypes.Laboratory)),
-        MapNames.Airship => (new(33.5f, -1.5f), Translator.GetString(SystemTypes.CargoBay)),
-        MapNames.Fungle => (new(22.2f, 13.7f), Translator.GetString(SystemTypes.Comms)),
-        (MapNames)6 => (new(12.98f, -25.68f), Translator.GetString(SystemTypes.Comms)),
+        MapNames.Polus => (, Translator.GetString(SystemTypes.Laboratory)),
+        MapNames.Airship => (, Translator.GetString(SystemTypes.CargoBay)),
+        MapNames.Fungle => (, Translator.GetString(SystemTypes.Comms)),
+        (MapNames)6 => (, Translator.GetString(SystemTypes.Comms)),
         _ => (Vector2.zero, string.Empty)
+    };*/
+
+    private static readonly Dictionary<MapNames, Dictionary<CTFTeam, (Vector2 Position, SystemTypes Room)>> FlagBases = new()
+    {
+        [MapNames.Skeld] = new()
+        {
+            [CTFTeam.Blue] = (new(16.5f, -4.8f), SystemTypes.Nav),
+            [CTFTeam.Yellow] = (new(-20.5f, -5.5f), SystemTypes.Reactor)
+        },
+        [MapNames.MiraHQ] = new()
+        {
+            [CTFTeam.Blue] = (new(-4.5f, 2.0f), SystemTypes.Launchpad),
+            [CTFTeam.Yellow] = (new(17.8f, 23.0f), SystemTypes.Greenhouse)
+        },
+        [MapNames.Polus] = new()
+        {
+            [CTFTeam.Blue] = (new(9.5f, -12.5f), SystemTypes.Electrical),
+            [CTFTeam.Yellow] = (new(36.5f, -7.5f), SystemTypes.Laboratory)
+        },
+        [MapNames.Airship] = new()
+        {
+            [CTFTeam.Blue] = (new(-23.5f, -1.6f), SystemTypes.Cockpit),
+            [CTFTeam.Yellow] = (new(33.5f, -1.5f), SystemTypes.CargoBay)
+        },
+        [MapNames.Fungle] = new()
+        {
+            [CTFTeam.Blue] = (new(-15.5f, -7.5f), SystemTypes.Kitchen),
+            [CTFTeam.Yellow] = (new(22.2f, 13.7f), SystemTypes.Comms)
+        },
+        [(MapNames)6] = new()
+        {
+            [CTFTeam.Blue] = (new(-13.31f, -34.56f), SystemTypes.Engine),
+            [CTFTeam.Yellow] = (new(12.98f, -25.68f), SystemTypes.Comms)
+        },
     };
 
     public static void SetupCustomOption()
@@ -352,6 +386,21 @@ public static class CaptureTheFlag
         Main.AllPlayerKillCooldown.SetAllValues(TagCooldown.GetFloat());
 
         yield return new WaitForSecondsRealtime(3f);
+
+        if (Main.LIMap)
+        {
+            PlainShipRoom[] rooms = ShipStatus.Instance.AllRooms.Where(x => x).DistinctBy(x => x.RoomId).ToArray();
+            PlainShipRoom[] chosen = rooms.Select(plainShipRoom =>
+            {
+                KeyValuePair<PlainShipRoom, float> furthestRoom = rooms.Select(x => new KeyValuePair<PlainShipRoom, float>(x, Vector2.Distance(x.transform.position, plainShipRoom.transform.position))).MaxBy(x => x.Value);
+                return new KeyValuePair<PlainShipRoom[], float>([furthestRoom.Key, plainShipRoom], furthestRoom.Value);
+            }).MaxBy(x => x.Value).Key;
+            FlagBases[(MapNames)7] = new()
+            {
+                [CTFTeam.Blue] = (chosen[0].transform.position, chosen[0].RoomId),
+                [CTFTeam.Yellow] = (chosen[1].transform.position, chosen[1].RoomId)
+            };
+        }
         
         Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -383,8 +432,8 @@ public static class CaptureTheFlag
         }
 
         // Create flags
-        (Vector2 Position, string RoomName) blueFlagBase = BlueFlagBase;
-        (Vector2 Position, string RoomName) yellowFlagBase = YellowFlagBase;
+        (Vector2 Position, SystemTypes Room) blueFlagBase = CTFTeam.Blue.GetFlagBase();
+        (Vector2 Position, SystemTypes Room) yellowFlagBase = CTFTeam.Yellow.GetFlagBase();
 
         CustomNetObject blueFlag = new BlueFlag(blueFlagBase.Position);
         CustomNetObject yellowFlag = new YellowFlag(yellowFlagBase.Position);
@@ -402,11 +451,11 @@ public static class CaptureTheFlag
                 {
                     case CTFTeam.Blue:
                         pc.TP(blueFlagBase.Position);
-                        pc.Notify(string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), yellowFlagBase.RoomName));
+                        pc.Notify(string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), Translator.GetString(yellowFlagBase.Room)));
                         break;
                     case CTFTeam.Yellow:
                         pc.TP(yellowFlagBase.Position);
-                        pc.Notify(string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), blueFlagBase.RoomName));
+                        pc.Notify(string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), Translator.GetString(blueFlagBase.Room)));
                         break;
                 }
             }
@@ -622,14 +671,9 @@ public static class CaptureTheFlag
             };
         }
 
-        private (Vector2 Position, string RoomName) GetFlagBase()
+        private (Vector2 Position, SystemTypes Room) GetFlagBase()
         {
-            return team switch
-            {
-                CTFTeam.Blue => BlueFlagBase,
-                CTFTeam.Yellow => YellowFlagBase,
-                _ => (Vector2.zero, string.Empty)
-            };
+            return FlagBases[Main.CurrentMap][team];
         }
     }
 
