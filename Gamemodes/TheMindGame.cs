@@ -38,7 +38,7 @@ public static class TheMindGame
     private static bool PreventGameEnd;
     private static int Round;
 
-    private static readonly Item[] AllItem = Enum.GetValues<Item>();
+    private static readonly Item[] AllItem = EnumHelper.GetValues<Item>();
 
     // Settings
     private static bool PlayersCanSeeOthersPoints = true;

@@ -138,7 +138,7 @@ public static class FixedUpdateCaller
 
             bool lobby = GameStates.IsLobby;
 
-            if (lobby || (Main.IntroDestroyed && GameStates.InGame && !GameStates.IsMeeting && !ExileController.Instance && !AntiBlackout.SkipTasks))
+            if (lobby || Main.IntroDestroyed && GameStates.InGame && !GameStates.IsMeeting && !ExileController.Instance && !AntiBlackout.SkipTasks)
             {
                 NonLowLoadPlayerIndex++;
 

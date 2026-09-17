@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -11,8 +10,8 @@ namespace EHR.Roles;
 
 internal class Adventurer : RoleBase
 {
-    private static readonly Weapon[] AllWeapon = Enum.GetValues<Weapon>();
-    private static readonly Resource[] AllResource = Enum.GetValues<Resource>();
+    private static readonly Weapon[] AllWeapon = EnumHelper.GetValues<Weapon>();
+    private static readonly Resource[] AllResource = EnumHelper.GetValues<Resource>();
     public enum Resource
     {
         TaskCompletion,
@@ -442,7 +441,7 @@ internal class Adventurer : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if ((seer.IsModdedClient() && !hud) || seer.PlayerId != target.PlayerId || seer.PlayerId != AdventurerPC.PlayerId) return string.Empty;
+        if (seer.IsModdedClient() && !hud || seer.PlayerId != target.PlayerId || seer.PlayerId != AdventurerPC.PlayerId) return string.Empty;
 
         IEnumerable<string> resources =
             from resource in AllResource

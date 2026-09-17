@@ -259,7 +259,7 @@ public class Summoner : CovenBase
     {
         if (meeting || SummonedPlayerId == byte.MaxValue || SummonedPlayerTimer == null) return string.Empty;
         if (target.PlayerId == SummonedPlayerId && seer.PlayerId != target.PlayerId && PlayersSeeSummonedPlayerWarning.GetBool()) return CustomRoles.Summoner.ColoredTextByRole(Translator.GetString("Summoner.SummonedWarningSuffix"));
-        if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud) return string.Empty;
         if (seer.PlayerId == SummonerId) return string.Format(Translator.GetString("Summoner.SelfSuffix"), SummonedPlayerId.ColoredPlayerName(), (int)SummonedPlayerTimer.Remaining.TotalSeconds);
         return seer.PlayerId == SummonedPlayerId ? string.Format(Translator.GetString("Summoner.SummonedPlayerSuffix"), SummonerId.ColoredPlayerName(), CustomRoles.Summoner.ToColoredString(), (int)SummonedPlayerTimer.Remaining.TotalSeconds) : string.Empty;
     }
@@ -293,7 +293,7 @@ public class Summoner : CovenBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.Summon.png", 130f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => SummonerOnClick(pva.PlayerId)));
+            button.OnClick.AddListener(() => SummonerOnClick(pva.PlayerId));
         }
     }
 

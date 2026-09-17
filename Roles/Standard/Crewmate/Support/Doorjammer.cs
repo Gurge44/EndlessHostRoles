@@ -86,7 +86,7 @@ public class Doorjammer : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != DoorjammerId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != DoorjammerId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting) return string.Empty;
         string join = JammedRooms.Join(", ", x => Translator.GetString(x.ToString()));
         return string.Format(Translator.GetString("Doorjammer.Suffix"), JammedRooms.Count, MaxRoomsJammedAtOnce.GetInt(), string.IsNullOrWhiteSpace(join) ? string.Empty : $"\n<size=80%>{join}</size>");
     }

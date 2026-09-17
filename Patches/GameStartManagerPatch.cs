@@ -105,7 +105,7 @@ public static class GameStartManagerPatch
 
                 if (!AmongUsClient.Instance.AmHost) return;
 
-                if (ModUpdater.IsBroken || (ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || !Main.AllowPublicRoom)
+                if (ModUpdater.IsBroken || ModUpdater.HasUpdate && ModUpdater.ForceUpdate || !Main.AllowPublicRoom)
                 {
                     // __instance.MakePublicButton.color = Palette.DisabledClear;
                     // __instance.privatePublicText.color = Palette.DisabledClear;
@@ -113,7 +113,7 @@ public static class GameStartManagerPatch
 
                 if (Main.NormalOptions.KillCooldown == 0f) Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
 
-                AURoleOptions.SetOpt(Main.NormalOptions.CastFast<IGameOptions>());
+                AURoleOptions.SetOpt(Main.NormalOptions);
                 if (AURoleOptions.ShapeshifterCooldown == 0f) AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
                 
                 AURoleOptions.ProtectionDurationSeconds = 0f;
@@ -208,7 +208,7 @@ public static class GameStartManagerPatch
             MinWait = Options.MinWaitAutoStart.GetFloat();
             MaxWait = Options.MaxWaitAutoStart.GetFloat();
             MinPlayer = Options.PlayerAutoStart.GetInt();
-            MinWait = 600f - (MinWait * 60f);
+            MinWait = 600f - MinWait * 60f;
             MaxWait *= 60f;
 
             bool votedToStart = (int)Math.Round(ChatCommands.VotedToStart.Count / (float)PlayerControl.AllPlayerControls.Count * 100f) > 50;
@@ -257,7 +257,7 @@ public static class GameStartManagerPatch
 
             if (Main.CurrentMap == MapNames.Dleks || Main.NormalOptions.MapId == 6)
             {
-                var opt = Main.NormalOptions.CastFast<IGameOptions>();
+                IGameOptions opt = Main.NormalOptions;
 
                 Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
                 Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
@@ -453,13 +453,13 @@ public static class GameStartManagerPatch
                 int estimatedGameLength = Options.CurrentGameMode switch
                 {
                     CustomGameMode.SoloPVP => SoloPVP.SoloPVP_GameTime.GetInt(),
-                    CustomGameMode.FFA => Math.Clamp((FreeForAll.FFAKcd.GetInt() * (PlayerControl.AllPlayerControls.Count / 2)) + FreeForAll.FFAKcd.GetInt(), FreeForAll.FFAKcd.GetInt(), FreeForAll.FFAGameTime.GetInt()),
-                    CustomGameMode.StopAndGo => ((Main.NormalOptions.NumShortTasks * 30) + (Main.NormalOptions.NumLongTasks * 60) + (Math.Min(3, Main.NormalOptions.NumCommonTasks) * 40)) / (int)(Main.NormalOptions.PlayerSpeedMod - ((Main.NormalOptions.PlayerSpeedMod - 1) / 2)),
+                    CustomGameMode.FFA => Math.Clamp(FreeForAll.FFAKcd.GetInt() * (PlayerControl.AllPlayerControls.Count / 2) + FreeForAll.FFAKcd.GetInt(), FreeForAll.FFAKcd.GetInt(), FreeForAll.FFAGameTime.GetInt()),
+                    CustomGameMode.StopAndGo => (Main.NormalOptions.NumShortTasks * 30 + Main.NormalOptions.NumLongTasks * 60 + Math.Min(3, Main.NormalOptions.NumCommonTasks) * 40) / (int)(Main.NormalOptions.PlayerSpeedMod - (Main.NormalOptions.PlayerSpeedMod - 1) / 2),
                     CustomGameMode.HotPotato => HotPotato.GetKillInterval() * (PlayerControl.AllPlayerControls.Count - 1),
-                    CustomGameMode.HideAndSeek => Math.Min((Seeker.KillCooldown.GetInt() * (PlayerControl.AllPlayerControls.Count - Main.NormalOptions.NumImpostors) / Main.NormalOptions.NumImpostors) + Seeker.BlindTime.GetInt() + 15, Math.Min(CustomHnS.MaximumGameLength, ((Main.NormalOptions.NumShortTasks * 20) + (Main.NormalOptions.NumLongTasks * 30) + (Math.Min(3, Main.NormalOptions.NumCommonTasks) * 20)) / (int)(Main.NormalOptions.PlayerSpeedMod - ((Main.NormalOptions.PlayerSpeedMod - 1) / 2)))),
-                    CustomGameMode.Speedrun => (Speedrun.TimeLimitValue * (Main.NormalOptions.NumShortTasks + Main.NormalOptions.NumLongTasks + Main.NormalOptions.NumCommonTasks)) + (Speedrun.KCD * (PlayerControl.AllPlayerControls.Count / (Speedrun.RestrictedKilling ? 3 : 4))),
+                    CustomGameMode.HideAndSeek => Math.Min(Seeker.KillCooldown.GetInt() * (PlayerControl.AllPlayerControls.Count - Main.NormalOptions.NumImpostors) / Main.NormalOptions.NumImpostors + Seeker.BlindTime.GetInt() + 15, Math.Min(CustomHnS.MaximumGameLength, (Main.NormalOptions.NumShortTasks * 20 + Main.NormalOptions.NumLongTasks * 30 + Math.Min(3, Main.NormalOptions.NumCommonTasks) * 20) / (int)(Main.NormalOptions.PlayerSpeedMod - (Main.NormalOptions.PlayerSpeedMod - 1) / 2))),
+                    CustomGameMode.Speedrun => Speedrun.TimeLimitValue * (Main.NormalOptions.NumShortTasks + Main.NormalOptions.NumLongTasks + Main.NormalOptions.NumCommonTasks) + Speedrun.KCD * (PlayerControl.AllPlayerControls.Count / (Speedrun.RestrictedKilling ? 3 : 4)),
                     CustomGameMode.CaptureTheFlag => CaptureTheFlag.GameEndCriteriaType == 2 ? CaptureTheFlag.MaxGameLength : CaptureTheFlag.IsDeathPossible ? 40 : Math.Max(30, 1500 / (int)Math.Pow(CaptureTheFlag.KCD + 0.5f, 2) * CaptureTheFlag.TotalRoundsToPlay),
-                    CustomGameMode.NaturalDisasters => 180 + (15 * NaturalDisasters.FrequencyOfDisasters * Math.Max(1, Math.Min(20, PlayerControl.AllPlayerControls.Count) / 4)),
+                    CustomGameMode.NaturalDisasters => 180 + 15 * NaturalDisasters.FrequencyOfDisasters * Math.Max(1, Math.Min(20, PlayerControl.AllPlayerControls.Count) / 4),
                     CustomGameMode.RoomRush => (int)Math.Round((RoomRush.PointsSystem ? RoomRush.RawPointsToWin * 1.5f : PlayerControl.AllPlayerControls.Count - 1) * ((Main.NormalOptions.MapId is 0 or 3 ? 15 : 20) / Main.NormalOptions.PlayerSpeedMod)),
                     CustomGameMode.KingOfTheZones => Math.Min(KingOfTheZones.MaxGameTime, KingOfTheZones.MaxGameTimeByPoints),
                     CustomGameMode.Deathrace => Deathrace.LapsToWin * (int)Math.Ceiling(25 / Main.NormalOptions.PlayerSpeedMod),
@@ -600,7 +600,7 @@ public static class GameStartRandomMap
             Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
         }
 
-        var opt = Main.NormalOptions.CastFast<IGameOptions>();
+        IGameOptions opt = Main.NormalOptions;
         AURoleOptions.SetOpt(opt);
 
         if (__instance.startState == GameStartManager.StartingStates.Countdown)

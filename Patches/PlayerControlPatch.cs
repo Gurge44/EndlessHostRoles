@@ -380,9 +380,9 @@ internal static class CheckMurderPatch
             return false;
         }
 
-        if ((killer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick) && !Options.JackalCanKillSidekick.GetBool()) ||
-            (killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Jackal) && !Options.SidekickCanKillJackal.GetBool()) ||
-            (killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Sidekick) && !Options.SidekickCanKillSidekick.GetBool()))
+        if (killer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick) && !Options.JackalCanKillSidekick.GetBool() ||
+            killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Jackal) && !Options.SidekickCanKillJackal.GetBool() ||
+            killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Sidekick) && !Options.SidekickCanKillSidekick.GetBool())
         {
             Notify("JackalSidekick");
             return false;
@@ -436,11 +436,11 @@ internal static class CheckMurderPatch
             return false;
         }
 
-        if ((Romantic.PartnerId == target.PlayerId && Romantic.IsPartnerProtected) ||
+        if (Romantic.PartnerId == target.PlayerId && Romantic.IsPartnerProtected ||
             Medic.OnAnyoneCheckMurder(killer, target) ||
             Randomizer.IsShielded(target) ||
             Aid.ShieldedPlayers.ContainsKey(target.PlayerId) ||
-            (Blessed.ShieldActive != null && Blessed.ShieldActive.Contains(target.PlayerId)) ||
+            Blessed.ShieldActive != null && Blessed.ShieldActive.Contains(target.PlayerId) ||
             Benefactor.ShieldedPlayers.Contains(target.PlayerId) ||
             Gaslighter.IsShielded(target) ||
             !Farmer.OnAnyoneCheckMurder(target) ||
@@ -651,7 +651,7 @@ internal static class MurderPlayerPatch
         if (target.AmOwner) RemoveDisableDevicesPatch.UpdateDisableDevices();
 
         if (!target.Data.IsDead || !AmongUsClient.Instance.AmHost) return;
-        if (Butcher.ButcherDeadPlayerList.Contains(target.PlayerId) || (__instance.AmOwner && __instance.Is(CustomRoles.SoulCollector))) return;
+        if (Butcher.ButcherDeadPlayerList.Contains(target.PlayerId) || __instance.AmOwner && __instance.Is(CustomRoles.SoulCollector)) return;
 
         PlayerControl killer = __instance; // Alternative variable
 
@@ -850,7 +850,7 @@ internal static class ShapeshiftPatch
         if (MeetingHud.Instance && MeetingHud.Instance.state == MeetingHud.MeetingStates.Results) return true;
         
         bool meetingSS = Options.UseMeetingShapeshift.GetBool() && GameStates.IsMeeting;
-        if ((!Main.ProcessShapeshifts && !meetingSS) || shapeshifter.PlayerId >= 254) return true;
+        if (!Main.ProcessShapeshifts && !meetingSS || shapeshifter.PlayerId >= 254) return true;
 
         if (AntiBlackout.SkipTasks)
         {
@@ -948,7 +948,7 @@ internal static class ShapeshiftPatch
         }
 
 
-        bool animated = isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel);
+        bool animated = isSSneeded || !shouldCancel && !forceCancel || !shapeshifting && !shouldAlwaysCancel;
         Statistics.OnShapeshift(shapeshifter, shapeshifting, animated);
         return animated;
     }
@@ -994,7 +994,7 @@ internal static class ShapeshiftPatch
     {
         // Set CNO name visible for modded clients after shapeshift
         if (__instance.PlayerId >= 254)
-            __instance.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+            __instance.transform.Find("Names").Find("NameText_TMP").gameObject.SetActive(true);
     }
 }
 
@@ -1109,9 +1109,9 @@ internal static class ReportDeadBodyPatch
 
             if (target)
             {
-                if ((Coroner.UnreportablePlayers != null && Coroner.UnreportablePlayers.Contains(target.PlayerId))
+                if (Coroner.UnreportablePlayers != null && Coroner.UnreportablePlayers.Contains(target.PlayerId)
                     || Vulture.UnreportablePlayers.Contains(target.PlayerId)
-                    || (killer && killer.Is(CustomRoles.Goddess))
+                    || killer && killer.Is(CustomRoles.Goddess)
                     || Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Gambled
                     || killerRole == CustomRoles.Scavenger
                     || Cleaner.CleanerBodies.Contains(target.PlayerId))
@@ -1691,12 +1691,12 @@ internal static class FixedUpdatePatch
         {
             AFKDetector.OnFixedUpdate(player);
 
-            if (isLobby && ((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic)
+            if (isLobby && (ModUpdater.HasUpdate && ModUpdater.ForceUpdate || ModUpdater.IsBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic)
                 AmongUsClient.Instance.ChangeGamePublic(false);
 
             // Kick low-level people
             if (!lowLoad && isLobby && GameSettingMenuPatch.LastPresetChange + 5 < TimeStamp && !player.AmOwner && Options.KickLowLevelPlayer.GetInt() != 0 && (
-                (player.Data.PlayerLevel != 0 && player.Data.PlayerLevel < Options.KickLowLevelPlayer.GetInt()) ||
+                player.Data.PlayerLevel != 0 && player.Data.PlayerLevel < Options.KickLowLevelPlayer.GetInt() ||
                 player.Data.FriendCode == string.Empty
             ))
             {
@@ -1809,7 +1809,7 @@ internal static class FixedUpdatePatch
                     {
                         SendOption sendOption = SendOption.None;
                         
-                        if (timer.StartTimeStamp + timer.TotalCooldown < now || (!alive && !player.HasGhostRole()))
+                        if (timer.StartTimeStamp + timer.TotalCooldown < now || !alive && !player.HasGhostRole())
                         {
                             player.RemoveAbilityCD();
                             sendOption = SendOption.Reliable;
@@ -1854,7 +1854,7 @@ internal static class FixedUpdatePatch
 
         if (GameStates.IsEnded || !Main.IntroDestroyed || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
-        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && PerSecondUpdateScheduler.ShouldRunUpdate() && Options.CurrentGameMode is CustomGameMode.StopAndGo or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.Mingle) || DirtyName.Remove(lpId));
+        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && (PlayerControl.AllPlayerControls.Count > 30 && PerSecondUpdateScheduler.ShouldRunUpdate() && Options.CurrentGameMode is CustomGameMode.StopAndGo or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.Mingle || DirtyName.Remove(lpId));
 
         if (lowLoad && !shouldUpdateRegardlessOfLowLoad) return;
 
@@ -1877,7 +1877,7 @@ internal static class FixedUpdatePatch
         {
             if (!AmongUsClient.Instance.AmHost && Options.CurrentGameMode != CustomGameMode.Standard) return;
 
-            bool shouldSeeTargetAddons = self || (PlayerControl.LocalPlayer.Is(Team.Impostor) && player.Is(Team.Impostor));
+            bool shouldSeeTargetAddons = self || PlayerControl.LocalPlayer.Is(Team.Impostor) && player.Is(Team.Impostor);
 
             string roleText;
             bool hideRoleText = false;
@@ -1977,7 +1977,7 @@ internal static class FixedUpdatePatch
 
             AdditionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
             
-            if (!GameStates.IsMeeting && Options.CurrentGameMode == CustomGameMode.Standard && Main.Invisible.Contains(target.PlayerId) && ((self && seer.IsAlive() && target.GetCustomRole() is not (CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon)) || (seer.IsImpostor() && target.IsImpostor())))
+            if (!GameStates.IsMeeting && Options.CurrentGameMode == CustomGameMode.Standard && Main.Invisible.Contains(target.PlayerId) && (self && seer.IsAlive() && target.GetCustomRole() is not (CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon) || seer.IsImpostor() && target.IsImpostor()))
                 AdditionalSuffixes.Add(ColorString(Palette.White_75Alpha, "\n" + GetString("Invisible")));
 
             switch (target.GetCustomRole())
@@ -2233,7 +2233,7 @@ internal static class FixedUpdatePatch
     public static void LoversSuicide(byte deathId = 0x7f, bool exile = false, bool force = false, bool guess = false)
     {
         if (Main.LoversPlayers.Count == 0 || Options.CurrentGameMode != CustomGameMode.Standard) return;
-        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (Main.LoversPlayers.FindAll(x => x.IsAlive()).Count != 1 && !force)) return;
+        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || Main.LoversPlayers.FindAll(x => x.IsAlive()).Count != 1 && !force) return;
 
         PlayerControl partnerPlayer = Main.LoversPlayers.FirstOrDefault(player => player.PlayerId != deathId && player.IsAlive());
         if (!partnerPlayer) return;
@@ -2429,14 +2429,14 @@ internal static class GameDataCompleteTaskPatch
 
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHnS.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
             {
-                var task = pc.myTasks.Find((Il2CppSystem.Predicate<PlayerTask>)(x => taskId == x.Id));
+                var task = pc.myTasks.Find(x => taskId == x.Id);
                 Hider.OnSpecificTaskComplete(pc, task);
             }
         
 
             if (pc.IsAlive())
             {
-                var task = pc.myTasks.Find((Il2CppSystem.Predicate<PlayerTask>)(x => taskId == x.Id));
+                var task = pc.myTasks.Find(x => taskId == x.Id);
                 Benefactor.OnTaskComplete(pc, task);
             }
 

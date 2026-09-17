@@ -147,7 +147,7 @@ public class Wiper : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != WiperID || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != WiperID || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting) return string.Empty;
 
         if (Utils.IsAnySabotageActive())
             return Utils.ColorString(Color.red, Translator.GetString("Wiper.CannotUseAbilityDuringSabotage"));

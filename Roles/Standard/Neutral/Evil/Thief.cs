@@ -49,7 +49,7 @@ public class Thief : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        bool success = target.IsImpostor() || target.Is(CustomRoles.Trickster) || target.IsMadmate() || target.Is(CustomRoles.Maverick) || target.IsNeutralKiller() || (target.Is(CustomRoleTypes.Coven) && CanStealCovenRoles.GetBool());
+        bool success = target.IsImpostor() || target.Is(CustomRoles.Trickster) || target.IsMadmate() || target.Is(CustomRoles.Maverick) || target.IsNeutralKiller() || target.Is(CustomRoleTypes.Coven) && CanStealCovenRoles.GetBool();
         
         if (!success) killer.Suicide();
         else

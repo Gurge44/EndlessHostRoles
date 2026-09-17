@@ -104,6 +104,6 @@ internal class Circumvent : IAddon
 
         if (pc.inVent) return true;
         int limit = 0;
-        return ((Limits == null || !Limits.TryGetValue(pc.PlayerId, out limit)) && VentPreventionMode.GetValue() != 0) || limit > 0;
+        return (Limits == null || !Limits.TryGetValue(pc.PlayerId, out limit)) && VentPreventionMode.GetValue() != 0 || limit > 0;
     }
 }

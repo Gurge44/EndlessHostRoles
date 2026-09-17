@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -37,7 +36,7 @@ public class Wyrd : CovenBase
     public HashSet<byte> MarkedPlayers;
     private byte WyrdID;
 
-    private static readonly Action[] AllAction = Enum.GetValues<Action>();
+    private static readonly Action[] AllAction = EnumHelper.GetValues<Action>();
     private readonly StringBuilder Suffix = new();
 
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;

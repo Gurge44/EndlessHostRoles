@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
+using Newtonsoft.Json;
 using UnityEngine;
 
 // ReSharper disable InconsistentNaming
@@ -1054,7 +1054,7 @@ public static class Options
 
             foreach (Command command in Command.AllCommands)
             {
-                string forms = command.CommandForms.TakeWhile(x => x.All(char.IsAscii)).Join(x => $"/{x}", "<br>");
+                string forms = command.CommandForms.TakeWhile(x => x.All(CharHelpers.IsAscii)).Join(x => $"/{x}", "<br>");
                 string description = command.Description;
 
                 string argumentsMarkdown = "";
@@ -1207,7 +1207,7 @@ public static class Options
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
-                File.WriteAllText(path + "/friendcode#1234.txt", JsonSerializer.Serialize(new UserData { Tag = string.Empty }, new JsonSerializerOptions { WriteIndented = true }));
+                File.WriteAllText(path + "/friendcode#1234.txt", JsonConvert.SerializeObject(new UserData { Tag = string.Empty }, Formatting.Indented));
             }
 
             Errors.Clear();
@@ -1217,7 +1217,7 @@ public static class Options
                 try
                 {
                     string content = File.ReadAllText(file);
-                    var userData = JsonSerializer.Deserialize<UserData>(content);
+                    var userData = JsonConvert.DeserializeObject<UserData>(content);
                     if (userData == null) throw new FormatException($"The data in {file} was not in the correct format.");
                     string fileName = Path.GetFileNameWithoutExtension(file);
                     Main.UserData[fileName] = userData;
@@ -1237,6 +1237,7 @@ public static class Options
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
     public class UserData
     {
         public bool Vip { get; init; }
@@ -1643,7 +1644,7 @@ public static class Options
 
         MainLoadingText = "Building EHR settings";
 
-        ModLanguage = new StringOptionItem(19308, "ModLanguage", Enum.GetNames<ModLanguages>(), 0, TabGroup.SystemSettings)
+        ModLanguage = new StringOptionItem(19308, "ModLanguage", EnumHelper.GetNames<ModLanguages>(), 0, TabGroup.SystemSettings)
             .SetHeader(true);
 
         KickLowLevelPlayer = new IntegerOptionItem(19300, "KickLowLevelPlayer", new(0, 100, 1), 0, TabGroup.SystemSettings)
@@ -2042,7 +2043,7 @@ public static class Options
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         // Reset Doors Mode
-        DoorsResetMode = new StringOptionItem(22122, "DoorsResetMode", Enum.GetNames<DoorsReset.ResetMode>(), 2, TabGroup.GameSettings)
+        DoorsResetMode = new StringOptionItem(22122, "DoorsResetMode", EnumHelper.GetNames<DoorsReset.ResetMode>(), 2, TabGroup.GameSettings)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue))
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(ResetDoorsEveryTurns);
@@ -2940,7 +2941,7 @@ public static class Options
 
         var i = 0;
 
-        foreach (GameStateInfo s in Enum.GetValues<GameStateInfo>())
+        foreach (GameStateInfo s in EnumHelper.GetValues<GameStateInfo>())
         {
             GameStateSettings[s] = new BooleanOptionItem(44429 + i, $"GameStateCommand.Show{s}", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
@@ -3282,7 +3283,7 @@ public static class Options
 
         for (var index = 0; index < 20; index++)
         {
-            OptionItem slot = new StringOptionItem(id++, "AutoGMRotationSlot", Enum.GetNames<AutoGMRoationSlotOptions>().Select(x => $"AGMR.{x}").ToArray(), 0, TabGroup.SystemSettings)
+            OptionItem slot = new StringOptionItem(id++, "AutoGMRotationSlot", EnumHelper.GetNames<AutoGMRoationSlotOptions>().Select(x => $"AGMR.{x}").ToArray(), 0, TabGroup.SystemSettings)
                 .SetParent(EnableAutoGMRotation)
                 .SetHeader(index == 0)
                 .AddReplacement(("{index}", (index + 1).ToString()))

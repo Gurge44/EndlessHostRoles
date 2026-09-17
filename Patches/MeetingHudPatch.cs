@@ -1,3 +1,7 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
@@ -5,10 +9,6 @@ using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -651,7 +651,7 @@ internal static class ExtendedMeetingHud
 
                 if (target)
                 {
-                    if (target.Is(CustomRoles.Zombie) || (target.Is(CustomRoles.Shifter) && !Shifter.CanBeVoted.GetBool()))
+                    if (target.Is(CustomRoles.Zombie) || target.Is(CustomRoles.Shifter) && !Shifter.CanBeVoted.GetBool())
                         voteNum = 0;
 
                     if (CheckForEndVotingPatch.CheckRole(psPlayerId, CustomRoles.Tiebreaker))
@@ -932,31 +932,31 @@ internal static class MeetingHudStartPatch
 
             roleTextMeeting.enabled =
                 target.AmOwner ||
-                (Main.VisibleTasksCount && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool()) ||
-                (seer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool()) ||
-                (target.Is(CustomRoles.Gravestone) && Main.VisibleTasksCount && !target.IsAlive()) ||
-                (Main.LoversPlayers.TrueForAll(x => x.PlayerId == target.PlayerId || x.PlayerId == seer.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
-                (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven)) ||
-                (target.Is(CustomRoleTypes.Impostor) && seer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.ArentInCustomTeam(seer.PlayerId, target.PlayerId)) ||
-                (target.Is(CustomRoleTypes.Impostor) && seer.IsMadmate() && Options.MadmateKnowWhosImp.GetBool()) ||
-                (target.IsMadmate() && seer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) ||
-                (target.Is(CustomRoleTypes.Impostor) && seer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
-                (target.Is(CustomRoleTypes.Impostor) && seer.Is(CustomRoles.Hypocrite) && Hypocrite.AlliesKnowHypocrite.GetBool()) ||
-                (target.Is(CustomRoles.Crewpostor) && seer.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool()) ||
-                (target.Is(CustomRoles.Hypocrite) && seer.Is(CustomRoleTypes.Impostor) && Hypocrite.KnowsAllies.GetBool()) ||
-                (target.IsMadmate() && seer.IsMadmate() && Options.MadmateKnowWhosMadmate.GetBool()) ||
-                ((target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Sidekick)) && (seer.Is(CustomRoles.Sidekick) || seer.Is(CustomRoles.Jackal))) ||
-                (target.Is(CustomRoles.Workaholic) && Workaholic.WorkaholicVisibleToEveryone.GetBool()) ||
-                (target.Is(CustomRoles.Doctor) && !target.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool()) ||
-                (target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished) ||
-                (target.Is(CustomRoles.Marshall) && Marshall.CanSeeMarshall(seer) && target.GetTaskState().IsTaskFinished) ||
-                (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
-                (CustomTeamManager.AreInSameCustomTeam(target.PlayerId, seer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(target.PlayerId, CTAOption.KnowRoles)) ||
+                Main.VisibleTasksCount && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() ||
+                seer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool() ||
+                target.Is(CustomRoles.Gravestone) && Main.VisibleTasksCount && !target.IsAlive() ||
+                Main.LoversPlayers.TrueForAll(x => x.PlayerId == target.PlayerId || x.PlayerId == seer.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool() ||
+                seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven) ||
+                target.Is(CustomRoleTypes.Impostor) && seer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.ArentInCustomTeam(seer.PlayerId, target.PlayerId) ||
+                target.Is(CustomRoleTypes.Impostor) && seer.IsMadmate() && Options.MadmateKnowWhosImp.GetBool() ||
+                target.IsMadmate() && seer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool() ||
+                target.Is(CustomRoleTypes.Impostor) && seer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool() ||
+                target.Is(CustomRoleTypes.Impostor) && seer.Is(CustomRoles.Hypocrite) && Hypocrite.AlliesKnowHypocrite.GetBool() ||
+                target.Is(CustomRoles.Crewpostor) && seer.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool() ||
+                target.Is(CustomRoles.Hypocrite) && seer.Is(CustomRoleTypes.Impostor) && Hypocrite.KnowsAllies.GetBool() ||
+                target.IsMadmate() && seer.IsMadmate() && Options.MadmateKnowWhosMadmate.GetBool() ||
+                (target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Sidekick)) && (seer.Is(CustomRoles.Sidekick) || seer.Is(CustomRoles.Jackal)) ||
+                target.Is(CustomRoles.Workaholic) && Workaholic.WorkaholicVisibleToEveryone.GetBool() ||
+                target.Is(CustomRoles.Doctor) && !target.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool() ||
+                target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished ||
+                target.Is(CustomRoles.Marshall) && Marshall.CanSeeMarshall(seer) && target.GetTaskState().IsTaskFinished ||
+                Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool() ||
+                CustomTeamManager.AreInSameCustomTeam(target.PlayerId, seer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(target.PlayerId, CTAOption.KnowRoles) ||
                 Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||
-                (Markseeker.PlayerIdList != null && Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId)) ||
+                Markseeker.PlayerIdList != null && Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
                 seer.IsRevealedPlayer(target) ||
-                (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2) ||
-                (seer.Is(CustomRoles.Revenant) && Revenant.KnowInfo.GetValue() == 1) ||
+                seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2 ||
+                seer.Is(CustomRoles.Revenant) && Revenant.KnowInfo.GetValue() == 1 ||
                 seer.Is(CustomRoles.GM) ||
                 Main.GodMode.Value;
 
@@ -1000,7 +1000,7 @@ internal static class MeetingHudStartPatch
             deathReasonTextMeeting.gameObject.name = "DeathReasonTextMeeting";
             deathReasonTextMeeting.enableWordWrapping = false;
             deathReasonTextMeeting.enabled = seer.KnowDeathReason(target);
-            Transform child = deathReasonTextMeeting.transform.FindChild("RoleTextMeeting");
+            Transform child = deathReasonTextMeeting.transform.Find("RoleTextMeeting");
             if (child) Object.Destroy(child.gameObject);
 
             byte id = pva.PlayerId;
@@ -1097,7 +1097,7 @@ internal static class MeetingHudStartPatch
 
                     foreach (PlayerControl pc in aapc)
                     {
-                        if (pc.UsesMeetingShapeshift() || (meetingSSForGuessing && !pc.IsModdedClient() && GuessManager.StartMeetingPatch.CanGuess(pc, restrictions)))
+                        if (pc.UsesMeetingShapeshift() || meetingSSForGuessing && !pc.IsModdedClient() && GuessManager.StartMeetingPatch.CanGuess(pc, restrictions))
                         {
                             var sender = CustomRpcSender.Create($"RpcSetRoleDesync for meeting shapeshift ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Someone")})", SendOption.Reliable);
                             sender.RpcSetRole(pc, RoleTypes.Shapeshifter, pc.OwnerId);
@@ -1258,8 +1258,8 @@ internal static class MeetingHudUpdatePatch
     private static void ClearShootButton(MeetingHud __instance, bool forceAll = false)
     {
         __instance.playerStates.DoIf(
-            x => (forceAll || !Main.PlayerStates.TryGetValue(x.PlayerId, out PlayerState ps) || ps.IsDead) && x.transform.FindChild("ShootButton"),
-            x => Object.Destroy(x.transform.FindChild("ShootButton").gameObject));
+            x => (forceAll || !Main.PlayerStates.TryGetValue(x.PlayerId, out PlayerState ps) || ps.IsDead) && x.transform.Find("ShootButton"),
+            x => Object.Destroy(x.transform.Find("ShootButton").gameObject));
     }
 
     public static bool Prefix(MeetingHud __instance)
@@ -1428,7 +1428,7 @@ internal static class MeetingHudOnDestroyPatch
 
                     foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                     {
-                        if (pc.UsesMeetingShapeshift() || (meetingSSForGuessing && !pc.IsModdedClient() && GuessManager.StartMeetingPatch.CanGuess(pc, restrictions)))
+                        if (pc.UsesMeetingShapeshift() || meetingSSForGuessing && !pc.IsModdedClient() && GuessManager.StartMeetingPatch.CanGuess(pc, restrictions))
                             pc.RpcSetRoleDesync(pc.GetRoleTypes(), pc.OwnerId);
 
                         if (pc.IsImpostor())
@@ -1599,7 +1599,7 @@ static class MeetingHud_Start
     public static void Postfix(MeetingHud __instance)
     {
         if (!Main.DarkThemeForMeetingUI.Value) return;
-        __instance.meetingContents.transform.FindChild("PhoneUI").FindChild("baseColor").GetComponent<SpriteRenderer>().color = new Color(0.01f, 0.01f, 0.01f);
+        __instance.meetingContents.transform.Find("PhoneUI").Find("baseColor").GetComponent<SpriteRenderer>().color = new Color(0.01f, 0.01f, 0.01f);
         __instance.Glass.color = new Color(0.7f, 0.7f, 0.7f, 0.3f);
         __instance.SkipVoteButton.GetComponent<SpriteRenderer>().color = new Color(0.4f, 0.4f, 0.4f);
 

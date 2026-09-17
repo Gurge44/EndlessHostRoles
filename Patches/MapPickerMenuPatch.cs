@@ -1,7 +1,5 @@
 ﻿using HarmonyLib;
-using Il2CppSystem;
 using UnityEngine.SceneManagement;
-using Action = System.Action;
 using Exception = System.Exception;
 
 namespace EHR.Patches;
@@ -25,7 +23,7 @@ public static class GameOptionsMapPickerPatch
     [HarmonyPrefix]
     public static void Postfix_Prefix(GameOptionsMapPicker __instance)
     {
-        if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != MapNames.Dleks)))
+        if (__instance.AllMapIcons.TrueForAll(x => x.Name != MapNames.Dleks))
         {
             __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
             {
@@ -37,7 +35,7 @@ public static class GameOptionsMapPickerPatch
         }
         if (SubmergedCompatibility.Loaded)
         {
-            if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != (MapNames)6)))
+            if (__instance.AllMapIcons.TrueForAll(x => x.Name != (MapNames)6))
             {
                 __instance.AllMapIcons.Insert((int)(MapNames)6, new MapIconByName
                 {
@@ -68,7 +66,7 @@ public static class GameOptionsMapPickerPatch
                 {
                     var dleksButton_MapButton = __instance.mapButtons[dleksPos];
                     dleksButton_MapButton.Button.OnClick.RemoveAllListeners();
-                    dleksButton_MapButton.Button.OnClick.AddListener((Action)(() =>
+                    dleksButton_MapButton.Button.OnClick.AddListener(() =>
                     {
                         __instance.SelectMap(__instance.AllMapIcons[0]);
 
@@ -85,7 +83,7 @@ public static class GameOptionsMapPickerPatch
 
                         __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner.png", 100f);
                         __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
-                    }));
+                    });
 
                     if (dleksButton_MapButton != null)
                     {
@@ -111,7 +109,7 @@ public static class GameOptionsMapPickerPatch
                 {
                     var submergedButton_MapButton = __instance.mapButtons[submergedPos];
                     submergedButton_MapButton.Button.OnClick.RemoveAllListeners();
-                    submergedButton_MapButton.Button.OnClick.AddListener((Action)(() =>
+                    submergedButton_MapButton.Button.OnClick.AddListener(() =>
                     {
                         __instance.SelectMap(__instance.AllMapIcons[submergedPos]);
 
@@ -124,7 +122,7 @@ public static class GameOptionsMapPickerPatch
 
                         //__instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner.png", 100f);
                         //__instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 100f);
-                    }));
+                    });
 
                     if (submergedButton_MapButton != null)
                     {

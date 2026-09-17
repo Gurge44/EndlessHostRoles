@@ -19,7 +19,7 @@ public class Xorshift(uint seed) : IRandom
 
         if (minValue == maxValue) return minValue;
 
-        return (int)(minValue + (Next() % (maxValue - minValue)));
+        return (int)(minValue + Next() % (maxValue - minValue));
     }
 
     public int Next(int maxValue)

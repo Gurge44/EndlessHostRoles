@@ -18,8 +18,6 @@ using EHR.Patches;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -177,7 +175,7 @@ public static class Utils
         {
             if (pc.Is(CustomRoles.AntiTP)) return false;
 
-            if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() || (submerged && pc.AmOwner && SubmergedCompatibility.GetInTransition()))
+            if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() || submerged && pc.AmOwner && SubmergedCompatibility.GetInTransition())
             {
                 if (log) Logger.Warn($"Target ({pc.GetNameWithRole()}) is in an un-teleportable state - Teleporting canceled", "TP");
                 return false;
@@ -242,7 +240,7 @@ public static class Utils
 
     public static bool TPToRandomVent(CustomNetworkTransform nt, bool log = true)
     {
-        Il2CppReferenceArray<Vent> vents = ShipStatus.Instance.AllVents;
+        Vent[] vents = ShipStatus.Instance.AllVents;
         Vent vent = vents.RandomElement();
 
         Logger.Info($"{nt.myPlayer.GetNameWithRole()} => {vent.transform.position} (vent)", "TP");
@@ -350,7 +348,7 @@ public static class Utils
 
         foreach (PlayerControl seer in Main.CachedAllPlayerControls())
         {
-            if (seer.Is(CustomRoles.GM) || seer.Is(CustomRoles.Seer) || (seer.Is(CustomRoles.Bluetooth) && target.IsImpostor()))
+            if (seer.Is(CustomRoles.GM) || seer.Is(CustomRoles.Seer) || seer.Is(CustomRoles.Bluetooth) && target.IsImpostor())
             {
                 seer.KillFlash();
                 continue;
@@ -394,7 +392,7 @@ public static class Utils
         {
             try
             {
-                Il2CppSystem.Collections.Generic.Dictionary<int, Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<string>>> data = new();
+                Dictionary<int, Dictionary<string, List<string>>> data = new();
                 Dictionary<int, Dictionary<CustomRoles, List<CustomRoles>>> dict = path.Contains("Always") ? Main.AlwaysSpawnTogetherCombos : Main.NeverSpawnTogetherCombos;
 
                 dict.Do(kvp =>
@@ -431,15 +429,15 @@ public static class Utils
             {
                 if (!File.Exists(path)) return;
 
-                var data = JsonConvert.DeserializeObject<Il2CppSystem.Collections.Generic.Dictionary<int, Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<string>>>>(File.ReadAllText(path));
+                var data = JsonConvert.DeserializeObject<Dictionary<int, Dictionary<string, List<string>>>>(File.ReadAllText(path));
                 Dictionary<int, Dictionary<CustomRoles, List<CustomRoles>>> dict = path.Contains("Always") ? Main.AlwaysSpawnTogetherCombos : Main.NeverSpawnTogetherCombos;
                 dict.Clear();
 
-                foreach (Il2CppSystem.Collections.Generic.KeyValuePair<int, Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<string>>> kvp in data)
+                foreach (KeyValuePair<int, Dictionary<string, List<string>>> kvp in data)
                 {
                     dict[kvp.Key] = [];
 
-                    foreach (Il2CppSystem.Collections.Generic.KeyValuePair<string, Il2CppSystem.Collections.Generic.List<string>> pair in kvp.Value)
+                    foreach (KeyValuePair<string, List<string>> pair in kvp.Value)
                     {
                         var key = Enum.Parse<CustomRoles>(pair.Key);
                         dict[kvp.Key][key] = [];
@@ -544,7 +542,7 @@ public static class Utils
         if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && targetMainRole == CustomRoles.Agent && CustomHnS.PlayerRoles[seerId].Interface.Team != Team.Impostor)
             targetMainRole = CustomRoles.Hider;
 
-        if ((ExileController.Instance || targetState.IsDead || (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.MeetingStates.Results or MeetingHud.MeetingStates.Proceeding or MeetingHud.MeetingStates.Voted or MeetingHud.MeetingStates.NotVoted)) && !GameStates.IsEnded && Forger.Forges.TryGetValue(targetId, out var forgedRole))
+        if ((ExileController.Instance || targetState.IsDead || GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.MeetingStates.Results or MeetingHud.MeetingStates.Proceeding or MeetingHud.MeetingStates.Voted or MeetingHud.MeetingStates.NotVoted) && !GameStates.IsEnded && Forger.Forges.TryGetValue(targetId, out var forgedRole))
             targetMainRole = forgedRole;
 
         if (!self && seerMainRole.IsImpostor() && targetMainRole == CustomRoles.DoubleAgent && DoubleAgent.ShownRoles != null && DoubleAgent.ShownRoles.TryGetValue(targetId, out CustomRoles shownRole))
@@ -569,7 +567,7 @@ public static class Utils
 
         if (LastImpostor.CurrentId == targetId) roleText = GetRoleString("Last-") + roleText;
 
-        if ((Options.NameDisplayAddons.GetBool() || ((ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) && Options.NameDisplayAddonsOnlyInMeetings.GetBool())) && !pure && self)
+        if ((Options.NameDisplayAddons.GetBool() || (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) && Options.NameDisplayAddonsOnlyInMeetings.GetBool()) && !pure && self)
         {
             foreach (CustomRoles subRole in targetSubRoles)
             {
@@ -593,19 +591,19 @@ public static class Utils
             roleText = GetRoleString("Mad-") + roleText;
         }
 
-        if (targetSubRoles.Contains(CustomRoles.Charmed) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Cultist || (Cultist.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Charmed))))
+        if (targetSubRoles.Contains(CustomRoles.Charmed) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Cultist || Cultist.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Charmed)))
         {
             roleColor = GetRoleColor(CustomRoles.Charmed);
             roleText = GetRoleString("Charmed-") + roleText;
         }
 
-        if (targetSubRoles.Contains(CustomRoles.Entranced) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Siren || (Siren.CovenKnowEntranced.GetValue() == 1 && seerMainRole.IsCoven()) || (Siren.EntrancedKnowEntranced.GetBool() && seerSubRoles.Contains(CustomRoles.Entranced))))
+        if (targetSubRoles.Contains(CustomRoles.Entranced) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Siren || Siren.CovenKnowEntranced.GetValue() == 1 && seerMainRole.IsCoven() || Siren.EntrancedKnowEntranced.GetBool() && seerSubRoles.Contains(CustomRoles.Entranced)))
         {
             roleColor = GetRoleColor(CustomRoles.Entranced);
             roleText = GetRoleString("Entranced-") + roleText;
         }
 
-        if (targetSubRoles.Contains(CustomRoles.Contagious) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Virus || (Virus.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Contagious))))
+        if (targetSubRoles.Contains(CustomRoles.Contagious) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Virus || Virus.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Contagious)))
         {
             roleColor = GetRoleColor(CustomRoles.Contagious);
             roleText = GetRoleString("Contagious-") + roleText;
@@ -617,7 +615,7 @@ public static class Utils
             roleText = $"{GetString("Prefix.Bloodlust")} {roleText}";
         }
 
-        if (targetSubRoles.Contains(CustomRoles.Egoist) && (self || pure || (seeTargetBetrayalAddons && Options.ImpEgoistVisibalToAllies.GetBool())))
+        if (targetSubRoles.Contains(CustomRoles.Egoist) && (self || pure || seeTargetBetrayalAddons && Options.ImpEgoistVisibalToAllies.GetBool()))
         {
             roleColor = GetRoleColor(CustomRoles.Egoist);
             roleText = $"{GetString("Prefix.Egoist")} {roleText}";
@@ -1056,14 +1054,14 @@ public static class Utils
     {
         return pc && pc.IsCrewmate() && !pc.Is(CustomRoles.Madmate)
                && !(
-                   (pc.Is(CustomRoles.Sheriff) && !Options.SheriffCanBeMadmate.GetBool()) ||
-                   (pc.Is(CustomRoles.Mayor) && !Options.MayorCanBeMadmate.GetBool()) ||
-                   (pc.Is(CustomRoles.NiceGuesser) && !Options.NGuesserCanBeMadmate.GetBool()) ||
-                   (pc.Is(CustomRoles.Snitch) && !Options.SnitchCanBeMadmate.GetBool()) ||
-                   (pc.Is(CustomRoles.Prosecutor) && !Options.JudgeCanBeMadmate.GetBool()) ||
-                   (pc.Is(CustomRoles.Marshall) && !Options.MarshallCanBeMadmate.GetBool()) ||
-                   (pc.Is(CustomRoles.Investigator) && !Options.InvestigatorCanBeMadmate.GetBool()) ||
-                   (pc.Is(CustomRoles.President) && !Options.PresidentCanBeMadmate.GetBool()) ||
+                   pc.Is(CustomRoles.Sheriff) && !Options.SheriffCanBeMadmate.GetBool() ||
+                   pc.Is(CustomRoles.Mayor) && !Options.MayorCanBeMadmate.GetBool() ||
+                   pc.Is(CustomRoles.NiceGuesser) && !Options.NGuesserCanBeMadmate.GetBool() ||
+                   pc.Is(CustomRoles.Snitch) && !Options.SnitchCanBeMadmate.GetBool() ||
+                   pc.Is(CustomRoles.Prosecutor) && !Options.JudgeCanBeMadmate.GetBool() ||
+                   pc.Is(CustomRoles.Marshall) && !Options.MarshallCanBeMadmate.GetBool() ||
+                   pc.Is(CustomRoles.Investigator) && !Options.InvestigatorCanBeMadmate.GetBool() ||
+                   pc.Is(CustomRoles.President) && !Options.PresidentCanBeMadmate.GetBool() ||
                    pc.Is(CustomRoles.Swapper) ||
                    pc.Is(CustomRoles.Speedrunner) ||
                    pc.Is(CustomRoles.LazyGuy) ||
@@ -1140,7 +1138,7 @@ public static class Utils
         try
         {
             float limit = playerId.GetAbilityUseLimit();
-            if (float.IsNaN(limit) || (limit >= 10 && (!Main.PlayerStates.TryGetValue(playerId, out var state) || state.MainRole != CustomRoles.Generator))) return string.Empty;
+            if (float.IsNaN(limit) || limit >= 10 && (!Main.PlayerStates.TryGetValue(playerId, out var state) || state.MainRole != CustomRoles.Generator)) return string.Empty;
 
             Color textColor;
 
@@ -1160,7 +1158,7 @@ public static class Utils
     {
         try
         {
-            if ((playerId == 0 && Main.GM.Value) || ChatCommands.Spectators.Contains(playerId) || !Main.PlayerStates.TryGetValue(playerId, out PlayerState state)) return string.Empty;
+            if (playerId == 0 && Main.GM.Value || ChatCommands.Spectators.Contains(playerId) || !Main.PlayerStates.TryGetValue(playerId, out PlayerState state)) return string.Empty;
 
             switch (state.IsDead)
             {
@@ -1193,19 +1191,19 @@ public static class Utils
                 if (taskState.CompletedTasksCount <= 0) nonCompleteColor = red;
                 else if (taskState.CompletedTasksCount > taskState.AllTasksCount / 2)
                 {
-                    var fraction = ((taskState.CompletedTasksCount * 0.4f) / taskState.AllTasksCount);
+                    var fraction = taskState.CompletedTasksCount * 0.4f / taskState.AllTasksCount;
                     nonCompleteColor = new
-                    ((green.r * fraction + yellow.r * (1 - fraction)),
-                        (green.g * fraction + yellow.g * (1 - fraction)),
-                        (green.b * fraction + yellow.b * (1 - fraction)));
+                    (green.r * fraction + yellow.r * (1 - fraction),
+                        green.g * fraction + yellow.g * (1 - fraction),
+                        green.b * fraction + yellow.b * (1 - fraction));
                 }
                 else if (taskState.CompletedTasksCount < taskState.AllTasksCount / 2)
                 {
-                    var fraction = ((taskState.CompletedTasksCount * 0.9f) / taskState.AllTasksCount);
+                    var fraction = taskState.CompletedTasksCount * 0.9f / taskState.AllTasksCount;
                     nonCompleteColor = new
-                    ((yellow.r * fraction + red.r * (1 - fraction)),
-                        (yellow.g * fraction + red.g * (1 - fraction)),
-                        (yellow.b * fraction + red.b * (1 - fraction)));
+                    (yellow.r * fraction + red.r * (1 - fraction),
+                        yellow.g * fraction + red.g * (1 - fraction),
+                        yellow.b * fraction + red.b * (1 - fraction));
                 }
             }
             
@@ -1389,7 +1387,7 @@ public static class Utils
             [TabGroup.OtherRoles] = []
         };
 
-        (Options.CurrentGameMode == CustomGameMode.HideAndSeek ? CustomHnS.AllHnSRoles.FindAll(x => x.IsEnable()) : (Options.CustomRoleSpawnChances.Keys.Concat(Options.CustomAdtRoleSpawnRate.Keys).Except(CustomHnS.AllHnSRoles).Distinct().Where(x => x.IsEnable()).OrderBy(x => GetString($"{x}")).ToList())).ForEach(x =>
+        (Options.CurrentGameMode == CustomGameMode.HideAndSeek ? CustomHnS.AllHnSRoles.FindAll(x => x.IsEnable()) : Options.CustomRoleSpawnChances.Keys.Concat(Options.CustomAdtRoleSpawnRate.Keys).Except(CustomHnS.AllHnSRoles).Distinct().Where(x => x.IsEnable()).OrderBy(x => GetString($"{x}")).ToList()).ForEach(x =>
         {
             string roleDisplay = x.ToColoredString();
 
@@ -1697,7 +1695,7 @@ public static class Utils
     public static void ShowHelp(byte id)
     {
         PlayerControl player = GetPlayerById(id);
-        SendMessage(Command.AllCommands.FindAll(x => x.CanUseCommand(player, false) && !x.CommandForms.Contains("help")).Aggregate("<size=70%>", (s, c) => s + $"\n<b>/{c.CommandForms.TakeWhile(f => f.All(char.IsAscii)).MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => id == 0 ? ColorString(GetColor(i), x) : x).Join(delimiter: " ")}")}</b> \u2192 {c.Description}"), id, GetString("CommandList"));
+        SendMessage(Command.AllCommands.FindAll(x => x.CanUseCommand(player, false) && !x.CommandForms.Contains("help")).Aggregate("<size=70%>", (s, c) => s + $"\n<b>/{c.CommandForms.TakeWhile(f => f.All(CharHelpers.IsAscii)).MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => id == 0 ? ColorString(GetColor(i), x) : x).Join(delimiter: " ")}")}</b> \u2192 {c.Description}"), id, GetString("CommandList"));
         return;
 
         Color GetColor(int i) => i switch
@@ -1742,7 +1740,7 @@ public static class Utils
             if (Options.CurrentGameMode != CustomGameMode.Standard || !deadPlayer || deadPlayer.Object.Is(CustomRoles.Renegade) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRenegadeOnImpsDead.GetBool()) return;
 
             var aapc = Main.CachedAlivePlayerControls();
-            if (aapc.Count < Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt() || aapc.Any(x => x.Is(CustomRoles.Renegade) || (x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool()))))) return;
+            if (aapc.Count < Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt() || aapc.Any(x => x.Is(CustomRoles.Renegade) || x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || x.IsNeutralKiller() && !Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool()))) return;
 
             PlayerControl[] listToChooseFrom = aapc.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && !x.Is(CustomRoles.Loyal)).ToArray();
 
@@ -2048,7 +2046,7 @@ public static class Utils
                     while (low <= high)
                     {
                         int mid = (low + high) / 2;
-                        string candidate = string.Concat(prefix, source.AsSpan(index, mid));
+                        string candidate = string.Concat(prefix, source[index..(index + mid)]);
 
                         if (fits(candidate))
                         {
@@ -2084,7 +2082,7 @@ public static class Utils
                     // -----------------------------------------------------------------
                     // Step 3: Emit the chunk.
                     // -----------------------------------------------------------------
-                    string chunk = string.Concat(prefix, source.AsSpan(index, splitLength));
+                    string chunk = string.Concat(prefix, source[index..(index + splitLength)]);
                     result.Add(chunk);
 
                     // -----------------------------------------------------------------
@@ -2263,7 +2261,7 @@ public static class Utils
                 sender.SetName(name);
             }
 
-            if ((noSplit && final) || (!noSplit && (!noNumberSplit || numberSplitFinal)))
+            if (noSplit && final || !noSplit && (!noNumberSplit || numberSplitFinal))
             {
                 writer.AutoStartRpc(sender.NetId, RpcCalls.SetName, targetClientId)
                     .Write(sender.Data.NetId)
@@ -2581,7 +2579,7 @@ public static class Utils
             }
         }
 
-        return DirtyName.Remove(player.PlayerId) || (name != player.name && player.CurrentOutfitType == PlayerOutfitType.Default);
+        return DirtyName.Remove(player.PlayerId) || name != player.name && player.CurrentOutfitType == PlayerOutfitType.Default;
     }
 
     public static Dictionary<string, int> GetAllPlayerLocationsCount()
@@ -2590,7 +2588,7 @@ public static class Utils
 
         foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
-            Il2CppReferenceArray<PlainShipRoom> rooms = ShipStatus.Instance.AllRooms;
+            PlainShipRoom[] rooms = ShipStatus.Instance.AllRooms;
 
             foreach (PlainShipRoom room in rooms)
             {
@@ -2685,7 +2683,7 @@ public static class Utils
 
     public static void UpdatePlayerIdCache()
     {
-        Array.Clear(IdToPC);
+        Array.Clear(IdToPC, 0, IdToPC.Length);
 
         foreach (var pc in PlayerControl.AllPlayerControls)
         {
@@ -2746,7 +2744,7 @@ public static class Utils
                     longInfo = $"<#ffffff>{longInfo}</color>";
 
                     int lines = longInfo.Count(x => x == '\n');
-                    int readTime = 10 + (lines * 5);
+                    int readTime = 10 + lines * 5;
 
                     LongRoleDescriptions[seer.PlayerId] = (longInfo, readTime, tooLong);
                 }
@@ -2809,7 +2807,7 @@ public static class Utils
         {
             //if (!ForMeeting && !NoCache && !ForceLoop && !CamouflageIsForMeeting && !GuesserIsForMeeting && !MushroomMixup && GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
             if (!AmongUsClient.Instance.AmHost) return;
-            if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.AmOwner)) || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
+            if (!SetUpRoleTextPatch.IsInIntro && (SpecifySeer && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.AmOwner) || GameStates.IsMeeting && !ForMeeting || GameStates.IsLobby)) return;
 
             var apc = Main.CachedAllPlayerControls();
             SeerList = SpecifySeer ? [SpecifySeer] : apc;
@@ -2849,7 +2847,7 @@ public static class Utils
 
         try
         {
-            if (!seer || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby))
+            if (!seer || seer.Data.Disconnected || seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard) || !SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)
                 return false;
 
             sender ??= CustomRpcSender.Create("NotifyRoles", sendOption);
@@ -2878,7 +2876,7 @@ public static class Utils
                 return true;
             }
 
-            if (forMeeting && (seer.GetClient().PlatformData.Platform is Platforms.Playstation or Platforms.Switch))
+            if (forMeeting && seer.GetClient().PlatformData.Platform is Platforms.Playstation or Platforms.Switch)
                 fontSize = "70%";
 
             // Text containing progress, such as tasks
@@ -2902,7 +2900,7 @@ public static class Utils
 
                     byte seerId = seer.PlayerId;
 
-                    seerIsLover = (loverIdFirst == seerId) || (loverIdSecond == seerId);
+                    seerIsLover = loverIdFirst == seerId || loverIdSecond == seerId;
                 }
 
                 if (seerIsLover)
@@ -3060,7 +3058,7 @@ public static class Utils
 
             if (!GameStates.IsLobby)
             {
-                if ((Options.CurrentGameMode == CustomGameMode.FFA && FreeForAll.FFATeamMode.GetBool()) || Options.CurrentGameMode == CustomGameMode.HotPotato)
+                if (Options.CurrentGameMode == CustomGameMode.FFA && FreeForAll.FFATeamMode.GetBool() || Options.CurrentGameMode == CustomGameMode.HotPotato)
                     seerRealName = seerRealName.ApplyNameColorData(seer, seer, forMeeting);
 
                 if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle and not CustomGameMode.Snowdown)
@@ -3089,7 +3087,7 @@ public static class Utils
                     else if (Options.ChangeNameToRoleInfo.GetBool() && !seer.IsModdedClient() && Options.CurrentGameMode == CustomGameMode.Standard)
                     {
                         bool showLongInfo = LongRoleDescriptions.TryGetValue(seer.PlayerId, out (string Text, int Duration, bool Long) description) && IntroCutsceneDestroyPatch.IntroDestroyTS + description.Duration > now;
-                        string mHelp = (!showLongInfo && !Options.ShowLongInfo.GetBool()) || description.Long ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
+                        string mHelp = !showLongInfo && !Options.ShowLongInfo.GetBool() || description.Long ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
                         string color = seerTeam.GetTextColor();
                         string teamStr = seerTeam == Team.Impostor && seer.IsMadmate() ? "Madmate" : seerTeam.ToString();
                         string info = (showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp;
@@ -3151,7 +3149,7 @@ public static class Utils
 
             if (!GameStates.IsLobby)
             {
-                if (Options.CurrentGameMode is CustomGameMode.Quiz or CustomGameMode.BedWars || (Options.CurrentGameMode == CustomGameMode.Mingle && !seer.IsModdedClient()))
+                if (Options.CurrentGameMode is CustomGameMode.Quiz or CustomGameMode.BedWars || Options.CurrentGameMode == CustomGameMode.Mingle && !seer.IsModdedClient())
                     selfName = string.Empty;
 
                 if (Options.CurrentGameMode != CustomGameMode.BedWars && NameNotifyManager.GetNameNotify(seer, out string name) && name.Length > 0)
@@ -3250,7 +3248,7 @@ public static class Utils
                                 byte loverIdFirst = lovers[0].PlayerId;
                                 byte loverIdSecond = lovers[1].PlayerId;
                                 byte targetId = target.PlayerId;
-                                targetIsLover = (loverIdFirst == targetId) || (loverIdSecond == targetId);
+                                targetIsLover = loverIdFirst == targetId || loverIdSecond == targetId;
                             }
                             if ((!seer.IsAlive() || seerIsLover) && targetIsLover)
                                 TargetMark.Append(CustomRoles.Lovers.ColoredTextByRole(" ♥"));
@@ -3291,7 +3289,7 @@ public static class Utils
 
                             BeforeEnd2:
 
-                            bool shouldSeeTargetAddons = seer.PlayerId == target.PlayerId || (seer.Is(Team.Impostor) && target.Is(Team.Impostor));
+                            bool shouldSeeTargetAddons = seer.PlayerId == target.PlayerId || seer.Is(Team.Impostor) && target.Is(Team.Impostor);
 
                             string targetRoleText =
                                 KnowsTargetRole(seer, target)
@@ -3332,7 +3330,7 @@ public static class Utils
 
                             if (Options.CurrentGameMode != CustomGameMode.Standard) goto BeforeEnd;
 
-                            if (guesserIsForMeeting || forMeeting || (seerRole == CustomRoles.Nemesis && !seer.IsAlive() && Options.NemesisCanKillNum.GetInt() >= 1))
+                            if (guesserIsForMeeting || forMeeting || seerRole == CustomRoles.Nemesis && !seer.IsAlive() && Options.NemesisCanKillNum.GetInt() >= 1)
                             {
                                 byte id = target.PlayerId;
 
@@ -3912,7 +3910,7 @@ public static class Utils
 
     public static string GetGameStateData(bool clairvoyant = false)
     {
-        Dictionary<Options.GameStateInfo, int> nums = Enum.GetValues<Options.GameStateInfo>().ToDictionary(x => x, _ => 0);
+        Dictionary<Options.GameStateInfo, int> nums = EnumHelper.GetValues<Options.GameStateInfo>().ToDictionary(x => x, _ => 0);
 
         if (CustomRoles.Romantic.RoleExist(true)) nums[Options.GameStateInfo.RomanticState] = 1;
         if (Romantic.HasPickedPartner) nums[Options.GameStateInfo.RomanticState] = 2;
@@ -4427,7 +4425,7 @@ public static class Utils
             Logger.Exception(ex, "AfterPlayerDeathTasks");
         }
 
-        if (!target || (Main.DiedThisRound.Contains(target.PlayerId) && IsRevivingRoleAlive() && !GameStates.IsMeeting) || Options.CurrentGameMode != CustomGameMode.Standard) return;
+        if (!target || Main.DiedThisRound.Contains(target.PlayerId) && IsRevivingRoleAlive() && !GameStates.IsMeeting || Options.CurrentGameMode != CustomGameMode.Standard) return;
 
         if (targetRealKiller)
             target.Notify($"<#ffffff>{string.Format(GetString("DeathCommand"), targetRealKiller.PlayerId.ColoredPlayerName(), (targetRealKiller.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + targetRealKiller.GetCustomRole().ToColoredString())}</color>", 10f);
@@ -4710,7 +4708,7 @@ public static class Utils
             {
                 if (anonymousCount)
                 {
-                    if ((pc.Is(Team.Impostor) || pc.Is(CustomRoles.DoubleAgent) || pc.IsNeutralKiller() || pc.Is(Team.Coven)))
+                    if (pc.Is(Team.Impostor) || pc.Is(CustomRoles.DoubleAgent) || pc.IsNeutralKiller() || pc.Is(Team.Coven))
                         evilnum++;
                 }
                 else
@@ -4835,7 +4833,7 @@ public static class Utils
         HudManager hud = HudManager.Instance;
         if (!hud.FullScreen) return;
 
-        GameObject obj = hud.transform.FindChild("FlashColor_FullScreen")?.gameObject;
+        GameObject obj = hud.transform.Find("FlashColor_FullScreen")?.gameObject;
 
         if (!obj)
         {
@@ -4843,11 +4841,11 @@ public static class Utils
             obj.name = "FlashColor_FullScreen";
         }
 
-        hud.StartCoroutine(Effects.Lerp(duration, new Action<float>(t =>
+        hud.StartCoroutine(Effects.Lerp(duration, t =>
         {
             obj.SetActive(Math.Abs(t - 1f) > 0.1f);
-            obj.GetComponent<SpriteRenderer>().color = new(color.r, color.g, color.b, Mathf.Clamp01(((-2f * Mathf.Abs(t - 0.5f)) + 1) * color.a / 2));
-        })));
+            obj.GetComponent<SpriteRenderer>().color = new(color.r, color.g, color.b, Mathf.Clamp01((-2f * Mathf.Abs(t - 0.5f) + 1) * color.a / 2));
+        }));
     }
 
     public static Sprite LoadSprite(string path, float pixelsPerUnit = 1f)
@@ -4866,18 +4864,16 @@ public static class Utils
         return null;
     }
 
-    private static unsafe Texture2D LoadTextureFromResources(string path)
+    private static Texture2D LoadTextureFromResources(string path)
     {
         try
         {
             Texture2D texture = new(2, 2, TextureFormat.ARGB32, true);
-            Assembly assembly = Assembly.GetExecutingAssembly();
+            var assembly = Assembly.GetExecutingAssembly();
             Stream stream = assembly.GetManifestResourceStream(path);
-            var length = stream!.Length; // Assuming all resource paths are valid and exist, so we can skip null check here
-            var byteTexture = new Il2CppStructArray<byte>(length);
-            // ReSharper disable once MustUseReturnValue - we know how many bytes we need to read, so we can skip the returned value check
-            stream.Read(new Span<byte>(IntPtr.Add(byteTexture.Pointer, IntPtr.Size * 4).ToPointer(), (int)length));
-            texture.LoadImage(byteTexture, false);
+            using var ms = new MemoryStream();
+            stream!.CopyTo(ms); // Assuming all resource paths are valid and exist, so we can skip null check here
+            texture.LoadImage(ms.ToArray(), false);
             return texture;
         }
         catch { Logger.Error($"Error loading texture: {path}", "LoadImage"); }
@@ -4931,7 +4927,7 @@ public static class Utils
 
         float luminance = 0.2126f * r + 0.7152f * g + 0.0722f * b;
 
-        float contrastWhite = (1.05f) / (luminance + 0.05f);
+        float contrastWhite = 1.05f / (luminance + 0.05f);
         float contrastBlack = (luminance + 0.05f) / 0.05f;
 
         return contrastBlack > contrastWhite ? Color.black : Color.white;
@@ -5009,17 +5005,11 @@ public static class Utils
         }
     }
 
-    public static bool TryCast<T>(this Il2CppObjectBase obj, out T casted) where T : Il2CppObjectBase
-    {
-        casted = obj.TryCast<T>();
-        return casted != null;
-    }
-
     public static void SetRolePanelOpen(this HudManager hud, bool open)
     {
         try
         {
-            var panelThing = hud.TaskStuff.transform.FindChild("RolePanel");
+            var panelThing = hud.TaskStuff.transform.Find("RolePanel");
             if (panelThing) panelThing.gameObject.GetComponent<TaskPanelBehaviour>().open = open;
         }
         catch (Exception e) { ThrowException(e); }
@@ -5282,7 +5272,7 @@ public static class Utils
         var typeName = typeof(T).FullName;
         var stateMachine =
             typeof(T)
-                .GetNestedTypes()
+                .GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic)
                 .FirstOrDefault(x => x.Name.Contains(methodName));
 
         if (stateMachine == null)

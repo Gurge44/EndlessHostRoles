@@ -62,7 +62,7 @@ public static class HostInfoPanelSetUpPatch
     {
         try
         {
-            if (!HostText) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
+            if (!HostText) HostText = __instance.content.transform.Find("Name").GetComponent<TextMeshPro>();
 
             string name = AmongUsClient.Instance.GetHost().PlayerName.Split('\n')[^1];
             if (name == string.Empty) return;
@@ -81,7 +81,7 @@ public static class HostInfoPanelSetUpPatch
 //[HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.Update))]
 internal static class LobbyBehaviourUpdatePatch
 {
-    private static Func<ISoundPlayer, bool> Lobbybgm;
+    private static Predicate<ISoundPlayer> Lobbybgm;
     private static ISoundPlayer MapThemeSound;
     public static void Postfix(LobbyBehaviour __instance)
     {

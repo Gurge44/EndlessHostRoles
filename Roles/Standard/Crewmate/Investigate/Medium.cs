@@ -67,7 +67,7 @@ public class Medium : RoleBase
 
     public static bool MsMsg(PlayerControl pc, string msg)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsMeeting || !pc || pc.IsAlive() || ContactPlayer == null || !ContactPlayer.TryGetValue(pc.PlayerId, out var contact) || (OnlyReceiveMsgFromCrew.GetBool() && !pc.IsCrewmate())) return false;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsMeeting || !pc || pc.IsAlive() || ContactPlayer == null || !ContactPlayer.TryGetValue(pc.PlayerId, out var contact) || OnlyReceiveMsgFromCrew.GetBool() && !pc.IsCrewmate()) return false;
 
         msg = msg.ToLower().Trim();
         if (!CheckCommand(ref msg, "通灵|ms|medium", false)) return false;

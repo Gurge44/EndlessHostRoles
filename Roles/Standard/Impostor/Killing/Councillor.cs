@@ -308,7 +308,7 @@ public class Councillor : RoleBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.MeetingKillButton.png", 140f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => CouncillorOnClick(pva.PlayerId /*, __instance*/)));
+            button.OnClick.AddListener(() => CouncillorOnClick(pva.PlayerId /*, __instance*/));
         }
     }
 

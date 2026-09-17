@@ -192,19 +192,19 @@ public class Gambler : RoleBase
                 case 5: // Ignore defense
                     killer.Notify(GetString("GamblerGet.IgnoreDefense"));
 
-                    if ((target.Is(CustomRoles.Pestilence) && IgnorePestilence.GetBool())
-                        || (Veteran.VeteranInProtect.Contains(target.PlayerId) && IgnoreVeteranAlert.GetBool())
-                        || (Medic.InProtect(target.PlayerId) && IgnoreMedicShield.GetBool())
-                        || ((target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && IgnoreCursedWolfAndJinx.GetBool()))
+                    if (target.Is(CustomRoles.Pestilence) && IgnorePestilence.GetBool()
+                        || Veteran.VeteranInProtect.Contains(target.PlayerId) && IgnoreVeteranAlert.GetBool()
+                        || Medic.InProtect(target.PlayerId) && IgnoreMedicShield.GetBool()
+                        || (target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && IgnoreCursedWolfAndJinx.GetBool())
                     {
                         killer.Kill(target);
                         return false;
                     }
 
-                    if ((target.Is(CustomRoles.Pestilence) && !IgnorePestilence.GetBool())
-                        || (Veteran.VeteranInProtect.Contains(target.PlayerId) && !IgnoreVeteranAlert.GetBool())
-                        || (Medic.InProtect(target.PlayerId) && !IgnoreMedicShield.GetBool())
-                        || ((target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && !IgnoreCursedWolfAndJinx.GetBool()))
+                    if (target.Is(CustomRoles.Pestilence) && !IgnorePestilence.GetBool()
+                        || Veteran.VeteranInProtect.Contains(target.PlayerId) && !IgnoreVeteranAlert.GetBool()
+                        || Medic.InProtect(target.PlayerId) && !IgnoreMedicShield.GetBool()
+                        || (target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && !IgnoreCursedWolfAndJinx.GetBool())
                         break;
 
                     killer.RpcCheckAndMurder(target);

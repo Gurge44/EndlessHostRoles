@@ -61,11 +61,11 @@ public static class ModConsentPopUp
         if (acceptPassive == null) return;
 
         acceptPassive.OnClick.RemoveAllListeners();
-        acceptPassive.OnClick.AddListener((Action)(() =>
+        acceptPassive.OnClick.AddListener(() =>
         {
             Main.AckdConsentPopup.Value = true;
             screen.Close();
-        }));
+        });
 
         var acceptTMP = acceptGO.GetComponentInChildren<TMP_Text>();
         if (acceptTMP != null)
@@ -85,8 +85,8 @@ public static class ModConsentPopUp
         if (disagreePassive != null)
         {
             disagreePassive.OnClick.RemoveAllListeners();
-            disagreePassive.OnClick.AddListener((Action)(() =>
-                SplashLogoAnimatorPatch.SceneChanger.ExitGame()));
+            disagreePassive.OnClick.AddListener(() =>
+                SplashLogoAnimatorPatch.SceneChanger.ExitGame());
         }
 
         var disagreeTMP = disagreeGO.GetComponentInChildren<TMP_Text>();

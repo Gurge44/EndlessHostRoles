@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -46,7 +46,7 @@ public static class DevManager
             try
             {
                 string json = request.downloadHandler.text.Trim();
-                Tags = JsonSerializer.Deserialize<Dictionary<string, TagInfo>>(json);
+                Tags = JsonConvert.DeserializeObject<Dictionary<string, TagInfo>>(json);
                 Logger.Info($"Tags successfully fetched: {Tags.Count} tags loaded.", "DevManager.FetchTags");
             }
             catch (Exception ex) { Logger.Error($"Error parsing tags JSON: {ex.Message}", "DevManager.FetchTags"); }

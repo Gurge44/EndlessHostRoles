@@ -170,7 +170,7 @@ public class Siren : CovenBase
     public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (base.KnowRole(player, target)) return true;
-        if (player.Is(CustomRoles.Entranced) && (target.Is(CustomRoles.Siren) || (target.Is(CustomRoleTypes.Coven) && EntrancedKnowCoven.GetValue() == 1))) return true;
+        if (player.Is(CustomRoles.Entranced) && (target.Is(CustomRoles.Siren) || target.Is(CustomRoleTypes.Coven) && EntrancedKnowCoven.GetValue() == 1)) return true;
         return EntrancedKnowEntranced.GetBool() && player.Is(CustomRoles.Entranced) && target.Is(CustomRoles.Entranced);
     }
 

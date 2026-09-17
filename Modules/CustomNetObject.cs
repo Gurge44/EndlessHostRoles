@@ -38,7 +38,7 @@ namespace EHR
             if (!AmongUsClient.Instance.AmHost) return;
             if (this is not NaturalDisaster nd || !nd.SpawnTimer.IsRunning) Logger.Info($" Change Custom Net Object {GetType().Name} (ID {Id}) sprite", "CNO.RpcChangeSprite");
 
-            bool notImportant = this is BedWarsItemGenerator || (this is NaturalDisaster n && n.SpawnTimer.Elapsed.TotalSeconds < n.TotalWarningTime - 1 && Options.CurrentGameMode != CustomGameMode.NaturalDisasters && GameStates.CurrentServerType == GameStates.ServerType.Vanilla);
+            bool notImportant = this is BedWarsItemGenerator || this is NaturalDisaster n && n.SpawnTimer.Elapsed.TotalSeconds < n.TotalWarningTime - 1 && Options.CurrentGameMode != CustomGameMode.NaturalDisasters && GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
             SendOption channel = notImportant ? SendOption.None : SendOption.Reliable;
             
             DataFlagRateLimiter.Enqueue(() =>
@@ -207,7 +207,7 @@ namespace EHR
 
             if (player.AmOwner)
             {
-                LateTask.New(() => playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(false), 0.1f);
+                LateTask.New(() => playerControl.transform.Find("Names").Find("NameText_TMP").gameObject.SetActive(false), 0.1f);
                 playerControl.Visible = false;
                 return false;
             }
@@ -703,7 +703,7 @@ namespace EHR
         public int TotalWarningTime { get; }
         private string DisasterSprite { get; }
         
-        private int TimeInt => (int)(SpawnTimer.Elapsed.TotalSeconds);
+        private int TimeInt => (int)SpawnTimer.Elapsed.TotalSeconds;
         private int PreviousTimeInt { get; set; }
         private string DisasterNameTranslated { get; }
 

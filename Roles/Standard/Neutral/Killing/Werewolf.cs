@@ -127,7 +127,7 @@ public class Werewolf : RoleBase
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return (CanRampage && (!UsePhantomBasis.GetBool() || !UsePhantomBasisForNKs.GetBool())) || IsRampaging || pc.inVent;
+        return CanRampage && (!UsePhantomBasis.GetBool() || !UsePhantomBasisForNKs.GetBool()) || IsRampaging || pc.inVent;
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

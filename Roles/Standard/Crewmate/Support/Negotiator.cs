@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -140,7 +139,7 @@ public class Negotiator : RoleBase
         Penalty = votedLast ? NegotiationType.HarmfulAddon : NegotiationType.Suicide;
         voter.RpcRemoveAbilityUse();
 
-        string message = Enum.GetValues<NegotiationType>().Aggregate(Translator.GetString("Negotiator.TargetMessage"), (s, x) => $"{s}\n{(int)x}) {Translator.GetString($"Negotiator.Type.{x}")}");
+        string message = EnumHelper.GetValues<NegotiationType>().Aggregate(Translator.GetString("Negotiator.TargetMessage"), (s, x) => $"{s}\n{(int)x}) {Translator.GetString($"Negotiator.Type.{x}")}");
         Utils.SendMessage(message, target.PlayerId, Translator.GetString("Negotiator.Title"), importance: MessageImportance.High);
 
         Main.DontCancelVoteList.Add(voter.PlayerId);

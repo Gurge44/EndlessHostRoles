@@ -134,7 +134,7 @@ public class Jackal : RoleBase
 
     public override bool CanUseSabotage(PlayerControl pc)
     {
-        return base.CanUseSabotage(pc) || (CanSabotage.GetBool() && pc.IsAlive());
+        return base.CanUseSabotage(pc) || CanSabotage.GetBool() && pc.IsAlive();
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
@@ -272,7 +272,7 @@ public class Sidekick : RoleBase
 
     public override bool CanUseSabotage(PlayerControl pc)
     {
-        return base.CanUseSabotage(pc) || (Jackal.CanSabotageSK.GetBool() && pc.IsAlive());
+        return base.CanUseSabotage(pc) || Jackal.CanSabotageSK.GetBool() && pc.IsAlive();
     }
 
     public override void SetButtonTexts(HudManager __instance, byte id)

@@ -1,5 +1,4 @@
-﻿using System;
-using HarmonyLib;
+﻿using HarmonyLib;
 
 namespace EHR.Patches;
 
@@ -10,12 +9,12 @@ internal static class SillyIl2CppCrashFixPatches
     [HarmonyPatch(typeof(PassiveButton), nameof(PassiveButton.ReceiveClickDown)), HarmonyPrefix]
     public static bool ReceiveClickDownPrefix(PassiveButton __instance)
     {
-        return __instance != null && __instance.Pointer != IntPtr.Zero;
+        return __instance != null;
     }
 
     [HarmonyPatch(typeof(PassiveButton), nameof(PassiveButton.ReceiveClickUp)), HarmonyPrefix]
     public static bool ReceiveClickUpPrefix(PassiveButton __instance)
     {
-        return __instance != null && __instance.Pointer != IntPtr.Zero;
+        return __instance != null;
     }
 }

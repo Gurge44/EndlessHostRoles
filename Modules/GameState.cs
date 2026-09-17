@@ -11,7 +11,7 @@ namespace EHR;
 
 public class PlayerState(byte playerId)
 {
-    public static readonly DeathReason[] AllDeathReason = Enum.GetValues<DeathReason>();
+    public static readonly DeathReason[] AllDeathReason = EnumHelper.GetValues<DeathReason>();
     public enum DeathReason
     {
         Kill,

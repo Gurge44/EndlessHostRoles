@@ -30,7 +30,7 @@ public class Counter(int totalGreenTime, int totalRedTime, char symbol, bool isR
                 return "--";
 
             int timer = Timer;
-            bool hidden = IsYellow || (timer == TotalGreenTime && !IsRed && !IsYellow) || (timer == TotalRedTime && IsRed);
+            bool hidden = IsYellow || timer == TotalGreenTime && !IsRed && !IsYellow || timer == TotalRedTime && IsRed;
             string result = hidden ? Utils.ColorString(Color.clear, "--") : Utils.ColorString(IsRed ? Color.red : Color.green, timer < 10 ? $" {timer}" : timer.ToString());
 
             if (timer is <= 19 and >= 10 && !hidden) result = $" {result}";
@@ -317,7 +317,7 @@ internal static class StopAndGo
             .SetValueFormat(OptionFormat.Seconds)
             .SetHeader(true);
 
-        Events[] events = Enum.GetValues<Events>();
+        Events[] events = EnumHelper.GetValues<Events>();
 
         EventChances = events.ToDictionary(x => x, x => new IntegerOptionItem(68_213_019 + (int)x, $"StopAndGo_EventChance_{x}", new(0, 100, 5), EventDefaults(x).Chance, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.StopAndGo)

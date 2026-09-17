@@ -90,6 +90,6 @@ public class Traitor : RoleBase
 
     public override bool CanUseSabotage(PlayerControl pc)
     {
-        return base.CanUseSabotage(pc) || (CanSabotage.GetBool() && pc.IsAlive());
+        return base.CanUseSabotage(pc) || CanSabotage.GetBool() && pc.IsAlive();
     }
 }

@@ -129,7 +129,7 @@ public class Bouncer : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != BouncerId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || Timer == null) return string.Empty;
+        if (seer.PlayerId != BouncerId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting || Timer == null) return string.Empty;
         int remainingSeconds = (int)Math.Ceiling(Timer.Remaining.TotalSeconds);
         string timerText = seer.IsModdedClient() || remainingSeconds <= 5 ? string.Format(Translator.GetString("Bouncer.Suffix.RemainingSeconds"), remainingSeconds) : string.Empty;
         return string.Format(Translator.GetString("Bouncer.Suffix"), Translator.GetString(MarkedRoom.RoomId)) + timerText;

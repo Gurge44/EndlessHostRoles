@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 
 namespace EHR;
 
@@ -14,7 +12,7 @@ internal static class AddTasksFromListPatch
 {
     public static Dictionary<TaskTypes, OptionItem> DisableTasksSettings = [];
 
-    public static void Prefix([HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
+    public static void Prefix([HarmonyArgument(4)] List<NormalPlayerTask> unusedTasks)
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -104,7 +102,7 @@ internal static class AddTasksFromListPatch
 
         foreach (NormalPlayerTask task in unusedTasks)
         {
-            if ((DisableTasksSettings.TryGetValue(task.TaskType, out OptionItem setting) && setting.GetBool()) || IsTaskAlwaysDisabled(task.TaskType))
+            if (DisableTasksSettings.TryGetValue(task.TaskType, out OptionItem setting) && setting.GetBool() || IsTaskAlwaysDisabled(task.TaskType))
                 disabledTasks.Add(task);
         }
 
@@ -131,7 +129,7 @@ internal static class RpcSetTasksPatch
 {
     // Patch that overwrites the task just before assigning the task and sending the RPC
     // Do not interfere with vanilla task allocation process itself
-    public static void Prefix(NetworkedPlayerInfo __instance, [HarmonyArgument(0)] ref Il2CppStructArray<byte> taskTypeIds)
+    public static void Prefix(NetworkedPlayerInfo __instance, [HarmonyArgument(0)] ref byte[] taskTypeIds)
     {
         // Android host somehow doesn't assign tasks in some game modes, so we skip the patch
         bool notTaskingGM = Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.StopAndGo);
@@ -209,7 +207,7 @@ internal static class RpcSetTasksPatch
 
         // List containing IDs of assignable tasks
         // Clone of the second argument of the original RpcSetTasks
-        Il2CppSystem.Collections.Generic.List<byte> TasksList = new();
+        List<byte> TasksList = new();
         foreach (byte num in taskTypeIds) TasksList.Add(num);
 
         // Reference: ShipStatus.Begin
@@ -225,18 +223,18 @@ internal static class RpcSetTasksPatch
 
         // HashSet where assigned tasks will be placed
         // Prevents multiple assignments of the same task
-        Il2CppSystem.Collections.Generic.HashSet<TaskTypes> usedTaskTypes = new();
+        HashSet<TaskTypes> usedTaskTypes = new();
         var start2 = 0;
         var start3 = 0;
 
         // List of assignable long tasks
-        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> LongTasks = new();
+        List<NormalPlayerTask> LongTasks = new();
         foreach (NormalPlayerTask task in ShipStatus.Instance.LongTasks) LongTasks.Add(task);
 
         Shuffle(LongTasks);
 
         // List of assignable short tasks
-        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> ShortTasks = new();
+        List<NormalPlayerTask> ShortTasks = new();
         foreach (NormalPlayerTask task in ShipStatus.Instance.ShortTasks) ShortTasks.Add(task);
 
         Shuffle(ShortTasks);
@@ -258,8 +256,8 @@ internal static class RpcSetTasksPatch
             ShortTasks
         );
 
-        // Convert the list of tasks to array (Il2CppStructArray)
-        taskTypeIds = new(TasksList.Count);
+        // Convert the list of tasks to array
+        taskTypeIds = new byte[TasksList.Count];
         for (var i = 0; i < TasksList.Count; i++) taskTypeIds[i] = TasksList[i];
 
         #region Logging
@@ -267,12 +265,12 @@ internal static class RpcSetTasksPatch
         try
         {
             NormalPlayerTask[] allTasks = ShortTasks.ToArray().Concat(LongTasks.ToArray()).ToArray();
-            Il2CppSystem.Text.StringBuilder sb = new();
+            StringBuilder sb = new();
 
             foreach (TaskTypes taskType in usedTaskTypes)
                 GetTaskFromTaskType(taskType)?.AppendTaskText(sb);
 
-            Logger.Info($" Changed Assigned tasks:\n{sb.Replace("\r\n", "\n").ToString()}", pc.GetRealName(), multiLine: true);
+            Logger.Info($" Changed Assigned tasks:\n{sb.Replace("\r\n", "\n")}", pc.GetRealName(), multiLine: true);
 
             PlayerTask GetTaskFromTaskType(TaskTypes type) => allTasks.FirstOrDefault(t => t.TaskType == type);
         }
@@ -281,7 +279,7 @@ internal static class RpcSetTasksPatch
         #endregion
     }
 
-    private static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)
+    private static void Shuffle<T>(List<T> list)
     {
         for (var i = 0; i < list.Count - 1; i++)
         {

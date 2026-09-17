@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
@@ -55,7 +54,7 @@ public class Dad : RoleBase
     private long SuperVisionTS;
     public HashSet<Ability> UsingAbilities;
     private readonly StringBuilder Suffix = new();
-    private static readonly Ability[] AllAbility = Enum.GetValues<Ability>();
+    private static readonly Ability[] AllAbility = EnumHelper.GetValues<Ability>();
 
     public override bool IsEnable => On;
 
@@ -438,7 +437,7 @@ public class Dad : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != DadId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != DadId || meeting || seer.IsModdedClient() && !hud) return string.Empty;
 
         Suffix.Clear();
 

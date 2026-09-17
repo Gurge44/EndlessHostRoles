@@ -104,7 +104,7 @@ public class Mercenary : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != MercenaryId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || Timer == null) return string.Empty;
+        if (seer.PlayerId != MercenaryId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting || Timer == null) return string.Empty;
         long remainingTime = (int)Timer.Remaining.TotalSeconds;
         return remainingTime > 20 ? string.Empty : string.Format(Translator.GetString("SerialKillerTimeLeft"), remainingTime);
     }

@@ -47,7 +47,7 @@ public class SimpleButton
         Button.transform.localPosition = localPosition;
         NormalSprite.color = normalColor;
         HoverSprite.color = hoverColor;
-        Button.OnClick.AddListener(action);
+        Button.OnClick.AddListener(() => action());
         Label.text = label;
         Button.gameObject.SetActive(isActive);
     }

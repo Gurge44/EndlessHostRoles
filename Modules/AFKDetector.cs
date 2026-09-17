@@ -27,7 +27,7 @@ public static class AFKDetector
         EnableDetector = new BooleanOptionItem(90, "EnableAFKDetector", true, TabGroup.GameSettings)
             .SetColor(new Color32(0, 255, 165, 255));
 
-        ConsequenceOption = new StringOptionItem(91, "AFKConsequence", Enum.GetNames<Consequence>().Select(x => $"AFKConsequence.{x}").ToArray(), 0, TabGroup.GameSettings)
+        ConsequenceOption = new StringOptionItem(91, "AFKConsequence", EnumHelper.GetNames<Consequence>().Select(x => $"AFKConsequence.{x}").ToArray(), 0, TabGroup.GameSettings)
             .SetParent(EnableDetector)
             .SetColor(new Color32(0, 255, 165, 255));
 

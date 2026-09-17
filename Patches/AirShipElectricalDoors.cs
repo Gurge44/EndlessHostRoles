@@ -5,7 +5,7 @@ namespace EHR;
 
 public static class AirshipElectricalDoors
 {
-    private static ElectricalDoors Instance => ShipStatus.Instance.Systems[SystemTypes.Decontamination].CastFast<ElectricalDoors>();
+    private static ElectricalDoors Instance => ShipStatus.Instance.Systems[SystemTypes.Decontamination] as ElectricalDoors;
 
     public static void Initialize()
     {
@@ -18,7 +18,7 @@ public static class AirshipElectricalDoors
         List<byte> doorsArray = [];
         if (Instance.Doors == null || Instance.Doors.Length == 0) return doorsArray;
 
-        for (byte i = 0; i < Instance.Doors.Count; i++)
+        for (byte i = 0; i < Instance.Doors.Length; i++)
         {
             StaticDoor door = Instance.Doors[i];
             if (door != null && !door.IsOpen) doorsArray.Add(i);

@@ -138,7 +138,7 @@ public class Captain : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != CaptainId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != CaptainId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting) return string.Empty;
         return string.Format(Translator.GetString("Captain.Suffix"), LastNotify.Length == 0 ? Translator.GetString("None") : LastNotify);
     }
 }

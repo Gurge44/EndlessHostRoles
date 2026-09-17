@@ -125,7 +125,7 @@ internal class Mycologist : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (SpreadAction.GetValue() == 0 || (SpreadAction.GetValue() == 2 && !UsePets.GetBool())) SpreadSpores();
+        if (SpreadAction.GetValue() == 0 || SpreadAction.GetValue() == 2 && !UsePets.GetBool()) SpreadSpores();
     }
 
     public override bool OnVanish(PlayerControl pc)
@@ -178,6 +178,6 @@ internal class Mycologist : RoleBase
 
     public override bool CanUseSabotage(PlayerControl pc)
     {
-        return base.CanUseSabotage(pc) || (SpreadAction.GetValue() == 1 && pc.IsAlive());
+        return base.CanUseSabotage(pc) || SpreadAction.GetValue() == 1 && pc.IsAlive();
     }
 }

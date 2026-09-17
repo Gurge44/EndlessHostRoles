@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using BepInEx;
-using BepInEx.Unity.IL2CPP;
+using BepInEx.Bootstrap;
 using EHR.Patches;
 using HarmonyLib;
 
@@ -26,7 +26,7 @@ public static class SubmergedCompatibility
 
     // public static SemanticVersioning.Version Version { get; private set; }
     public static bool Loaded { get; set; }
-    private static BasePlugin Plugin { get; set; }
+    private static BaseUnityPlugin Plugin { get; set; }
     private static Assembly Assembly { get; set; }
     private static Type[] Types { get; set; }
     // public static Dictionary<string, Type> InjectedTypes { get; private set; }
@@ -97,10 +97,10 @@ public static class SubmergedCompatibility
 
     public static void Initialize()
     {
-        Loaded = IL2CPPChainloader.Instance.Plugins.TryGetValue(SubmergedGuid, out PluginInfo plugin);
+        Loaded = Chainloader.PluginInfos.TryGetValue(SubmergedGuid, out PluginInfo plugin);
         if (!Loaded) return;
 
-        Plugin = plugin!.Instance as BasePlugin;
+        Plugin = plugin!.Instance;
         // Version = plugin.Metadata.Version;
 
         Assembly = Plugin!.GetType().Assembly;

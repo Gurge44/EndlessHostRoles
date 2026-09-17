@@ -1,8 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Modules.Extensions;
 using Hazel;
-using Il2CppSystem;
 
 namespace EHR.Roles;
 
@@ -94,7 +94,7 @@ public class Goddess : CovenBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != GoddessId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || Timer == null) return string.Empty;
+        if (seer.PlayerId != GoddessId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting || Timer == null) return string.Empty;
         return string.Format(Translator.GetString("Goddess.Suffix"), (int)Math.Ceiling(Timer.Remaining.TotalSeconds), Main.CovenColor);
     }
 }

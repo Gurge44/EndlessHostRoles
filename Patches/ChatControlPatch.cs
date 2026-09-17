@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
@@ -25,7 +26,9 @@ static class ChatControllerAwakePatch
         if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == QuickChatModes.QuickChatOnly)
             DataManager.Settings.Multiplayer.ChatMode = QuickChatModes.FreeChatOrQuickChat;
         
-        var chatBubble = __instance.chatBubblePool.Prefab.CastFast<ChatBubble>();
+        var chatBubble = __instance.chatBubblePool.Prefab as ChatBubble;
+        if (chatBubble == null) return;
+
         chatBubble.TextArea.overrideColorTags = false;
         
         if (Main.DarkTheme.Value)
@@ -43,15 +46,15 @@ static class ChatControllerAwakePatch
 
             __instance.quickChatField.background.color = DarkBackgroundColor;
             __instance.quickChatField.text.color = Color.white;
-        
+
             Main.Instance.StartCoroutine(Coroutine());
         }
         else
             __instance.freeChatField.textArea.outputText.color = Color.black;
-        
+
         return;
 
-        System.Collections.IEnumerator Coroutine()
+        IEnumerator Coroutine()
         {
             while (__instance)
             {

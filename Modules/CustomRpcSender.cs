@@ -10,7 +10,6 @@ using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using UnityEngine;
 
@@ -486,17 +485,17 @@ public class CustomRpcSender
         return Write(w => w.Write(val));
     }
 
-    public CustomRpcSender Write(Il2CppStructArray<byte> bytes)
+    public CustomRpcSender Write(byte[] bytes)
     {
         return Write(w => w.Write(bytes));
     }
 
-    public CustomRpcSender Write(Il2CppStructArray<byte> bytes, int offset, int length)
+    public CustomRpcSender Write(byte[] bytes, int offset, int length)
     {
         return Write(w => w.Write(bytes, offset, length));
     }
 
-    public CustomRpcSender WriteBytesAndSize(Il2CppStructArray<byte> bytes)
+    public CustomRpcSender WriteBytesAndSize(byte[] bytes)
     {
         return Write(w => w.WriteBytesAndSize(bytes));
     }
@@ -867,7 +866,7 @@ public static class CustomRpcSenderExtensions
         {
             senderWasCleared = false;
             newSender = sender;
-            if (!AmongUsClient.Instance.AmHost || !seer || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
+            if (!AmongUsClient.Instance.AmHost || !seer || seer.Data.Disconnected || seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard) || !SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby) return false;
             var hasValue = Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target], out senderWasCleared) && !senderWasCleared;
             newSender = sender;
             return hasValue;
@@ -907,7 +906,7 @@ public static class CustomRpcSenderExtensions
             {
                 foreach (GameLogicComponent com in GameManager.Instance.LogicComponents)
                 {
-                    if (com.TryCast(out LogicOptions lo))
+                    if (com is LogicOptions lo)
                         lo.SetGameOptions(options);
                 }
 

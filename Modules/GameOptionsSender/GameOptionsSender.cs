@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using AmongUs.GameOptions;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
 
 namespace EHR.Modules;
@@ -12,7 +11,7 @@ public abstract class GameOptionsSender
 {
     protected abstract bool IsDirty { get; set; }
 
-    private Il2CppStructArray<byte> BuildOptionArray()
+    private byte[] BuildOptionArray()
     {
         IGameOptions opt = BuildGameOptions();
         var currentGameMode = AprilFoolsMode.IsAprilFoolsModeToggledOn ? opt.AprilFoolsOnMode : opt.GameMode;
@@ -23,57 +22,57 @@ public abstract class GameOptionsSender
         writer.StartMessage(0);
         writer.Write((byte)currentGameMode);
 
-        if (opt.TryCast(out NormalGameOptionsV11 normalOpt))
+        if (opt is NormalGameOptionsV11 normalOpt)
             NormalGameOptionsV11.Serialize(writer, normalOpt);
-        else if (opt.TryCast(out HideNSeekGameOptionsV11 hnsOpt))
+        else if (opt is HideNSeekGameOptionsV11 hnsOpt)
             HideNSeekGameOptionsV11.Serialize(writer, hnsOpt);
         else
             Logger.Error("Option cast failed", ToString());
 
         writer.EndMessage();
 
-        Il2CppStructArray<byte> optionArray = writer.ToByteArray(false);
+        byte[] optionArray = writer.ToByteArray(false);
         writer.Recycle();
         return optionArray;
     }
 
     protected virtual void SendGameOptions()
     {
-        Il2CppStructArray<byte> optionArray = BuildOptionArray();
+        byte[] optionArray = BuildOptionArray();
         SendOptionsArray(optionArray);
     }
 
     protected virtual IEnumerator SendGameOptionsAsync()
     {
-        Il2CppStructArray<byte> optionArray = BuildOptionArray();
+        byte[] optionArray = BuildOptionArray();
         yield return SendOptionsArrayAsync(optionArray);
     }
 
-    private void SendOptionsArray(Il2CppStructArray<byte> optionArray)
+    private void SendOptionsArray(byte[] optionArray)
     {
         int count = GameManager.Instance.LogicComponents.Count;
 
         for (byte i = 0; i < count; i++)
         {
-            Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[i];
-            if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i);
+            GameLogicComponent logicComponent = GameManager.Instance.LogicComponents[i];
+            if (logicComponent is LogicOptions) SendOptionsArray(optionArray, i);
         }
     }
 
-    private IEnumerator SendOptionsArrayAsync(Il2CppStructArray<byte> optionArray)
+    private IEnumerator SendOptionsArrayAsync(byte[] optionArray)
     {
         int count = GameManager.Instance.LogicComponents.Count;
 
         for (byte i = 0; i < count; i++)
         {
-            Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[i];
-            if (logicComponent.TryCast<LogicOptions>(out _)) yield return SendOptionsArrayAsync(optionArray, i);
+            GameLogicComponent logicComponent = GameManager.Instance.LogicComponents[i];
+            if (logicComponent is LogicOptions) yield return SendOptionsArrayAsync(optionArray, i);
             yield return WaitFrameIfNecessary();
         }
     }
 
-    protected abstract void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex);
-    protected abstract IEnumerator SendOptionsArrayAsync(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex);
+    protected abstract void SendOptionsArray(byte[] optionArray, byte logicOptionsIndex);
+    protected abstract IEnumerator SendOptionsArrayAsync(byte[] optionArray, byte logicOptionsIndex);
 
     public abstract IGameOptions BuildGameOptions();
 

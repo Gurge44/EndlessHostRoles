@@ -178,7 +178,7 @@ public static class NaturalDisasters
             {
                 cb = string.Empty;
             }
-            else if (allRooms.Count / 2 <= collapsedRooms.Count)
+            else if (allRooms.Length / 2 <= collapsedRooms.Count)
             {
                 SystemTypes[] remainingRooms = allRooms.Select(x => x.RoomId).Where(x => x is not (SystemTypes.Hallway or SystemTypes.Outside or SystemTypes.Decontamination2 or SystemTypes.Decontamination3)).Except(collapsedRooms.ConvertAll(x => x.RoomId)).ToArray();
                 cb = string.Format(Translator.GetString("AvailableBuildings"), remainingRooms.Length > 0
@@ -259,7 +259,7 @@ public static class NaturalDisasters
 
         public static void Postfix( /*PlayerControl __instance*/)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) || !Main.IntroDestroyed || Main.HasJustStarted /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool() || !Main.IntroDestroyed || Main.HasJustStarted /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
             
             long now = Utils.TimeStamp;
             if (IntroCutsceneDestroyPatch.IntroDestroyTS + WaitTime > now) return;
@@ -646,7 +646,7 @@ public static class NaturalDisasters
                 NetObject.RpcChangeSprite(newSprite);
             }
 
-            float range = Range - ((Phases - Math.Min(4, Phase)) * 0.4f);
+            float range = Range - (Phases - Math.Min(4, Phase)) * 0.4f;
             KillNearbyPlayers(PlayerState.DeathReason.Lava, range);
             return false;
         }
@@ -716,7 +716,7 @@ public static class NaturalDisasters
                         continue;
                     case <= dragRange:
                         Vector2 direction = (Position - pos).normalized;
-                        Vector2 newPosition = pos + (direction * 0.15f);
+                        Vector2 newPosition = pos + direction * 0.15f;
                         pc.TP(newPosition, true);
                         continue;
                 }
@@ -738,7 +738,7 @@ public static class NaturalDisasters
             Vector2 addVector = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
             Vector2 newPos = Position + addVector * speed;
 
-            if ((!GoesThroughWalls.GetBool() && PhysicsHelpers.AnythingBetween(NetObject.playerControl.Collider, Position, newPos + addVector * 2, Constants.ShipOnlyMask, false)) ||
+            if (!GoesThroughWalls.GetBool() && PhysicsHelpers.AnythingBetween(NetObject.playerControl.Collider, Position, newPos + addVector * 2, Constants.ShipOnlyMask, false) ||
                 newPos.x < MapBounds.X.Left || newPos.x > MapBounds.X.Right || newPos.y < MapBounds.Y.Bottom || newPos.y > MapBounds.Y.Top)
             {
                 Angle = RandomAngle();
@@ -880,7 +880,7 @@ public static class NaturalDisasters
             {
                 bool inRange = FastVector2.DistanceWithinRange(pc.Pos(), Position, Range * 1.25f);
                 
-                if ((inRange && AffectedPlayers.Add(pc.PlayerId)) || (!inRange && AffectedPlayers.Remove(pc.PlayerId)))
+                if (inRange && AffectedPlayers.Add(pc.PlayerId) || !inRange && AffectedPlayers.Remove(pc.PlayerId))
                     pc.MarkDirtySettings();
             }
 
@@ -1004,7 +1004,7 @@ public static class NaturalDisasters
                     best = MovingDirection.BottomToTop;
                 }
                 
-                return max == 0 ? Enum.GetValues<MovingDirection>().RandomElement() : best;
+                return max == 0 ? EnumHelper.GetValues<MovingDirection>().RandomElement() : best;
             }
         }
 

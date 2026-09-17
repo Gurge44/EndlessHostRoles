@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using EHR.Modules;
 using HarmonyLib;
-using Il2CppSystem;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Patches;
@@ -52,7 +52,7 @@ internal static class NotificationPopperPatch
             Instance.lastMessageKey = option.Id;
             LobbyNotificationMessage newMessage = Object.Instantiate(Instance.notificationMessageOrigin, Vector3.zero, Quaternion.identity, Instance.transform);
             newMessage.transform.localPosition = new(0f, 0f, -2f);
-            newMessage.SetUp(item, Instance.settingsChangeSprite, Instance.settingsChangeColor, (Action)(() => Instance.OnMessageDestroy(newMessage)));
+            newMessage.SetUp(item, Instance.settingsChangeSprite, Instance.settingsChangeColor, () => Instance.OnMessageDestroy(newMessage));
             Instance.ShiftMessages();
             Instance.AddMessageToQueue(newMessage);
         }
@@ -76,7 +76,7 @@ internal static class NotificationPopperPatch
         
         if (RpcBatch.Count == 0) return;
         
-        var msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.NotificationPopper, Hazel.SendOption.Reliable);
+        var msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.NotificationPopper, SendOption.Reliable);
         msg.WritePacked(RpcBatch.Count);
         RpcBatch.Do(msg.WritePacked);
         AmongUsClient.Instance.FinishRpcImmediately(msg);

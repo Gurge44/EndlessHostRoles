@@ -383,7 +383,7 @@ public class Penguin : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != PenguinId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || AbductTimer == null) return string.Empty;
+        if (seer.PlayerId != PenguinId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || AbductTimer == null) return string.Empty;
         return $"\u21b9 {(int)(AbductTimerLimit - AbductTimer.Elapsed.TotalSeconds + 1f)}s";
     }
 }

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
-using BepInEx;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
@@ -153,7 +152,7 @@ internal static class UpdateSystemPatch
                             Logger.Info($"{player.GetNameWithRole()} instant-fix-lights", "Alchemist");
                             if (amount.HasBit(SwitchSystem.DamageSystem)) break;
 
-                            switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ (1 << amount));
+                            switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ 1 << amount);
                             am.FixNextSabo = false;
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
@@ -163,7 +162,7 @@ internal static class UpdateSystemPatch
                             Logger.Info($"{player.GetNameWithRole()} instant-fix-lights", "Adventurer");
                             if (amount.HasBit(SwitchSystem.DamageSystem)) break;
 
-                            switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ (1 << amount));
+                            switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ 1 << amount);
                             av.OnLightsFix();
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
@@ -182,7 +181,7 @@ internal static class UpdateSystemPatch
             }
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
             {
-                var sabotageSystemType = __instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>();
+                var sabotageSystemType = (SabotageSystemType)__instance.Systems[SystemTypes.Sabotage];
                 return SabotageSystemTypeUpdateSystemPatch.CheckSabotage(sabotageSystemType, player, systemType);
             }
             case SystemTypes.Security when amount == 1:
@@ -289,7 +288,7 @@ internal static class CloseDoorsPatch
         if (Doorjammer.JammedRooms.Contains(room)) allow = false;
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;
-        if (Main.CurrentMap != MapNames.Polus && __instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>().AnyActive) allow = false;
+        if (Main.CurrentMap != MapNames.Polus && ((__instance.Systems[SystemTypes.Sabotage] as SabotageSystemType)?.AnyActive ?? false)) allow = false;
 
         Logger.Info($"({room}) => {(allow ? "Allowed" : "Blocked")}", "DoorClose");
         return allow;
@@ -305,19 +304,7 @@ internal static class StartPatch
 
         Utils.CountAlivePlayers(true);
 
-        if (Options.AllowConsole.GetBool())
-        {
-            if (!ConsoleManager.ConsoleActive && ConsoleManager.ConsoleEnabled)
-                ConsoleManager.CreateConsole();
-        }
-        else
-        {
-            if (ConsoleManager.ConsoleActive && !DebugModeManager.AmDebugger)
-            {
-                ConsoleManager.DetachConsole();
-                Logger.SendInGame("Sorry, console use is prohibited in this room, so your console has been turned off", Color.red);
-            }
-        }
+        try { (Options.AllowConsole.GetBool() ? Main.CreateConsoleMethod : Main.DetachConsoleMethod)?.Invoke(null, null); } catch { }
     }
 }
 
@@ -419,68 +406,68 @@ internal static class ShipStatusOnEnablePatch
                     case SystemTypes.Reactor:
                     {
                         switch (mapId)
-                            {
-                                case 2: continue;
-                                case 4:
-                                    ShipStatusSystem.HeliSabotageSystem = ISystemType.TryCast<HeliSabotageSystem>();
-                                    break;
-                                default:
-                                    ShipStatusSystem.ReactorSystemType = ISystemType.TryCast<ReactorSystemType>();
-                                    break;
-                            }
+                        {
+                            case 2:
+                                continue;
+                            case 4:
+                                ShipStatusSystem.HeliSabotageSystem = ISystemType as HeliSabotageSystem;
+                                break;
+                            default:
+                                ShipStatusSystem.ReactorSystemType = ISystemType as ReactorSystemType;
+                                break;
+                        }
 
-                        ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
+                        ShipStatusSystem.ICriticalSabotage = ISystemType as ICriticalSabotage;
+                        break;
                     }
-                        break;
                     case SystemTypes.Laboratory:
-                        {
-                            if (mapId != 2) continue;
-                            ShipStatusSystem.ReactorSystemType = ISystemType.TryCast<ReactorSystemType>();
-                            ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
-                        }
+                    {
+                        if (mapId != 2) continue;
+                        ShipStatusSystem.ReactorSystemType = ISystemType as ReactorSystemType;
+                        ShipStatusSystem.ICriticalSabotage = ISystemType as ICriticalSabotage;
                         break;
+                    }
                     case SystemTypes.HeliSabotage:
-                        {
-                            if (mapId != 4) continue;
-                            ShipStatusSystem.HeliSabotageSystem = ISystemType.TryCast<HeliSabotageSystem>();
-                            ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
-                        }
+                    {
+                        if (mapId != 4) continue;
+                        ShipStatusSystem.HeliSabotageSystem = ISystemType as HeliSabotageSystem;
+                        ShipStatusSystem.ICriticalSabotage = ISystemType as ICriticalSabotage;
                         break;
+                    }
                     case SystemTypes.LifeSupp:
-                        {
-                            if (mapId is 2 or 4 or 5) continue;
-                            ShipStatusSystem.LifeSuppSystemType = ISystemType.TryCast<LifeSuppSystemType>();
-                        }
+                    {
+                        if (mapId is 2 or 4 or 5) continue;
+                        ShipStatusSystem.LifeSuppSystemType = ISystemType as LifeSuppSystemType;
                         break;
+                    }
                     case SystemTypes.Electrical:
-                        {
-                            if (mapId == 5) continue;
-                            ShipStatusSystem.SwitchSystem = ISystemType.TryCast<SwitchSystem>();
-                        }
+                    {
+                        if (mapId == 5) continue;
+                        ShipStatusSystem.SwitchSystem = ISystemType as SwitchSystem;
                         break;
+                    }
                     case SystemTypes.Comms:
-                        {
-                            if (mapId is 1 or 5)
-                                ShipStatusSystem.HqHudSystemType = ISystemType.TryCast<HqHudSystemType>();
-                            else
-                                ShipStatusSystem.HudOverrideSystemType = ISystemType.TryCast<HudOverrideSystemType>();
-                        }
+                    {
+                        if (mapId is 1 or 5)
+                            ShipStatusSystem.HqHudSystemType = ISystemType as HqHudSystemType;
+                        else
+                            ShipStatusSystem.HudOverrideSystemType = ISystemType as HudOverrideSystemType;
                         break;
+                    }
                     case SystemTypes.MushroomMixupSabotage:
-                        {
-                            if (mapId != 5) continue;
-                            ShipStatusSystem.MushroomMixupSabotageSystem = ISystemType.TryCast<MushroomMixupSabotageSystem>();
-                        }
+                    {
+                        if (mapId != 5) continue;
+                        ShipStatusSystem.MushroomMixupSabotageSystem = ISystemType as MushroomMixupSabotageSystem;
                         break;
+                    }
                     case SystemTypes.Ventilation:
-                        {
-                            ShipStatusSystem.VentilationSystem = ISystemType.TryCast<VentilationSystem>();
-                        }
+                    {
+                        ShipStatusSystem.VentilationSystem = ISystemType as VentilationSystem;
                         break;
+                    }
                 }
             }
-            catch (Exception e)
-            { Utils.ThrowException(e); }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
     }
 }
@@ -520,7 +507,7 @@ internal static class ShipStatusSpawnPlayerPatch
         if (!AmongUsClient.Instance.AmHost || initialSpawn || !player.IsAlive()) return true;
 
         Vector2 direction = Vector2.up.Rotate((player.PlayerId - 1) * (360f / numPlayers));
-        Vector2 position = __instance.MeetingSpawnCenter + (direction * __instance.SpawnRadius) + new Vector2(0.0f, 0.3636f);
+        Vector2 position = __instance.MeetingSpawnCenter + direction * __instance.SpawnRadius + new Vector2(0.0f, 0.3636f);
 
         LateTask.New(() => player.TP(position, true, false), 1.5f, log: false);
         return false;
@@ -542,8 +529,8 @@ internal static class PolusShipStatusSpawnPlayerPatch
         int num2 = player.PlayerId % 15;
 
         Vector2 position = num2 >= num1
-            ? __instance.MeetingSpawnCenter2 + (Vector2.right * (num2 - num1) * 0.6f)
-            : __instance.MeetingSpawnCenter + (Vector2.right * num2 * 0.6f);
+            ? __instance.MeetingSpawnCenter2 + Vector2.right * (num2 - num1) * 0.6f
+            : __instance.MeetingSpawnCenter + Vector2.right * num2 * 0.6f;
 
         LateTask.New(() => player.TP(position, true, false), 1.5f, log: false);
         return false;
@@ -641,7 +628,7 @@ internal static class ShipStatusSerializePatch
             
             DataFlagRateLimiter.Enqueue(() =>
             {
-                if (__instance == null || __instance.Pointer == IntPtr.Zero) return;
+                if (__instance == null) return;
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
@@ -667,7 +654,7 @@ internal static class ShipStatusSerializePatch
 
             DataFlagRateLimiter.Enqueue(() =>
             {
-                if (__instance == null || __instance.Pointer == IntPtr.Zero) return;
+                if (__instance == null) return;
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
@@ -697,7 +684,7 @@ internal static class VentilationSystemDeterioratePatch
             if (!pc.AmOwner && !pc.IsModdedClient() && !pc.Data.IsDead && pc.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom)
             {
                 var vents = ShipStatus.Instance.AllVents;
-                for (int i = 0; i < vents.Count; i++)
+                for (int i = 0; i < vents.Length; i++)
                     if (!pc.CanUseVent(vents[i].Id)) return true;
             }
             return false;
@@ -718,7 +705,7 @@ internal static class VentilationSystemDeterioratePatch
 
             DataFlagRateLimiter.Enqueue(() =>
             {
-                if (__instance == null || __instance.Pointer == IntPtr.Zero || !pc || pc.Pointer == IntPtr.Zero) return;
+                if (__instance == null || !pc) return;
                 
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
 
@@ -758,7 +745,7 @@ internal static class VentilationSystemDeterioratePatch
 
                     writer.WritePacked(__instance.PlayersInsideVents.Count);
 
-                    foreach (Il2CppSystem.Collections.Generic.KeyValuePair<byte, byte> keyValuePair2 in __instance.PlayersInsideVents)
+                    foreach (KeyValuePair<byte, byte> keyValuePair2 in __instance.PlayersInsideVents)
                     {
                         writer.Write(keyValuePair2.Key);
                         writer.Write(keyValuePair2.Value);

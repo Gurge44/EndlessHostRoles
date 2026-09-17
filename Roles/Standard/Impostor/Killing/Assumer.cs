@@ -73,7 +73,7 @@ public class Assumer : RoleBase
             {
                 foreach (PlayerVoteArea pva in MeetingHud.Instance.playerStates)
                 {
-                    if (pva.VotedForId == instance.Assumption.Id || (VoteReceiverDies.GetBool() && pva.PlayerId == instance.Assumption.Id))
+                    if (pva.VotedForId == instance.Assumption.Id || VoteReceiverDies.GetBool() && pva.PlayerId == instance.Assumption.Id)
                         CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Assumed, pva.PlayerId);
                 }
             }

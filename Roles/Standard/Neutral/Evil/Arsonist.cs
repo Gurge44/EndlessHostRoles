@@ -78,7 +78,7 @@ internal class Arsonist : RoleBase
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return pc.IsDouseDone() || ArsonistCanVent.GetBool() || (ArsonistCanIgniteAnytime.GetBool() && !UsePets.GetBool() && (Utils.GetDousedPlayerCount(pc.PlayerId).Item1 >= ArsonistMinPlayersToIgnite.GetInt() || pc.inVent));
+        return pc.IsDouseDone() || ArsonistCanVent.GetBool() || ArsonistCanIgniteAnytime.GetBool() && !UsePets.GetBool() && (Utils.GetDousedPlayerCount(pc.PlayerId).Item1 >= ArsonistMinPlayersToIgnite.GetInt() || pc.inVent);
     }
 
     public override void SetKillCooldown(byte id)

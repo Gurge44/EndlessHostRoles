@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -7,7 +8,6 @@ using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes;
 using UnityEngine;
 
 namespace EHR.Patches;
@@ -225,7 +225,7 @@ internal static class ExileControllerWrapUpPatch
         Stopwatch.Reset();
         return;
 
-        System.Collections.IEnumerator Coroutine()
+        IEnumerator Coroutine()
         {
             yield return new WaitForSecondsRealtime(0.2f);
             
@@ -255,7 +255,7 @@ internal static class ExileControllerWrapUpPatch
             return Utils.GetStateMachineMoveNext<AirshipExileController>(nameof(AirshipExileController.WrapUpAndSpawn));
         }
     
-        public static void Postfix(Il2CppObjectBase __instance, ref bool __result)
+        public static void Postfix(object __instance, ref bool __result)
         {
             var wrapper = new StateMachineWrapper<AirshipExileController>(__instance);
         

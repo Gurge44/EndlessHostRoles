@@ -45,7 +45,7 @@ internal class Command(string key, string arguments, Command.UsageLevels usageLe
 
     public static List<Command> AllCommands = [];
 
-    public string[] CommandForms = GetString($"CommandForms.{key}").Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+    public string[] CommandForms = GetString($"CommandForms.{key}").Split(',', StringSplitOptions.RemoveEmptyEntries);
     public string Key => key;
     public string Arguments => arguments;
     public string Description => GetString($"CommandDescription.{key}");
@@ -74,7 +74,7 @@ internal class Command(string key, string arguments, Command.UsageLevels usageLe
         {
             case UsageLevels.Host when !pc.IsHost():
             case UsageLevels.Modded when !pc.IsModdedClient():
-            case UsageLevels.HostOrModerator when !pc.IsHost() && (AmongUsClient.Instance.AmHost && !ChatCommands.IsPlayerModerator(pc.FriendCode)):
+            case UsageLevels.HostOrModerator when !pc.IsHost() && AmongUsClient.Instance.AmHost && !ChatCommands.IsPlayerModerator(pc.FriendCode):
             case UsageLevels.HostOrAdmin when !pc.IsHost() && AmongUsClient.Instance.AmHost && !ChatCommands.IsPlayerAdmin(pc.FriendCode):
                 if (sendErrorMessage) Utils.SendMessage("\n", pc.PlayerId, GetString($"Commands.NoAccess.Level.{UsageLevel}"));
                 return false;
@@ -389,7 +389,7 @@ internal static class ChatCommands
                 break;
         }
 
-        if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
+        if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
         if (GameStates.IsMeeting && Exorcist.AbilityEndTS > Utils.TimeStamp && !text.StartsWith("/cmd") && !PlayerControl.LocalPlayer.Is(CustomRoles.Pestilence))
         {
@@ -658,7 +658,7 @@ internal static class ChatCommands
 
             if (Main.CurrentMap == MapNames.Dleks || Main.NormalOptions.MapId == 6)
             {
-                var opt = Main.NormalOptions.CastFast<IGameOptions>();
+                IGameOptions opt = Main.NormalOptions;
 
                 Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
                 Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
@@ -726,7 +726,7 @@ internal static class ChatCommands
     
     private static void ReviveCommand(PlayerControl player, string text, string[] args)
     {
-        if ((!Options.NoGameEnd.GetBool() && !player.FriendCode.GetDevUser().up) || args.Length < 2 || !byte.TryParse(args[1], out byte targetId)) return;
+        if (!Options.NoGameEnd.GetBool() && !player.FriendCode.GetDevUser().up || args.Length < 2 || !byte.TryParse(args[1], out byte targetId)) return;
         
         PlayerControl target = Utils.GetPlayerById(targetId);
         if (target == null) return;
@@ -928,7 +928,7 @@ internal static class ChatCommands
     
     private static void CopyPresetCommand(PlayerControl player, string text, string[] args)
     {
-        if (args.Length < 3 || !int.TryParse(args[1], out int sourcePresetId) || sourcePresetId is < 1 or > 20 || (!int.TryParse(args[2], out int targetPreset) && targetPreset is < 1 or > 20)) return;
+        if (args.Length < 3 || !int.TryParse(args[1], out int sourcePresetId) || sourcePresetId is < 1 or > 20 || !int.TryParse(args[2], out int targetPreset) && targetPreset is < 1 or > 20) return;
 
         Prompt.Show(string.Format(GetString("Promt.CopyPreset"), sourcePresetId, targetPreset), Copy, () => { });
         return;
@@ -1017,7 +1017,7 @@ internal static class ChatCommands
 
     private static void XORCommand(PlayerControl player, string text, string[] args)
     {
-        if ((!player.IsHost() && !IsPlayerAdmin(player.FriendCode)) || args.Length < 3 || !GetRoleByName(args[1], out CustomRoles role1) || !GetRoleByName(args[2], out CustomRoles role2))
+        if (!player.IsHost() && !IsPlayerAdmin(player.FriendCode) || args.Length < 3 || !GetRoleByName(args[1], out CustomRoles role1) || !GetRoleByName(args[2], out CustomRoles role2))
         {
             Utils.SendMessage(Main.XORRoles.Join('\n', x => $"{x.Item1.ToColoredString()} ⊕ {x.Item2.ToColoredString()}"), player.PlayerId, GetString("XORListTitle"));
             return;
@@ -1380,7 +1380,7 @@ internal static class ChatCommands
 
         string coloredRole = CustomRoles.Listener.ToColoredString();
         PlayerControl[] listeners = CustomRoles.Listener.IsEnable() ? Main.EnumerateAlivePlayerControls().Where(x => x.Is(CustomRoles.Listener)).ToArray() : [];
-        string[] ids = args[1].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        string[] ids = args[1].Split(',', StringSplitOptions.RemoveEmptyEntries);
 
         foreach (string id in ids)
         {
@@ -1479,7 +1479,7 @@ internal static class ChatCommands
     {
         Func<Achievements.Type, string> ToAchievementString = x => $"<b>{GetString($"Achievement.{x}")}</b> - {GetString($"Achievement.{x}.Description")}";
 
-        Achievements.Type[] allAchievements = Enum.GetValues<Achievements.Type>();
+        Achievements.Type[] allAchievements = EnumHelper.GetValues<Achievements.Type>();
         Achievements.Type[] union = Achievements.CompletedAchievements.Union(Achievements.WaitingAchievements).ToArray();
         var completedAchievements = $"<size=70%>{union.Join(ToAchievementString, "\n")}</size>";
         var incompleteAchievements = $"<size=70%>{allAchievements.Except(union).Join(ToAchievementString, "\n")}</size>";
@@ -1549,7 +1549,7 @@ internal static class ChatCommands
         if (gameMode == CustomGameMode.HideAndSeek)
         {
             bool sns = CustomHnS.SNS;
-            List<(CustomRoles Role, IHideAndSeekRole Interface)> hnsRoles = CustomHnS.GetAllHnsRoleTypes().Select(x => (Role: Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name), Interface: (IHideAndSeekRole)Activator.CreateInstance(x))).Where(x => !sns ? (x.Role is CustomRoles.Seeker or CustomRoles.Hider || x.Role.GetMode() != 0) : (x.Role == CustomRoles.Disguiser || (x.Interface.Team != Team.Impostor && x.Role.GetMode() != 0))).ToList();
+            List<(CustomRoles Role, IHideAndSeekRole Interface)> hnsRoles = CustomHnS.GetAllHnsRoleTypes().Select(x => (Role: Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name), Interface: (IHideAndSeekRole)Activator.CreateInstance(x))).Where(x => !sns ? x.Role is CustomRoles.Seeker or CustomRoles.Hider || x.Role.GetMode() != 0 : x.Role == CustomRoles.Disguiser || x.Interface.Team != Team.Impostor && x.Role.GetMode() != 0).ToList();
             Dictionary<Team, int> memberNum = new()
             {
                 [Team.Impostor] = Main.NormalOptions.NumImpostors,
@@ -1715,7 +1715,7 @@ internal static class ChatCommands
     {
         bool host = player.IsHost();
         if (!host && (GameStates.InGame || MutedPlayers.ContainsKey(player.PlayerId))) return;
-        if (!byte.TryParse(args[1], out byte id) || id.IsHost() || (!host && IsPlayerModerator(id.GetPlayer()?.FriendCode))) return;
+        if (!byte.TryParse(args[1], out byte id) || id.IsHost() || !host && IsPlayerModerator(id.GetPlayer()?.FriendCode)) return;
 
         long now = Utils.TimeStamp;
         int duration = args.Length < 3 || !int.TryParse(args[2], out int dur) ? 60 : dur;
@@ -1834,7 +1834,7 @@ internal static class ChatCommands
 
     private static void HMCommand(PlayerControl player, string text, string[] args)
     {
-        if (!player.Is(CustomRoles.Messenger) || (Messenger.Sent != null && Messenger.Sent.Contains(player.PlayerId)) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
+        if (!player.Is(CustomRoles.Messenger) || Messenger.Sent != null && Messenger.Sent.Contains(player.PlayerId) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
 
         Main.Instance.StartCoroutine(SendOnMeeting());
         return;
@@ -2549,7 +2549,7 @@ internal static class ChatCommands
 
     private static void ComboCommand(PlayerControl player, string text, string[] args)
     {
-        if ((!player.IsHost() && !IsPlayerAdmin(player.FriendCode)) || args.Length < 4)
+        if (!player.IsHost() && !IsPlayerAdmin(player.FriendCode) || args.Length < 4)
         {
             if (Main.AlwaysSpawnTogetherCombos.Count == 0 && Main.NeverSpawnTogetherCombos.Count == 0) return;
 
@@ -2582,7 +2582,7 @@ internal static class ChatCommands
             case "ban":
                 if (GetRoleByName(args[2], out CustomRoles mainRole) && GetRoleByName(args[3], out CustomRoles addOn))
                 {
-                    if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole() || (addOn == CustomRoles.Lovers && args[1] == "add")) break;
+                    if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole() || addOn == CustomRoles.Lovers && args[1] == "add") break;
 
                     if (args[1] == "add")
                     {
@@ -2789,7 +2789,7 @@ internal static class ChatCommands
     private static void RCommand(PlayerControl player, string text, string[] args)
     {
         string subArgs = text.Remove(0, 2);
-        byte to = player.AmOwner && ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) || ClientControlGUI.BroadcastRoleInfo) ? byte.MaxValue : player.PlayerId;
+        byte to = player.AmOwner && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || ClientControlGUI.BroadcastRoleInfo) ? byte.MaxValue : player.PlayerId;
         ClientControlGUI.BroadcastRoleInfo = false;
         SendRolesInfo(subArgs, to);
     }
@@ -3404,7 +3404,7 @@ internal static class ChatCommands
 
             string roleName = Regex.Replace(GetString(rl.ToString()).RemoveHtmlTags().ToLower().Trim().TrimStart('*'), @"[^\p{L}-]+", string.Empty);
 
-            if (role == roleName || (originalInput is "schrodingers cat" or "schrodingerscat" or "cat" && rl == CustomRoles.SchrodingersCat))
+            if (role == roleName || originalInput is "schrodingers cat" or "schrodingerscat" or "cat" && rl == CustomRoles.SchrodingersCat)
             {
                 if ((isDev || isUp) && GameStates.IsLobby)
                 {
@@ -3477,7 +3477,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (GameStates.InGame && (Silencer.ForSilencer.Contains(player.PlayerId) || (Main.PlayerStates[player.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && player.IsAlive())
+        if (GameStates.InGame && (Silencer.ForSilencer.Contains(player.PlayerId) || Main.PlayerStates[player.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) && player.IsAlive())
         {
             ChatManager.SendPreviousMessagesToAll();
             canceled = true;

@@ -151,13 +151,13 @@ internal class Chemist : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
             .SetValueFormat(OptionFormat.Times);
 
-        FinalProductUsageAmounts = Enum.GetValues<Item>()
+        FinalProductUsageAmounts = EnumHelper.GetValues<Item>()
             .Where(x => GetItemType(x) == ItemType.FinalProduct)
             .ToDictionary(x => x, x => new IntegerOptionItem(++id, $"Chemist.Item.{x}.Usage", new(1, 100, 1), GetDefaultValue(x), tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times));
 
-        AcidPlayersDie = new StringOptionItem(++id, "Chemist.AcidPlayersDie", Enum.GetNames<AcidPlayersDieOptions>(), 1, tab)
+        AcidPlayersDie = new StringOptionItem(++id, "Chemist.AcidPlayersDie", EnumHelper.GetNames<AcidPlayersDieOptions>(), 1, tab)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist]);
 
         AcidPlayersDieAfterTime = new IntegerOptionItem(++id, "Chemist.AcidPlayersDieAfterTime", new(1, 60, 1), 30, tab)
@@ -214,13 +214,13 @@ internal class Chemist : RoleBase
         BombedBodies = [];
         Grenades = [];
 
-        ItemCounts = Enum.GetValues<Item>().ToDictionary(x => x, _ => 0);
+        ItemCounts = EnumHelper.GetValues<Item>().ToDictionary(x => x, _ => 0);
         
         FactoryLocations = ShipStatus.Instance.AllRooms
             .Select(x => x.RoomId)
             .Where(x => x != SystemTypes.Outside && !x.ToString().Contains("Decontamination"))
             .Distinct()
-            .Zip(Enum.GetValues<Factory>()[1..])
+            .Zip(EnumHelper.GetValues<Factory>()[1..])
             .ToDictionary(x => x.First, x => x.Second);
     }
 

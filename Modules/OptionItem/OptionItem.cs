@@ -248,8 +248,8 @@ public abstract class OptionItem
             if (checkCollapsedSection && oi.Header is { CollapsesSection: true }) return true;
             CustomGameMode mode = !forLobbyView ? EHR.Options.CurrentGameMode : LobbyViewSettingsPanePatch.LastGameModeSelected;
             const CustomGameMode nd = CustomGameMode.NaturalDisasters;
-            return (oi.IsHidden || (oi.GameMode != CustomGameMode.All && oi.GameMode != mode) ||
-                    (oi.Name == "IntegrateNaturalDisasters" && mode == nd)) &&
+            return (oi.IsHidden || oi.GameMode != CustomGameMode.All && oi.GameMode != mode ||
+                    oi.Name == "IntegrateNaturalDisasters" && mode == nd) &&
                    !(oi.GameMode == nd && EHR.Options.IntegrateNaturalDisasters.GetBool());
         }
     }

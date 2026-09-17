@@ -8,10 +8,9 @@ using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Modules.Extensions;
+using EHR.Modules.MonoHelpers;
 using EHR.Roles;
 using Hazel;
-using Il2CppInterop.Runtime;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using UnityEngine;
 using static EHR.Translator;
@@ -240,7 +239,7 @@ internal static class ExtendedPlayerControl
 
             void Action()
             {
-                if (!player || player.Pointer == IntPtr.Zero) return;
+                if (!player) return;
                 bool dead = player.Data.IsDead;
                 MessageWriter writer = packedWriter ?? MessageWriter.Get(SendOption.Reliable);
                 writer.StartMessage(6);
@@ -340,7 +339,7 @@ internal static class ExtendedPlayerControl
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !player) return;
 
-            player.Data.RpcSetTasks(new Il2CppStructArray<byte>(0));
+            player.Data.RpcSetTasks([]);
             if (init) Main.PlayerStates[player.PlayerId].InitTask(player);
         }
 
@@ -1294,7 +1293,7 @@ internal static class ExtendedPlayerControl
                 }
 
                 sender.SendMessage();
-            }, 1f + (AmongUsClient.Instance.Ping / 1000f), log: false);
+            }, 1f + AmongUsClient.Instance.Ping / 1000f, log: false);
         }
 
         public void ReactorFlash(float delay = 0f, float flashDuration = float.NaN, bool canBlind = true)
@@ -1344,11 +1343,6 @@ internal static class ExtendedPlayerControl
             catch (NullReferenceException nullReferenceException)
             {
                 Logger.Warn($"{nullReferenceException.Message} - player is null? {!player}", "GetRealName");
-                return string.Empty;
-            }
-            catch (Il2CppException il2CppException)
-            {
-                Logger.Warn($"{il2CppException.Message} - player is null? {!player}", "GetRealName");
                 return string.Empty;
             }
             catch (Exception exception)
@@ -1502,12 +1496,7 @@ internal static class ExtendedPlayerControl
                 var queue = player.NetTransform.incomingPosQueue;
 
                 if (queue.Count > 0 && player.NetTransform.isActiveAndEnabled && !player.NetTransform.isPaused)
-                {
-                    var array = queue._array;
-                    int tail = queue._tail;
-                    int index = (tail - 1 + array.Length) % array.Length; // handle wrap-around
-                    return array[index];
-                }
+                    return CustomNetworkTransformHelper.CurrentPosition[player.PlayerId];
             }
             catch (Exception e) { ThrowException(e); }
 
@@ -1584,7 +1573,7 @@ internal static class ExtendedPlayerControl
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc.AmOwner || pc.OwnerId < 0 || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
+                if (pc.AmOwner || pc.OwnerId < 0 || pc == player || !phantom && pc.IsModdedClient() || phantom && pc.IsImpostor()) continue;
 
                 sender.StartMessage(pc.OwnerId);
                 sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
@@ -1637,7 +1626,7 @@ internal static class ExtendedPlayerControl
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc.AmOwner || pc.OwnerId < 0 || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
+                if (pc.AmOwner || pc.OwnerId < 0 || pc == player || !phantom && pc.IsModdedClient() || phantom && pc.IsImpostor()) continue;
 
                 sender.StartMessage(pc.OwnerId);
                 sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
@@ -1674,7 +1663,7 @@ internal static class ExtendedPlayerControl
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc.AmOwner || pc.OwnerId < 0 || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
+                if (pc.AmOwner || pc.OwnerId < 0 || pc == player || !phantom && pc.IsModdedClient() || phantom && pc.IsImpostor()) continue;
 
                 sender.StartMessage(pc.OwnerId);
                 sender.RpcExiled(player, autoStartRpc: false, exileForHost: false);
@@ -1872,7 +1861,7 @@ internal static class ExtendedPlayerControl
 
             if (Main.KilledAntidote.TryGetValue(player.PlayerId, out int value1))
             {
-                float kcd = Main.AllPlayerKillCooldown[player.PlayerId] - (value1 * Options.AntidoteCDOpt.GetFloat());
+                float kcd = Main.AllPlayerKillCooldown[player.PlayerId] - value1 * Options.AntidoteCDOpt.GetFloat();
                 if (kcd < 0) kcd = 0;
 
                 Main.AllPlayerKillCooldown[player.PlayerId] = kcd;
@@ -2157,7 +2146,7 @@ internal static class ExtendedPlayerControl
 
         public List<PlayerControl> GetPlayersInAbilityRangeSorted(Predicate<PlayerControl> predicate, bool ignoreColliders = false)
         {
-            Il2CppSystem.Collections.Generic.List<PlayerControl> rangePlayersIL = RoleBehaviour.GetTempPlayerList();
+            List<PlayerControl> rangePlayersIL = RoleBehaviour.GetTempPlayerList();
             List<PlayerControl> rangePlayers = [];
             player.Data.Role.GetPlayersInAbilityRangeSorted(rangePlayersIL, ignoreColliders);
 
@@ -2172,7 +2161,7 @@ internal static class ExtendedPlayerControl
 
         public bool IsNeutralKiller()
         {
-            return player.Is(CustomRoles.Bloodlust) || (player.GetCustomRole().IsNK() && !player.IsMadmate());
+            return player.Is(CustomRoles.Bloodlust) || player.GetCustomRole().IsNK() && !player.IsMadmate();
         }
 
         public bool IsNeutralBenign()
@@ -2192,7 +2181,7 @@ internal static class ExtendedPlayerControl
 
         public bool IsSnitchTarget()
         {
-            return player.Is(CustomRoles.Bloodlust) || Framer.FramedPlayers.Contains(player.PlayerId) || (Enchanter.EnchantedPlayers != null && Enchanter.EnchantedPlayers.Contains(player.PlayerId)) || Snitch.IsSnitchTarget(player);
+            return player.Is(CustomRoles.Bloodlust) || Framer.FramedPlayers.Contains(player.PlayerId) || Enchanter.EnchantedPlayers != null && Enchanter.EnchantedPlayers.Contains(player.PlayerId) || Snitch.IsSnitchTarget(player);
         }
 
         public bool IsMadmate()
@@ -2202,7 +2191,7 @@ internal static class ExtendedPlayerControl
 
         public bool HasGhostRole()
         {
-            return GhostRolesManager.AssignedGhostRoles.ContainsKey(player.PlayerId) || (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && state.SubRoles.Any(x => x.IsGhostRole()));
+            return GhostRolesManager.AssignedGhostRoles.ContainsKey(player.PlayerId) || Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && state.SubRoles.Any(x => x.IsGhostRole());
         }
 
         public bool KnowDeathReason(PlayerControl target)
@@ -2211,7 +2200,7 @@ internal static class ExtendedPlayerControl
                     || player.Is(CustomRoles.Autopsy)
                     || Options.EveryoneSeesDeathReasons.GetBool()
                     || target.Is(CustomRoles.Gravestone)
-                    || (!player.IsAlive() && Options.GhostCanSeeDeathReason.GetBool()))
+                    || !player.IsAlive() && Options.GhostCanSeeDeathReason.GetBool())
                    && !target.IsAlive();
         }
 
@@ -2370,7 +2359,7 @@ internal static class ExtendedPlayerControl
 
         public bool Is(RoleTypes type)
         {
-            return (player.Is(CustomRoles.Bloodlust) && type == RoleTypes.Impostor) || player.GetCustomRole().GetRoleTypes() == type;
+            return player.Is(CustomRoles.Bloodlust) && type == RoleTypes.Impostor || player.GetCustomRole().GetRoleTypes() == type;
         }
 
         public bool Is(CountTypes type)
@@ -2579,7 +2568,7 @@ internal static class ExtendedPlayerControl
         {
             limit = (float)Math.Round(limit, 2);
 
-            if (float.IsNaN(limit) || limit is < 0f or > 100f || (Main.AbilityUseLimit.TryGetValue(playerId, out float beforeLimit) && Math.Abs(beforeLimit - limit) < 0.01f)) return;
+            if (float.IsNaN(limit) || limit is < 0f or > 100f || Main.AbilityUseLimit.TryGetValue(playerId, out float beforeLimit) && Math.Abs(beforeLimit - limit) < 0.01f) return;
 
             Main.AbilityUseLimit[playerId] = limit;
 
@@ -2616,14 +2605,14 @@ internal static class ExtendedPlayerControl
     {
         public CustomRoles GetCustomRole()
         {
-            return (!playerInfo || !playerInfo.Object) ? CustomRoles.Crewmate : playerInfo.Object.GetCustomRole();
+            return !playerInfo || !playerInfo.Object ? CustomRoles.Crewmate : playerInfo.Object.GetCustomRole();
         }
 
         public DataFlagRateLimiter.QueuedAction SendGameData(SendOption sendOption = SendOption.Reliable)
         {
             return DataFlagRateLimiter.Enqueue(() =>
             {
-                if (!playerInfo || playerInfo.Pointer == IntPtr.Zero) return;
+                if (!playerInfo) return;
                 MessageWriter writer = MessageWriter.Get(sendOption);
                 writer.StartMessage(5);
                 writer.Write(AmongUsClient.Instance.GameId);

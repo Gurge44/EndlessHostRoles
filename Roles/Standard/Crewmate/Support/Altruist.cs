@@ -154,7 +154,7 @@ public class Altruist : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != AlturistId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != AlturistId || seer.IsModdedClient() && !hud || meeting) return string.Empty;
         if (ReviveTimer != null) return string.Format(Translator.GetString("AltruistSuffixRevive"), (int)Math.Ceiling(ReviveTimer.Remaining.TotalSeconds));
         return string.Format(Translator.GetString("AltruistSuffix"), Translator.GetString(RevivingMode ? "AltruistReviveMode" : "AltruistReportMode"));
     }

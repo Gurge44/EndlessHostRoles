@@ -17,13 +17,18 @@ public class StateMachineWrapper<T> : CompilerGeneratedObjectWrapper
     // normally it is fields, but IL2CPP turns them into properties
     private readonly PropertyInfo _thisProperty;
     private readonly PropertyInfo _stateProperty;
+    
+    private readonly FieldInfo _stateField;
+    private readonly FieldInfo _thisField;
+
+    private readonly bool _mono;
 
     private T? _parentInstance;
 
     /// <summary>
     /// Gets the instance of the parent class that owns the state machine.
     /// </summary>
-    public T Instance => _parentInstance ??= (T) _thisProperty.GetValue(GeneratedObject)!;
+    public T Instance => _parentInstance ??= (T) (_mono ? _thisField.GetValue(GeneratedObject)! : _thisProperty.GetValue(GeneratedObject)!);
 
     /// <summary>
     /// Gets or sets the current state of the state machine.
@@ -31,8 +36,14 @@ public class StateMachineWrapper<T> : CompilerGeneratedObjectWrapper
     /// <returns>The current state as an integer.</returns>
     public int State
     {
-        get => (int) _stateProperty.GetValue(GeneratedObject)!;
-        set => _stateProperty.SetValue(GeneratedObject, value);
+        get => _mono ? (int) _stateField.GetValue(GeneratedObject)! : (int) _stateProperty.GetValue(GeneratedObject)!;
+        set
+        {
+            if (_mono)
+                _stateField.SetValue(GeneratedObject, value);
+            else
+                _stateProperty.SetValue(GeneratedObject, value);
+        }
     }
 
     /// <summary>
@@ -46,7 +57,9 @@ public class StateMachineWrapper<T> : CompilerGeneratedObjectWrapper
 
         if (_thisProperty == null || _stateProperty == null)
         {
-            throw new MissingMemberException($"Could not find required properties in type '{GeneratedType}'.");
+            _mono = true;
+            _thisField = AccessTools.Field(GeneratedType, "<>4__this");
+            _stateField = AccessTools.Field(GeneratedType, "<>1__state");
         }
     }
 

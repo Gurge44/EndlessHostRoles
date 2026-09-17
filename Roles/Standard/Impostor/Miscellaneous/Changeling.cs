@@ -2,7 +2,6 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using System;
 using UnityEngine;
 using static EHR.Translator;
 using static EHR.Options;
@@ -140,7 +139,7 @@ internal class Changeling : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        return seer.PlayerId != target.PlayerId || ChangelingId != seer.PlayerId || (seer.IsModdedClient() && !hud) || meeting ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), CurrentRole.ToColoredString());
+        return seer.PlayerId != target.PlayerId || ChangelingId != seer.PlayerId || seer.IsModdedClient() && !hud || meeting ? string.Empty : string.Format(GetString("ChangelingCurrentRole"), CurrentRole.ToColoredString());
     }
 
     public static void CreateChangelingButton(MeetingHud __instance)
@@ -159,7 +158,7 @@ internal class Changeling : RoleBase
         renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.GlitchMimic.png", 160f);
         var button = targetBox.GetComponent<PassiveButton>();
         button.OnClick.RemoveAllListeners();
-        button.OnClick.AddListener((Action)(() => GuessManager.GuesserOnClick(localPva.PlayerId, __instance, true)));
+        button.OnClick.AddListener(() => GuessManager.GuesserOnClick(localPva.PlayerId, __instance, true));
     }
 
     //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]

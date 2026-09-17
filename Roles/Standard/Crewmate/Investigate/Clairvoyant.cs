@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 
 namespace EHR.Roles;
@@ -17,7 +16,7 @@ public class Clairvoyant : RoleBase
 
         var i = 2;
 
-        foreach (Options.GameStateInfo s in Enum.GetValues<Options.GameStateInfo>())
+        foreach (Options.GameStateInfo s in EnumHelper.GetValues<Options.GameStateInfo>())
         {
             Settings[s] = new BooleanOptionItem(644970 + i, $"GameStateCommand.Show{s}", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Clairvoyant]);

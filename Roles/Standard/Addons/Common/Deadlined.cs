@@ -37,7 +37,7 @@ public class Deadlined : IAddon
         foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             TaskState ts = pc.GetTaskState();
-            if (pc.Is(CustomRoles.Deadlined) && (!pc.IsAlive() || ts.IsTaskFinished || (!ts.HasTasks && !pc.CanUseKillButton())))
+            if (pc.Is(CustomRoles.Deadlined) && (!pc.IsAlive() || ts.IsTaskFinished || !ts.HasTasks && !pc.CanUseKillButton()))
                 Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Deadlined);
         }
     }
@@ -74,7 +74,7 @@ public class Deadlined : IAddon
 
     public static string GetSuffix(PlayerControl seer)
     {
-        if ((DidTask != null && DidTask.Contains(seer.PlayerId)) || MeetingStates.FirstMeeting) return "<#00ff00>\u2713</color>";
+        if (DidTask != null && DidTask.Contains(seer.PlayerId) || MeetingStates.FirstMeeting) return "<#00ff00>\u2713</color>";
 
         long now = Utils.TimeStamp;
 

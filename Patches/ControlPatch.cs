@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using EHR.Modules;
@@ -542,31 +541,31 @@ public static class InGameRoleInfoMenu
 
     private static GameObject MainInfo;
     private static GameObject AddonsInfo;
-    public static bool Showing => Fill && Fill.active && Menu && Menu.active;
+    public static bool Showing => Fill && Fill.activeSelf && Menu && Menu.activeSelf;
     private static SpriteRenderer FillSp => Fill.GetComponent<SpriteRenderer>();
     private static TextMeshPro MainInfoTMP => MainInfo.GetComponent<TextMeshPro>();
     private static TextMeshPro AddonsInfoTMP => AddonsInfo.GetComponent<TextMeshPro>();
 
     private static void Init()
     {
-        Transform DOBScreen = AccountManager.Instance.transform.FindChild("DOBEnterScreen");
+        Transform DOBScreen = AccountManager.Instance.transform.Find("DOBEnterScreen");
 
         Fill = new("EHR Role Info Menu Fill") { layer = 5 };
         Fill.transform.SetParent(HudManager.Instance.transform.parent, true);
         Fill.transform.localPosition = new(0f, 0f, -980f);
         Fill.transform.localScale = new(20f, 10f, 1f);
-        Fill.AddComponent<SpriteRenderer>().sprite = DOBScreen.FindChild("Fill").GetComponent<SpriteRenderer>().sprite;
+        Fill.AddComponent<SpriteRenderer>().sprite = DOBScreen.Find("Fill").GetComponent<SpriteRenderer>().sprite;
         FillSp.color = new(0f, 0f, 0f, 0.75f);
 
-        Menu = Object.Instantiate(DOBScreen.FindChild("InfoPage").gameObject, HudManager.Instance.transform.parent);
+        Menu = Object.Instantiate(DOBScreen.Find("InfoPage").gameObject, HudManager.Instance.transform.parent);
         Menu.name = "EHR Role Info Menu Page";
         Menu.transform.SetLocalZ(-990f);
 
-        Object.Destroy(Menu.transform.FindChild("Title Text").gameObject);
-        Object.Destroy(Menu.transform.FindChild("BackButton").gameObject);
-        Object.Destroy(Menu.transform.FindChild("EvenMoreInfo").gameObject);
+        Object.Destroy(Menu.transform.Find("Title Text").gameObject);
+        Object.Destroy(Menu.transform.Find("BackButton").gameObject);
+        Object.Destroy(Menu.transform.Find("EvenMoreInfo").gameObject);
 
-        MainInfo = Menu.transform.FindChild("InfoText_TMP").gameObject;
+        MainInfo = Menu.transform.Find("InfoText_TMP").gameObject;
         MainInfo.name = "Main Role Info";
         MainInfo.DestroyTranslator();
         MainInfo.transform.localPosition = new(-2.3f, 0.8f, 4f);

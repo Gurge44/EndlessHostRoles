@@ -115,7 +115,7 @@ public static class Quiz
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        foreach (Difficulty difficulty in Enum.GetValues<Difficulty>()[1..])
+        foreach (Difficulty difficulty in EnumHelper.GetValues<Difficulty>()[1..])
         {
             var rounds = new IntegerOptionItem(id++, $"Quiz.Settings.Rounds.{difficulty}", new(1, 50, 1), 3, TabGroup.GameSettings)
                 .SetHidden(difficulty == Difficulty.Hard)

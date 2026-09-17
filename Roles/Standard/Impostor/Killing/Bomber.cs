@@ -151,7 +151,7 @@ internal class Bomber : RoleBase
             {
                 if (!tg.IsModdedClient()) tg.KillFlash();
 
-                if (!tg.IsAliveWithConditions() || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
+                if (!tg.IsAliveWithConditions() || Medic.ProtectList.Contains(tg.PlayerId) || tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool() || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
                 if (!FastVector2.DistanceWithinRange(pc.Pos(), tg.Pos(), radius)) continue;
                 if (tg.PlayerId == pc.PlayerId) continue;
 

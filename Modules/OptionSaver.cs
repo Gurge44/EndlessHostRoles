@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace EHR.Modules;
 
@@ -93,7 +93,7 @@ public static class OptionSaver
     {
         if (AmongUsClient.Instance && !AmongUsClient.Instance.AmHost) return;
 
-        string jsonString = JsonSerializer.Serialize(GenerateOptionsData(), new JsonSerializerOptions { WriteIndented = true });
+        string jsonString = JsonConvert.SerializeObject(GenerateOptionsData(), Formatting.Indented);
         File.WriteAllText(OptionSaverFileInfo.FullName, jsonString);
         File.WriteAllText(DefaultPresetFileInfo.FullName, DefaultPresetNumber.ToString());
     }
@@ -109,7 +109,7 @@ public static class OptionSaver
             return;
         }
 
-        LoadOptionsData(JsonSerializer.Deserialize<SerializableOptionsData>(jsonString));
+        LoadOptionsData(JsonConvert.DeserializeObject<SerializableOptionsData>(jsonString));
     }
 
     public class SerializableOptionsData

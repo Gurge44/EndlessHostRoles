@@ -17,7 +17,7 @@ public static class MovingPlatformBehaviourPatch
         if (IsDisabled)
         {
             __instance.transform.localPosition = __instance.DisabledPosition;
-            ShipStatus.Instance.CastFast<AirshipStatus>().outOfOrderPlat.SetActive(true);
+            (ShipStatus.Instance as AirshipStatus)?.outOfOrderPlat.SetActive(true);
         }
     }
 

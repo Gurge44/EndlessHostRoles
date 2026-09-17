@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
@@ -139,13 +138,13 @@ internal static class GameEndChecker
             {
                 case CustomWinner.Crewmate:
                     WinnerIds.UnionWith(Main.EnumeratePlayerControls()
-                        .Where(pc => (pc.Is(CustomRoleTypes.Crewmate) || (pc.Is(CustomRoles.Haunter) && Haunter.CanWinWithCrew(pc))) && !pc.IsMadmate() && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
+                        .Where(pc => (pc.Is(CustomRoleTypes.Crewmate) || pc.Is(CustomRoles.Haunter) && Haunter.CanWinWithCrew(pc)) && !pc.IsMadmate() && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
 
                     break;
                 case CustomWinner.Impostor:
                     WinnerIds.UnionWith(Main.EnumeratePlayerControls()
-                        .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.IsMadmate()) && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
+                        .Where(pc => (pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt()) || pc.IsMadmate()) && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
 
                     break;
@@ -193,7 +192,7 @@ internal static class GameEndChecker
 
             if (WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.Error)
             {
-                if ((WinnerTeam == CustomWinner.Coven || (Summoner.Instances != null && Summoner.Instances.Exists(x => WinnerIds.Contains(x.SummonerId)))) && Summoner.AdditionalWinners != null)
+                if ((WinnerTeam == CustomWinner.Coven || Summoner.Instances != null && Summoner.Instances.Exists(x => WinnerIds.Contains(x.SummonerId))) && Summoner.AdditionalWinners != null)
                     WinnerIds.UnionWith(Summoner.AdditionalWinners);
 
                 foreach (PlayerControl pc in Main.CachedAllPlayerControls())
@@ -209,7 +208,7 @@ internal static class GameEndChecker
 
                     switch (role)
                     {
-                        case CustomRoles.Stalker when pc.IsAlive() && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorsBySabotage)) || WinnerTeam == CustomWinner.Stalker || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.CrewmatesByTask) && roleBase is Stalker { IsWinKill: true } && Stalker.SnatchesWin.GetBool())):
+                        case CustomRoles.Stalker when pc.IsAlive() && (WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorsBySabotage) || WinnerTeam == CustomWinner.Stalker || WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.CrewmatesByTask) && roleBase is Stalker { IsWinKill: true } && Stalker.SnatchesWin.GetBool()):
                             ResetAndSetWinner(CustomWinner.Stalker);
                             WinnerIds.Add(pc.PlayerId);
                             break;
@@ -264,9 +263,9 @@ internal static class GameEndChecker
 
                     switch (role)
                     {
-                        case CustomRoles.Follower when roleBase is Follower tc && tc.BetPlayer != byte.MaxValue && (WinnerIds.Contains(tc.BetPlayer) || (Main.PlayerStates.TryGetValue(tc.BetPlayer, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
-                        case CustomRoles.Romantic when WinnerIds.Contains(Romantic.PartnerId) || (Main.PlayerStates.TryGetValue(Romantic.PartnerId, out PlayerState ps1) && (WinnerRoles.Contains(ps1.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps1.SubRoles.Contains(CustomRoles.Bloodlust)))):
-                        case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(pc.PlayerId, out byte lawyertarget) && (WinnerIds.Contains(lawyertarget) || (Main.PlayerStates.TryGetValue(lawyertarget, out PlayerState ps2) && (WinnerRoles.Contains(ps2.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps2.SubRoles.Contains(CustomRoles.Bloodlust))))):
+                        case CustomRoles.Follower when roleBase is Follower tc && tc.BetPlayer != byte.MaxValue && (WinnerIds.Contains(tc.BetPlayer) || Main.PlayerStates.TryGetValue(tc.BetPlayer, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))):
+                        case CustomRoles.Romantic when WinnerIds.Contains(Romantic.PartnerId) || Main.PlayerStates.TryGetValue(Romantic.PartnerId, out PlayerState ps1) && (WinnerRoles.Contains(ps1.MainRole) || WinnerTeam == CustomWinner.Bloodlust && ps1.SubRoles.Contains(CustomRoles.Bloodlust)):
+                        case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(pc.PlayerId, out byte lawyertarget) && (WinnerIds.Contains(lawyertarget) || Main.PlayerStates.TryGetValue(lawyertarget, out PlayerState ps2) && (WinnerRoles.Contains(ps2.MainRole) || WinnerTeam == CustomWinner.Bloodlust && ps2.SubRoles.Contains(CustomRoles.Bloodlust))):
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add((AdditionalWinners)role);
                             break;
@@ -396,7 +395,7 @@ internal static class GameEndChecker
 
         SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
         var self = AmongUsClient.Instance;
-        self.StartCoroutine(CoEndGame(self, reason).WrapToIl2Cpp());
+        self.StartCoroutine(CoEndGame(self, reason));
     }
 
     private static IEnumerator CoEndGame(InnerNetClient self, GameOverReason reason)
@@ -415,7 +414,7 @@ internal static class GameEndChecker
                 continue;
             }
 
-            bool canWin = WinnerIds.Contains(pc.PlayerId) || WinnerRoles.Contains(pc.GetCustomRole()) || (winner == CustomWinner.Bloodlust && pc.Is(CustomRoles.Bloodlust));
+            bool canWin = WinnerIds.Contains(pc.PlayerId) || WinnerRoles.Contains(pc.GetCustomRole()) || winner == CustomWinner.Bloodlust && pc.Is(CustomRoles.Bloodlust);
             bool isCrewmateWin = reason.Equals(GameOverReason.CrewmatesByVote) || reason.Equals(GameOverReason.CrewmatesByTask);
             SetGhostRole(canWin ^ isCrewmateWin); // XOR
             continue;
@@ -788,7 +787,7 @@ internal static class GameEndChecker
             {
                 PlayerControl pc = aapc[aliveIndex];
                 var role = pc.Is(CustomRoles.Bloodlust) ? CustomRoles.Bloodlust : pc.GetCustomRole();
-                if ((!role.IsNK() && role is not CustomRoles.Bloodlust and not CustomRoles.Gaslighter) || role.IsMadmate() || role is CustomRoles.Sidekick) continue;
+                if (!role.IsNK() && role is not CustomRoles.Bloodlust and not CustomRoles.Gaslighter || role.IsMadmate() || role is CustomRoles.Sidekick) continue;
 
                 CountTypes countTypes = role.GetCountTypes();
                 if (countTypes is CountTypes.Crew or CountTypes.Impostor or CountTypes.None or CountTypes.OutOfGame or CountTypes.CustomTeam or CountTypes.Coven) continue;
@@ -1477,7 +1476,7 @@ internal static class GameEndChecker
             if (ShipStatus.Instance.Systems == null) return false;
 
             // TryGetValue is not available
-            Il2CppSystem.Collections.Generic.Dictionary<SystemTypes, ISystemType> systems = ShipStatus.Instance.Systems;
+            Dictionary<SystemTypes, ISystemType> systems = ShipStatus.Instance.Systems;
             LifeSuppSystemType lifeSupp;
 
             if (systems.ContainsKey(SystemTypes.LifeSupp) && // Confirmation of sabotage existence

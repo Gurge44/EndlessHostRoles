@@ -58,7 +58,7 @@ internal class Rabbit : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || RabbitStates == null || !RabbitStates.TryGetValue(seer.PlayerId, out RabbitState state)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || RabbitStates == null || !RabbitStates.TryGetValue(seer.PlayerId, out RabbitState state)) return string.Empty;
 
         string suffix = state.Suffix;
         return hud ? $"<size=200%>{suffix}</size>" : suffix;
@@ -76,7 +76,7 @@ internal class Rabbit : RoleBase
 
         public void OnTaskComplete()
         {
-            if (!Player.IsAlive() || (MyTaskState.CompletedTasksCount < TaskTrigger && !MyTaskState.IsTaskFinished)) return;
+            if (!Player.IsAlive() || MyTaskState.CompletedTasksCount < TaskTrigger && !MyTaskState.IsTaskFinished) return;
 
             PlayerControl[] impostors = Main.EnumerateAlivePlayerControls().Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray();
             PlayerControl target = impostors.RandomElement();

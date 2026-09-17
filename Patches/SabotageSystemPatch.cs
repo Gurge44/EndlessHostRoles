@@ -355,7 +355,7 @@ internal static class SabotageSystemTypeAnyActivePatch
 {
     public static bool Prefix(SabotageSystemType __instance, ref bool __result)
     {
-        __result = __instance.specials.Exists((Il2CppSystem.Predicate<IActivatable>)(s => s.IsActive)) || CustomSabotage.Instances.Count > 0;
+        __result = __instance.specials.Exists(s => s.IsActive) || CustomSabotage.Instances.Count > 0;
         return false;
     }
 }

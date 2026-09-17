@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
+using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -47,13 +47,13 @@ public static class OnlinePresetsManager
             upload.SetClickMask(menu.ButtonClickMask);
             upload.SetUpFromData(null, 20);
             
-            Object.Destroy(upload.transform.FindChild("Value_TMP (1)").gameObject);
-            Object.Destroy(upload.transform.FindChild("ValueBox").gameObject);
+            Object.Destroy(upload.transform.Find("Value_TMP (1)").gameObject);
+            Object.Destroy(upload.transform.Find("ValueBox").gameObject);
             Object.Destroy(upload.PlusBtn.gameObject);
 
-            upload.OnValueChanged = new Action<OptionBehaviour>(menu.ValueChanged);
+            upload.OnValueChanged = menu.ValueChanged;
             upload.MinusBtn.OnClick = new();
-            upload.MinusBtn.OnClick.AddListener((Action)(() => Main.Instance.StartCoroutine(UploadCurrentPreset())));
+            upload.MinusBtn.OnClick.AddListener(() => Main.Instance.StartCoroutine(UploadCurrentPreset()));
             TextMeshPro text = upload.MinusBtn.GetComponentInChildren<TextMeshPro>();
             text.DestroyTranslator();
             text.text = "↸";
@@ -93,10 +93,10 @@ public static class OnlinePresetsManager
             row.SetClickMask(menu.ButtonClickMask);
             row.SetUpFromData(null, 20);
 
-            Object.Destroy(row.transform.FindChild("Value_TMP (1)").gameObject);
-            Object.Destroy(row.transform.FindChild("ValueBox").gameObject);
+            Object.Destroy(row.transform.Find("Value_TMP (1)").gameObject);
+            Object.Destroy(row.transform.Find("ValueBox").gameObject);
 
-            row.OnValueChanged = new Action<OptionBehaviour>(menu.ValueChanged);
+            row.OnValueChanged = menu.ValueChanged;
             row.LabelBackground.transform.localScale += new Vector3(1f, 0f, 0f);
             row.TitleText.GetComponent<RectTransform>().sizeDelta = new(5.7f, 0.37f);
 
@@ -104,18 +104,18 @@ public static class OnlinePresetsManager
             plusText.DestroyTranslator();
             plusText.text = "ⓘ";
             row.PlusBtn.OnClick = new();
-            row.PlusBtn.OnClick.AddListener((Action)(() =>
+            row.PlusBtn.OnClick.AddListener(() =>
             {
                 bool b = plusText.text == "ⓘ";
-                GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(b);
+                GameObject.Find("PlayerOptionsMenu(Clone)").transform.Find("What Is This?").gameObject.SetActive(b);
                 GameSettingMenuPatch.GMButtons.Values.Do(x => x.gameObject.SetActive(!b));
                 if (b) GameSettingMenu.Instance.MenuDescriptionText.text = preset.description;
                 plusText.text = b ? "∅" : "ⓘ";
-            }));
+            });
 
             row.MinusBtn.transform.localPosition += new Vector3(1.7f, 0f, 0f);
             row.MinusBtn.OnClick = new();
-            row.MinusBtn.OnClick.AddListener((Action)(() =>
+            row.MinusBtn.OnClick.AddListener(() =>
             {
                 LateTask.New(() => { }, 0.01f);
                 GameSettingMenu.Instance.Close();
@@ -145,7 +145,7 @@ public static class OnlinePresetsManager
                     LateTask.New(() =>
                     {
                         if (!GameStates.IsLobby) return;
-                        GameObject.Find("Host Buttons").transform.FindChild("Edit").GetComponent<PassiveButton>().ReceiveClickDown();
+                        GameObject.Find("Host Buttons").transform.Find("Edit").GetComponent<PassiveButton>().ReceiveClickDown();
                     }, 0.1f);
 
                     LateTask.New(() =>
@@ -156,7 +156,7 @@ public static class OnlinePresetsManager
                         ModGameOptionsMenu.TabIndex = tabIndex;
                     }, 0.4f);
                 }, showBackButton: false);
-            }));
+            });
             TextMeshPro minusText = row.MinusBtn.GetComponentInChildren<TextMeshPro>();
             minusText.DestroyTranslator();
             minusText.text = "▶";
@@ -188,7 +188,7 @@ public static class OnlinePresetsManager
             preset = preset
         };
 
-        string json = JsonSerializer.Serialize(body);
+        string json = JsonConvert.SerializeObject(body);
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -212,7 +212,7 @@ public static class OnlinePresetsManager
 
         try
         {
-            response = JsonSerializer.Deserialize<PresetDraftResponse>(request.downloadHandler.text);
+            response = JsonConvert.DeserializeObject<PresetDraftResponse>(request.downloadHandler.text);
         }
         catch
         {
@@ -273,7 +273,7 @@ public static class OnlinePresetsManager
 
         try
         {
-            response = JsonSerializer.Deserialize<PresetDownloadResponse>(request.downloadHandler.text);
+            response = JsonConvert.DeserializeObject<PresetDownloadResponse>(request.downloadHandler.text);
         }
         catch
         {
@@ -312,7 +312,7 @@ public static class OnlinePresetsManager
 
         try
         {
-            response = JsonSerializer.Deserialize<PresetListResponse>(request.downloadHandler.text.Trim());
+            response = JsonConvert.DeserializeObject<PresetListResponse>(request.downloadHandler.text.Trim());
         }
         catch (Exception ex)
         {

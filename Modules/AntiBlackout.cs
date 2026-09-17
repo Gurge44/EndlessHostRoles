@@ -113,7 +113,7 @@ public static class AntiBlackout
 
                             PlayerControl seer = seerId.GetPlayer();
 
-                            if (!seer || (seerId == targetId && seer.AmOwner && Utils.TempReviveHostRunning))
+                            if (!seer || seerId == targetId && seer.AmOwner && Utils.TempReviveHostRunning)
                                 continue;
 
                             target.RpcSetRoleDesync(roleTypes, seer.OwnerId);

@@ -4,7 +4,6 @@ using System.Linq;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
 using static EHR.Modules.LevelImposterCompatibility;
 
@@ -106,10 +105,10 @@ internal static class DisableDevice
             var mapId = Main.NormalOptions.MapId;
             Vector2 PlayerPos = pc.Pos();
 
-            bool ignore = (Options.DisableDevicesIgnoreImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor)) ||
-                          (Options.DisableDevicesIgnoreNeutrals.GetBool() && pc.Is(CustomRoleTypes.Neutral)) ||
-                          (Options.DisableDevicesIgnoreCrewmates.GetBool() && pc.Is(CustomRoleTypes.Crewmate)) ||
-                          (Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied);
+            bool ignore = Options.DisableDevicesIgnoreImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor) ||
+                          Options.DisableDevicesIgnoreNeutrals.GetBool() && pc.Is(CustomRoleTypes.Neutral) ||
+                          Options.DisableDevicesIgnoreCrewmates.GetBool() && pc.Is(CustomRoleTypes.Crewmate) ||
+                          Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied;
 
             ignore &= !rogueForce;
 
@@ -209,14 +208,14 @@ public class RemoveDisableDevicesPatch
 
         bool ignore = player.Is(CustomRoles.GM) ||
                       !player.IsAlive() ||
-                      (Options.DisableDevicesIgnoreImpostors.GetBool() && player.Is(CustomRoleTypes.Impostor)) ||
-                      (Options.DisableDevicesIgnoreNeutrals.GetBool() && player.Is(CustomRoleTypes.Neutral)) ||
-                      (Options.DisableDevicesIgnoreCrewmates.GetBool() && player.Is(CustomRoleTypes.Crewmate)) ||
-                      (Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied);
+                      Options.DisableDevicesIgnoreImpostors.GetBool() && player.Is(CustomRoleTypes.Impostor) ||
+                      Options.DisableDevicesIgnoreNeutrals.GetBool() && player.Is(CustomRoleTypes.Neutral) ||
+                      Options.DisableDevicesIgnoreCrewmates.GetBool() && player.Is(CustomRoleTypes.Crewmate) ||
+                      Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied;
 
         ignore &= !rogueForce;
-        Il2CppArrayBase<MapConsole> admins = Object.FindObjectsOfType<MapConsole>(true);
-        Il2CppArrayBase<SystemConsole> consoles = Object.FindObjectsOfType<SystemConsole>(true);
+        MapConsole[] admins = Object.FindObjectsOfType<MapConsole>(true);
+        SystemConsole[] consoles = Object.FindObjectsOfType<SystemConsole>(true);
         if (admins == null || consoles == null) return;
 
         switch (Main.NormalOptions.MapId)
@@ -239,8 +238,8 @@ public class RemoveDisableDevicesPatch
             case 4:
                 admins.Do(x =>
                 {
-                    if ((Options.DisableAirshipCockpitAdmin.GetBool() && x.name == "panel_cockpit_map") ||
-                        (Options.DisableAirshipRecordsAdmin.GetBool() && x.name == "records_admin_map") || rogueForce)
+                    if (Options.DisableAirshipCockpitAdmin.GetBool() && x.name == "panel_cockpit_map" ||
+                        Options.DisableAirshipRecordsAdmin.GetBool() && x.name == "records_admin_map" || rogueForce)
                         x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore;
                 });
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules.Extensions;
 
@@ -18,7 +17,7 @@ public class Farmer : RoleBase
     private byte FarmerId;
 
     private static readonly StringBuilder Suffix = new();
-    private static readonly Seed[] AllSeed = Enum.GetValues<Seed>();
+    private static readonly Seed[] AllSeed = EnumHelper.GetValues<Seed>();
 
     private static OptionItem HarvestRange;
     private static OptionItem IncreasedVision;
@@ -185,7 +184,7 @@ public class Farmer : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != FarmerId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != FarmerId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting) return string.Empty;
 
         Suffix.Clear();
         if (Seeds.Count > 0) Suffix.AppendFormat(Translator.GetString("Farmer.SelectedSeed"), Utils.GetRoleColorCode(CustomRoles.Farmer), $"<#{GetHexColor(Seeds[0])}>{Translator.GetString($"Farmer.Seed.{Seeds[0]}")}</color>").AppendLine();

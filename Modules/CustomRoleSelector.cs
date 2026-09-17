@@ -84,7 +84,7 @@ internal static class CustomRoleSelector
         List<CustomRoles> finalRolesList = [];
 
         Dictionary<RoleAssignType, List<RoleAssignInfo>> roles = [];
-        Enum.GetValues<RoleAssignType>().Do(x => roles[x] = []);
+        EnumHelper.GetValues<RoleAssignType>().Do(x => roles[x] = []);
 
         foreach (byte id in Main.SetRoles.Keys.Where(id => !Utils.GetPlayerById(id)).ToArray()) Main.SetRoles.Remove(id);
 
@@ -104,7 +104,7 @@ internal static class CustomRoleSelector
         foreach (CustomRoles role in Main.CustomRoleValues)
         {
             int chance = role.GetMode();
-            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || CustomHnS.AllHnSRoles.Contains(role) || xorBannedRoles.Contains(role)) continue;
+            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || role.OnlySpawnsWithPets() && !Options.UsePets.GetBool() || CustomHnS.AllHnSRoles.Contains(role) || xorBannedRoles.Contains(role)) continue;
 
             switch (role)
             {
@@ -172,7 +172,7 @@ internal static class CustomRoleSelector
         int numCovens;
 
         try { numCovens = rd.Next(covenLimits.MinSetting.GetInt(), covenLimits.MaxSetting.GetInt() + 1); }
-        catch { numCovens = (int)(new[] { covenLimits.MinSetting.GetInt(), covenLimits.MinSetting.GetInt() + 1 }.Average()); }
+        catch { numCovens = (int)new[] { covenLimits.MinSetting.GetInt(), covenLimits.MinSetting.GetInt() + 1 }.Average(); }
 
         if (numCovens > 0 && Options.CovenLeaderSpawns.GetBool() && !Main.SetRoles.ContainsValue(CustomRoles.CovenLeader) && !ChatCommands.DraftResult.ContainsValue(CustomRoles.CovenLeader))
         {
@@ -185,7 +185,7 @@ internal static class CustomRoleSelector
         int numNeutrals;
 
         try { numNeutrals = rd.Next(neutralLimits.MinSetting.GetInt(), neutralLimits.MaxSetting.GetInt() + 1); }
-        catch { numNeutrals = (int)(new[] { neutralLimits.MinSetting.GetInt(), neutralLimits.MinSetting.GetInt() + 1 }.Average()); }
+        catch { numNeutrals = (int)new[] { neutralLimits.MinSetting.GetInt(), neutralLimits.MinSetting.GetInt() + 1 }.Average(); }
 
         if (roles[RoleAssignType.Impostor].Count == 0 && numNeutrals == 0 && !Main.SetRoles.Values.Any(x => x.IsImpostor() || x.IsNK()))
         {
@@ -237,12 +237,12 @@ internal static class CustomRoleSelector
         int nnkLimit;
 
         try { nnkLimit = rd.Next(Options.MinNNKs.GetInt(), Options.MaxNNKs.GetInt() + 1); }
-        catch { nnkLimit = (int)(new[] { Options.MinNNKs.GetInt(), Options.MaxNNKs.GetInt() + 1 }.Average()); }
+        catch { nnkLimit = (int)new[] { Options.MinNNKs.GetInt(), Options.MaxNNKs.GetInt() + 1 }.Average(); }
 
         int madmateNum;
 
         try { madmateNum = rd.Next(Options.MinMadmateRoles.GetInt(), Options.MaxMadmateRoles.GetInt() + 1); }
-        catch { madmateNum = (int)(new[] { Options.MinMadmateRoles.GetInt(), Options.MaxMadmateRoles.GetInt() + 1 }.Average()); }
+        catch { madmateNum = (int)new[] { Options.MinMadmateRoles.GetInt(), Options.MaxMadmateRoles.GetInt() + 1 }.Average(); }
 
         Logger.Info($"Number of Neutral Killing roles to select: {nkLimit}", "NeutralKillingLimit");
         Logger.Info($"Number of Non-Killing Neutral roles to select: {nnkLimit}", "NonKillingNeutralLimit");
@@ -250,7 +250,7 @@ internal static class CustomRoleSelector
 
         Dictionary<RoleAssignType, List<RoleAssignInfo>> allRoles = roles.ToDictionary(x => x.Key, x => x.Value.ToList());
 
-        roles.Keys.Do(type => ApplySubCategoryLimits(type, subCategoryLimits));
+        roles.Keys.ToArray().Do(type => ApplySubCategoryLimits(type, subCategoryLimits));
 
         Logger.Msg("===================================================", "PreSelectedRoles");
         Logger.Info(roles[RoleAssignType.Impostor].Join(", ", x => x.Role.ToString()), "PreSelectedImpostorRoles");
@@ -400,7 +400,7 @@ internal static class CustomRoleSelector
         {
             foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
-                if ((Main.GM.Value && pc.AmOwner) || ChatCommands.Spectators.Contains(pc.PlayerId))
+                if (Main.GM.Value && pc.AmOwner || ChatCommands.Spectators.Contains(pc.PlayerId))
                 {
                     RoleResult[pc.PlayerId] = CustomRoles.GM;
                     continue;

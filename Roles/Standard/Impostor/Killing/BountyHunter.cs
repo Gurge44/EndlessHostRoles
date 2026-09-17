@@ -222,7 +222,7 @@ public class BountyHunter : RoleBase
 
     private static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if ((target && seer.PlayerId != target.PlayerId) || !ShowTargetArrow || GameStates.IsMeeting || Main.PlayerStates[seer.PlayerId].Role is not BountyHunter bh) return string.Empty;
+        if (target && seer.PlayerId != target.PlayerId || !ShowTargetArrow || GameStates.IsMeeting || Main.PlayerStates[seer.PlayerId].Role is not BountyHunter bh) return string.Empty;
 
         byte targetId = bh.GetTarget(seer);
         return $"<color=#ffffff> {TargetArrow.GetArrows(seer, targetId)}</color>";

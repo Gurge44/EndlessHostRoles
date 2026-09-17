@@ -77,7 +77,7 @@ internal class Tiger : RoleBase
 
     public override bool CanUseSabotage(PlayerControl pc)
     {
-        return base.CanUseSabotage(pc) || (pc.IsAlive() && !(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()));
+        return base.CanUseSabotage(pc) || pc.IsAlive() && !(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool());
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

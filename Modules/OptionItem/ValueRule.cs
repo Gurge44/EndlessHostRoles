@@ -36,7 +36,7 @@ public class IntegerValueRule : ValueRule<int>
 
     public virtual int GetValueByIndex(int index)
     {
-        return (RepeatIndex(index) * Step) + MinValue;
+        return RepeatIndex(index) * Step + MinValue;
     }
 
     public virtual int GetNearestIndex(int num)
@@ -69,7 +69,7 @@ public class FloatValueRule : ValueRule<float>
 
     public virtual float GetValueByIndex(int index)
     {
-        return (RepeatIndex(index) * Step) + MinValue;
+        return RepeatIndex(index) * Step + MinValue;
     }
 
     public virtual int GetNearestIndex(float num)

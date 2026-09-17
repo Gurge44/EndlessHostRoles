@@ -16,14 +16,14 @@ internal static class CanUsePatch
 
         PlayerControl lp = PlayerControl.LocalPlayer;
 
-        return __instance.AllowImpostor || (Utils.HasTasks(lp.Data, false) && lp.GetCustomRole() switch
+        return __instance.AllowImpostor || Utils.HasTasks(lp.Data, false) && lp.GetCustomRole() switch
         {
             CustomRoles.Wizard or CustomRoles.Carrier => HasTasksAsDynamicTaskingRole(),
-            CustomRoles.Medic => (Options.UsePets.GetBool() && Medic.UsePet.GetBool()) || lp.GetAbilityUseLimit() < 1f,
+            CustomRoles.Medic => Options.UsePets.GetBool() && Medic.UsePet.GetBool() || lp.GetAbilityUseLimit() < 1f,
             CustomRoles.Duality => !((Duality)Main.PlayerStates[lp.PlayerId].Role).KillingPhase,
             CustomRoles.Accumulator => !((Accumulator)Main.PlayerStates[lp.PlayerId].Role).Killing,
             _ => true
-        });
+        };
 
         bool HasTasksAsDynamicTaskingRole()
         {
@@ -48,7 +48,7 @@ internal static class VentStartPatch
 {
     public static void Postfix(Vent __instance)
     {
-        CanUseVentPatch.IUsable = __instance.TryCast<IUsable>();
+        CanUseVentPatch.IUsable = __instance;
     }
 }
 [HarmonyPatch(typeof(Vent), nameof(Vent.CanUse))]
@@ -68,7 +68,7 @@ internal static class CanUseVentPatch
 
         // Determine if vent is available based on custom role
         // always true for engineer-based roles
-        couldUse = playerControl.CanUseImpostorVentButton() || (pc.Role.Role == RoleTypes.Engineer && pc.Role.CanUse(usableVent));
+        couldUse = playerControl.CanUseImpostorVentButton() || pc.Role.Role == RoleTypes.Engineer && pc.Role.CanUse(usableVent);
 
         if (SubmergedCompatibility.IsSubmerged()) // From TheOtherRoles
         {
@@ -121,7 +121,7 @@ internal static class CanUseVentPatch
             GameManager.Instance.LogicUsables.CanUse(usableVent, playerControl) &&
             // CanUse(usableVent) && Ignore because the decision is based on custom role, not vanilla role
             // there is no vent task in the target vent, or you are in the target vent now
-            (!playerControl.MustCleanVent(__instance.Id) || (playerControl.inVent && Vent.currentVent == __instance)) &&
+            (!playerControl.MustCleanVent(__instance.Id) || playerControl.inVent && Vent.currentVent == __instance) &&
             playerControl.IsAlive() &&
             (playerControl.CanMove || playerControl.inVent);
 

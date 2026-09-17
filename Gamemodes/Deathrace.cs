@@ -11,7 +11,7 @@ namespace EHR.Gamemodes;
 
 public static class Deathrace
 {
-    private static readonly PowerUp[] AllPowerUp = Enum.GetValues<PowerUp>();
+    private static readonly PowerUp[] AllPowerUp = EnumHelper.GetValues<PowerUp>();
     public static readonly Dictionary<string, HashSet<MapNames>> PlayedMaps = [];
     public static List<SystemTypes> Track = [];
     public static Dictionary<byte, PlayerData> Data = [];
@@ -294,7 +294,7 @@ public static class Deathrace
 
     public static string GetSuffix(PlayerControl seer, PlayerControl target, bool hud)
     {
-        if (!GameGoing || seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || !Data.TryGetValue(seer.PlayerId, out var data)) return string.Empty;
+        if (!GameGoing || seer.PlayerId != target.PlayerId || seer.IsHost() && !hud || !Data.TryGetValue(seer.PlayerId, out var data)) return string.Empty;
 
         Suffix.Clear().Append("<#ffffff>");
 
@@ -418,7 +418,7 @@ public static class Deathrace
 
     public static bool CanUseVent(PlayerControl pc, int ventId)
     {
-        if (!AmongUsClient.Instance.AmHost || (pc.inVent && pc.GetClosestVent()?.Id == ventId)) return true;
+        if (!AmongUsClient.Instance.AmHost || pc.inVent && pc.GetClosestVent()?.Id == ventId) return true;
         return Data.TryGetValue(pc.PlayerId, out var data) && UsableVentIDs.TryGetValue(Main.CurrentMap, out var dict) && dict.ContainsKey(data.GetNextRoom()) && dict.TryGetValue(data.GetCurrentRoom(), out var vents) && vents.Contains(ventId);
     }
 
@@ -562,7 +562,7 @@ public static class Deathrace
 
                 SystemTypes currentRoom = data.GetCurrentRoom();
 
-                if ((!room && !coordinateCheck) || (room && room.RoomId == currentRoom))
+                if (!room && !coordinateCheck || room && room.RoomId == currentRoom)
                 {
                     CheckAndNotify(data);
                     continue;

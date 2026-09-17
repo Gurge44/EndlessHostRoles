@@ -149,7 +149,7 @@ public class Romantic : RoleBase
 
         if (!KnowTargetRole.GetBool()) return false;
 
-        return (player.Is(CustomRoles.Romantic) && PartnerId == target.PlayerId) || (BetTargetKnowRomantic.GetBool() && target.Is(CustomRoles.Romantic) && player.PlayerId == PartnerId);
+        return player.Is(CustomRoles.Romantic) && PartnerId == target.PlayerId || BetTargetKnowRomantic.GetBool() && target.Is(CustomRoles.Romantic) && player.PlayerId == PartnerId;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -211,7 +211,7 @@ public class Romantic : RoleBase
 
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
     {
-        if (!lowLoad && ((Partner != null && Partner.Data != null && !Partner.Data.Disconnected && !Partner.IsAlive()) || (Main.PlayerStates.TryGetValue(PartnerId, out var state) && state.IsDead)) && RomanticPC.IsAlive() && RomanticPC.Is(CustomRoles.Romantic))
+        if (!lowLoad && (Partner != null && Partner.Data != null && !Partner.Data.Disconnected && !Partner.IsAlive() || Main.PlayerStates.TryGetValue(PartnerId, out var state) && state.IsDead) && RomanticPC.IsAlive() && RomanticPC.Is(CustomRoles.Romantic))
             ChangeRole();
     }
 
@@ -285,7 +285,7 @@ public class Romantic : RoleBase
             return;
         }
 
-        if ((partnerRole.IsNonNK() && partnerRole is not CustomRoles.Romantic and not CustomRoles.VengefulRomantic and not CustomRoles.RuthlessRomantic) || killer == null || !killer.IsAlive() || Main.PlayerStates[PartnerId].IsSuicide) // If Partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
+        if (partnerRole.IsNonNK() && partnerRole is not CustomRoles.Romantic and not CustomRoles.VengefulRomantic and not CustomRoles.RuthlessRomantic || killer == null || !killer.IsAlive() || Main.PlayerStates[PartnerId].IsSuicide) // If Partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
         {
             Logger.Info($"NNK Romantic Partner Died ({partnerRole.IsNonNK()}) / Partner killer is null ({killer == null}) / Partner killer is dead ({!killer.IsAlive()}) / Partner committed Suicide ({Main.PlayerStates[PartnerId].IsSuicide}) => Changing {RomanticPC.GetNameWithRole()} to Ruthless Romantic", "Romantic");
             RomanticPC.RpcSetCustomRole(CustomRoles.RuthlessRomantic);

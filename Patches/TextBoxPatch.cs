@@ -92,11 +92,11 @@ public static class TextBoxPatch
 
             foreach (Command cmd in Command.AllCommands)
             {
-                string[] commandForms = english ? [.. cmd.CommandForms.TakeWhile(x => x.All(char.IsAscii))] : cmd.CommandForms;
+                string[] commandForms = english ? [.. cmd.CommandForms.TakeWhile(x => x.All(CharHelpers.IsAscii))] : cmd.CommandForms;
 
                 foreach (string form in commandForms)
                 {
-                    if (english && !form.All(char.IsAscii)) continue;
+                    if (english && !form.All(CharHelpers.IsAscii)) continue;
 
                     string check = "/" + form;
                     if (check.Length < inputCheck.Length) continue;
@@ -192,7 +192,7 @@ public static class TextBoxPatch
             }
 
             string inputForm = input.TrimStart('/');
-            string text = "/" + (startsWithCmd ? "cmd " : string.Empty) + (exactMatch ? inputForm : command.CommandForms.TakeWhile(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
+            string text = "/" + (startsWithCmd ? "cmd " : string.Empty) + (exactMatch ? inputForm : command.CommandForms.TakeWhile(x => x.All(CharHelpers.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
             var info = $"<b>{command.Description}</b>";
 
             if (!command.CanUseCommand(PlayerControl.LocalPlayer))

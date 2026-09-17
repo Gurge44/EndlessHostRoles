@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using EHR.Patches;
 using HarmonyLib;
-using Il2CppSystem;
 using Exception = System.Exception;
 
 namespace EHR;
@@ -11,7 +10,7 @@ internal static class AllMapIconsPatch
 {
     private static void EnsureMapIcon(GameStartManager instance, MapNames map, string spritePath, float pixelsPerUnit)
     {
-        if (instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != map)))
+        if (instance.AllMapIcons.TrueForAll(x => x.Name != map))
         {
             instance.AllMapIcons.Insert((int)map, new MapIconByName
             {

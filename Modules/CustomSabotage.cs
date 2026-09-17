@@ -20,7 +20,7 @@ public abstract class CustomSabotage
     protected virtual void Fix()
     {
         Instances.Remove(this);
-        ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>().IsDirty = true;
+        (ShipStatus.Instance.Systems[SystemTypes.Sabotage] as SabotageSystemType)?.IsDirty = true;
     }
 
     protected virtual string GetSuffix(PlayerControl seer, PlayerControl target, bool hud, bool meeting)
@@ -91,9 +91,8 @@ public abstract class CustomSabotage
             catch (Exception e) { Utils.ThrowException(e); }
         }
 
-        if (Instances.Count > 0)
+        if (Instances.Count > 0 && ShipStatus.Instance.Systems[SystemTypes.Sabotage] is SabotageSystemType sabotageSystemType)
         {
-            SabotageSystemType sabotageSystemType = ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>();
             sabotageSystemType.Timer = SabotageSystemTypeUpdateSystemPatch.IsCooldownModificationEnabled
                 ? SabotageSystemTypeUpdateSystemPatch.ModifiedCooldownSec
                 : 30f;

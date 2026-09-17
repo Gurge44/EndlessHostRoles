@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -11,7 +10,7 @@ public class Thanos : RoleBase
 {
     public static bool On;
     private static List<Thanos> Instances = [];
-    private static readonly Stone[] StoneEnum = Enum.GetValues<Stone>();
+    private static readonly Stone[] StoneEnum = EnumHelper.GetValues<Stone>();
     private static readonly StringBuilder Suffix = new();
 
     private static OptionItem KillCooldown;
@@ -286,7 +285,7 @@ public class Thanos : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != ThanosId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != ThanosId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting) return string.Empty;
 
         Suffix.Clear();
 

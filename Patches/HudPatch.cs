@@ -394,7 +394,7 @@ internal static class HudManagerPatch
 
                     LowerInfoText.enabled = !string.IsNullOrWhiteSpace(LowerInfoText.text);
 
-                    if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting)
+                    if (!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay || GameStates.IsMeeting)
                         LowerInfoText.enabled = false;
 
                     bool allowedRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Renegade or CustomRoles.Sidekick;
@@ -413,10 +413,10 @@ internal static class HudManagerPatch
                     if (Options.CurrentGameMode != CustomGameMode.Standard)
                         __instance.ReportButton.Hide();
 
-                    __instance.ImpostorVentButton?.ToggleVisible((player.CanUseImpostorVentButton() || (player.inVent && player.GetRoleTypes() != RoleTypes.Engineer)) && GameStates.IsInTask);
+                    __instance.ImpostorVentButton?.ToggleVisible((player.CanUseImpostorVentButton() || player.inVent && player.GetRoleTypes() != RoleTypes.Engineer) && GameStates.IsInTask);
                     player.Data.Role.CanVent = player.CanUseVent();
 
-                    if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
+                    if (usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer || player.Is(CustomRoles.GM))
                         __instance.AbilityButton?.SetEnabled();
 
                     __instance.SabotageButton?.ToggleVisible(player.GetEstimatedRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper);
@@ -432,13 +432,13 @@ internal static class HudManagerPatch
                             button = null;
                         else if (role is CustomRoles.Coroner or CustomRoles.Occultist or CustomRoles.Vulture)
                             button = __instance.ReportButton;
-                        else if (role is CustomRoles.Venter or CustomRoles.Patroller || (role == CustomRoles.Nonplus && !Options.UsePets.GetBool()))
+                        else if (role is CustomRoles.Venter or CustomRoles.Patroller || role == CustomRoles.Nonplus && !Options.UsePets.GetBool())
                             button = __instance.ImpostorVentButton;
-                        else if ((role.IsCrewmate() && role.IsDesyncRole() && !usesPetInsteadOfKill) || role is CustomRoles.Dreamweaver or CustomRoles.Enchanter or CustomRoles.VoodooMaster or CustomRoles.Blackmailer or CustomRoles.Cantankerous or CustomRoles.Consort or CustomRoles.Consigliere or CustomRoles.Framer or CustomRoles.Gangster or CustomRoles.Kamikaze or CustomRoles.Auditor or CustomRoles.Backstabber or CustomRoles.Cherokious or CustomRoles.Cultist or CustomRoles.Curser or CustomRoles.Gaslighter or CustomRoles.Investor or CustomRoles.Jackal or CustomRoles.Infection or CustomRoles.Pursuer or CustomRoles.Spiritcaller or CustomRoles.Starspawn)
+                        else if (role.IsCrewmate() && role.IsDesyncRole() && !usesPetInsteadOfKill || role is CustomRoles.Dreamweaver or CustomRoles.Enchanter or CustomRoles.VoodooMaster or CustomRoles.Blackmailer or CustomRoles.Cantankerous or CustomRoles.Consort or CustomRoles.Consigliere or CustomRoles.Framer or CustomRoles.Gangster or CustomRoles.Kamikaze or CustomRoles.Auditor or CustomRoles.Backstabber or CustomRoles.Cherokious or CustomRoles.Cultist or CustomRoles.Curser or CustomRoles.Gaslighter or CustomRoles.Investor or CustomRoles.Jackal or CustomRoles.Infection or CustomRoles.Pursuer or CustomRoles.Spiritcaller or CustomRoles.Starspawn)
                             button = __instance.KillButton;
-                        else if ((Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) || (player.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Shapeshifter or RoleTypes.Phantom && !player.Is(CustomRoles.Nimble) && player.GetCustomRole() is not (CustomRoles.Mechanic or CustomRoles.Telecommunication)))
+                        else if (Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger() || player.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Shapeshifter or RoleTypes.Phantom && !player.Is(CustomRoles.Nimble) && player.GetCustomRole() is not (CustomRoles.Mechanic or CustomRoles.Telecommunication))
                             button = __instance.AbilityButton;
-                        else if ((Options.UsePets.GetBool() && role.PetActivatedAbility()) || usesPetInsteadOfKill)
+                        else if (Options.UsePets.GetBool() && role.PetActivatedAbility() || usesPetInsteadOfKill)
                             button = __instance.PetButton;
                         else
                             button = null;
@@ -816,7 +816,7 @@ internal static class HudManagerStartPatch
 
     private static void ResizeUI(float scaleFactor)
     {
-        foreach (AspectPosition aspect in HudManager.Instance.transform.FindChild("Buttons").GetComponentsInChildren<AspectPosition>(true))
+        foreach (AspectPosition aspect in HudManager.Instance.transform.Find("Buttons").GetComponentsInChildren<AspectPosition>(true))
         {
             if (!aspect.gameObject) continue;
             if (aspect.gameObject.transform.parent.name == "TopRight") continue;
@@ -836,7 +836,7 @@ internal static class HudManagerStartPatch
             button.gameObject.SetActive(!button.isActiveAndEnabled);
         }
 
-        foreach (GridArrange arrange in HudManager.Instance.transform.FindChild("Buttons").GetComponentsInChildren<GridArrange>(true))
+        foreach (GridArrange arrange in HudManager.Instance.transform.Find("Buttons").GetComponentsInChildren<GridArrange>(true))
         {
             if (!arrange.gameObject || !arrange.transform) continue;
 
@@ -906,7 +906,7 @@ internal static class SabotageMapPatch
 
         int remaining = Math.Clamp(total - (int)Math.Ceiling((1f - perc) * total) + 1, 0, total);
 
-        int countRooms = __instance.rooms.Count;
+        int countRooms = __instance.rooms.Length;
         for (int roomId = 0; roomId < countRooms; roomId++)
         {
             MapRoom mr = __instance.rooms[roomId];
@@ -942,16 +942,15 @@ internal static class MapRoomDoorsStartPatch
     public static void Postfix()
     {
         ShipStatus shipStatusInstance = ShipStatus.Instance;
-        if (!shipStatusInstance || SubmergedCompatibility.IsSubmerged()) return;
-        if (!shipStatusInstance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType ISystem)) return;
+        if (!shipStatusInstance || !shipStatusInstance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType ISystem)) return;
 
-        MapRoomDoorsUpdatePatch.DoorsSystemType = ISystem.TryCast<DoorsSystemType>();
-        MapRoomDoorsUpdatePatch.AutoDoorsSystemType = ISystem.TryCast<AutoDoorsSystemType>();
+        MapRoomDoorsUpdatePatch.DoorsSystemType = ISystem as DoorsSystemType;
+        MapRoomDoorsUpdatePatch.AutoDoorsSystemType = ISystem as AutoDoorsSystemType;
 
         MapRoomDoorsUpdatePatch.AutoOpenDoors.Clear();
         foreach (OpenableDoor door in shipStatusInstance.AllDoors)
         {
-            MapRoomDoorsUpdatePatch.AutoOpenDoors[door.Room] = door.TryCast<AutoOpenDoor>();
+            MapRoomDoorsUpdatePatch.AutoOpenDoors[door.Room] = door as AutoOpenDoor;
         }
     }
 }
@@ -1017,7 +1016,7 @@ internal static class MapRoomDoorsUpdatePatch
         Skip:
 
         bool canUseDoors = __instance.Parent.CanUseDoors;
-        float percent = (!canUseDoors || total <= 0f) ? 1f : timer / total;
+        float percent = !canUseDoors || total <= 0f ? 1f : timer / total;
         doorSprite.material.SetFloat(Percent, percent);
 
         if (!DoorTimerTexts.TryGetValue(room, out TextMeshPro doorTimerText))
@@ -1085,12 +1084,12 @@ internal static class TaskPanelBehaviourPatch
         TempPlayerData.Clear();
         TempPointsData.Clear();
         
-        TaskPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
+        TaskPanel = HudManager.Instance.TaskStuff.transform.Find("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
         GameObject clonePanel = Object.Instantiate(TaskPanel.gameObject, TaskPanel.transform.parent);
         clonePanel.name = "RolePanel";
 
-        var tabRolePanel = clonePanel.transform.FindChild("Tab");
-        var actionMap = tabRolePanel.transform.FindChild("InputDisplayGlyph").GetComponent<ActionMapGlyphDisplay>();
+        var tabRolePanel = clonePanel.transform.Find("Tab");
+        var actionMap = tabRolePanel.transform.Find("InputDisplayGlyph").GetComponent<ActionMapGlyphDisplay>();
         actionMap.actionToDisplayMappedGlyphFor = RewiredConstsEnum.Action.ButtonKeyboard;
         
         var newPanel = clonePanel.GetComponent<TaskPanelBehaviour>();
@@ -1112,7 +1111,7 @@ internal static class TaskPanelBehaviourPatch
     internal static void UpdateRoleTab(TaskPanelBehaviour panel, CustomRoles role)
     {
         if (!TabPanelName) TabPanelName = panel.tab.gameObject.GetComponentInChildren<TextMeshPro>();
-        if (!TaskPanel) TaskPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
+        if (!TaskPanel) TaskPanel = HudManager.Instance.TaskStuff.transform.Find("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
         string panelName = GetString(Options.CurrentGameMode != CustomGameMode.Standard ? "GameInfo" : "RoleInfo");
         if (TabPanelName.text != panelName) TabPanelName.text = panelName;
 
@@ -1574,7 +1573,7 @@ internal static class TaskPanelBehaviourPatch
         {
             if (Utils.IsTaskingGameMode())
             {
-                if (!TabText) TabText = __instance.tab.transform.FindChild("TabText_TMP").GetComponent<TextMeshPro>();
+                if (!TabText) TabText = __instance.tab.transform.Find("TabText_TMP").GetComponent<TextMeshPro>();
                 bool fakeTasks = Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false);
                 string sideText = TranslationController.Instance.GetString(fakeTasks ? StringNames.FakeTasks : StringNames.Tasks);
                 if (fakeTasks) sideText = CustomRoles.ImpostorEHR.ColoredTextByRole(sideText.TrimEnd(':'));
@@ -1618,8 +1617,8 @@ internal static class TaskPanelBehaviourPatch
         __instance.closedPosition = closePosition;
 
         __instance.timer = __instance.open
-            ? Mathf.Min(1f, __instance.timer + (Time.deltaTime / __instance.animationTimeSeconds))
-            : Mathf.Max(0f, __instance.timer - (Time.deltaTime / __instance.animationTimeSeconds));
+            ? Mathf.Min(1f, __instance.timer + Time.deltaTime / __instance.animationTimeSeconds)
+            : Mathf.Max(0f, __instance.timer - Time.deltaTime / __instance.animationTimeSeconds);
 
         var relativePos = new Vector3(
             Mathf.SmoothStep(__instance.closedPosition.x, __instance.openPosition.x, __instance.timer),

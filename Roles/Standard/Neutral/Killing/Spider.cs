@@ -230,7 +230,7 @@ public class Spider : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != SpiderId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != SpiderId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting) return string.Empty;
         return Webs.Where(x => x.Value.Count > 0).Join('\n', x => $"{LocateArrow.GetArrow(seer, x.Key)} {x.Value.Count} ({Math.Max(0, x.Value.Values.Min() - Utils.TimeStamp)}s)");
     }
 }

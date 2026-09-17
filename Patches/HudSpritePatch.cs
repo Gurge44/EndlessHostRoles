@@ -172,7 +172,8 @@ public static class HudSpritePatch
                     }
                     goto Skip;
                 }
-                else return;
+
+                return;
             }
 
             bool usesPetInsteadOfKill = player.UsesPetInsteadOfKill();

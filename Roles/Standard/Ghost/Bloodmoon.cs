@@ -30,7 +30,7 @@ internal class Bloodmoon : IGhostRole
 
     public void OnProtect(PlayerControl pc, PlayerControl target)
     {
-        if (target.Is(CustomRoles.Pestilence) || (target.Is(Team.Impostor) && pc.Is(Team.Impostor)) || !pc.RpcCheckAndMurder(target, true)) return;
+        if (target.Is(CustomRoles.Pestilence) || target.Is(Team.Impostor) && pc.Is(Team.Impostor) || !pc.RpcCheckAndMurder(target, true)) return;
         ScheduledDeaths.TryAdd(target.PlayerId, (Utils.TimeStamp, pc.PlayerId));
         Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
         pc.MarkDirtySettings(); // failsafe check

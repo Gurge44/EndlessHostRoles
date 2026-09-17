@@ -104,13 +104,13 @@ public class ClientControlGUI : MonoBehaviour
     {
         _cam = Camera.main;
         Instance = this;
-        SceneManager.add_sceneLoaded((Action<Scene, LoadSceneMode>)OnSceneLoaded);
+        SceneManager.sceneLoaded += OnSceneLoaded;
         Logger.Info("ClientControlGUI initialised", "ClientControlGUI");
     }
 
     private void OnDestroy()
     {
-        SceneManager.remove_sceneLoaded((Action<Scene, LoadSceneMode>)OnSceneLoaded);
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     // Resets HUD visibility flag on scene change; HudManager is recreated each load so its new instance is always active

@@ -2,12 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -660,13 +658,13 @@ internal static class SetEverythingUpPatch
                 lineText.alignment = TextAlignmentOptions.TopLeft;
 
                 var lineRect = lineObj.GetComponent<RectTransform>();
-                lineRect.anchoredPosition = new(pos.x + 3.5f - 5f, pos.y - 0.7f - (i * 0.15f)); // slide from the left
+                lineRect.anchoredPosition = new(pos.x + 3.5f - 5f, pos.y - 0.7f - i * 0.15f); // slide from the left
                 lineText.alpha = 0f;
 
                 roleSummaryObjects.Add(lineText);
                 yield return null;
 
-                __instance.StartCoroutine(SlideAndFadeIn(lineRect, lineText, i * 0.15f).WrapToIl2Cpp()); // stagger animation
+                __instance.StartCoroutine(SlideAndFadeIn(lineRect, lineText, i * 0.15f)); // stagger animation
                 continue;
 
                 static IEnumerator SlideAndFadeIn(RectTransform rect, TextMeshPro text, float delay)
@@ -727,13 +725,13 @@ internal static class SetEverythingUpPatch
 
                 try
                 {
-                    Il2CppArrayBase<PoolablePlayer> pbs = __instance.transform.GetComponentsInChildren<PoolablePlayer>();
+                    PoolablePlayer[] pbs = __instance.transform.GetComponentsInChildren<PoolablePlayer>();
 
                     if (pbs != null)
                     {
                         foreach (PoolablePlayer pb in pbs)
                         {
-                            if (pb != null)
+                            if (pb)
                                 pb.ToggleName(false);
                         }
                     }
@@ -754,7 +752,7 @@ internal static class SetEverythingUpPatch
                     float num6 = i == 0 ? -8 : -1;
 
                     PoolablePlayer poolablePlayer = Object.Instantiate(__instance.PlayerPrefab, __instance.transform);
-                    poolablePlayer.transform.localPosition = new Vector3(1f * num2 * num3 * num5, FloatRange.SpreadToEdges(-1.125f, 0f, num3, num), num6 + (num3 * 0.01f)) * 0.9f;
+                    poolablePlayer.transform.localPosition = new Vector3(1f * num2 * num3 * num5, FloatRange.SpreadToEdges(-1.125f, 0f, num3, num), num6 + num3 * 0.01f) * 0.9f;
                     float num7 = Mathf.Lerp(1f, 0.65f, num4) * 0.9f;
                     Vector3 vector = new(num7, num7, 1f);
                     poolablePlayer.transform.localScale = vector;

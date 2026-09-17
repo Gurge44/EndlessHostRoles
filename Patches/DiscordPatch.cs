@@ -14,8 +14,6 @@ public static class DiscordRPC
     [HarmonyPatch(typeof(ActivityManager), nameof(ActivityManager.UpdateActivity))]
     public static void Prefix([HarmonyArgument(0)] Activity activity)
     {
-        if (activity == null) return;
-
         var details = $"EHR v{Main.PluginDisplayVersion}";
         activity.Details = details;
         

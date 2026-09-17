@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
-using System.IO.Compression;
 using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using TMPro;
 using Twitch;
 using UnityEngine;
+using UnityEngine.Networking;
 using static EHR.Translator;
 
 namespace EHR;
@@ -16,20 +16,20 @@ namespace EHR;
 [HarmonyPatch]
 public static class ModUpdater
 {
+    const string SavePath = "BepInEx/plugins/EHR.dll.temp";
     private const string URLGithub = "https://api.github.com/repos/Gurge44/EndlessHostRoles";
     public const bool ForceUpdate = false;
     public static bool HasUpdate;
     private static bool FirstNotify = true;
     private static bool HasOutdate;
     public static bool IsBroken;
-    private static bool IsChecked;
     private static Version LatestVersion;
     private static string LatestTitleModName;
     private static string LatestTitle;
     public static string DownloadUrl;
     private static GenericPopup InfoPopup;
     private static GenericPopup InfoPopupV2;
-    private static readonly HttpClient HttpClient = new();
+    public static readonly HttpClient HttpClient = new();
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
     [HarmonyPrefix]
@@ -41,6 +41,8 @@ public static class ModUpdater
             // Version checks are not handled on Android
             NewVersionCheck();
             DeleteOldFiles();
+            
+            Main.Instance.StartCoroutine(CheckReleaseFromGithub(Main.BetaBuildUrl.Value != ""));
         }
         
         InfoPopup = Object.Instantiate(TwitchManager.Instance.TwitchPopup);
@@ -49,16 +51,6 @@ public static class ModUpdater
 
         InfoPopupV2 = Object.Instantiate(TwitchManager.Instance.TwitchPopup);
         InfoPopupV2.name = "InfoPopupV2";
-
-        if (!OperatingSystem.IsAndroid() && !IsChecked)
-        {
-            bool done = CheckReleaseFromGithub(Main.BetaBuildUrl.Value != "").GetAwaiter().GetResult();
-            Logger.Msg("done: " + done, "CheckRelease");
-            Logger.Info("hasupdate: " + HasUpdate, "CheckRelease");
-            Logger.Info("forceupdate: " + ForceUpdate, "CheckRelease");
-            Logger.Info("downloadUrl: " + DownloadUrl, "CheckRelease");
-            Logger.Info("latestVersionl: " + LatestVersion, "CheckRelease");
-        }
     }
 
     public static void ShowAvailableUpdate()
@@ -68,74 +60,54 @@ public static class ModUpdater
             FirstNotify = false;
             
             if (!string.IsNullOrWhiteSpace(LatestTitleModName))
-                ShowPopupWithTwoButtons(string.Format(GetString("NewUpdateAvailable"), LatestTitleModName), GetString("updateButton"), onClickOnFirstButton: () => StartUpdate(DownloadUrl, true));
+                ShowPopupWithTwoButtons(string.Format(GetString("NewUpdateAvailable"), LatestTitleModName), GetString("updateButton"), onClickOnFirstButton: () => StartUpdate(DownloadUrl));
         }
     }
 
-    public static string Get(string url)
-    {
-        string result;
-        HttpResponseMessage res = HttpClient.GetAsync(url).Result;
-        Stream stream = res.Content.ReadAsStreamAsync().Result;
-
-        try
-        {
-            using StreamReader reader = new(stream);
-            result = reader.ReadToEnd();
-        }
-        finally { stream.Close(); }
-
-        return result;
-    }
-
-    public static async Task<bool> CheckReleaseFromGithub(bool beta = false)
+    private static IEnumerator CheckReleaseFromGithub(bool beta = false)
     {
         Logger.Msg("Checking GitHub Release", "CheckRelease");
+
         const string url = URLGithub + "/releases/latest";
+
+        using UnityWebRequest request = UnityWebRequest.Get(url);
+
+        request.SetRequestHeader("User-Agent", "EHR Updater");
+        request.downloadHandler = new DownloadHandlerBuffer();
+
+        yield return request.SendWebRequest();
 
         try
         {
-            string result;
-
-            using (HttpClient client = new())
+            if (request.result != UnityWebRequest.Result.Success)
             {
-                client.DefaultRequestHeaders.Add("User-Agent", "EHR Updater");
-                using HttpResponseMessage response = await client.GetAsync(new Uri(url), HttpCompletionOption.ResponseContentRead);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    Logger.Error($"Response Status Code: {response.StatusCode}", "CheckRelease");
-                    return false;
-                }
-
-                result = await response.Content.ReadAsStringAsync();
+                Logger.Error($"GitHub request failed: {request.responseCode} {request.error}", "CheckRelease");
+                IsBroken = true;
+                yield break;
             }
 
-            JObject data = JObject.Parse(result);
+            JObject data = JObject.Parse(request.downloadHandler.text);
 
-            LatestTitleModName = data["name"].ToString();
+            LatestTitleModName = data["name"]?.ToString();
 
             if (beta)
             {
-                LatestTitle = data["name"].ToString();
-                DownloadUrl = data["url"].ToString();
+                LatestTitle = data["name"]?.ToString();
+
+                // Beta builds still use the same EHR.dll release asset.
+                DownloadUrl = FindDllAssetUrl(data);
+
                 HasUpdate = LatestTitle != ThisAssembly.Git.Commit;
             }
             else
             {
-                LatestVersion = new(data["tag_name"]?.ToString().TrimStart('v') ?? string.Empty);
+                string versionString = data["tag_name"]?
+                    .ToString()
+                    .TrimStart('v');
+
+                LatestVersion = new Version(versionString!);
                 LatestTitle = $"Ver. {LatestVersion}";
-                var assets = data["assets"].CastFast<JArray>();
-
-                for (var i = 0; i < assets.Count; i++)
-                {
-                    if (assets[i]["name"].ToString() == $"EHR.v{LatestVersion}_Steam.zip")
-                    {
-                        DownloadUrl = assets[i]["browser_download_url"].ToString();
-                        break;
-                    }
-                }
-
+                DownloadUrl = FindDllAssetUrl(data);
                 HasUpdate = LatestVersion.CompareTo(Main.Version) > 0;
                 HasOutdate = LatestVersion.CompareTo(Main.Version) < 0;
             }
@@ -144,36 +116,56 @@ public static class ModUpdater
             Logger.Info("hasoutdate: " + HasOutdate, "GitHub");
             Logger.Info("forceupdate: " + ForceUpdate, "GitHub");
             Logger.Info("downloadUrl: " + DownloadUrl, "GitHub");
-            Logger.Info("latestVersionl: " + LatestVersion, "GitHub");
+            Logger.Info("latestVersion: " + LatestVersion, "GitHub");
             Logger.Info("latestTitle: " + LatestTitle, "GitHub");
 
             if (string.IsNullOrWhiteSpace(DownloadUrl))
             {
-                Logger.Error("No Download URL", "CheckRelease");
-                return false;
+                Logger.Error("No EHR.dll download URL found in release assets", "CheckRelease");
+                IsBroken = true;
+                yield break;
             }
 
-            IsChecked = true;
             IsBroken = false;
+
+            Logger.Msg("GitHub release check completed", "CheckRelease");
         }
         catch (Exception ex)
         {
             IsBroken = true;
-            Logger.Error($"Error while checking release from GitHub:\n{ex}", "CheckRelease", false);
-            return false;
+
+            Logger.Error(
+                $"Error while checking release from GitHub:\n{ex}",
+                "CheckRelease",
+                false
+            );
+        }
+    }
+    
+    private static string FindDllAssetUrl(JObject release)
+    {
+        if (release["assets"] is not JArray assets)
+            return null;
+
+        for (int i = 0; i < assets.Count; i++)
+        {
+            JObject asset = assets[i] as JObject;
+
+            if (asset?["name"]?.ToString() == "EHR.dll")
+                return asset["browser_download_url"]?.ToString();
         }
 
-        return true;
+        return null;
     }
 
-    public static void StartUpdate(string url, bool github)
+    public static void StartUpdate(string url)
     {
         if (OperatingSystem.IsAndroid()) return;
         ShowPopup(GetString("updatePleaseWait"), StringNames.Cancel, true, false);
-        _ = !github ? DownloadDLL(url) : DownloadDLLGithub(url);
+        Main.Instance.StartCoroutine(DownloadDLL(url));
     }
 
-    public static bool NewVersionCheck()
+    private static bool NewVersionCheck()
     {
         try
         {
@@ -193,7 +185,7 @@ public static class ModUpdater
         return true;
     }
 
-    public static void DeleteOldFiles()
+    private static void DeleteOldFiles()
     {
         string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         const string searchPattern = "EHR.dll*";
@@ -206,7 +198,9 @@ public static class ModUpdater
             {
                 foreach (string filePath in files)
                 {
-                    if (Path.GetFileName(filePath).EndsWith(".bak") || Path.GetFileName(filePath).EndsWith(".temp"))
+                    string fileName = Path.GetFileName(filePath);
+
+                    if (fileName.EndsWith(".bak") || fileName.EndsWith(".temp"))
                     {
                         Logger.Info($"{filePath} will be deleted", "DeleteOldFiles");
                         File.Delete(filePath);
@@ -217,82 +211,68 @@ public static class ModUpdater
         }
     }
 
-    public static async Task<bool> DownloadDLL(string url)
+    private static IEnumerator DownloadDLL(string url)
     {
         try
         {
-            const string savePath = "BepInEx/plugins/EHR.dll.temp";
-
-            // Delete the temporary file if it exists
-            if (File.Exists(savePath)) File.Delete(savePath);
-
-            HttpResponseMessage response = await HttpClient.GetAsync(url);
-
-            if (response is not { IsSuccessStatusCode: true }) throw new($"File retrieval failed with status code: {response.StatusCode}");
-
-            await using (Stream stream = await response.Content.ReadAsStreamAsync())
-            await using (var fileStream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+            if (string.IsNullOrWhiteSpace(url))
             {
-                var buffer = new byte[1024];
-                int length;
+                Logger.Error("Cannot download update: URL is empty", "DownloadDLL");
+                UpdateFailed();
+                yield break;
+            }
 
-                while ((length = await stream.ReadAsync(buffer)) != 0) await fileStream.WriteAsync(buffer.AsMemory(0, length));
+            if (File.Exists(SavePath))
+                File.Delete(SavePath);
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        using UnityWebRequest request = UnityWebRequest.Get(url);
+        request.SetRequestHeader("User-Agent", "EHR Updater");
+        request.downloadHandler = new DownloadHandlerFile(SavePath);
+        yield return request.SendWebRequest();
+
+        try
+        {
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Logger.Error($"File retrieval failed with status code {request.responseCode}: {request.error}", "DownloadDLL");
+                UpdateFailed();
+                yield break;
+            }
+
+            if (!File.Exists(SavePath))
+            {
+                Logger.Error("Downloaded EHR.dll was not found", "DownloadDLL");
+                UpdateFailed();
+                yield break;
             }
 
             string fileName = Assembly.GetExecutingAssembly().Location;
+
             File.Move(fileName, fileName + ".bak");
-            File.Move(savePath, fileName);
+            File.Move(SavePath, fileName);
+
+            Logger.Msg($"Successfully downloaded update to {fileName}", "DownloadDLL");
             ShowPopup(GetString("updateRestart"), StringNames.Close, true);
         }
         catch (Exception ex)
         {
             Logger.Error($"Update failed\n{ex}", "DownloadDLL", false);
-            ShowPopup(GetString("updateManually"), StringNames.Close, true);
-            return false;
+            UpdateFailed();
         }
-
-        return true;
     }
 
-    public static async Task<bool> DownloadDLLGithub(string url)
+    public static void UpdateFailed()
     {
         try
         {
-            const string savePath = "BepInEx/plugins/EHR.dll.temp";
-
-            // Delete the temporary file if it exists
-            if (File.Exists(savePath)) File.Delete(savePath);
-
-            HttpResponseMessage response = await HttpClient.GetAsync(url);
-
-            if (response is not { IsSuccessStatusCode: true }) throw new($"File retrieval failed with status code: {response.StatusCode}");
-
-            await using (Stream stream = await response.Content.ReadAsStreamAsync())
-            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
-            {
-                // Specify the relative path within the ZIP archive where "EHR.dll" is located
-                const string entryPath = "BepInEx/plugins/EHR.dll";
-                ZipArchiveEntry entry = archive.GetEntry(entryPath) ?? throw new($"'{entryPath}' not found in the ZIP archive");
-
-                // Extract "EHR.dll" to the temporary file
-                await using Stream entryStream = entry.Open();
-                await using var fileStream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
-                await entryStream.CopyToAsync(fileStream);
-            }
-
-            string fileName = Assembly.GetExecutingAssembly().Location;
-            File.Move(fileName, fileName + ".bak");
-            File.Move(savePath, fileName);
-            ShowPopup(GetString("updateRestart"), StringNames.Close, true);
+            if (File.Exists(SavePath))
+                File.Delete(SavePath);
         }
-        catch (Exception ex)
-        {
-            Logger.Error($"Update failed\n{ex}", "DownloadDLL", false);
-            ShowPopup(GetString("updateManually"), StringNames.Close, true);
-            return false;
-        }
+        catch { }
 
-        return true;
+        ShowPopup(GetString("updateManually"), StringNames.Close, true);
     }
 
     public static void ShowPopup(string message, StringNames buttonText, bool showButton = false, bool buttonIsExit = true)
@@ -300,7 +280,7 @@ public static class ModUpdater
         if (!InfoPopup) return;
 
         InfoPopup.Show(message);
-        Transform button = InfoPopup.transform.FindChild("ExitGame");
+        Transform button = InfoPopup.transform.Find("ExitGame");
 
         if (button)
         {
@@ -312,9 +292,9 @@ public static class ModUpdater
             passiveButton.OnClick = new();
 
             if (buttonIsExit)
-                passiveButton.OnClick.AddListener((Action)SplashLogoAnimatorPatch.SceneChanger.ExitGame);
+                passiveButton.OnClick.AddListener(SplashLogoAnimatorPatch.SceneChanger.ExitGame);
             else
-                passiveButton.OnClick.AddListener((Action)(() => InfoPopup.Close()));
+                passiveButton.OnClick.AddListener(() => InfoPopup.Close());
         }
     }
 
@@ -322,10 +302,10 @@ public static class ModUpdater
     {
         if (InfoPopupV2)
         {
-            var templateExitGame = InfoPopupV2.transform.FindChild("ExitGame");
+            var templateExitGame = InfoPopupV2.transform.Find("ExitGame");
             if (!templateExitGame) return;
 
-            var background = InfoPopupV2.transform.FindChild("Background");
+            var background = InfoPopupV2.transform.Find("Background");
             if (!background) return;
             background.localScale *= 2f;
 
@@ -351,8 +331,8 @@ public static class ModUpdater
                 var passiveButton = firstButton.GetComponent<PassiveButton>();
                 passiveButton.OnClick = new();
                 if (onClickOnFirstButton != null)
-                    passiveButton.OnClick.AddListener((Action)(() => { onClickOnFirstButton(); InfoPopupV2.Close();}));
-                else passiveButton.OnClick.AddListener((Action)(() => InfoPopupV2.Close()));
+                    passiveButton.OnClick.AddListener(() => { onClickOnFirstButton(); InfoPopupV2.Close();});
+                else passiveButton.OnClick.AddListener(() => InfoPopupV2.Close());
             }
             
             if (secondButton)
@@ -376,8 +356,8 @@ public static class ModUpdater
                 var passiveButton = secondButton.GetComponent<PassiveButton>();
                 passiveButton.OnClick = new();
                 if (onClickOnSecondButton != null)
-                    passiveButton.OnClick.AddListener((Action)(() => { onClickOnSecondButton(); InfoPopupV2.Close(); }));
-                else passiveButton.OnClick.AddListener((Action)(() => InfoPopupV2.Close()));
+                    passiveButton.OnClick.AddListener(() => { onClickOnSecondButton(); InfoPopupV2.Close(); });
+                else passiveButton.OnClick.AddListener(() => InfoPopupV2.Close());
             }
         }
     }

@@ -3,7 +3,6 @@ using AmongUs.GameOptions;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 
 namespace EHR.Patches;
 // By TommyXL & NikoCat233
@@ -59,7 +58,7 @@ public static class PhantomRolePatch
         
         RoleBase roleBase = Main.PlayerStates[phantom.PlayerId].Role;
 
-        if ((phantom.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) || !Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || IntroCutsceneDestroyPatch.PreventKill || !roleBase.OnVanish(phantom))
+        if (phantom.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting || !Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || IntroCutsceneDestroyPatch.PreventKill || !roleBase.OnVanish(phantom))
         {
             if (phantom.AmOwner)
             {
@@ -113,7 +112,7 @@ public static class PhantomRoleUseAbilityPatch
         {
             bool RoleEffectAnimation(RoleEffectAnimation x) => x.effectType == global::RoleEffectAnimation.EffectType.Vanish_Charge;
 
-            if (!__instance.Player.currentRoleAnimations.Find((Func<RoleEffectAnimation, bool>)RoleEffectAnimation) && !__instance.Player.walkingToVent && !__instance.Player.inMovingPlat)
+            if (!__instance.Player.currentRoleAnimations.Find(RoleEffectAnimation) && !__instance.Player.walkingToVent && !__instance.Player.inMovingPlat)
             {
                 if (__instance.isInvisible)
                 {
@@ -122,7 +121,7 @@ public static class PhantomRoleUseAbilityPatch
                 }
 
                 HudManager.Instance.AbilityButton.SetSecondImage(__instance.Ability);
-                HudManager.Instance.AbilityButton.OverrideText(TranslationController.Instance.GetString(StringNames.PhantomAbilityUndo, new Il2CppReferenceArray<Il2CppSystem.Object>(0)));
+                HudManager.Instance.AbilityButton.OverrideText(TranslationController.Instance.GetString(StringNames.PhantomAbilityUndo));
                 __instance.Player.CmdCheckVanish(GameManager.Instance.LogicOptions.GetRoleFloat(FloatOptionNames.PhantomDuration));
             }
         }

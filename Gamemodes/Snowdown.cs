@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using EHR.Roles;
 using Hazel;
@@ -41,7 +40,7 @@ public static class Snowdown
     private static OptionItem SnowballSizeOption;
     private static Dictionary<PowerUp, OptionItem> PowerUpPriceOptions = [];
     
-    private static readonly PowerUp[] AllPowerUp = Enum.GetValues<PowerUp>();
+    private static readonly PowerUp[] AllPowerUp = EnumHelper.GetValues<PowerUp>();
     private static readonly StringBuilder SelfSuffix = new();
     private static readonly StringBuilder Suffix = new();
     private static readonly StringBuilder Statistics = new();

@@ -102,7 +102,7 @@ public class Tracefinder : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != TracefinderId || (target != null && seer.PlayerId != target.PlayerId) || hud || meeting) return string.Empty;
+        if (seer.PlayerId != TracefinderId || target != null && seer.PlayerId != target.PlayerId || hud || meeting) return string.Empty;
         return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
     }
 }

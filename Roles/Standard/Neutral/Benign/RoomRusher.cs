@@ -109,7 +109,7 @@ public class RoomRusher : RoleBase
         {
             MapNames.MiraHQ => previous is SystemTypes.Laboratory or SystemTypes.Reactor ^ RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor,
             MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
-            (MapNames)6 => (previous == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast) ^ (RoomGoal == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast),
+            (MapNames)6 => previous == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast ^ RoomGoal == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast,
             _ => false
         };
 
@@ -161,7 +161,7 @@ public class RoomRusher : RoleBase
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
-        return !IsThisRole(pc) || pc.PlayerId != RoomRusherId || (CanVent && VentsLeft > 0);
+        return !IsThisRole(pc) || pc.PlayerId != RoomRusherId || CanVent && VentsLeft > 0;
     }
 
     public override void AfterMeetingTasks()
@@ -235,7 +235,7 @@ public class RoomRusher : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != RoomRusherId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || !seer.IsAlive()) return string.Empty;
+        if (seer.PlayerId != RoomRusherId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting || !seer.IsAlive()) return string.Empty;
 
         Suffix.Clear();
         bool done = Won;

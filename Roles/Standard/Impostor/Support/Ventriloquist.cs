@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -80,7 +79,7 @@ public class Ventriloquist : RoleBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.Hack.png", 160f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => VentriloquistOnClick(pva.PlayerId)));
+            button.OnClick.AddListener(() => VentriloquistOnClick(pva.PlayerId));
         }
     }
 

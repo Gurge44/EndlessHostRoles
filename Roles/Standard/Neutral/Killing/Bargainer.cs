@@ -35,8 +35,8 @@ internal class Bargainer : RoleBase
     private static OptionItem AlignmentVisible;
     private static OptionItem AlignmentVisibleDuration;
 
-    private static readonly MoneyGainingAction[] AllMoneyGainingAction = Enum.GetValues<MoneyGainingAction>();
-    private static readonly Item[] AllItem = Enum.GetValues<Item>();
+    private static readonly MoneyGainingAction[] AllMoneyGainingAction = EnumHelper.GetValues<MoneyGainingAction>();
+    private static readonly Item[] AllItem = EnumHelper.GetValues<Item>();
     private static Dictionary<MoneyGainingAction, int> Gains = [];
     private static Dictionary<Item, int> Costs = [];
 
@@ -158,7 +158,7 @@ internal class Bargainer : RoleBase
                 switch (item)
                 {
                     case Item.BandAid:
-                        ShieldDuration = new StringOptionItem(++id, $"Bargainer.{item}.DurationSwitch", Enum.GetNames<ShieldDurationOptions>(), 0, tab)
+                        ShieldDuration = new StringOptionItem(++id, $"Bargainer.{item}.DurationSwitch", EnumHelper.GetNames<ShieldDurationOptions>(), 0, tab)
                             .SetParent(boolOpt);
 
                         ShieldTime = new IntegerOptionItem(++id, $"Bargainer.{item}.Duration", new(0, 60, 1), 20, tab)
@@ -173,7 +173,7 @@ internal class Bargainer : RoleBase
 
                         break;
                     case Item.LensOfTruth:
-                        AlignmentVisible = new StringOptionItem(++id, $"Bargainer.{item}.DurationSwitch", Enum.GetNames<AlignmentVisibleOptions>(), (int)AlignmentVisibleOptions.UntilNextReveal, tab)
+                        AlignmentVisible = new StringOptionItem(++id, $"Bargainer.{item}.DurationSwitch", EnumHelper.GetNames<AlignmentVisibleOptions>(), (int)AlignmentVisibleOptions.UntilNextReveal, tab)
                             .SetParent(boolOpt);
 
                         AlignmentVisibleDuration = new IntegerOptionItem(++id, $"Bargainer.{item}.Duration", new(1, 30, 1), 10, tab)

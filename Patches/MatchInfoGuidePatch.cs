@@ -21,7 +21,7 @@ public static class MatchInfoGuidePatch
         __instance.CreateSettingsEntry(StringNames.GameTaskBarMode, GameManager.Instance.LogicOptions.GetTaskBarMode().ToString());
         CreateModdedSettingEntries(Options.GroupedOptions[TabGroup.GameSettings], __instance, ref num);
         CreateModdedSettingEntries(Options.GroupedOptions[TabGroup.TaskSettings], __instance, ref num);
-        __instance.transform.FindChild("MatchInfoParent").FindChild("SettingsPanel").GetComponentInChildren<Scroller>().SetYBoundsMax(Mathf.Clamp(Mathf.Ceil(num / 4f), 0.0f, 999f));
+        __instance.transform.Find("MatchInfoParent").Find("SettingsPanel").GetComponentInChildren<Scroller>().SetYBoundsMax(Mathf.Clamp(Mathf.Ceil(num / 4f), 0.0f, 999f));
         num = CreateModdedRoleEntries(__instance);
         if (num == 0) __instance.rolesEnabledMessage.SetActive(true);
         __instance.MatchInfoRoleScroller.SetYBoundsMax(Mathf.Clamp(Mathf.Ceil(num / 2f) + __instance.RoleEntryBoundsModifier, 0.0f, 999f));
@@ -143,7 +143,7 @@ public static class MatchInfoGuidePatch
             
             foreach (string stateName in stateNames)
             {
-                var child = matchInfoGuideTabButton.transform.FindChild(stateName);
+                var child = matchInfoGuideTabButton.transform.Find(stateName);
                 child.GetComponent<SpriteRenderer>().color = color;
                 if (child.childCount > 0) child.DestroyChildren();
             }

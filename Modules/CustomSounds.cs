@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
+
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace EHR.Modules;
 
@@ -114,7 +115,7 @@ public static class CustomSoundsManager
 
     private static AudioClip LoadWAV(string path)
     {
-        var fileData = Il2CppSystem.IO.File.ReadAllBytes(path);
+        var fileData = File.ReadAllBytes(path);
         WAV wav = new(fileData);
 
         Logger.Info($"[WAV: ChannelCount={wav.ChannelCount}, SampleCount={wav.SampleCount}, Frequency={wav.Frequency}]", "CustomSounds");
@@ -131,28 +132,28 @@ public static class CustomSoundsManager
         private static float BytesToFloat(byte firstByte, byte secondByte)
         {
             // Convert two bytes to one short (little endian)
-            short s = (short)((secondByte << 8) | firstByte);
+            short s = (short)(secondByte << 8 | firstByte);
             // Convert to range from -1 to (just below) 1
             return s / 32768.0F;
         }
 
-        private static int BytesToInt(Il2CppStructArray<byte> bytes, int offset = 0)
+        private static int BytesToInt(byte[] bytes, int offset = 0)
         {
             int value = 0;
 
             for (int i = 0; i < 4; i++)
-                value |= bytes[offset + i] << (i * 8);
+                value |= bytes[offset + i] << i * 8;
             return value;
         }
 
         // Properties
-        public Il2CppStructArray<float> LeftChannel { get; }
-        public Il2CppStructArray<float> RightChannel { get; }
+        public float[] LeftChannel { get; }
+        public float[] RightChannel { get; }
         public int ChannelCount { get; }
         public int SampleCount { get; }
         public int Frequency { get; }
 
-        public WAV(Il2CppStructArray<byte> wav)
+        public WAV(byte[] wav)
         {
             // Determine if mono or stereo
             ChannelCount = wav[22]; // Forget byte 23 as 99.999% of WAVs are 1 or 2 channels
@@ -178,14 +179,14 @@ public static class CustomSoundsManager
             if (ChannelCount == 2) SampleCount /= 2; // 4 bytes per sample (16 bit stereo)
 
             // Allocate memory (right will be null if only mono sound)
-            LeftChannel = new Il2CppStructArray<float>(SampleCount);
-            RightChannel = ChannelCount == 2 ? new Il2CppStructArray<float>(SampleCount) : null;
+            LeftChannel = new float[SampleCount];
+            RightChannel = ChannelCount == 2 ? new float[SampleCount] : null;
 
             int end = pos + dataSize;
             // Write to double array/s:
             int i = 0;
 
-            while (pos + (ChannelCount * 2) <= end && i < SampleCount)
+            while (pos + ChannelCount * 2 <= end && i < SampleCount)
             {
                 LeftChannel[i] = BytesToFloat(wav[pos], wav[pos + 1]);
                 pos += 2;
@@ -201,11 +202,11 @@ public static class CustomSoundsManager
 
         // Returns left and right double arrays. 'right' will be null if sound is mono.
 /*
-        public Il2CppStructArray<float> GetStereoData()
+        public float[] GetStereoData()
         {
             if (RightChannel == null) return LeftChannel;
 
-            var stereoData = new Il2CppStructArray<float>(SampleCount * 2);
+            var stereoData = new float[](SampleCount * 2);
 
             for (int i = 0; i < SampleCount; i++)
             {

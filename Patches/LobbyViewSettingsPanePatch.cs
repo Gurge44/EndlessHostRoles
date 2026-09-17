@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.Roles;
 using HarmonyLib;
 using TMPro;
@@ -46,20 +45,20 @@ public static class LobbyViewSettingsPanePatch
     [HarmonyPostfix]
     public static void Awake_Postfix(LobbyViewSettingsPane __instance)
     {
-        __instance.StartCoroutine(CoAwakeViwer().WrapToIl2Cpp());
+        __instance.StartCoroutine(CoAwakeViwer());
         return;
 
         IEnumerator CoAwakeViwer()
         {
-            Transform background = __instance.transform.FindChild("Background");
-            Transform backgroundShine = __instance.transform.FindChild("Background Shine");
+            Transform background = __instance.transform.Find("Background");
+            Transform backgroundShine = __instance.transform.Find("Background Shine");
             Transform gameModeTextTransform = __instance.gameModeText.transform;
-            Transform divider = __instance.transform.FindChild("Divider");
-            Transform tabBackground = __instance.transform.FindChild("TabBackground");
-            Transform headerImage = __instance.transform.FindChild("HeaderImage");
-            Transform overviewTab = __instance.transform.FindChild("OverviewTab");
-            Transform roleTab = __instance.transform.FindChild("RolesTabs");
-            Transform mainAreaTransform = __instance.transform.FindChild("MainArea");
+            Transform divider = __instance.transform.Find("Divider");
+            Transform tabBackground = __instance.transform.Find("TabBackground");
+            Transform headerImage = __instance.transform.Find("HeaderImage");
+            Transform overviewTab = __instance.transform.Find("OverviewTab");
+            Transform roleTab = __instance.transform.Find("RolesTabs");
+            Transform mainAreaTransform = __instance.transform.Find("MainArea");
             Transform maskBg = __instance.backgroundMask.transform;
 
             yield return null;
@@ -115,7 +114,7 @@ public static class LobbyViewSettingsPanePatch
             //labelBackground.color = new(0.6f, 0.6f, 0.6f); // Also changed vanilla label background
 
             // Change value size
-            Transform spritePanel = viewSettingsInfoPanel.transform.FindChild("Value")?.transform.FindChild("Sprite");
+            Transform spritePanel = viewSettingsInfoPanel.transform.Find("Value")?.transform.Find("Sprite");
             spritePanel.localPosition = new(2f, 0f, 0);
             spritePanel.localScale = new(0.35f, 0.6f, 1f);
 
@@ -137,7 +136,7 @@ public static class LobbyViewSettingsPanePatch
 
             yield return null;
 
-            __instance.transform.FindChild("ClickToClose").transform.FindChild("IgnoreClose").localScale = new(1f, 2f, 1f);
+            __instance.transform.Find("ClickToClose").transform.Find("IgnoreClose").localScale = new(1f, 2f, 1f);
 
             // #### Set colors for vanilla setting tab ####
             __instance.taskTabButton.activeTextColor = __instance.taskTabButton.inactiveTextColor = Color.white;
@@ -146,9 +145,9 @@ public static class LobbyViewSettingsPanePatch
             __instance.taskTabButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f);
             __instance.taskTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = new(0.1f, 0.1f, 0.1f);
             __instance.taskTabButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.DefaultPlate.png", 135f);
-            __instance.taskTabButton.inactiveSprites.transform.FindChild("Shine").gameObject.SetActive(false);
-            __instance.taskTabButton.activeSprites.transform.FindChild("Shine").gameObject.SetActive(false);
-            __instance.taskTabButton.selectedSprites.transform.FindChild("Shine").gameObject.SetActive(false);
+            __instance.taskTabButton.inactiveSprites.transform.Find("Shine").gameObject.SetActive(false);
+            __instance.taskTabButton.activeSprites.transform.Find("Shine").gameObject.SetActive(false);
+            __instance.taskTabButton.selectedSprites.transform.Find("Shine").gameObject.SetActive(false);
             yield return null;
 
             // #### Set colors for role tab ####
@@ -160,9 +159,9 @@ public static class LobbyViewSettingsPanePatch
             __instance.rolesTabButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.DefaultPlate.png", 135f);
             //__instance.rolesTabButton.activeSprites.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
             //__instance.rolesTabButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
-            __instance.rolesTabButton.inactiveSprites.transform.FindChild("Shine").gameObject.SetActive(false);
-            __instance.rolesTabButton.activeSprites.transform.FindChild("Shine").gameObject.SetActive(false);
-            __instance.rolesTabButton.selectedSprites.transform.FindChild("Shine").gameObject.SetActive(false);
+            __instance.rolesTabButton.inactiveSprites.transform.Find("Shine").gameObject.SetActive(false);
+            __instance.rolesTabButton.activeSprites.transform.Find("Shine").gameObject.SetActive(false);
+            __instance.rolesTabButton.selectedSprites.transform.Find("Shine").gameObject.SetActive(false);
             yield return null;
 
             // #### Patch info panel role origin ####
@@ -195,11 +194,11 @@ public static class LobbyViewSettingsPanePatch
             panelRole.chanceText.outlineColor = Color.black;
             panelRole.chanceText.outlineWidth = 0.26f;
             panelRole.chanceText.color = Color.white;
-            Transform child = panelRole.transform.FindChild("Chance");
+            Transform child = panelRole.transform.Find("Chance");
             if (child) child.localPosition = new(2.5f, -0.02f, -1f);
 
             // Max count sprite
-            Transform transform = panelRole.transform.FindChild("Value");
+            Transform transform = panelRole.transform.Find("Value");
             if (transform) transform.localPosition = new(0.35f, -0.02f, -1f);
 
             // Max count value
@@ -264,7 +263,7 @@ public static class LobbyViewSettingsPanePatch
             ShowOnlyEnabledRolesButton.selectedSprites.GetComponent<SpriteRenderer>().color = Color.cyan;
 
             ShowOnlyEnabledRolesButton.OnClick = new();
-            ShowOnlyEnabledRolesButton.OnClick.AddListener((Action)(() =>
+            ShowOnlyEnabledRolesButton.OnClick.AddListener(() =>
             {
                 OnlyEnabledRoles = !OnlyEnabledRoles;
 
@@ -275,7 +274,7 @@ public static class LobbyViewSettingsPanePatch
                 ShowOnlyEnabledRolesButton.SelectButton(OnlyEnabledRoles);
 
                 __instance.ReDrawTab(LastTabPressed);
-            }));
+            });
 
             ShowOnlyEnabledRolesButton.SelectButton(OnlyEnabledRoles);
             ShowOnlyEnabledRolesButton.transform.localScale = new Vector3(0.8f, 0.8f, 1f);
@@ -293,24 +292,24 @@ public static class LobbyViewSettingsPanePatch
             rightButton.transform.localScale = new Vector3(3f, 3f, 2f);
             rightButton.name = "RightButtonArrow";
 
-            var rightButtonInactiveSprite = rightButton.transform.FindChild("Normal").GetComponentInChildren<SpriteRenderer>();
+            var rightButtonInactiveSprite = rightButton.transform.Find("Normal").GetComponentInChildren<SpriteRenderer>();
             rightButtonInactiveSprite.transform.localPosition = new Vector3(0f, 0f, 0.3f);
             rightButtonInactiveSprite.sprite = Utils.LoadSprite("EHR.Resources.Images.InactiveNextButton.png", 100f);
 
-            var rightButtonActiveSprite = rightButton.transform.FindChild("Hover").GetComponentInChildren<SpriteRenderer>();
+            var rightButtonActiveSprite = rightButton.transform.Find("Hover").GetComponentInChildren<SpriteRenderer>();
             rightButtonActiveSprite.transform.localPosition = new Vector3(0f, 0f, 0.3f);
             rightButtonActiveSprite.sprite = Utils.LoadSprite("EHR.Resources.Images.ActiveNextButton.png", 100f);
 
             var rightPassiveButton = rightButton.gameObject.GetComponent<PassiveButton>();
             rightPassiveButton.OnClick = new();
-            rightPassiveButton.OnClick.AddListener((Action)(() =>
+            rightPassiveButton.OnClick.AddListener(() =>
             {
                 LastGameModeSelected++;
                 CustomGameMode[] enumGameModes = Main.CustomGameModeValues[..^1];
                 if ((int)LastGameModeSelected > enumGameModes.Length)
                     LastGameModeSelected = CustomGameMode.Standard;
                 __instance.ChangeTab(VanillaSettingsTabName);
-            }));
+            });
             yield return null;
 
             // Create left arrow button
@@ -318,19 +317,19 @@ public static class LobbyViewSettingsPanePatch
             leftButton.transform.localPosition = new Vector3(-6.4f, 3.85f, -2f);
             leftButton.name = "LeftButtonArrow";
             // flip button
-            leftButton.transform.FindChild("Normal").gameObject.GetComponentInChildren<SpriteRenderer>().flipX = true;
-            leftButton.transform.FindChild("Hover").gameObject.GetComponentInChildren<SpriteRenderer>().flipX = true;
+            leftButton.transform.Find("Normal").gameObject.GetComponentInChildren<SpriteRenderer>().flipX = true;
+            leftButton.transform.Find("Hover").gameObject.GetComponentInChildren<SpriteRenderer>().flipX = true;
 
             var leftButtonPassiveButton = leftButton.gameObject.GetComponent<PassiveButton>();
             leftButtonPassiveButton.OnClick = new();
-            leftButtonPassiveButton.OnClick.AddListener((Action)(() =>
+            leftButtonPassiveButton.OnClick.AddListener(() =>
             {
                 LastGameModeSelected--;
                 CustomGameMode[] enumGameModes = Main.CustomGameModeValues[..^1];
                 if ((int)LastGameModeSelected < 0x01)
                     LastGameModeSelected = (CustomGameMode)enumGameModes.Length;
                 __instance.ChangeTab(VanillaSettingsTabName);
-            }));
+            });
             yield return null;
 
 
@@ -375,7 +374,7 @@ public static class LobbyViewSettingsPanePatch
                         cloneSettingTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = color;
 
                         cloneSettingTabButton.OnClick = new();
-                        cloneSettingTabButton.OnClick.AddListener((Action)(() => { __instance.ChangeTab(stringName); }));
+                        cloneSettingTabButton.OnClick.AddListener(() => { __instance.ChangeTab(stringName); });
 
                         TabButtons[stringName] = cloneSettingTabButton;
                         AllTabButtons[tabGroup] = cloneSettingTabButton;
@@ -414,7 +413,7 @@ public static class LobbyViewSettingsPanePatch
                         cloneRoleTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = color;
 
                         cloneRoleTabButton.OnClick = new();
-                        cloneRoleTabButton.OnClick.AddListener((Action)(() => { __instance.ChangeTab(stringName); }));
+                        cloneRoleTabButton.OnClick.AddListener(() => { __instance.ChangeTab(stringName); });
 
                         TabButtons[stringName] = cloneRoleTabButton;
                         AllTabButtons[tabGroup] = cloneRoleTabButton;
@@ -604,7 +603,7 @@ public static class LobbyViewSettingsPanePatch
             ShowOnlyEnabledRolesButton.gameObject.SetActive(false);
 
         if (OptionsCoroutine != null) viewSettings.StopCoroutine(OptionsCoroutine);
-        OptionsCoroutine = viewSettings.StartCoroutine(CoDrawOptions().WrapToIl2Cpp());
+        OptionsCoroutine = viewSettings.StartCoroutine(CoDrawOptions());
         return;
 
         IEnumerator CoDrawOptions()
@@ -638,11 +637,11 @@ public static class LobbyViewSettingsPanePatch
                     chmButton.OnMouseOver = new();
                     chmButton.OnMouseOut = new();
                     chmButton.OnClick = new();
-                    chmButton.OnClick.AddListener((Action)(() =>
+                    chmButton.OnClick.AddListener(() =>
                     {
                         toi.CollapsesSection = !toi.CollapsesSection;
                         viewSettings.ReDrawTab(LastTabPressed);
-                    }));
+                    });
                     chmButton.SetButtonEnableState(true);
                     categoryHeaderMasked.gameObject.SetActive(enabledOrNotCollapsed);
 
@@ -775,7 +774,7 @@ public static class LobbyViewSettingsPanePatch
         }
 
         if (RoleListCoroutine != null) viewSettings.StopCoroutine(RoleListCoroutine);
-        RoleListCoroutine = viewSettings.StartCoroutine(CoDrawRoleList().WrapToIl2Cpp());
+        RoleListCoroutine = viewSettings.StartCoroutine(CoDrawRoleList());
         return;
 
         IEnumerator CoDrawRoleList()
@@ -818,11 +817,11 @@ public static class LobbyViewSettingsPanePatch
                     chmButton.OnMouseOver = new();
                     chmButton.OnMouseOut = new();
                     chmButton.OnClick = new();
-                    chmButton.OnClick.AddListener((Action)(() =>
+                    chmButton.OnClick.AddListener(() =>
                     {
                         toi.CollapsesSection = !toi.CollapsesSection;
                         viewSettings.ReDrawTab(LastTabPressed);
-                    }));
+                    });
                     chmButton.SetButtonEnableState(true);
                     categoryHeaderRoleVariant.gameObject.SetActive(enabled);
 
@@ -996,7 +995,7 @@ public static class LobbyViewSettingsPanePatch
             }
 
             if (RoleEnabledList.Count <= 0) yield break;
-            yield return CoShowRoleSettings().WrapToIl2Cpp();
+            yield return CoShowRoleSettings();
             yield break;
 
             IEnumerator CoShowRoleSettings()

@@ -1,5 +1,5 @@
 using System;
-using BepInEx.Unity.IL2CPP;
+using BepInEx.Bootstrap;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
@@ -40,7 +40,7 @@ public static class MainMenuManagerPatch
     public static void HideRightPanel()
     {
         ShowingPanel = false;
-        AccountManager.Instance?.transform.FindChild("AccountTab/AccountWindow")?.gameObject.SetActive(false);
+        AccountManager.Instance?.transform.Find("AccountTab/AccountWindow")?.gameObject.SetActive(false);
     }
 
     public static void ShowRightPanelImmediately()
@@ -48,7 +48,7 @@ public static class MainMenuManagerPatch
         ShowingPanel = true;
         TitleLogoPatch.RightPanel.transform.localPosition = TitleLogoPatch.RightPanelOp;
         Instance.OpenGameModeMenu();
-        Instance.playButton.OnClick.AddListener((Action)ShowRightPanelImmediately);
+        Instance.playButton.OnClick.AddListener(ShowRightPanelImmediately);
     }
 
     [HarmonyPatch(typeof(SignInStatusComponent), nameof(SignInStatusComponent.SetOnline))]
@@ -73,7 +73,7 @@ public static class MainMenuManagerPatch
                 new(4.2f, -1.3f, 1f),
                 new(255, 165, 0, byte.MaxValue),
                 new(255, 200, 0, byte.MaxValue),
-                () => ModUpdater.StartUpdate(ModUpdater.DownloadUrl, true),
+                () => ModUpdater.StartUpdate(ModUpdater.DownloadUrl),
                 Translator.GetString("updateButton"));
 
             UpdateButton.transform.localScale = Vector3.one;
@@ -105,7 +105,7 @@ public static class MainMenuManagerPatch
         if (ShowedBak || !IsOnline) return;
 
         GameObject bak = GameObject.Find("BackgroundTexture");
-        if (!bak || !bak.active) return;
+        if (!bak || !bak.activeSelf) return;
 
         Vector3 pos2 = bak.transform.position;
         Vector3 lerp2 = Vector3.Lerp(pos2, new(pos2.x, 7.1f, pos2.z), Time.deltaTime * 1.4f);
@@ -174,7 +174,7 @@ public static class MainMenuManagerPatch
 
         foreach (string buttonName in new[] { "SettingsButton", "Inventory Button", "CreditsButton", "ExitGameButton" })
         {
-            if (buttonName == "Inventory Button" && IL2CPPChainloader.Instance.Plugins.ContainsKey("com.DigiWorm.LevelImposter")) continue;
+            if (buttonName == "Inventory Button" && Chainloader.PluginInfos.ContainsKey("com.DigiWorm.LevelImposter")) continue;
             var go = GameObject.Find(buttonName);
             if (!go) continue;
             var buttonText = go.GetComponentInChildren<TMP_Text>();
@@ -183,16 +183,16 @@ public static class MainMenuManagerPatch
             buttonText.text = Translator.GetString($"MainMenu.{buttonName.Replace(" ", "")}");
         }
 
-        __instance.PlayOnlineButton.OnClick.AddListener((Action)(() =>
+        __instance.PlayOnlineButton.OnClick.AddListener(() =>
         {
             GameOptionsManager.Instance.Initialize();
             
-            if (GameOptionsManager.Instance.normalGameHostOptions.MapId == 3 || (GameOptionsManager.Instance.normalGameHostOptions.MapId > 5 && !SubmergedCompatibility.Loaded))
+            if (GameOptionsManager.Instance.normalGameHostOptions.MapId == 3 || GameOptionsManager.Instance.normalGameHostOptions.MapId > 5 && !SubmergedCompatibility.Loaded)
             {
                 GameOptionsManager.Instance.normalGameHostOptions.MapId = 0;
                 GameOptionsManager.Instance.SaveNormalHostOptions();
             }
-        }));
+        });
     }
 
     private static PassiveButton CreateButton(string name, Vector3 localPosition, Color32 normalColor, Color32 hoverColor, Action action, string label, Vector2? scale = null)
@@ -203,7 +203,7 @@ public static class MainMenuManagerPatch
         button.transform.localPosition = localPosition;
 
         button.OnClick = new();
-        button.OnClick.AddListener(action);
+        button.OnClick.AddListener(() => action());
 
         var buttonText = button.transform.Find("FontPlacer/Text_TMP").GetComponent<TMP_Text>();
         buttonText.DestroyTranslator();

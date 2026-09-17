@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -47,7 +46,7 @@ public class ToiletMaster : RoleBase
     {
         var id = 644700;
         const TabGroup tab = TabGroup.CrewmateRoles;
-        Poop[] poops = Enum.GetValues<Poop>();
+        Poop[] poops = EnumHelper.GetValues<Poop>();
         Dictionary<string, string> replacements = poops.ToDictionary(x => x.ToString(), x => Utils.ColorString(GetPoopColor(x), x.ToString()));
 
         SetupRoleOptions(id++, tab, CustomRoles.ToiletMaster);
@@ -63,7 +62,7 @@ public class ToiletMaster : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ToiletVisibility = new StringOptionItem(++id, "TM.ToiletVisibility", Enum.GetNames<ToiletVisibilityOptions>(), 0, tab)
+        ToiletVisibility = new StringOptionItem(++id, "TM.ToiletVisibility", EnumHelper.GetNames<ToiletVisibilityOptions>(), 0, tab)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster]);
 
         ToiletUseRadius = new FloatOptionItem(++id, "TM.ToiletUseRadius", new(0f, 5f, 0.25f), 1f, tab)
@@ -121,7 +120,7 @@ public class ToiletMaster : RoleBase
         Toilets = [];
         ActivePoops = [];
         PlayersUsingToilet = [];
-        AllPoopValues = Enum.GetValues<Poop>();
+        AllPoopValues = EnumHelper.GetValues<Poop>();
     }
 
     public override void Add(byte playerId)

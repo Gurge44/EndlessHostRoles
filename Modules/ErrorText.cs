@@ -127,8 +127,8 @@ public class ErrorText : MonoBehaviour
         {
             Code = code;
             ErrorType1 = (int)code / 10000;
-            ErrorType2 = ((int)code / 10) - (ErrorType1 * 1000); // xxxyyy - xxx000
-            ErrorLevel = (int)code - ((int)code / 10 * 10);
+            ErrorType2 = (int)code / 10 - ErrorType1 * 1000; // xxxyyy - xxx000
+            ErrorLevel = (int)code - (int)code / 10 * 10;
             Timer = 0f;
         }
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using EHR.Modules;
 using UnityEngine;
 
@@ -70,7 +69,7 @@ public class Imitator : RoleBase
             {
                 foreach (PlayerVoteArea pva in MeetingHud.Instance.playerStates)
                 {
-                    Transform button = pva.transform.FindChild("ImitatorButton");
+                    Transform button = pva.transform.Find("ImitatorButton");
                     if (button != null) Object.Destroy(button.gameObject);
                 }
             }
@@ -94,7 +93,7 @@ public class Imitator : RoleBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.Imitate.png", 130f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => ImitatorOnClick(pva.PlayerId)));
+            button.OnClick.AddListener(() => ImitatorOnClick(pva.PlayerId));
         }
     }
 

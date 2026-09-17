@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.Json;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -213,7 +213,7 @@ public static class Achievements
 
     private static void SaveAllData()
     {
-        string json = JsonSerializer.Serialize(CompletedAchievements);
+        string json = JsonConvert.SerializeObject(CompletedAchievements);
         File.WriteAllText(SaveFilePath, json);
 
         if (!Options.StoreCompletedAchievementsOnEHRDatabase.GetBool()) return;
@@ -232,7 +232,7 @@ public static class Achievements
                 achievements = CompletedAchievements
             };
 
-            string payload = JsonSerializer.Serialize(data);
+            string payload = JsonConvert.SerializeObject(data);
 
             var request = new UnityWebRequest(ApiSaveEndpoint, UnityWebRequest.kHttpVerbPOST)
             {
@@ -253,7 +253,7 @@ public static class Achievements
         if (File.Exists(SaveFilePath))
         {
             string json = File.ReadAllText(SaveFilePath);
-            CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
+            CompletedAchievements = JsonConvert.DeserializeObject<HashSet<Type>>(json);
         }
         else if (Options.StoreCompletedAchievementsOnEHRDatabase.GetBool())
         {
@@ -277,7 +277,7 @@ public static class Achievements
                 else
                 {
                     string json = request.downloadHandler.text;
-                    CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
+                    CompletedAchievements = JsonConvert.DeserializeObject<HashSet<Type>>(json);
                     File.WriteAllText(SaveFilePath, json);
                     Logger.Info("Achievements loaded successfully.", "Achievements.LoadAllData");
                 }

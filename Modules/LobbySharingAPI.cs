@@ -2,10 +2,10 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using HarmonyLib;
 using InnerNet;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -70,8 +70,8 @@ public static class LobbySharingAPI
                 string responseText = request.downloadHandler.text;
                 Logger.Msg("Response from server: " + responseText, "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
 
-                using JsonDocument doc = JsonDocument.Parse(responseText);
-                Token = doc.RootElement.GetProperty("token").GetString();
+                JObject doc = JObject.Parse(responseText);
+                Token = doc["token"]?.ToString();
 
                 Logger.Msg($"Token for room {roomCode}: {Token}", "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
             }

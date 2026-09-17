@@ -76,7 +76,7 @@ public class Slenderman : RoleBase
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (pc.Is(CustomRoles.Slenderman) || (pc.inVent && !AffectsPlayersInVents.GetBool())) return;
+        if (pc.Is(CustomRoles.Slenderman) || pc.inVent && !AffectsPlayersInVents.GetBool()) return;
         
         if (MeetingCooldownEndTS > Utils.TimeStamp || !SlendermanPC || !SlendermanPC.IsAlive())
         {
@@ -86,7 +86,7 @@ public class Slenderman : RoleBase
 
         bool inRange = FastVector2.DistanceWithinRange(pc.Pos(), SlendermanPC.Pos(), BlindRange.GetFloat());
 
-        if ((inRange && Blinded.Add(pc.PlayerId)) || (!inRange && Blinded.Remove(pc.PlayerId)))
+        if (inRange && Blinded.Add(pc.PlayerId) || !inRange && Blinded.Remove(pc.PlayerId))
         {
             pc.MarkDirtySettings();
             Utils.NotifyRoles(SpecifySeer: SlendermanPC, SpecifyTarget: pc, SendOption: SendOption.None);

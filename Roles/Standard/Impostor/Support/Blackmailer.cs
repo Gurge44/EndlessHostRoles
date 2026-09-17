@@ -128,7 +128,7 @@ internal class Blackmailer : RoleBase
         switch (WhoSeesBlackmailedPlayers.GetValue())
         {
             case 0 when seer.Is(CustomRoles.Blackmailer):
-            case 1 when seer.Is(CustomRoles.Blackmailer) || (BlackmailedPlayerIds.Contains(seer.PlayerId) && seer.PlayerId == target.PlayerId):
+            case 1 when seer.Is(CustomRoles.Blackmailer) || BlackmailedPlayerIds.Contains(seer.PlayerId) && seer.PlayerId == target.PlayerId:
             case 2 when seer.IsImpostor():
             case 3:
                 return Translator.GetString("BlackmailedSuffix");

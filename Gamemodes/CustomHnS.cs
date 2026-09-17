@@ -85,7 +85,7 @@ internal static class CustomHnS
             .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
             .Where(x => x != null)
             .Join(AllHnSRoles, x => x.GetType().Name.ToLower(), x => x.ToString().ToLower(), (Interface, Enum) => (Enum, Interface))
-            .Where(x => !sns ? (x.Enum is CustomRoles.Seeker or CustomRoles.Hider || x.Enum.GetMode() != 0) : (x.Enum == CustomRoles.Disguiser || (x.Interface.Team != Team.Impostor && x.Enum.GetMode() != 0)))
+            .Where(x => !sns ? x.Enum is CustomRoles.Seeker or CustomRoles.Hider || x.Enum.GetMode() != 0 : x.Enum == CustomRoles.Disguiser || x.Interface.Team != Team.Impostor && x.Enum.GetMode() != 0)
             .Where(x => (!x.Enum.OnlySpawnsWithPets() || Options.UsePets.GetBool()) && (x.Enum != CustomRoles.Agent || SeekerNum >= 2) && x.Interface.Count > 0 && (x.Interface.Team == Team.Neutral || x.Interface.Chance > IRandom.Instance.Next(100)))
             .OrderBy(x => x.Enum is CustomRoles.Seeker or CustomRoles.Hider ? 100 : IRandom.Instance.Next(100))
             .GroupBy(x => x.Interface.Team)
@@ -418,7 +418,7 @@ internal static class CustomHnS
 
     public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool hud = false)
     {
-        if (!Main.IntroDestroyed || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || TimeLeft < 0) return string.Empty;
+        if (!Main.IntroDestroyed || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || TimeLeft < 0) return string.Empty;
 
         Suffix.Clear();
 
@@ -480,8 +480,8 @@ internal static class CustomHnS
     {
         return Danger.TryGetValue(seer.PlayerId, out int danger)
             ? danger <= 5
-                ? $"\n<color={GetColorFromDanger()}>{new('\u25a0', 5 - danger)}{new('\u25a1', danger)}</color>"
-                : $"\n<color=#ffffff>{new('\u25a1', 5)}</color>"
+                ? $"\n<color={GetColorFromDanger()}>{new string('\u25a0', 5 - danger)}{new string('\u25a1', danger)}</color>"
+                : $"\n<color=#ffffff>{new string('\u25a1', 5)}</color>"
             : string.Empty;
 
         string GetColorFromDanger() // 0: Highest, 4: Lowest

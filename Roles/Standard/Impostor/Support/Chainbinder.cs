@@ -161,7 +161,7 @@ public class Chainbinder : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != ChainbinderId || (seer.IsModdedClient() && !hud) || meeting || !HasLink) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != ChainbinderId || seer.IsModdedClient() && !hud || meeting || !HasLink) return string.Empty;
         return string.Format(GetString("Chainbinder.PairSuffix"), FirstTarget.ColoredPlayerName(), SecondTarget.ColoredPlayerName());
     }
 

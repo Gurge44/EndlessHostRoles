@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
@@ -130,7 +129,7 @@ public class Starspawn : RoleBase
         Text_TMP.SetActive(false);
         var button = starspawnButton.GetComponent<PassiveButton>();
         button.OnClick.RemoveAllListeners();
-        button.OnClick.AddListener((Action)(() => StarspawnOnClick(starspawnButton)));
+        button.OnClick.AddListener(() => StarspawnOnClick(starspawnButton));
         GameObject ControllerHighlight = starspawnButton.transform.Find("ControllerHighlight").gameObject;
         ControllerHighlight.transform.localScale = new (0.5f, 2f, 0.5f);
     }

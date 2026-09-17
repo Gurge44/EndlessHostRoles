@@ -129,7 +129,7 @@ public static class OptionsMenuBehaviourStartPatch
                     MainMenuManagerPatch.ShowRightPanelImmediately();
 
                     Main.Instance.Harmony.UnpatchSelf();
-                    Main.Instance.Unload();
+                    Object.Destroy(Main.Instance.gameObject);
                 }
             }
         }
@@ -248,7 +248,7 @@ public static class OptionsMenuBehaviourStartPatch
                     {
                         var process = Process.GetCurrentProcess();
                         Main.OriginalAffinity = process.ProcessorAffinity;
-                        process.ProcessorAffinity = (IntPtr)((1 << 2) | (1 << 3));
+                        process.ProcessorAffinity = (IntPtr)(1 << 2 | 1 << 3);
                     }
                 }
                 else
@@ -272,7 +272,7 @@ public static class OptionsMenuBehaviourStartPatch
                 switch (Main.ShowClientControlGUI.Value)
                 {
                     case true when !ClientControlGUI.Instance:
-                        Main.Instance.AddComponent<ClientControlGUI>();
+                        Main.Instance.gameObject.AddComponent<ClientControlGUI>();
                         break;
                     case false when ClientControlGUI.Instance:
                         Object.Destroy(ClientControlGUI.Instance);

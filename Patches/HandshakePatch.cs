@@ -1,7 +1,6 @@
 using System;
 using HarmonyLib;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 
 namespace EHR.Patches;
@@ -63,7 +62,7 @@ public enum ReactorProtocolVersion : byte
     Latest = V3
 }
 
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.GetConnectionData))]
+//[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.GetConnectionData))]
 public static class HandshakePatch
 {
     private const ulong MAGIC = 0x72656163746f72; // "reactor" in ascii, 7 bytes
@@ -76,9 +75,9 @@ public static class HandshakePatch
         useDtlsLayout = AmongUsClient.Instance.useDtls;
     }
 
-    public static void Postfix(ref Il2CppStructArray<byte> __result)
+    public static void Postfix(ref byte[] __result)
     {
-        if (!Main.HasReactorPlugin)
+        if (!Main.HasReactorPlugin && !ServerManager.Instance.CurrentRegion.PingServer.Contains("among.us"))
         {
             var handshake = new MessageWriter(1000);
 
@@ -87,7 +86,7 @@ public static class HandshakePatch
 
             // Reactor Header
             const byte version = (byte)ReactorProtocolVersion.Latest;
-            const ulong value = (MAGIC << 8) | version;
+            const ulong value = MAGIC << 8 | version;
             handshake.Write(value);
 
             // ModdedHandshakeC2S
@@ -97,7 +96,6 @@ public static class HandshakePatch
             handshake.Write((ushort)(ModFlags.RequireOnHost | ModFlags.DisableServerAuthority));
 
             __result = handshake.ToByteArray(true);
-            handshake.Recycle();
         }
     }
 }

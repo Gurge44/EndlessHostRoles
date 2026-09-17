@@ -1,6 +1,5 @@
-using BepInEx.Configuration;
-using BepInEx.Unity.IL2CPP;
 using System.ComponentModel;
+using BepInEx.Configuration;
 
 namespace EHR.Modules;
 
@@ -13,7 +12,7 @@ internal class ModdedSupportExampleClass
     public static string[] BAUFlags = ["gameoption.disable.allgameoptions", "lobby.disable.customloadingbar", "gameplay.disable.customcolorblindtext", "client.disable.discordrp", "lobby.disable.cancelstartinggame", "gameplay.disable.betterrolealgorithm", "gameplay.disable.nameoverride", "gameplay.disable.chatnameoverride", "gameplay.disable.playerinfo", "gameplay.disable.playermeetinginfo"];
 
     [Category("bau:event.bau_load")]
-    public static bool OnBAULoad(BasePlugin bauPlugin)
+    public static bool OnBAULoad(object bauPlugin)
     {
         return true;
     }

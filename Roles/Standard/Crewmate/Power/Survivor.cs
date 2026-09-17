@@ -76,7 +76,7 @@ public class Survivor : RoleBase
 
         LateTask.New(() =>
         {
-            PlayerControl player = Utils.GetPlayerById(playerId);
+            PlayerControl player = GetPlayerById(playerId);
             Killing = player.Is(CustomRoles.Bloodlust);
             if (Killing)
                 player.RpcChangeRoleBasis(CustomRoles.Scanner);
@@ -156,7 +156,7 @@ public class Survivor : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != SurvivorId || meeting || (seer.IsModdedClient() && !hud) || ShieldTimer == null) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != SurvivorId || meeting || seer.IsModdedClient() && !hud || ShieldTimer == null) return string.Empty;
         return seer.IsHost() ? string.Format(GetString("SafeguardSuffixTimer"), (int)Math.Ceiling(ShieldTimer.Remaining.TotalSeconds)) : GetString("SafeguardSuffix");
     }
 
