@@ -274,7 +274,22 @@ public static class Quiz
 
         NoSuffix = true;
         var aapc = Main.AllAlivePlayerControlsToList;
-        bool showTutorial = !SubmergedCompatibility.IsSubmerged() && aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Count / 2;
+        bool showTutorial = !SubmergedCompatibility.IsSubmerged() && !Main.LIMap && aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Count / 2;
+
+        if (Main.LIMap)
+        {
+            PlainShipRoom[] rooms = ShipStatus.Instance.AllRooms.Where(x => x).DistinctBy(x => x.RoomId).ToArray();
+            List<SystemTypes> chosen = rooms.Select(plainShipRoom =>
+            {
+                Dictionary<SystemTypes, float> closestRooms = rooms.Select(x => new KeyValuePair<SystemTypes, float>(x.RoomId, Vector2.Distance(plainShipRoom.transform.position, x.transform.position))).OrderBy(x => x.Value).Take(4).ToDictionary(x => x.Key, x => x.Value);
+                float sum = closestRooms.Values.Sum();
+                return new KeyValuePair<SystemTypes[], float>([.. closestRooms.Keys, plainShipRoom.RoomId], sum);
+            }).MinBy(x => x.Value).Key.ToList();
+            Dictionary<char, SystemTypes> dict = [];
+            for (char c = 'A'; c <= 'E'; c++)
+                dict[c] = chosen[c - 'A'];
+            UsedRooms[(MapNames)7] = dict;
+        }
 
         var usedRooms = UsedRooms[Main.CurrentMap].Join('\n', x => $"{x.Key}: {GetString(x.Value.ToString())}");
         aapc.NotifyPlayers(string.Format(GetString("Quiz.Tutorial.Basics"), usedRooms), 11f);
