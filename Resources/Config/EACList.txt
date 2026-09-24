@@ -129,6 +129,8 @@ oakaverage#9192 | 0aebc840d | Tevell67 | slurs in game |
 signingwry#3704 | 800955a89 |  | slurs in game | 
 stoneredox#2794 | 763ef0db5 |  | slurs in game | 
 loanlyric#0220 | f6b3f13ad |  | slurs in game | 
+eagertest#0674 | 076364d50 | Wissal | n word in game | 
+
 
 ## Griefers, Toxic, Harrasing, Racist
 lovelycorn#7502 | f315db1a2 | Oldishfir | Racist
