@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
 using BepInEx;
-using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using EHR;
 using EHR.Modules;
@@ -18,6 +17,15 @@ using HarmonyLib;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+using Il2CppInterop.Runtime.Injection;
+#else
+using BepInEx.Bootstrap;
+#endif
+
+// ReSharper disable RedundantNameQualifier
 
 [assembly: AssemblyFileVersion(Main.PluginVersion)]
 [assembly: AssemblyInformationalVersion(Main.PluginVersion)]
@@ -34,7 +42,7 @@ namespace EHR;
 [BepInDependency(SubmergedCompatibility.SubmergedGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInProcess("Among Us.exe")]
 [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
-public class Main : BaseUnityPlugin
+public class Main : BasePlugin
 {
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
@@ -187,7 +195,12 @@ public class Main : BaseUnityPlugin
     // ReSharper disable once StringLiteralTypo
     private static readonly List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
 
+#if IL2CPP
+    private Coroutines coroutines;
+    public static bool HasReactorPlugin => IL2CPPChainloader.Instance.Plugins.ContainsKey("gg.reactor.api");
+#else
     public static bool HasReactorPlugin => Chainloader.PluginInfos.ContainsKey("gg.reactor.api");
+#endif
 
     private static HashAuth DebugKeyAuth { get; set; }
     private static ConfigEntry<string> DebugKeyInput { get; set; }
@@ -349,7 +362,11 @@ public class Main : BaseUnityPlugin
 
     public static bool LIMap => NormalOptions is { MapId: 7 };
 
+#if IL2CPP
+    public override void Load()
+#else
     private void Awake()
+#endif
     {
         // EmbeddedDeps.Install();
         Instance = this;
@@ -386,7 +403,16 @@ public class Main : BaseUnityPlugin
         ShowClientControlGUI = Config.Bind("Client Options", "ShowClientControlGUI", true);
         UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
 
+#if IL2CPP
+        ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
+        ClassInjector.RegisterTypeInIl2Cpp<MeetingHudPagingBehaviour>();
+        ClassInjector.RegisterTypeInIl2Cpp<ShapeShifterPagingBehaviour>();
+        ClassInjector.RegisterTypeInIl2Cpp<VitalsPagingBehaviour>();
+        coroutines = AddComponent<Coroutines>();
+        AddComponent<ClientControlGUI>();
+#else
         gameObject.AddComponent<ClientControlGUI>();
+#endif
 
         //Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
         EHR.Logger.Enable();
@@ -985,6 +1011,10 @@ public class Main : BaseUnityPlugin
             [CustomGameMode.DoomTag] = Utils.GetRoleColor(CustomRoles.Tagger)
         };
 
+#if IL2CPP
+        IL2CPPChainloader.Instance.Finished += Start;
+#endif
+
         try
         {
             if (TryFixStuttering.Value && OperatingSystem.IsWindows() && Environment.ProcessorCount >= 4)
@@ -1035,7 +1065,11 @@ public class Main : BaseUnityPlugin
 
     private static void HandleRoleColorFiles()
     {
+#if IL2CPP
+        string serialized = System.Text.Json.JsonSerializer.Serialize(RoleHtmlColors, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+#else
         string serialized = JsonConvert.SerializeObject(RoleHtmlColors, Formatting.Indented);
+#endif
         File.WriteAllText($"{DataPath}/OriginalRoleColors.json", serialized);
 
         if (!Directory.Exists($"{DataPath}/EHR_DATA"))
@@ -1090,6 +1124,37 @@ public class Main : BaseUnityPlugin
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
+
+#if IL2CPP
+    public Coroutine StartCoroutine(Il2CppSystem.Collections.IEnumerator coroutine)
+    {
+        if (coroutine == null) return null;
+        return coroutines.StartCoroutine(coroutine);
+    }
+
+    public Coroutine StartCoroutine(IEnumerator coroutine)
+    {
+        if (coroutine == null) return null;
+        return coroutines.StartCoroutine(coroutine.WrapToIl2Cpp());
+    }
+
+    public void StopCoroutine(IEnumerator coroutine)
+    {
+        if (coroutine == null) return;
+        coroutines.StopCoroutine(coroutine.WrapToIl2Cpp());
+    }
+
+    public void StopCoroutine(Coroutine coroutine)
+    {
+        if (coroutine == null) return;
+        coroutines.StopCoroutine(coroutine);
+    }
+
+    public void StopAllCoroutines()
+    {
+        coroutines.StopAllCoroutines();
+    }
+#endif
 
     public static IEnumerator GetRandomWord(Action<string> onComplete, string langParam = "", int length = 0, int difficulty = 0)
     {

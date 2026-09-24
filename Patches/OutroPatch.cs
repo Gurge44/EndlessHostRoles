@@ -2,6 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+#endif
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
@@ -664,7 +667,11 @@ internal static class SetEverythingUpPatch
                 roleSummaryObjects.Add(lineText);
                 yield return null;
 
+#if IL2CPP
+                __instance.StartCoroutine(SlideAndFadeIn(lineRect, lineText, i * 0.15f).WrapToIl2Cpp()); // stagger animation
+#else
                 __instance.StartCoroutine(SlideAndFadeIn(lineRect, lineText, i * 0.15f)); // stagger animation
+#endif
                 continue;
 
                 static IEnumerator SlideAndFadeIn(RectTransform rect, TextMeshPro text, float delay)
@@ -725,7 +732,7 @@ internal static class SetEverythingUpPatch
 
                 try
                 {
-                    PoolablePlayer[] pbs = __instance.transform.GetComponentsInChildren<PoolablePlayer>();
+                    var pbs = __instance.transform.GetComponentsInChildren<PoolablePlayer>();
 
                     if (pbs != null)
                     {

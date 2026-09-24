@@ -2429,14 +2429,22 @@ internal static class GameDataCompleteTaskPatch
 
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHnS.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
             {
+#if IL2CPP
+                var task = pc.myTasks.Find((Il2CppSystem.Predicate<PlayerTask>)(x => taskId == x.Id));
+#else
                 var task = pc.myTasks.Find(x => taskId == x.Id);
+#endif
                 Hider.OnSpecificTaskComplete(pc, task);
             }
         
 
             if (pc.IsAlive())
             {
+#if IL2CPP
+                var task = pc.myTasks.Find((Il2CppSystem.Predicate<PlayerTask>)(x => taskId == x.Id));
+#else
                 var task = pc.myTasks.Find(x => taskId == x.Id);
+#endif
                 Benefactor.OnTaskComplete(pc, task);
             }
 

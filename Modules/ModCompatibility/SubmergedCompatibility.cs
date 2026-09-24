@@ -4,9 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using BepInEx;
-using BepInEx.Bootstrap;
 using EHR.Patches;
 using HarmonyLib;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP;
+#else
+using BepInEx.Bootstrap;
+#endif
+
 
 namespace EHR;
 
@@ -26,7 +31,11 @@ public static class SubmergedCompatibility
 
     // public static SemanticVersioning.Version Version { get; private set; }
     public static bool Loaded { get; set; }
+#if IL2CPP
+    private static BasePlugin Plugin { get; set; }
+#else
     private static BaseUnityPlugin Plugin { get; set; }
+#endif
     private static Assembly Assembly { get; set; }
     private static Type[] Types { get; set; }
     // public static Dictionary<string, Type> InjectedTypes { get; private set; }
@@ -97,10 +106,18 @@ public static class SubmergedCompatibility
 
     public static void Initialize()
     {
+#if IL2CPP
+        Loaded = IL2CPPChainloader.Instance.Plugins.TryGetValue(SubmergedGuid, out PluginInfo plugin);
+#else
         Loaded = Chainloader.PluginInfos.TryGetValue(SubmergedGuid, out PluginInfo plugin);
+#endif
         if (!Loaded) return;
 
+#if IL2CPP
+        Plugin = plugin!.Instance as BasePlugin;
+#else
         Plugin = plugin!.Instance;
+#endif
         // Version = plugin.Metadata.Version;
 
         Assembly = Plugin!.GetType().Assembly;

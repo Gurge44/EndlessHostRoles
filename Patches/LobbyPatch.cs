@@ -1,7 +1,12 @@
-﻿using System;
+﻿#if IL2CPP
+using Il2CppSystem;
+#else
+using System;
+#endif
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
+// ReSharper disable RedundantNameQualifier
 
 namespace EHR;
 
@@ -44,7 +49,7 @@ public static class LobbyFixedUpdatePatch
                 RightEngineSR.color = Color.cyan;
             }
         }
-        catch (Exception e) { Utils.ThrowException(e); }
+        catch (System.Exception e) { Utils.ThrowException(e); }
     }
 }
 
@@ -86,7 +91,11 @@ internal static class LobbyBehaviourUpdatePatch
     public static void Postfix(LobbyBehaviour __instance)
     {
         // ReSharper disable once ConvertToLocalFunction
+#if IL2CPP
+        Lobbybgm = (Predicate<ISoundPlayer>)(x => x.Name.Equals("MapTheme"));
+#else
         Lobbybgm = x => x.Name.Equals("MapTheme");
+#endif
         MapThemeSound = SoundManager.Instance.soundPlayers.Find(Lobbybgm);
 
         if (!Main.LobbyMusic.Value)

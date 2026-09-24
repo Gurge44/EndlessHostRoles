@@ -23,7 +23,11 @@ public static class GameOptionsMapPickerPatch
     [HarmonyPrefix]
     public static void Postfix_Prefix(GameOptionsMapPicker __instance)
     {
+#if IL2CPP
+        if (__instance.AllMapIcons.TrueForAll((Il2CppSystem.Predicate<MapIconByName>)(x => x.Name != MapNames.Dleks)))
+#else
         if (__instance.AllMapIcons.TrueForAll(x => x.Name != MapNames.Dleks))
+#endif
         {
             __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
             {
@@ -35,7 +39,11 @@ public static class GameOptionsMapPickerPatch
         }
         if (SubmergedCompatibility.Loaded)
         {
+#if IL2CPP
+            if (__instance.AllMapIcons.TrueForAll((Il2CppSystem.Predicate<MapIconByName>)(x => x.Name != (MapNames)6)))
+#else
             if (__instance.AllMapIcons.TrueForAll(x => x.Name != (MapNames)6))
+#endif
             {
                 __instance.AllMapIcons.Insert((int)(MapNames)6, new MapIconByName
                 {

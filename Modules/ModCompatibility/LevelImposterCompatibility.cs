@@ -4,9 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using BepInEx;
-using BepInEx.Bootstrap;
 using HarmonyLib;
 using UnityEngine;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP;
+#else
+using BepInEx.Bootstrap;
+#endif
 
 namespace EHR.Modules;
 
@@ -176,7 +180,11 @@ public static class LevelImposterCompatibility
         if (_initialized) return;
         _initialized = true;
 
+#if IL2CPP
+        if (!IL2CPPChainloader.Instance.Plugins.TryGetValue(LevelImposterGuid, out PluginInfo plugin))
+#else
         if (!Chainloader.PluginInfos.TryGetValue(LevelImposterGuid, out PluginInfo plugin))
+#endif
         {
             Logger.Info("[LI] Not found, skipping", "LI");
             return;

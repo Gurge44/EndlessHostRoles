@@ -5,7 +5,11 @@ namespace EHR;
 
 public static class AirshipElectricalDoors
 {
+#if IL2CPP
+    private static ElectricalDoors Instance => ShipStatus.Instance.Systems[SystemTypes.Decontamination].CastFast<ElectricalDoors>();
+#else
     private static ElectricalDoors Instance => ShipStatus.Instance.Systems[SystemTypes.Decontamination] as ElectricalDoors;
+#endif
 
     public static void Initialize()
     {
@@ -16,11 +20,12 @@ public static class AirshipElectricalDoors
     public static IEnumerable<byte> GetClosedDoors()
     {
         List<byte> doorsArray = [];
-        if (Instance.Doors == null || Instance.Doors.Length == 0) return doorsArray;
+        ElectricalDoors electricalDoors = Instance;
+        if (electricalDoors.Doors == null || electricalDoors.Doors.Length == 0) return doorsArray;
 
-        for (byte i = 0; i < Instance.Doors.Length; i++)
+        for (byte i = 0; i < electricalDoors.Doors.Length; i++)
         {
-            StaticDoor door = Instance.Doors[i];
+            StaticDoor door = electricalDoors.Doors[i];
             if (door != null && !door.IsOpen) doorsArray.Add(i);
         }
 

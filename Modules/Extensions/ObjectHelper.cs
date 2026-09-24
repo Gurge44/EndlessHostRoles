@@ -8,7 +8,11 @@ public static class ObjectHelper
     {
         if (!obj) return;
 
+#if IL2CPP
+        obj.ForEachChild((Il2CppSystem.Action<GameObject>)(x => x.DestroyTranslator()));
+#else
         obj.ForEachChild(x => x.DestroyTranslator());
+#endif
         TextTranslatorTMP[] translator = obj.GetComponentsInChildren<TextTranslatorTMP>(true);
         translator?.Do(Object.Destroy);
     }

@@ -214,8 +214,8 @@ public class RemoveDisableDevicesPatch
                       Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied;
 
         ignore &= !rogueForce;
-        MapConsole[] admins = Object.FindObjectsOfType<MapConsole>(true);
-        SystemConsole[] consoles = Object.FindObjectsOfType<SystemConsole>(true);
+        var admins = Object.FindObjectsOfType<MapConsole>(true);
+        var consoles = Object.FindObjectsOfType<SystemConsole>(true);
         if (admins == null || consoles == null) return;
 
         switch (Main.NormalOptions.MapId)

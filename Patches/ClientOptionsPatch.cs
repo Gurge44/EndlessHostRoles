@@ -129,7 +129,11 @@ public static class OptionsMenuBehaviourStartPatch
                     MainMenuManagerPatch.ShowRightPanelImmediately();
 
                     Main.Instance.Harmony.UnpatchSelf();
+#if IL2CPP
+                    Main.Instance.Unload();
+#else
                     Object.Destroy(Main.Instance.gameObject);
+#endif
                 }
             }
         }
@@ -272,7 +276,11 @@ public static class OptionsMenuBehaviourStartPatch
                 switch (Main.ShowClientControlGUI.Value)
                 {
                     case true when !ClientControlGUI.Instance:
+#if IL2CPP
+                        Main.Instance.AddComponent<ClientControlGUI>();
+#else
                         Main.Instance.gameObject.AddComponent<ClientControlGUI>();
+#endif
                         break;
                     case false when ClientControlGUI.Instance:
                         Object.Destroy(ClientControlGUI.Instance);

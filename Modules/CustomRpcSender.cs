@@ -484,7 +484,7 @@ public class CustomRpcSender
     {
         return Write(w => w.Write(val));
     }
-
+/*
     public CustomRpcSender Write(byte[] bytes)
     {
         return Write(w => w.Write(bytes));
@@ -499,7 +499,7 @@ public class CustomRpcSender
     {
         return Write(w => w.WriteBytesAndSize(bytes));
     }
-
+*/
     public CustomRpcSender WritePacked(int val)
     {
         return Write(w => w.WritePacked(val));
@@ -891,54 +891,8 @@ public static class CustomRpcSenderExtensions
 
         public bool SyncSettings(PlayerControl player)
         {
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
-            {
-                player.SyncSettings();
-                return false;
-            }
-
-            var optionsender = GameOptionsSender.AllSenders.OfType<PlayerGameOptionsSender>().FirstOrDefault(x => x.player.PlayerId == player.PlayerId);
-            if (optionsender == null) return false;
-
-            var options = optionsender.BuildGameOptions();
-
-            if (player.AmOwner)
-            {
-                foreach (GameLogicComponent com in GameManager.Instance.LogicComponents)
-                {
-                    if (com is LogicOptions lo)
-                        lo.SetGameOptions(options);
-                }
-
-                GameOptionsManager.Instance.CurrentGameOptions = options;
-                return false;
-            }
-
-            var logicOptions = GameManager.Instance.LogicOptions;
-            var id = GameManager.Instance.LogicComponents.IndexOf(logicOptions);
-
-            if (sender.CurrentState == CustomRpcSender.State.InRootMessage) sender.EndMessage();
-
-            var writer = sender.stream;
-
-            writer.StartMessage(6);
-            {
-                writer.Write(AmongUsClient.Instance.GameId);
-                writer.WritePacked(player.OwnerId);
-                writer.StartMessage(1);
-                {
-                    writer.WritePacked(GameManager.Instance.NetId);
-                    writer.StartMessage((byte)id);
-                    {
-                        writer.WriteBytesAndSize(logicOptions.gameOptionsFactory.ToBytes(options, AprilFoolsMode.IsAprilFoolsModeToggledOn));
-                    }
-                    writer.EndMessage();
-                }
-                writer.EndMessage();
-            }
-            writer.EndMessage();
-
-            return true;
+            player.SyncSettings();
+            return false;
         }
 
         public bool SyncGeneralOptions(PlayerControl player)

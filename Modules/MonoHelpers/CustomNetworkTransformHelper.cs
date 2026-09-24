@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using Hazel;
 
-namespace EHR.Modules.MonoHelpers;
+namespace EHR;
 
 // There is no efficient way to get the last element of a Queue.
 // So instead we keep track of the most recent incoming network transform data manually.

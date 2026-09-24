@@ -1,7 +1,12 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+using Il2CppSystem.Collections.Generic;
+#else
+using System.Collections.Generic;
+#endif
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Patches;
@@ -12,6 +17,7 @@ using UnityEngine;
 using Priority = HarmonyLib.Priority;
 
 // ReSharper disable PossibleLossOfFraction
+// ReSharper disable RedundantNameQualifier
 
 namespace EHR;
 // Credit: https://github.com/Yumenopai/TownOfHost_Y
@@ -22,8 +28,8 @@ public static class ModGameOptionsMenu
     public static readonly Dictionary<OptionBehaviour, int> OptionList = new();
     public static readonly Dictionary<int, OptionBehaviour> BehaviourList = new();
     public static readonly Dictionary<int, CategoryHeaderMasked> CategoryHeaderList = new();
-    public static readonly Dictionary<CustomRoles, Transform> HelpIconList = [];
-    public static readonly Dictionary<OptionItem, BaseGameSetting> BaseGameSettingCache = [];
+    public static readonly System.Collections.Generic.Dictionary<CustomRoles, Transform> HelpIconList = [];
+    public static readonly System.Collections.Generic.Dictionary<OptionItem, BaseGameSetting> BaseGameSettingCache = [];
 
     public static T Track<T>(T obj) where T : Object
     {
@@ -144,7 +150,11 @@ public static class GameOptionsMenuPatch
         currentGen++;
         BuildGenerations[__instance] = currentGen;
 
+#if IL2CPP
+        BuildCoroutines[__instance] = __instance.StartCoroutine(CoRoutine(currentGen).WrapToIl2Cpp());
+#else
         BuildCoroutines[__instance] = __instance.StartCoroutine(CoRoutine(currentGen));
+#endif
         return false;
 
         IEnumerator CoRoutine(int gen)
@@ -232,7 +242,11 @@ public static class GameOptionsMenuPatch
                     optionBehaviour.SetClickMask(__instance.ButtonClickMask);
                     optionBehaviour.SetUpFromData(baseGameSetting, 20);
                     optionBehaviour.gameObject.SetActive(enabledOrNotCollapsed);
+#if IL2CPP
+                    optionBehaviour.OnValueChanged = (Il2CppSystem.Action<OptionBehaviour>)__instance.ValueChanged;
+#else
                     optionBehaviour.OnValueChanged = __instance.ValueChanged;
+#endif
 
                     ModGameOptionsMenu.OptionList[optionBehaviour] = index;
                     ModGameOptionsMenu.BehaviourList[index] = optionBehaviour;
@@ -916,7 +930,11 @@ public static class StringOptionPatch
                     long now = Utils.TimeStamp;
                     bool startCoRoutine = now > HelpShowEndTS;
                     HelpShowEndTS = now + 15;
+#if IL2CPP
+                    if (startCoRoutine) GameSettingMenu.Instance.StartCoroutine(CoRoutine().WrapToIl2Cpp());
+#else
                     if (startCoRoutine) GameSettingMenu.Instance.StartCoroutine(CoRoutine());
+#endif
 
                     IEnumerator CoRoutine()
                     {
@@ -1059,7 +1077,7 @@ public static class StringOptionPatch
 [HarmonyPatch(typeof(GameSettingMenu))]
 public static class GameSettingMenuPatch
 {
-    public static readonly Dictionary<CustomGameMode, GameObject> GMButtons = [];
+    public static readonly System.Collections.Generic.Dictionary<CustomGameMode, GameObject> GMButtons = [];
 
     private static readonly Vector3 ButtonPositionLeft = new(-3.9f, -0.55f, 0f);
     private static readonly Vector3 ButtonPositionRight = new(-2.4f, -0.55f, 0f);
@@ -1069,14 +1087,14 @@ public static class GameSettingMenuPatch
     private static GameOptionsMenu TemplateGameOptionsMenu;
     private static PassiveButton TemplateGameSettingsButton;
 
-    public static readonly Dictionary<TabGroup, PassiveButton> ModSettingsButtons = [];
-    public static readonly Dictionary<TabGroup, GameOptionsMenu> ModSettingsTabs = [];
+    public static readonly System.Collections.Generic.Dictionary<TabGroup, PassiveButton> ModSettingsButtons = [];
+    public static readonly System.Collections.Generic.Dictionary<TabGroup, GameOptionsMenu> ModSettingsTabs = [];
 
     public static long LastPresetChange;
     public static bool ChangingPreset;
 
     public static FreeChatInputField InputField;
-    private static List<OptionItem> HiddenBySearch = [];
+    private static System.Collections.Generic.List<OptionItem> HiddenBySearch = [];
     public static Action SearchForOptionsAction;
 
     private static int NumImpsOnOpen = 1;
@@ -1157,7 +1175,7 @@ public static class GameSettingMenuPatch
         SetupExtendedUI(__instance);
     }
 
-    private static readonly Dictionary<int, GameObject> ExtraObjectsCache = [];
+    private static readonly System.Collections.Generic.Dictionary<int, GameObject> ExtraObjectsCache = [];
     private static Coroutine KeepSearchBarDarkThemedCoroutine;
 
     // Thanks: Drakos for the preset button and search bar code (https://github.com/0xDrMoe/TownofHost-Enhanced/pull/1115)
@@ -1430,9 +1448,9 @@ public static class GameSettingMenuPatch
             string text = textField.textArea.text.Trim().ToLower();
             var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
             OptionItem[] optionItems = Options.GroupedOptions[modTab];
-            List<OptionItem> result = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase)).ToList();
+            var result = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase)).ToList();
             HiddenBySearch = result;
-            List<OptionItem> searchWinners = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !result.Contains(x)).ToList();
+            var searchWinners = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !result.Contains(x)).ToList();
 
             if (searchWinners.Count == 0 || !ModSettingsTabs.TryGetValue(modTab, out GameOptionsMenu gameSettings) || !gameSettings)
             {
@@ -1545,6 +1563,9 @@ public static class GameSettingMenuPatch
                     if (ModSettingsTabs.TryGetValue(tabGroup, out settingsTab) && settingsTab)
                         OnlinePresetsManager.CreatePresetExplorerUI(settingsTab);
                 })
+#if IL2CPP
+                .WrapToIl2Cpp()
+#endif
             );
         }
 

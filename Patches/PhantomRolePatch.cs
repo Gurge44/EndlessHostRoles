@@ -112,7 +112,11 @@ public static class PhantomRoleUseAbilityPatch
         {
             bool RoleEffectAnimation(RoleEffectAnimation x) => x.effectType == global::RoleEffectAnimation.EffectType.Vanish_Charge;
 
+#if IL2CPP
+            if (!__instance.Player.currentRoleAnimations.Find((Il2CppSystem.Predicate<RoleEffectAnimation>)RoleEffectAnimation) && !__instance.Player.walkingToVent && !__instance.Player.inMovingPlat)
+#else
             if (!__instance.Player.currentRoleAnimations.Find(RoleEffectAnimation) && !__instance.Player.walkingToVent && !__instance.Player.inMovingPlat)
+#endif
             {
                 if (__instance.isInvisible)
                 {

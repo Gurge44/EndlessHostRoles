@@ -51,7 +51,11 @@ public static class OnlinePresetsManager
             Object.Destroy(upload.transform.Find("ValueBox").gameObject);
             Object.Destroy(upload.PlusBtn.gameObject);
 
+#if IL2CPP
+            upload.OnValueChanged = (Il2CppSystem.Action<OptionBehaviour>)(menu.ValueChanged);
+#else
             upload.OnValueChanged = menu.ValueChanged;
+#endif
             upload.MinusBtn.OnClick = new();
             upload.MinusBtn.OnClick.AddListener(() => Main.Instance.StartCoroutine(UploadCurrentPreset()));
             TextMeshPro text = upload.MinusBtn.GetComponentInChildren<TextMeshPro>();
@@ -96,7 +100,11 @@ public static class OnlinePresetsManager
             Object.Destroy(row.transform.Find("Value_TMP (1)").gameObject);
             Object.Destroy(row.transform.Find("ValueBox").gameObject);
 
+#if IL2CPP
+            row.OnValueChanged = (Il2CppSystem.Action<OptionBehaviour>)(menu.ValueChanged);
+#else
             row.OnValueChanged = menu.ValueChanged;
+#endif
             row.LabelBackground.transform.localScale += new Vector3(1f, 0f, 0f);
             row.TitleText.GetComponent<RectTransform>().sizeDelta = new(5.7f, 0.37f);
 
@@ -188,7 +196,11 @@ public static class OnlinePresetsManager
             preset = preset
         };
 
+#if IL2CPP
+        string json = System.Text.Json.JsonSerializer.Serialize(body);
+#else
         string json = JsonConvert.SerializeObject(body);
+#endif
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 

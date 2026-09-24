@@ -18,7 +18,11 @@ public class TaskMaster : IAddon
         {
             TaskState ts = pc.GetTaskState();
             if (!ts.HasTasks || ts.IsTaskFinished || !Utils.HasTasks(pc.Data, forRecompute: false)) return;
+#if IL2CPP
+            var incompleteTasks = pc.myTasks.FindAll((Il2CppSystem.Predicate<PlayerTask>)(x => !x.IsComplete));
+#else
             var incompleteTasks = pc.myTasks.FindAll(x => !x.IsComplete);
+#endif
             LateTask.New(() =>
             {
                 if (GameStates.IsEnded) return;

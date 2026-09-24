@@ -181,7 +181,11 @@ internal static class UpdateSystemPatch
             }
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
             {
+#if IL2CPP
+                var sabotageSystemType = __instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>();
+#else
                 var sabotageSystemType = (SabotageSystemType)__instance.Systems[SystemTypes.Sabotage];
+#endif
                 return SabotageSystemTypeUpdateSystemPatch.CheckSabotage(sabotageSystemType, player, systemType);
             }
             case SystemTypes.Security when amount == 1:
@@ -288,7 +292,11 @@ internal static class CloseDoorsPatch
         if (Doorjammer.JammedRooms.Contains(room)) allow = false;
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;
+#if IL2CPP
+        if (Main.CurrentMap != MapNames.Polus && ((__instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>()).AnyActive)) allow = false;
+#else
         if (Main.CurrentMap != MapNames.Polus && ((__instance.Systems[SystemTypes.Sabotage] as SabotageSystemType)?.AnyActive ?? false)) allow = false;
+#endif
 
         Logger.Info($"({room}) => {(allow ? "Allowed" : "Blocked")}", "DoorClose");
         return allow;
@@ -386,6 +394,93 @@ internal static class AirshipStatusOnEnablePatch
         ShipStatusOnEnablePatch.Postfix();
     }
 }
+#if IL2CPP
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.OnEnable))]
+internal static class ShipStatusOnEnablePatch
+{
+    public static void Postfix()
+    {
+        int mapId = Main.NormalOptions.MapId;
+        List<SystemTypes> SystemTypesList = ShipStatusSystem.AllSabotage.ToList();
+        SystemTypesList.Add(SystemTypes.Ventilation);
+
+        foreach (var systemType in SystemTypesList)
+        {
+            try
+            {
+                if (!ShipStatus.Instance.Systems.TryGetValue(systemType, out ISystemType ISystemType)) continue;
+
+                switch (systemType)
+                {
+                    case SystemTypes.Reactor:
+                    {
+                        switch (mapId)
+                        {
+                            case 2:
+                                continue;
+                            case 4:
+                                ShipStatusSystem.HeliSabotageSystem = ISystemType.CastFast<HeliSabotageSystem>();
+                                break;
+                            default:
+                                ShipStatusSystem.ReactorSystemType = ISystemType.CastFast<ReactorSystemType>();
+                                break;
+                        }
+
+                        ShipStatusSystem.ICriticalSabotage = ISystemType.CastFast<ICriticalSabotage>();
+                        break;
+                    }
+                    case SystemTypes.Laboratory:
+                    {
+                        if (mapId != 2) continue;
+                        ShipStatusSystem.ReactorSystemType = ISystemType.CastFast<ReactorSystemType>();
+                        ShipStatusSystem.ICriticalSabotage = ISystemType.CastFast<ICriticalSabotage>();
+                        break;
+                    }
+                    case SystemTypes.HeliSabotage:
+                    {
+                        if (mapId != 4) continue;
+                        ShipStatusSystem.HeliSabotageSystem = ISystemType.CastFast<HeliSabotageSystem>();
+                        ShipStatusSystem.ICriticalSabotage = ISystemType.CastFast<ICriticalSabotage>();
+                        break;
+                    }
+                    case SystemTypes.LifeSupp:
+                    {
+                        if (mapId is 2 or 4 or 5) continue;
+                        ShipStatusSystem.LifeSuppSystemType = ISystemType.CastFast<LifeSuppSystemType>();
+                        break;
+                    }
+                    case SystemTypes.Electrical:
+                    {
+                        if (mapId == 5) continue;
+                        ShipStatusSystem.SwitchSystem = ISystemType.CastFast<SwitchSystem>();
+                        break;
+                    }
+                    case SystemTypes.Comms:
+                    {
+                        if (mapId is 1 or 5)
+                            ShipStatusSystem.HqHudSystemType = ISystemType.CastFast<HqHudSystemType>();
+                        else
+                            ShipStatusSystem.HudOverrideSystemType = ISystemType.CastFast<HudOverrideSystemType>();
+                        break;
+                    }
+                    case SystemTypes.MushroomMixupSabotage:
+                    {
+                        if (mapId != 5) continue;
+                        ShipStatusSystem.MushroomMixupSabotageSystem = ISystemType.CastFast<MushroomMixupSabotageSystem>();
+                        break;
+                    }
+                    case SystemTypes.Ventilation:
+                    {
+                        ShipStatusSystem.VentilationSystem = ISystemType.CastFast<VentilationSystem>();
+                        break;
+                    }
+                }
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+        }
+    }
+}
+#else
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.OnEnable))]
 internal static class ShipStatusOnEnablePatch
 {
@@ -471,6 +566,7 @@ internal static class ShipStatusOnEnablePatch
         }
     }
 }
+#endif
 
 // From https://github.com/0xDrMoe/TownofHost-Enhanced
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Begin))]
@@ -745,7 +841,7 @@ internal static class VentilationSystemDeterioratePatch
 
                     writer.WritePacked(__instance.PlayersInsideVents.Count);
 
-                    foreach (KeyValuePair<byte, byte> keyValuePair2 in __instance.PlayersInsideVents)
+                    foreach (var keyValuePair2 in __instance.PlayersInsideVents)
                     {
                         writer.Write(keyValuePair2.Key);
                         writer.Write(keyValuePair2.Value);

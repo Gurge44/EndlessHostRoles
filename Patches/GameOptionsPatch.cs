@@ -34,6 +34,10 @@ internal static class SwitchGameModePatch
 
         Zoom.SetZoomSize(reset: true);
         Main.Instance.Harmony.UnpatchSelf();
+#if IL2CPP
+        Main.Instance.Unload();
+#else
         Object.Destroy(Main.Instance.gameObject);
+#endif
     }
 }

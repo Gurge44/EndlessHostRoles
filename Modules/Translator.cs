@@ -6,8 +6,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using EHR.Gamemodes;
-using Newtonsoft.Json;
+#if IL2CPP
+using System.Text.Json;
+#else
 using Newtonsoft.Json.Linq;
+#endif
 
 namespace EHR;
 
@@ -25,7 +28,9 @@ public static class Translator
         Logger.Info("Loaded Custom Translations", "Translator");
     }
 
+#if !IL2CPP
     private static readonly JsonSerializer JsonSerializer = new();
+#endif
 
     public static void LoadLangs()
     {
@@ -52,19 +57,27 @@ public static class Translator
 
                 try
                 {
+#if IL2CPP
+                    var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(resourceStream);
+#else
                     using var reader = new StreamReader(resourceStream);
                     using var jsonReader = new JsonTextReader(reader);
                     var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, JToken>>(jsonReader);
+#endif
 
                     if (jsonDictionary == null)
                     {
-                        Logger.Warn( $"Failed to deserialize JSON file: {jsonFileName}. Is it a valid jsonc?", "Translator");
+                        Logger.Warn($"Failed to deserialize JSON file: {jsonFileName}. Is it a valid jsonc?", "Translator");
                         continue;
                     }
 
+#if IL2CPP
+                    if (!jsonDictionary.TryGetValue("LanguageID", out var langElem) || langElem.ValueKind != JsonValueKind.String || !int.TryParse(langElem.GetString(), out int languageId))
+#else
                     if (!jsonDictionary.TryGetValue("LanguageID", out var langElem) || langElem.Type != JTokenType.String || !int.TryParse(langElem.Value<string>(), out int languageId))
+#endif
                     {
-                        Logger.Warn( $"Invalid JSON format in {jsonFileName}: Missing or invalid 'LanguageID' field.", "Translator");
+                        Logger.Warn($"Invalid JSON format in {jsonFileName}: Missing or invalid 'LanguageID' field.", "Translator");
                         continue;
                     }
 
@@ -102,6 +115,31 @@ public static class Translator
         }
     }
 
+#if IL2CPP
+    private static void MergeJsonIntoTranslationMap(Dictionary<string, Dictionary<int, string>> translationMaps, int languageId, Dictionary<string, JsonElement> jsonDictionary)
+    {
+        foreach ((string key, JsonElement value) in jsonDictionary)
+        {
+            if (value.ValueKind != JsonValueKind.String)
+            {
+                Logger.Warn($"Invalid value type for key '{key}' in language ID {languageId}. Expected a string.", "Translator");
+                continue;
+            }
+
+            string translation = value.GetString();
+            if (string.IsNullOrEmpty(translation))
+                continue;
+
+            if (!translationMaps.TryGetValue(key, out var langMap))
+            {
+                langMap = [];
+                translationMaps[key] = langMap;
+            }
+
+            langMap[languageId] = translation.Replace("\\n", "\n").Replace("\\r", "\r");
+        }
+    }
+#else
     private static void MergeJsonIntoTranslationMap(Dictionary<string, Dictionary<int, string>> translationMaps, int languageId, Dictionary<string, JToken> jsonDictionary)
     {
         foreach ((string key, JToken value) in jsonDictionary)
@@ -125,6 +163,7 @@ public static class Translator
             langMap[languageId] = translation.Replace("\\n", "\n").Replace("\\r", "\r");
         }
     }
+#endif
 
     // Function to get a list of JSON file names in a directory
     private static string[] GetJsonFileNames(Assembly assembly, string directoryName)

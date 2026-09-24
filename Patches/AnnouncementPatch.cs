@@ -9,6 +9,10 @@ using HarmonyLib;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
 
+#if IL2CPP
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+#endif
+
 namespace EHR;
 
 // ReSharper disable once ClassNeverInstantiated.Global
@@ -88,7 +92,11 @@ public static class ModNewsHistory
 
     [HarmonyPatch(typeof(PlayerAnnouncementData), nameof(PlayerAnnouncementData.SetAnnouncements))]
     [HarmonyPrefix]
+#if IL2CPP
+    public static void SetModAnnouncements(ref Il2CppReferenceArray<Announcement> aRange)
+#else
     public static void SetModAnnouncements(ref Announcement[] aRange)
+#endif
     {
         if (AllModNews.Count == 0)
         {
@@ -100,9 +108,6 @@ public static class ModNewsHistory
         finalAllNews.AddRange(aRange.Where(news => AllModNews.All(x => x.Number != news.Number)));
         finalAllNews.Sort((a1, a2) => DateTime.Compare(DateTime.Parse(a2.Date), DateTime.Parse(a1.Date)));
 
-        aRange = new Announcement[finalAllNews.Count];
-
-        for (var i = 0; i < finalAllNews.Count; i++)
-            aRange[i] = finalAllNews[i];
+        aRange = finalAllNews.ToArray();
     }
 }

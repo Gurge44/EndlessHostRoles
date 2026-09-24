@@ -658,7 +658,11 @@ internal static class ChatCommands
 
             if (Main.CurrentMap == MapNames.Dleks || Main.NormalOptions.MapId == 6)
             {
+#if IL2CPP
+                IGameOptions opt = Main.NormalOptions.CastFast<IGameOptions>();
+#else
                 IGameOptions opt = Main.NormalOptions;
+#endif
 
                 Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
                 Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;

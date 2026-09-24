@@ -84,9 +84,16 @@ static class CoShowIntroPatch
             yield return CoBegin(Object.Instantiate(__instance.IntroPrefab, __instance.transform));
 
             PlayerControl.LocalPlayer.SetKillTimer(10f);
+#if IL2CPP
+            (ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>()).SetInitialSabotageCooldown();
+            
+            if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType systemType) && systemType.TryCastFast(out IDoorSystem doorSystem))
+#else
             (ShipStatus.Instance.Systems[SystemTypes.Sabotage] as SabotageSystemType)?.SetInitialSabotageCooldown();
-
+            
             if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType systemType) && systemType is IDoorSystem doorSystem)
+#endif
+
                 doorSystem.SetInitialSabotageCooldown();
 
             yield return ShipStatus.Instance.PrespawnStep();
@@ -115,12 +122,16 @@ static class CoShowIntroPatch
             introCutscene.ImpostorName.gameObject.SetActive(false);
             introCutscene.ImpostorTitle.gameObject.SetActive(false);
 
+#if IL2CPP
+            Il2CppSystem.Collections.Generic.List<PlayerControl> show = IntroCutscene.SelectTeamToShow((Il2CppSystem.Func<NetworkedPlayerInfo, bool>)(pcd => !PlayerControl.LocalPlayer.Data.Role.IsImpostor || pcd.Role.TeamType == PlayerControl.LocalPlayer.Data.Role.TeamType));
+#else
             List<PlayerControl> show = IntroCutscene.SelectTeamToShow(pcd => !PlayerControl.LocalPlayer.Data.Role.IsImpostor || pcd.Role.TeamType == PlayerControl.LocalPlayer.Data.Role.TeamType);
+#endif
 
             if (show == null || show.Count < 1)
             {
                 Logger.Error("IntroCutscene :: CoBegin() :: teamToShow is EMPTY or NULL", "BASE GAME LOGGER");
-                show = new List<PlayerControl>(1);
+                show = new(1);
                 show.Add(PlayerControl.LocalPlayer);
             }
 
@@ -451,7 +462,11 @@ internal static class SetUpRoleTextPatch
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginCrewmate))]
 internal static class BeginCrewmatePatch
 {
+#if IL2CPP
+    public static bool Prefix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay)
+#else
     public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
+#endif
     {
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
 
@@ -529,7 +544,11 @@ internal static class BeginCrewmatePatch
         return true;
     }
 
+#if IL2CPP
+    public static void Postfix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay)
+#else
     public static void Postfix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
+#endif
     {
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
 
@@ -1055,14 +1074,22 @@ internal static class BeginCrewmatePatch
 
     private static AudioClip GetIntroSound(RoleTypes roleType)
     {
+#if IL2CPP
+        return RoleManager.Instance.AllRoles.Find((Il2CppSystem.Predicate<RoleBehaviour>)(role => role.Role == roleType))?.IntroSound;
+#else
         return RoleManager.Instance.AllRoles.Find(role => role.Role == roleType)?.IntroSound;
+#endif
     }
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginImpostor))]
 internal static class BeginImpostorPatch
 {
+#if IL2CPP
+    public static bool Prefix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
+#else
     public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
+#endif
     {
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
 
@@ -1139,7 +1166,11 @@ internal static class BeginImpostorPatch
         return true;
     }
 
+#if IL2CPP
+    public static void Postfix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
+#else
     public static void Postfix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
+#endif
     {
         BeginCrewmatePatch.Postfix(__instance, ref yourTeam);
     }

@@ -407,7 +407,11 @@ public static class Utils
                     });
                 });
 
+#if IL2CPP
+                File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(data, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+#else
                 File.WriteAllText(path, JsonConvert.SerializeObject(data, Formatting.Indented));
+#endif
             }
             catch (Exception e)
             {
@@ -4841,11 +4845,19 @@ public static class Utils
             obj.name = "FlashColor_FullScreen";
         }
 
+#if IL2CPP
+        hud.StartCoroutine(Effects.Lerp(duration, (Il2CppSystem.Action<float>)(t =>
+        {
+            obj.SetActive(Math.Abs(t - 1f) > 0.1f);
+            obj.GetComponent<SpriteRenderer>().color = new(color.r, color.g, color.b, Mathf.Clamp01((-2f * Mathf.Abs(t - 0.5f) + 1) * color.a / 2));
+        })));
+#else
         hud.StartCoroutine(Effects.Lerp(duration, t =>
         {
             obj.SetActive(Math.Abs(t - 1f) > 0.1f);
             obj.GetComponent<SpriteRenderer>().color = new(color.r, color.g, color.b, Mathf.Clamp01((-2f * Mathf.Abs(t - 0.5f) + 1) * color.a / 2));
         }));
+#endif
     }
 
     public static Sprite LoadSprite(string path, float pixelsPerUnit = 1f)

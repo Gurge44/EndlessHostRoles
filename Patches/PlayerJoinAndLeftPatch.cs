@@ -5,6 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using AmongUs.Data;
+#if IL2CPP
+using AmongUs.GameOptions;
+#endif
 using AmongUs.InnerNet.GameDataMessages;
 using EHR.Gamemodes;
 using EHR.Modules;
@@ -78,7 +81,11 @@ internal static class OnGameJoinedPatch
 
             if (Main.NormalOptions?.KillCooldown == 0f) Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
 
+#if IL2CPP
+            AURoleOptions.SetOpt(Main.NormalOptions.CastFast<IGameOptions>());
+#else
             AURoleOptions.SetOpt(Main.NormalOptions);
+#endif
             if (AURoleOptions.ShapeshifterCooldown == 0f) AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
 
             LateTask.New(() =>
@@ -654,7 +661,11 @@ internal static class OnPlayerLeftPatch
                         if (GameStates.IsOnlineGame)
                         {
                             var message = new DespawnGameDataMessage(netid);
+#if IL2CPP
+                            AmongUsClient.Instance.LateBroadcastReliableMessage(message.CastFast<IGameDataMessage>());
+#else
                             AmongUsClient.Instance.LateBroadcastReliableMessage(message);
+#endif
                         }
 
                         if (GameStates.IsLobby)
@@ -888,7 +899,7 @@ internal static class NetworkedPlayerInfoInitPatch
 {
     public static void Postfix(NetworkedPlayerInfo __instance)
     {
-        foreach (KeyValuePair<PlayerOutfitType, NetworkedPlayerInfo.PlayerOutfit> outfit in __instance.Outfits)
+        foreach (var outfit in __instance.Outfits)
         {
             if (outfit.Value != null)
             {

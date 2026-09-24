@@ -93,7 +93,11 @@ public static class OptionSaver
     {
         if (AmongUsClient.Instance && !AmongUsClient.Instance.AmHost) return;
 
+#if IL2CPP
+        string jsonString = System.Text.Json.JsonSerializer.Serialize(GenerateOptionsData(), new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+#else
         string jsonString = JsonConvert.SerializeObject(GenerateOptionsData(), Formatting.Indented);
+#endif
         File.WriteAllText(OptionSaverFileInfo.FullName, jsonString);
         File.WriteAllText(DefaultPresetFileInfo.FullName, DefaultPresetNumber.ToString());
     }

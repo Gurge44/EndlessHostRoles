@@ -1,9 +1,13 @@
 using System;
-using BepInEx.Bootstrap;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
 using Priority = HarmonyLib.Priority;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP;
+#else
+using BepInEx.Bootstrap;
+#endif
 
 namespace EHR;
 
@@ -174,7 +178,11 @@ public static class MainMenuManagerPatch
 
         foreach (string buttonName in new[] { "SettingsButton", "Inventory Button", "CreditsButton", "ExitGameButton" })
         {
+#if IL2CPP
+            if (buttonName == "Inventory Button" && IL2CPPChainloader.Instance.Plugins.ContainsKey("com.DigiWorm.LevelImposter")) continue;
+#else
             if (buttonName == "Inventory Button" && Chainloader.PluginInfos.ContainsKey("com.DigiWorm.LevelImposter")) continue;
+#endif
             var go = GameObject.Find(buttonName);
             if (!go) continue;
             var buttonText = go.GetComponentInChildren<TMP_Text>();

@@ -113,7 +113,11 @@ public static class GameStartManagerPatch
 
                 if (Main.NormalOptions.KillCooldown == 0f) Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
 
+#if IL2CPP
+                AURoleOptions.SetOpt(Main.NormalOptions.CastFast<IGameOptions>());
+#else
                 AURoleOptions.SetOpt(Main.NormalOptions);
+#endif
                 if (AURoleOptions.ShapeshifterCooldown == 0f) AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
                 
                 AURoleOptions.ProtectionDurationSeconds = 0f;
@@ -257,7 +261,11 @@ public static class GameStartManagerPatch
 
             if (Main.CurrentMap == MapNames.Dleks || Main.NormalOptions.MapId == 6)
             {
+#if IL2CPP
+                IGameOptions opt = Main.NormalOptions.CastFast<IGameOptions>();
+#else
                 IGameOptions opt = Main.NormalOptions;
+#endif
 
                 Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
                 Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
@@ -600,7 +608,11 @@ public static class GameStartRandomMap
             Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
         }
 
+#if IL2CPP
+        IGameOptions opt = Main.NormalOptions.CastFast<IGameOptions>();
+#else
         IGameOptions opt = Main.NormalOptions;
+#endif
         AURoleOptions.SetOpt(opt);
 
         if (__instance.startState == GameStartManager.StartingStates.Countdown)

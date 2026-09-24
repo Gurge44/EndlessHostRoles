@@ -10,7 +10,11 @@ internal static class AllMapIconsPatch
 {
     private static void EnsureMapIcon(GameStartManager instance, MapNames map, string spritePath, float pixelsPerUnit)
     {
+#if IL2CPP
+        if (instance.AllMapIcons.TrueForAll((Il2CppSystem.Predicate<MapIconByName>)(x => x.Name != map)))
+#else
         if (instance.AllMapIcons.TrueForAll(x => x.Name != map))
+#endif
         {
             instance.AllMapIcons.Insert((int)map, new MapIconByName
             {

@@ -8,13 +8,16 @@ using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Modules.Extensions;
-using EHR.Modules.MonoHelpers;
 using EHR.Roles;
 using Hazel;
 using InnerNet;
 using UnityEngine;
 using static EHR.Translator;
 using static EHR.Utils;
+#if IL2CPP
+using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+#endif
 
 namespace EHR;
 
@@ -338,8 +341,11 @@ internal static class ExtendedPlayerControl
         public void RpcResetTasks(bool init = true)
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !player) return;
-
+#if IL2CPP
+            player.Data.RpcSetTasks(new Il2CppStructArray<byte>(0));
+#else
             player.Data.RpcSetTasks([]);
+#endif
             if (init) Main.PlayerStates[player.PlayerId].InitTask(player);
         }
 
@@ -1345,6 +1351,14 @@ internal static class ExtendedPlayerControl
                 Logger.Warn($"{nullReferenceException.Message} - player is null? {!player}", "GetRealName");
                 return string.Empty;
             }
+#if IL2CPP
+            catch (Il2CppException il2CppException)
+            {
+                Logger.Warn($"{il2CppException.Message} - player is null? {!player}", "GetRealName");
+                Logger.Warn($"{il2CppException.Message} - player is null? {!player}", "GetRealName");
+                return string.Empty;
+            }
+#endif
             catch (Exception exception)
             {
                 ThrowException(exception);
@@ -2146,7 +2160,7 @@ internal static class ExtendedPlayerControl
 
         public List<PlayerControl> GetPlayersInAbilityRangeSorted(Predicate<PlayerControl> predicate, bool ignoreColliders = false)
         {
-            List<PlayerControl> rangePlayersIL = RoleBehaviour.GetTempPlayerList();
+            var rangePlayersIL = RoleBehaviour.GetTempPlayerList();
             List<PlayerControl> rangePlayers = [];
             player.Data.Role.GetPlayersInAbilityRangeSorted(rangePlayersIL, ignoreColliders);
 

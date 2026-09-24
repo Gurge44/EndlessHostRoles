@@ -70,7 +70,7 @@ public static class ModUpdater
 
         const string url = URLGithub + "/releases/latest";
 
-        using UnityWebRequest request = UnityWebRequest.Get(url);
+        UnityWebRequest request = UnityWebRequest.Get(url);
 
         request.SetRequestHeader("User-Agent", "EHR Updater");
         request.downloadHandler = new DownloadHandlerBuffer();
@@ -227,9 +227,13 @@ public static class ModUpdater
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        using UnityWebRequest request = UnityWebRequest.Get(url);
+        UnityWebRequest request = UnityWebRequest.Get(url);
         request.SetRequestHeader("User-Agent", "EHR Updater");
+#if IL2CPP
+        request.downloadHandler = new DownloadHandlerBuffer();
+#else
         request.downloadHandler = new DownloadHandlerFile(SavePath);
+#endif
         yield return request.SendWebRequest();
 
         try
@@ -240,6 +244,10 @@ public static class ModUpdater
                 UpdateFailed();
                 yield break;
             }
+            
+#if IL2CPP
+            File.WriteAllBytes(SavePath, request.downloadHandler.data);
+#endif
 
             if (!File.Exists(SavePath))
             {

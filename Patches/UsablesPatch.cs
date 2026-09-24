@@ -48,7 +48,11 @@ internal static class VentStartPatch
 {
     public static void Postfix(Vent __instance)
     {
+#if IL2CPP
+        CanUseVentPatch.IUsable = __instance.CastFast<IUsable>();
+#else
         CanUseVentPatch.IUsable = __instance;
+#endif
     }
 }
 [HarmonyPatch(typeof(Vent), nameof(Vent.CanUse))]

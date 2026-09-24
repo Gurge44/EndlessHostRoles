@@ -944,8 +944,13 @@ internal static class MapRoomDoorsStartPatch
         ShipStatus shipStatusInstance = ShipStatus.Instance;
         if (!shipStatusInstance || !shipStatusInstance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType ISystem)) return;
 
+#if IL2CPP
+        MapRoomDoorsUpdatePatch.DoorsSystemType = ISystem.CastFast<DoorsSystemType>();
+        MapRoomDoorsUpdatePatch.AutoDoorsSystemType = ISystem.CastFast<AutoDoorsSystemType>();
+#else
         MapRoomDoorsUpdatePatch.DoorsSystemType = ISystem as DoorsSystemType;
         MapRoomDoorsUpdatePatch.AutoDoorsSystemType = ISystem as AutoDoorsSystemType;
+#endif
 
         MapRoomDoorsUpdatePatch.AutoOpenDoors.Clear();
         foreach (OpenableDoor door in shipStatusInstance.AllDoors)

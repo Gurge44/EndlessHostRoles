@@ -22,9 +22,15 @@ public abstract class GameOptionsSender
         writer.StartMessage(0);
         writer.Write((byte)currentGameMode);
 
+#if IL2CPP
+        if (opt.TryCastFast(out NormalGameOptionsV11 normalOpt))
+            NormalGameOptionsV11.Serialize(writer, normalOpt);
+        else if (opt.TryCastFast(out HideNSeekGameOptionsV11 hnsOpt))
+#else
         if (opt is NormalGameOptionsV11 normalOpt)
             NormalGameOptionsV11.Serialize(writer, normalOpt);
         else if (opt is HideNSeekGameOptionsV11 hnsOpt)
+#endif
             HideNSeekGameOptionsV11.Serialize(writer, hnsOpt);
         else
             Logger.Error("Option cast failed", ToString());

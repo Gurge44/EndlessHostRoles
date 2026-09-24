@@ -5,6 +5,9 @@ using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using AmongUs.QuickChat;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+#endif
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -1259,12 +1262,26 @@ internal static class GameDataHandlerPatch
         return !OperatingSystem.IsAndroid();
     }
     
+#if IL2CPP
+    private static Il2CppSystem.Collections.IEnumerator EmptyCoroutine()
+    {
+        return DummyCoroutine().WrapToIl2Cpp();
+    }
+
+    private static IEnumerator DummyCoroutine()
+    {
+        yield break;
+    }
+    
+    public static bool Prefix(InnerNetClient __instance, MessageReader reader, int msgNum, ref Il2CppSystem.Collections.IEnumerator __result)
+#else
     private static IEnumerator EmptyCoroutine() // fixes errors if we return false
     {
         yield break;
     }
 
     public static bool Prefix(InnerNetClient __instance, MessageReader reader, int msgNum, ref IEnumerator __result)
+#endif
     {
         var tag = (GameDataTag)reader.Tag;
 

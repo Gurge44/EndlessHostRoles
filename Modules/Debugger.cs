@@ -64,7 +64,11 @@ internal static class Logger
             LobbyNotificationMessage newMessage = Object.Instantiate(np.notificationMessageOrigin, Vector3.zero, Quaternion.identity, np.transform);
             newMessage.transform.localPosition = new(0f, 0f, -2f);
             text = "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + text + "</font>";
+#if IL2CPP
+            newMessage.SetUp(text, np.settingsChangeSprite, textColor ?? np.settingsChangeColor, (Action)(() => np.OnMessageDestroy(newMessage)));
+#else
             newMessage.SetUp(text, np.settingsChangeSprite, textColor ?? np.settingsChangeColor, () => np.OnMessageDestroy(newMessage));
+#endif
             np.ShiftMessages();
             np.AddMessageToQueue(newMessage);
 

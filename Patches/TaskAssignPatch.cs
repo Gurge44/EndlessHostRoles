@@ -4,6 +4,9 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
+#if IL2CPP
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+#endif
 
 namespace EHR;
 
@@ -12,7 +15,11 @@ internal static class AddTasksFromListPatch
 {
     public static Dictionary<TaskTypes, OptionItem> DisableTasksSettings = [];
 
+#if IL2CPP
+    public static void Prefix([HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
+#else
     public static void Prefix([HarmonyArgument(4)] List<NormalPlayerTask> unusedTasks)
+#endif
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -129,7 +136,11 @@ internal static class RpcSetTasksPatch
 {
     // Patch that overwrites the task just before assigning the task and sending the RPC
     // Do not interfere with vanilla task allocation process itself
+#if IL2CPP
+    public static void Prefix(NetworkedPlayerInfo __instance, [HarmonyArgument(0)] ref Il2CppStructArray<byte> taskTypeIds)
+#else
     public static void Prefix(NetworkedPlayerInfo __instance, [HarmonyArgument(0)] ref byte[] taskTypeIds)
+#endif
     {
         // Android host somehow doesn't assign tasks in some game modes, so we skip the patch
         bool notTaskingGM = Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.StopAndGo);
@@ -207,7 +218,11 @@ internal static class RpcSetTasksPatch
 
         // List containing IDs of assignable tasks
         // Clone of the second argument of the original RpcSetTasks
-        List<byte> TasksList = new();
+#if IL2CPP
+        Il2CppSystem.Collections.Generic.List<byte> TasksList = new();
+#else
+        List<byte> TasksList = [];
+#endif
         foreach (byte num in taskTypeIds) TasksList.Add(num);
 
         // Reference: ShipStatus.Begin
@@ -223,18 +238,30 @@ internal static class RpcSetTasksPatch
 
         // HashSet where assigned tasks will be placed
         // Prevents multiple assignments of the same task
-        HashSet<TaskTypes> usedTaskTypes = new();
+#if IL2CPP
+        Il2CppSystem.Collections.Generic.HashSet<TaskTypes> usedTaskTypes = new();
+#else
+        HashSet<TaskTypes> usedTaskTypes = [];
+#endif
         var start2 = 0;
         var start3 = 0;
 
         // List of assignable long tasks
-        List<NormalPlayerTask> LongTasks = new();
+#if IL2CPP
+        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> LongTasks = new();
+#else
+        List<NormalPlayerTask> LongTasks = [];
+#endif
         foreach (NormalPlayerTask task in ShipStatus.Instance.LongTasks) LongTasks.Add(task);
 
         Shuffle(LongTasks);
 
         // List of assignable short tasks
-        List<NormalPlayerTask> ShortTasks = new();
+#if IL2CPP
+        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> ShortTasks = new();
+#else
+        List<NormalPlayerTask> ShortTasks = [];
+#endif
         foreach (NormalPlayerTask task in ShipStatus.Instance.ShortTasks) ShortTasks.Add(task);
 
         Shuffle(ShortTasks);
@@ -257,7 +284,11 @@ internal static class RpcSetTasksPatch
         );
 
         // Convert the list of tasks to array
+#if IL2CPP
+        taskTypeIds = new(TasksList.Count);
+#else
         taskTypeIds = new byte[TasksList.Count];
+#endif
         for (var i = 0; i < TasksList.Count; i++) taskTypeIds[i] = TasksList[i];
 
         #region Logging
@@ -265,7 +296,11 @@ internal static class RpcSetTasksPatch
         try
         {
             NormalPlayerTask[] allTasks = ShortTasks.ToArray().Concat(LongTasks.ToArray()).ToArray();
+#if IL2CPP
+            Il2CppSystem.Text.StringBuilder sb = new();
+#else
             StringBuilder sb = new();
+#endif
 
             foreach (TaskTypes taskType in usedTaskTypes)
                 GetTaskFromTaskType(taskType)?.AppendTaskText(sb);
@@ -279,7 +314,11 @@ internal static class RpcSetTasksPatch
         #endregion
     }
 
+#if IL2CPP
+    private static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)
+#else
     private static void Shuffle<T>(List<T> list)
+#endif
     {
         for (var i = 0; i < list.Count - 1; i++)
         {

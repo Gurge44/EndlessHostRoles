@@ -52,7 +52,11 @@ internal static class NotificationPopperPatch
             Instance.lastMessageKey = option.Id;
             LobbyNotificationMessage newMessage = Object.Instantiate(Instance.notificationMessageOrigin, Vector3.zero, Quaternion.identity, Instance.transform);
             newMessage.transform.localPosition = new(0f, 0f, -2f);
+#if IL2CPP
+            newMessage.SetUp(item, Instance.settingsChangeSprite, Instance.settingsChangeColor, (System.Action)(() => Instance.OnMessageDestroy(newMessage)));
+#else
             newMessage.SetUp(item, Instance.settingsChangeSprite, Instance.settingsChangeColor, () => Instance.OnMessageDestroy(newMessage));
+#endif
             Instance.ShiftMessages();
             Instance.AddMessageToQueue(newMessage);
         }

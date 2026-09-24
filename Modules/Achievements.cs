@@ -213,7 +213,11 @@ public static class Achievements
 
     private static void SaveAllData()
     {
+#if IL2CPP
+        string json = System.Text.Json.JsonSerializer.Serialize(CompletedAchievements);
+#else
         string json = JsonConvert.SerializeObject(CompletedAchievements);
+#endif
         File.WriteAllText(SaveFilePath, json);
 
         if (!Options.StoreCompletedAchievementsOnEHRDatabase.GetBool()) return;
@@ -232,7 +236,11 @@ public static class Achievements
                 achievements = CompletedAchievements
             };
 
+#if IL2CPP
+            string payload = System.Text.Json.JsonSerializer.Serialize(data);
+#else
             string payload = JsonConvert.SerializeObject(data);
+#endif
 
             var request = new UnityWebRequest(ApiSaveEndpoint, UnityWebRequest.kHttpVerbPOST)
             {

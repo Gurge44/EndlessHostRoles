@@ -277,16 +277,6 @@ internal static class Crowded
         }
     }
 
-    [HarmonyPatch(typeof(SecurityLogger), nameof(SecurityLogger.Awake))]
-    public static class SecurityLoggerPatch
-    {
-        [SuppressMessage("ReSharper", "UnusedMember.Global")]
-        public static void Postfix(ref SecurityLogger __instance)
-        {
-            __instance.Timers = new float[127];
-        }
-    }
-
     [HarmonyPatch(typeof(PlayerTab), nameof(PlayerTab.UpdateAvailableColors))]
     public static class PlayerTabUpdateAvailableColorsPatch
     {

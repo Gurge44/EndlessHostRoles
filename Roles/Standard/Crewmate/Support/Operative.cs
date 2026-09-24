@@ -55,7 +55,11 @@ public class Operative : RoleBase
 
     static void UseAbility()
     {
+#if IL2CPP
+        SabotageSystemType sabotageSystemType = ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>();
+#else
         if (ShipStatus.Instance.Systems[SystemTypes.Sabotage] is not SabotageSystemType sabotageSystemType) return;
+#endif
         sabotageSystemType.Timer = SabotageSystemTypeUpdateSystemPatch.IsCooldownModificationEnabled
             ? SabotageSystemTypeUpdateSystemPatch.ModifiedCooldownSec
             : 30f;

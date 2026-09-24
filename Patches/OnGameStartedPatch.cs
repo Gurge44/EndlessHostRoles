@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+#endif
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Patches;
@@ -412,10 +415,17 @@ internal static class StartGameHostPatch
 
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGameHost))]
     [HarmonyPrefix]
+#if IL2CPP
+    public static bool CoStartGameHost_Prefix(AmongUsClient __instance, ref Il2CppSystem.Collections.IEnumerator __result)
+    {
+        AUClient = __instance;
+        __result = StartGameHost().WrapToIl2Cpp();
+#else
     public static bool CoStartGameHost_Prefix(AmongUsClient __instance, ref IEnumerator __result)
     {
         AUClient = __instance;
         __result = StartGameHost();
+#endif
         return false;
     }
 

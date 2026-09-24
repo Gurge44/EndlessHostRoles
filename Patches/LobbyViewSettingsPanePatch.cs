@@ -2,6 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+#endif
 using EHR.Roles;
 using HarmonyLib;
 using TMPro;
@@ -45,7 +48,11 @@ public static class LobbyViewSettingsPanePatch
     [HarmonyPostfix]
     public static void Awake_Postfix(LobbyViewSettingsPane __instance)
     {
+#if IL2CPP
+        __instance.StartCoroutine(CoAwakeViwer().WrapToIl2Cpp());
+#else
         __instance.StartCoroutine(CoAwakeViwer());
+#endif
         return;
 
         IEnumerator CoAwakeViwer()
@@ -603,7 +610,11 @@ public static class LobbyViewSettingsPanePatch
             ShowOnlyEnabledRolesButton.gameObject.SetActive(false);
 
         if (OptionsCoroutine != null) viewSettings.StopCoroutine(OptionsCoroutine);
+#if IL2CPP
+        OptionsCoroutine = viewSettings.StartCoroutine(CoDrawOptions().WrapToIl2Cpp());
+#else
         OptionsCoroutine = viewSettings.StartCoroutine(CoDrawOptions());
+#endif
         return;
 
         IEnumerator CoDrawOptions()
@@ -774,7 +785,11 @@ public static class LobbyViewSettingsPanePatch
         }
 
         if (RoleListCoroutine != null) viewSettings.StopCoroutine(RoleListCoroutine);
+#if IL2CPP
+        RoleListCoroutine = viewSettings.StartCoroutine(CoDrawRoleList().WrapToIl2Cpp());
+#else
         RoleListCoroutine = viewSettings.StartCoroutine(CoDrawRoleList());
+#endif
         return;
 
         IEnumerator CoDrawRoleList()

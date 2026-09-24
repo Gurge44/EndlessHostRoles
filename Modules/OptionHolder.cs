@@ -1207,7 +1207,11 @@ public static class Options
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
+#if IL2CPP
+                File.WriteAllText(path + "/friendcode#1234.txt", System.Text.Json.JsonSerializer.Serialize(new UserData { Tag = string.Empty }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+#else
                 File.WriteAllText(path + "/friendcode#1234.txt", JsonConvert.SerializeObject(new UserData { Tag = string.Empty }, Formatting.Indented));
+#endif
             }
 
             Errors.Clear();

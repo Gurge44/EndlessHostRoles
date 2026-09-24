@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+#endif
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
@@ -395,7 +398,11 @@ internal static class GameEndChecker
 
         SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
         var self = AmongUsClient.Instance;
+#if IL2CPP
+        self.StartCoroutine(CoEndGame(self, reason).WrapToIl2Cpp());
+#else
         self.StartCoroutine(CoEndGame(self, reason));
+#endif
     }
 
     private static IEnumerator CoEndGame(InnerNetClient self, GameOverReason reason)
@@ -1476,7 +1483,7 @@ internal static class GameEndChecker
             if (ShipStatus.Instance.Systems == null) return false;
 
             // TryGetValue is not available
-            Dictionary<SystemTypes, ISystemType> systems = ShipStatus.Instance.Systems;
+            var systems = ShipStatus.Instance.Systems;
             LifeSuppSystemType lifeSupp;
 
             if (systems.ContainsKey(SystemTypes.LifeSupp) && // Confirmation of sabotage existence

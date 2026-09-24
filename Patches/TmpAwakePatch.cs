@@ -1,5 +1,9 @@
 using System;
+#if IL2CPP
+using Il2CppSystem.Collections.Generic;
+#else
 using System.Collections.Generic;
+#endif
 using System.IO;
 using System.Reflection;
 using HarmonyLib;
