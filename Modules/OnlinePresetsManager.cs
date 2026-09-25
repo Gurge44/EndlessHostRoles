@@ -4,10 +4,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
+
+#if IL2CPP
+using System.Text.Json;
+#else
+using Newtonsoft.Json;
+#endif
 
 namespace EHR.Modules;
 
@@ -197,7 +202,7 @@ public static class OnlinePresetsManager
         };
 
 #if IL2CPP
-        string json = System.Text.Json.JsonSerializer.Serialize(body);
+        string json = JsonSerializer.Serialize(body);
 #else
         string json = JsonConvert.SerializeObject(body);
 #endif
@@ -224,7 +229,11 @@ public static class OnlinePresetsManager
 
         try
         {
+#if IL2CPP
+            response = JsonSerializer.Deserialize<PresetDraftResponse>(request.downloadHandler.text);
+#else
             response = JsonConvert.DeserializeObject<PresetDraftResponse>(request.downloadHandler.text);
+#endif
         }
         catch
         {
@@ -285,7 +294,11 @@ public static class OnlinePresetsManager
 
         try
         {
+#if IL2CPP
+            response = JsonSerializer.Deserialize<PresetDownloadResponse>(request.downloadHandler.text);
+#else
             response = JsonConvert.DeserializeObject<PresetDownloadResponse>(request.downloadHandler.text);
+#endif
         }
         catch
         {
@@ -324,7 +337,11 @@ public static class OnlinePresetsManager
 
         try
         {
+#if IL2CPP
+            response = JsonSerializer.Deserialize<PresetListResponse>(request.downloadHandler.text.Trim());
+#else
             response = JsonConvert.DeserializeObject<PresetListResponse>(request.downloadHandler.text.Trim());
+#endif
         }
         catch (Exception ex)
         {

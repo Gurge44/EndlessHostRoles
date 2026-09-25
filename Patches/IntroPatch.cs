@@ -5,6 +5,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+#endif
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Patches;
@@ -42,7 +45,11 @@ static class ShowRoleMoveNextPatch
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
 static class CoShowIntroPatch
 {
+#if IL2CPP
+    public static bool Prefix(HudManager __instance, ref Il2CppSystem.Collections.IEnumerator __result)
+#else
     public static bool Prefix(HudManager __instance, ref IEnumerator __result)
+#endif
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return true;
 
@@ -66,7 +73,11 @@ static class CoShowIntroPatch
             catch { Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin"); }
         }, 4f, "Assign Tasks");
 
+#if IL2CPP
+        __result = CoShowIntro().WrapToIl2Cpp();
+#else
         __result = CoShowIntro();
+#endif
         return false;
 
         IEnumerator CoShowIntro()

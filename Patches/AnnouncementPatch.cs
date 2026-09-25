@@ -6,11 +6,13 @@ using AmongUs.Data;
 using AmongUs.Data.Player;
 using Assets.InnerNet;
 using HarmonyLib;
-using Newtonsoft.Json;
 using UnityEngine.Networking;
 
 #if IL2CPP
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using System.Text.Json;
+#else
+using Newtonsoft.Json;
 #endif
 
 namespace EHR;
@@ -47,7 +49,11 @@ public class ModNews
 
     public static List<ModNews> FromJson(string json)
     {
+#if IL2CPP
+        return JsonSerializer.Deserialize<List<ModNews>>(json);
+#else
         return JsonConvert.DeserializeObject<List<ModNews>>(json);
+#endif
     }
 }
 

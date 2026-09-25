@@ -5,9 +5,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HarmonyLib;
 using InnerNet;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
+
+#if IL2CPP
+using System.Text.Json;
+#else
+using Newtonsoft.Json.Linq;
+#endif
 
 namespace EHR.Modules;
 
@@ -70,8 +75,13 @@ public static class LobbySharingAPI
                 string responseText = request.downloadHandler.text;
                 Logger.Msg("Response from server: " + responseText, "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
 
+#if IL2CPP
+                using JsonDocument doc = JsonDocument.Parse(responseText);
+                Token = doc.RootElement.GetProperty("token").GetString();
+#else
                 JObject doc = JObject.Parse(responseText);
                 Token = doc["token"]?.ToString();
+#endif
 
                 Logger.Msg($"Token for room {roomCode}: {Token}", "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
             }

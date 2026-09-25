@@ -4,12 +4,17 @@ using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using HarmonyLib;
-using Newtonsoft.Json.Linq;
 using TMPro;
 using Twitch;
 using UnityEngine;
 using UnityEngine.Networking;
 using static EHR.Translator;
+
+#if IL2CPP
+using System.Text.Json;
+#else
+using Newtonsoft.Json.Linq;
+#endif
 
 namespace EHR;
 
@@ -86,13 +91,31 @@ public static class ModUpdater
                 yield break;
             }
 
+#if IL2CPP
+            JsonDocument data = JsonDocument.Parse(request.downloadHandler.text);
+
+            LatestTitleModName = data.RootElement.GetProperty("name").GetString();
+
+            if (beta)
+            {
+                LatestTitle = LatestTitleModName;
+
+                // Beta builds still use the same EHR.dll release asset.
+                DownloadUrl = FindDllAssetUrl(data);
+
+                HasUpdate = LatestTitle != ThisAssembly.Git.Commit;
+            }
+            else
+            {
+                string versionString = data.RootElement.GetProperty("tag_name").GetString()?
+#else
             JObject data = JObject.Parse(request.downloadHandler.text);
 
             LatestTitleModName = data["name"]?.ToString();
 
             if (beta)
             {
-                LatestTitle = data["name"]?.ToString();
+                LatestTitle = LatestTitleModName;
 
                 // Beta builds still use the same EHR.dll release asset.
                 DownloadUrl = FindDllAssetUrl(data);
@@ -103,6 +126,7 @@ public static class ModUpdater
             {
                 string versionString = data["tag_name"]?
                     .ToString()
+#endif
                     .TrimStart('v');
 
                 LatestVersion = new Version(versionString!);
@@ -141,7 +165,22 @@ public static class ModUpdater
             );
         }
     }
-    
+
+#if IL2CPP
+    private static string FindDllAssetUrl(JsonDocument release)
+    {
+        if (!release.RootElement.TryGetProperty("assets", out JsonElement assets))
+            return null;
+
+        foreach (JsonElement asset in assets.EnumerateArray())
+        {
+            if (asset.GetProperty("name").GetString() == "EHR.dll")
+                return asset.GetProperty("browser_download_url").GetString();
+        }
+
+        return null;
+    }
+#else
     private static string FindDllAssetUrl(JObject release)
     {
         if (release["assets"] is not JArray assets)
@@ -157,6 +196,7 @@ public static class ModUpdater
 
         return null;
     }
+#endif
 
     public static void StartUpdate(string url)
     {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if !IL2CPP
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EHR;
@@ -12,3 +13,4 @@ public static class LinqHelpers
         return first.Zip(second, (f, s) => (First: f, Second: s));
     }
 }
+#endif

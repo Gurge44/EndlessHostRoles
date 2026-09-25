@@ -14,15 +14,17 @@ using EHR.Modules;
 using EHR.Patches;
 using EHR.Roles;
 using HarmonyLib;
-using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
+
 #if IL2CPP
 using BepInEx.Unity.IL2CPP;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using Il2CppInterop.Runtime.Injection;
+using System.Text.Json;
 #else
 using BepInEx.Bootstrap;
+using Newtonsoft.Json;
 #endif
 
 // ReSharper disable RedundantNameQualifier
@@ -42,7 +44,11 @@ namespace EHR;
 [BepInDependency(SubmergedCompatibility.SubmergedGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInProcess("Among Us.exe")]
 [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
+#if IL2CPP
 public class Main : BasePlugin
+#else
+public class Main : BaseUnityPlugin
+#endif
 {
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
@@ -1066,7 +1072,7 @@ public class Main : BasePlugin
     private static void HandleRoleColorFiles()
     {
 #if IL2CPP
-        string serialized = System.Text.Json.JsonSerializer.Serialize(RoleHtmlColors, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        string serialized = JsonSerializer.Serialize(RoleHtmlColors, new JsonSerializerOptions { WriteIndented = true });
 #else
         string serialized = JsonConvert.SerializeObject(RoleHtmlColors, Formatting.Indented);
 #endif
@@ -1085,7 +1091,11 @@ public class Main : BasePlugin
                 string json = File.ReadAllText(path);
                 if (string.IsNullOrWhiteSpace(json) || json == serialized) return;
 
+#if IL2CPP
+                Dictionary<string, string> dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+#else
                 Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+#endif
 
                 if (dictionary != null)
                 {

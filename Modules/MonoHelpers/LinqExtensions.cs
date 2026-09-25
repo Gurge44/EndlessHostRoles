@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !IL2CPP
+using System;
 using System.Collections.Generic;
 
 // Since EHR was originally made for net6.0 and uses the newer LINQ methods from it,
@@ -494,3 +495,4 @@ namespace EHR
         }
     }
 }
+#endif

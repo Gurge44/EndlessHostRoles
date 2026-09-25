@@ -2,9 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
+
+#if IL2CPP
+using System.Text.Json;
+#else
+using Newtonsoft.Json;
+#endif
 
 namespace EHR;
 
@@ -46,7 +51,11 @@ public static class DevManager
             try
             {
                 string json = request.downloadHandler.text.Trim();
+#if IL2CPP
+                Tags = JsonSerializer.Deserialize<Dictionary<string, TagInfo>>(json);
+#else
                 Tags = JsonConvert.DeserializeObject<Dictionary<string, TagInfo>>(json);
+#endif
                 Logger.Info($"Tags successfully fetched: {Tags.Count} tags loaded.", "DevManager.FetchTags");
             }
             catch (Exception ex) { Logger.Error($"Error parsing tags JSON: {ex.Message}", "DevManager.FetchTags"); }

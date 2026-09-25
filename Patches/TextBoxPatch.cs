@@ -22,7 +22,7 @@ public static class TextBoxPatch
     [HarmonyPrefix]
     // Use the character provided by IsCharAllowed directly.
     // Tracking a separate character position desyncs when the caret is moved.
-    public static bool ValidateChatCharacter(char c, ref bool __result)
+    public static bool ValidateChatCharacter([HarmonyArgument(0)] char c, ref bool __result)
     {
         // Do not interfere with IME composition input.
         if (!string.IsNullOrEmpty(Input.compositionString))

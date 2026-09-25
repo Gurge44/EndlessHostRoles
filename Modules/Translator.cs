@@ -9,6 +9,7 @@ using EHR.Gamemodes;
 #if IL2CPP
 using System.Text.Json;
 #else
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 #endif
 

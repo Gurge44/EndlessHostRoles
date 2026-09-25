@@ -1,6 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+
+#if IL2CPP
+using System.Text.Json;
+#else
 using Newtonsoft.Json;
+#endif
 
 namespace EHR.Modules;
 
@@ -94,7 +99,7 @@ public static class OptionSaver
         if (AmongUsClient.Instance && !AmongUsClient.Instance.AmHost) return;
 
 #if IL2CPP
-        string jsonString = System.Text.Json.JsonSerializer.Serialize(GenerateOptionsData(), new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        string jsonString = JsonSerializer.Serialize(GenerateOptionsData(), new JsonSerializerOptions { WriteIndented = true });
 #else
         string jsonString = JsonConvert.SerializeObject(GenerateOptionsData(), Formatting.Indented);
 #endif
@@ -113,7 +118,11 @@ public static class OptionSaver
             return;
         }
 
+#if IL2CPP
+        LoadOptionsData(JsonSerializer.Deserialize<SerializableOptionsData>(jsonString));
+#else
         LoadOptionsData(JsonConvert.DeserializeObject<SerializableOptionsData>(jsonString));
+#endif
     }
 
     public class SerializableOptionsData

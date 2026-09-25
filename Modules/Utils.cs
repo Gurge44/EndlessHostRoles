@@ -19,10 +19,15 @@ using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using Newtonsoft.Json;
 using UnityEngine;
 using static EHR.Translator;
 using Tree = EHR.Roles.Tree;
+
+#if IL2CPP
+using System.Text.Json;
+#else
+using Newtonsoft.Json;
+#endif
 
 namespace EHR;
 /*
@@ -408,7 +413,7 @@ public static class Utils
                 });
 
 #if IL2CPP
-                File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(data, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+                File.WriteAllText(path, JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true }));
 #else
                 File.WriteAllText(path, JsonConvert.SerializeObject(data, Formatting.Indented));
 #endif
@@ -433,7 +438,11 @@ public static class Utils
             {
                 if (!File.Exists(path)) return;
 
+#if IL2CPP
+                var data = JsonSerializer.Deserialize<Dictionary<int, Dictionary<string, List<string>>>>(File.ReadAllText(path));
+#else
                 var data = JsonConvert.DeserializeObject<Dictionary<int, Dictionary<string, List<string>>>>(File.ReadAllText(path));
+#endif
                 Dictionary<int, Dictionary<CustomRoles, List<CustomRoles>>> dict = path.Contains("Always") ? Main.AlwaysSpawnTogetherCombos : Main.NeverSpawnTogetherCombos;
                 dict.Clear();
 

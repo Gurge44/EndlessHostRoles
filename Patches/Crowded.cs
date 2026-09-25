@@ -3,6 +3,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
+#if IL2CPP
+using Il2CppInterop.Runtime.Attributes;
+#endif
 using TMPro;
 using UnityEngine;
 using static EHR.GameStates;
@@ -439,6 +442,9 @@ public class AbstractPagingBehaviour : MonoBehaviour
 public class MeetingHudPagingBehaviour : AbstractPagingBehaviour
 {
     internal MeetingHud meetingHud = null!;
+#if IL2CPP
+    [HideFromIl2Cpp]
+#endif
     private IEnumerable<PlayerVoteArea> Targets => meetingHud.playerStates.OrderBy(p => p.AmDead);
 
     protected override int MaxPageIndex => (Targets.Count() - 1) / MaxPerPage;
@@ -488,6 +494,9 @@ public class ShapeShifterPagingBehaviour : AbstractPagingBehaviour
 {
     public ShapeshifterMinigame shapeshifterMinigame = null!;
     private TextMeshPro PageText = null!;
+#if IL2CPP
+    [HideFromIl2Cpp]
+#endif
     private IEnumerable<ShapeshifterPanel> Targets => shapeshifterMinigame.potentialVictims.ToArray();
 
     protected override int MaxPageIndex => (Targets.Count() - 1) / MaxPerPage;
@@ -536,6 +545,9 @@ public class VitalsPagingBehaviour : AbstractPagingBehaviour
 {
     public VitalsMinigame vitalsMinigame = null!;
     private TextMeshPro PageText = null!;
+#if IL2CPP
+    [HideFromIl2Cpp]
+#endif
     private IEnumerable<VitalsPanel> Targets => vitalsMinigame.vitals.ToArray();
 
     protected override int MaxPageIndex => (Targets.Count() - 1) / MaxPerPage;

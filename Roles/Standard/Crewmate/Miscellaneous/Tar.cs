@@ -2,6 +2,10 @@
 using AmongUs.GameOptions;
 using EHR.Modules.Extensions;
 
+#if IL2CPP
+using System.Linq;
+#endif
+
 namespace EHR.Roles;
 
 public class Tar : RoleBase

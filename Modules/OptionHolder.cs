@@ -8,8 +8,13 @@ using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
-using Newtonsoft.Json;
 using UnityEngine;
+
+#if IL2CPP
+using System.Text.Json;
+#else
+using Newtonsoft.Json;
+#endif
 
 // ReSharper disable InconsistentNaming
 
@@ -1208,7 +1213,7 @@ public static class Options
             {
                 Directory.CreateDirectory(path);
 #if IL2CPP
-                File.WriteAllText(path + "/friendcode#1234.txt", System.Text.Json.JsonSerializer.Serialize(new UserData { Tag = string.Empty }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+                File.WriteAllText(path + "/friendcode#1234.txt", JsonSerializer.Serialize(new UserData { Tag = string.Empty }, new JsonSerializerOptions { WriteIndented = true }));
 #else
                 File.WriteAllText(path + "/friendcode#1234.txt", JsonConvert.SerializeObject(new UserData { Tag = string.Empty }, Formatting.Indented));
 #endif
@@ -1221,7 +1226,11 @@ public static class Options
                 try
                 {
                     string content = File.ReadAllText(file);
+#if IL2CPP
+                    var userData = JsonSerializer.Deserialize<UserData>(content);
+#else
                     var userData = JsonConvert.DeserializeObject<UserData>(content);
+#endif
                     if (userData == null) throw new FormatException($"The data in {file} was not in the correct format.");
                     string fileName = Path.GetFileNameWithoutExtension(file);
                     Main.UserData[fileName] = userData;

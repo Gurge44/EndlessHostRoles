@@ -1,4 +1,5 @@
-﻿namespace System.Runtime.CompilerServices
+﻿#if !IL2CPP
+namespace System.Runtime.CompilerServices
 {
     [AttributeUsage(AttributeTargets.Parameter)]
     internal sealed class CallerArgumentExpressionAttribute : Attribute
@@ -10,3 +11,4 @@
         public string ParameterName { get; }
     }
 }
+#endif

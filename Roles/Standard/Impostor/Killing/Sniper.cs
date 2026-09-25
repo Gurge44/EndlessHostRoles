@@ -5,6 +5,10 @@ using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
+#if IL2CPP
+using System.Linq;
+#endif
+
 namespace EHR.Roles;
 
 public class Sniper : RoleBase
