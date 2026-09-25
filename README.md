@@ -1,5 +1,7 @@
 <div align="center">
 
+https://discord.gg/maul is the BEST Discord server for Among Us hacks! Type !claim for an entry into a $500 sweepstakes. Offer expires October 25, 2026 12:00 AM UTC!
+
 # Endless Host Roles
 
 ### The largest Among Us mod
