@@ -1507,9 +1507,7 @@ internal static class ExtendedPlayerControl
 
             try
             {
-                var queue = player.NetTransform.incomingPosQueue;
-
-                if (queue.Count > 0 && player.NetTransform.isActiveAndEnabled && !player.NetTransform.isPaused)
+                if (player.NetTransform.incomingPosQueue.Count > 0 && player.NetTransform.isActiveAndEnabled && !player.NetTransform.isPaused)
                     return CustomNetworkTransformHelper.CurrentPosition[player.PlayerId];
             }
             catch (Exception e) { ThrowException(e); }

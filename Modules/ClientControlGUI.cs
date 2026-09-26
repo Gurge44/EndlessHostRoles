@@ -552,68 +552,67 @@ public class ClientControlGUI : MonoBehaviour
         bool canToggleHud = Main.IntroDestroyed && !inMeeting && !ExileController.Instance && !ReportDeadBodyPatch.MeetingStarted;
 
         if (canZoom || canNoClip || canToggleHud)
-        {
             Section(ref y, "Camera");
 
-            if (canZoom)
+        if (canZoom)
+        {
+            // Sync slider to actual camera value so external changes (scroll wheel, touch pinch) are reflected
+            if (_cam) _zoomValue = _cam.orthographicSize;
+
+            float newZoom = Slider(ref y, $"Zoom  {_zoomValue:F1}x", _zoomValue, 3.0f, 18.0f, w);
+            if (Mathf.Abs(newZoom - _zoomValue) > 0.01f)
             {
-                // Sync slider to actual camera value so external changes (scroll wheel, touch pinch) are reflected
-                if (_cam) _zoomValue = _cam.orthographicSize;
-
-                float newZoom = Slider(ref y, $"Zoom  {_zoomValue:F1}x", _zoomValue, 3.0f, 18.0f, w);
-                if (Mathf.Abs(newZoom - _zoomValue) > 0.01f)
-                {
-                    _zoomValue = newZoom;
-                    Zoom.SetZoomSize(reset: false);
-                    if (_cam) _cam.orthographicSize = _zoomValue;
-                    if (HudManager.InstanceExists) HudManager.Instance.UICamera.orthographicSize = _zoomValue;
-                }
-
-                if (GUI.Button(new Rect(0, y, w, ButtonHeight), "Reset Zoom", _sAction))
-                {
-                    Zoom.SetZoomSize(reset: true);
-                    _zoomValue = 3.0f;
-                }
-                y += ButtonHeight + Padding * 0.7f;
+                _zoomValue = newZoom;
+                Zoom.SetZoomSize(reset: false);
+                if (_cam) _cam.orthographicSize = _zoomValue;
+                if (HudManager.InstanceExists) HudManager.Instance.UICamera.orthographicSize = _zoomValue;
             }
-            else if (!Mathf.Approximately(_zoomValue, 3.0f))
+
+            if (GUI.Button(new Rect(0, y, w, ButtonHeight), "Reset Zoom", _sAction))
             {
                 Zoom.SetZoomSize(reset: true);
                 _zoomValue = 3.0f;
             }
-
-            if (canNoClip)
-            {
-                // Reads live state every frame for correct label/colour; lambda also reads it on click to avoid stale values
-                bool noclipOn = ControllerManagerUpdatePatch.NoClipEnabled;
-                Btn(ref y, noclipOn ? "Noclip: ON" : "Noclip: OFF", noclipOn ? _sHost : _sAction, () =>
-                {
-                    ControllerManagerUpdatePatch.NoClipEnabled = !ControllerManagerUpdatePatch.NoClipEnabled;
-                    if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
-                });
-            }
-            else if (ControllerManagerUpdatePatch.NoClipEnabled && OperatingSystem.IsAndroid() && PlayerControl.LocalPlayer)
-            {
-                PlayerControl.LocalPlayer.Collider.offset = new Vector2(0f, -0.3636f);
-                ControllerManagerUpdatePatch.NoClipEnabled = false;
-            }
-
-            if (canToggleHud)
-            {
-                Btn(ref y, HudHidden ? "Show HUD" : "Hide HUD", HudHidden ? _sHost : _sAction, () =>
-                {
-                    HudHidden = !HudHidden;
-                    if (HudManager.InstanceExists)
-                        HudManager.Instance.gameObject.SetActive(!HudHidden);
-                });
-            }
-            else if (HudHidden)
-            {
-                HudHidden = false;
-                if (HudManager.InstanceExists)
-                    HudManager.Instance.gameObject.SetActive(true);
-            }
+            y += ButtonHeight + Padding * 0.7f;
         }
+        else if (!Mathf.Approximately(_zoomValue, 3.0f))
+        {
+            Zoom.SetZoomSize(reset: true);
+            _zoomValue = 3.0f;
+        }
+
+        if (canNoClip)
+        {
+            // Reads live state every frame for correct label/colour; lambda also reads it on click to avoid stale values
+            bool noclipOn = ControllerManagerUpdatePatch.NoClipEnabled;
+            Btn(ref y, noclipOn ? "Noclip: ON" : "Noclip: OFF", noclipOn ? _sHost : _sAction, () =>
+            {
+                ControllerManagerUpdatePatch.NoClipEnabled = !ControllerManagerUpdatePatch.NoClipEnabled;
+                if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
+            });
+        }
+        else if (ControllerManagerUpdatePatch.NoClipEnabled && OperatingSystem.IsAndroid() && PlayerControl.LocalPlayer)
+        {
+            PlayerControl.LocalPlayer.Collider.offset = new Vector2(0f, -0.3636f);
+            ControllerManagerUpdatePatch.NoClipEnabled = false;
+        }
+
+        if (canToggleHud)
+        {
+            Btn(ref y, HudHidden ? "Show HUD" : "Hide HUD", HudHidden ? _sHost : _sAction, () =>
+            {
+                HudHidden = !HudHidden;
+                if (HudManager.InstanceExists)
+                    HudManager.Instance.gameObject.SetActive(!HudHidden);
+            });
+        }
+        else if (HudHidden)
+        {
+            HudHidden = false;
+            if (HudManager.InstanceExists)
+                HudManager.Instance.gameObject.SetActive(true);
+        }
+        
 
         Section(ref y, "Utilities");
 

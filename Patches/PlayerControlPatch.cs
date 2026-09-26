@@ -1657,7 +1657,7 @@ internal static class FixedUpdatePatch
 
         if (self)
         {
-            if (NumSnapToCallsThisRound > 80)
+            if (NumSnapToCallsThisRound > 80 && !lowLoad)
                 NumSnapToCallsThisRound = 80;
             
             Zoom.OnFixedUpdate();
@@ -2207,7 +2207,8 @@ internal static class FixedUpdatePatch
             
             string suffix = Suffix.ToString().Trim();
             string newLineBeforeSuffix = !(Options.CurrentGameMode == CustomGameMode.BedWars && !self && GameStates.InGame) ? "\n" : " - ";
-            string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"{newLineBeforeSuffix}<size=1.5>『{CustomRoles.Doctor.ColoredTextByRole(GetVitalText(target.PlayerId))}』</size>" : string.Empty;
+            bool noRoleText = GameStates.IsLobby || ChatDuringGame() || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown or CustomGameMode.DoomTag;
+            string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) && !noRoleText ? $"{newLineBeforeSuffix}<size=1.5>『{CustomRoles.Doctor.ColoredTextByRole(GetVitalText(target.PlayerId))}』</size>" : string.Empty;
             
             target.cosmetics.nameText.text = $"{roleText}{realName}{deathReason}{Mark}{newLineBeforeSuffix}{suffix}";
 

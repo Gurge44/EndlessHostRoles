@@ -800,13 +800,6 @@ internal static class SetEverythingUpPatch
                     yield return null;
                 }
             }
-
-            yield return null;
-            
-            GC.Collect();
-            yield return null;
-            Resources.UnloadUnusedAssets();
-            GC.Collect();
         }
 
         static string GetAdditionalWinnerRoleName(string role)

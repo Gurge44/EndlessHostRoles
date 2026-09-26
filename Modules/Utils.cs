@@ -2767,6 +2767,21 @@ public static class Utils
         catch (Exception e) { ThrowException(e); }
     }
 
+    public static bool ChatDuringGame()
+    {
+        return Options.CurrentGameMode switch
+        {
+            CustomGameMode.SoloPVP => SoloPVP.SoloPVP_ChatDuringGame.GetBool(),
+            CustomGameMode.FFA => FreeForAll.FFAChatDuringGame.GetBool(),
+            CustomGameMode.Mingle => Mingle.ChatDuringGameOption.GetBool(),
+            CustomGameMode.Quiz => Quiz.Chat,
+            CustomGameMode.HideAndSeek => CustomHnS.Chat,
+            CustomGameMode.NaturalDisasters => NaturalDisasters.Chat,
+            CustomGameMode.Standard => Options.ChatDuringGame.GetBool(),
+            _ => false
+        };
+    }
+
     public static string BuildSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         BuildSBSuffix.Clear().Append("<#ffffff>");
@@ -3112,7 +3127,7 @@ public static class Utils
                     SelfSuffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
             }
 
-            bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown or CustomGameMode.DoomTag;
+            bool noRoleText = GameStates.IsLobby || ChatDuringGame() || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown or CustomGameMode.DoomTag;
 
             // Combine the seer's job title and SelfTaskText with the seer's player name and SelfMark
             string selfRoleName = noRoleText ? string.Empty : $"<size={fontSize}>{seer.GetDisplayRoleName()}{selfTaskText}</size>";
@@ -3469,7 +3484,8 @@ public static class Utils
 
                             var targetDeathReason = string.Empty;
                             string newLineBeforeSuffix = !(Options.CurrentGameMode == CustomGameMode.BedWars && GameStates.InGame) ? "\r\n" : " - ";
-                            if (seer.KnowDeathReason(target) && !GameStates.IsLobby) targetDeathReason = $"{newLineBeforeSuffix}<size=1.7>({CustomRoles.Doctor.ColoredTextByRole(GetVitalText(target.PlayerId))})</size>";
+                            noRoleText = GameStates.IsLobby || ChatDuringGame() || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown or CustomGameMode.DoomTag;
+                            if (seer.KnowDeathReason(target) && !GameStates.IsLobby && !noRoleText) targetDeathReason = $"{newLineBeforeSuffix}<size=1.7>({CustomRoles.Doctor.ColoredTextByRole(GetVitalText(target.PlayerId))})</size>";
 
                             // Devourer
                             if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && !camouflageIsForMeeting)

@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
 using HarmonyLib;
 
 namespace EHR.Patches;
@@ -33,6 +34,7 @@ internal static class SwitchGameModePatch
         }
 
         Zoom.SetZoomSize(reset: true);
+        AmciRegistration.Revert();
         Main.Instance.Harmony.UnpatchSelf();
 #if IL2CPP
         Main.Instance.Unload();

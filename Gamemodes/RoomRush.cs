@@ -870,6 +870,8 @@ public static class RoomRush
                 case MapNames.Airship:
                     time += previous switch
                     {
+                        SystemTypes.MeetingRoom => 5,
+                        SystemTypes.Electrical => 4,
                         SystemTypes.Engine => 3,
                         SystemTypes.MainHall => 2,
                         _ => 0

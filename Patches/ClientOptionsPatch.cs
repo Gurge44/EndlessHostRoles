@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
 
@@ -127,6 +128,7 @@ public static class OptionsMenuBehaviourStartPatch
                 {
                     if (ClientControlGUI.Instance) Object.Destroy(ClientControlGUI.Instance);
                     MainMenuManagerPatch.ShowRightPanelImmediately();
+                    AmciRegistration.Revert();
 
                     Main.Instance.Harmony.UnpatchSelf();
 #if IL2CPP

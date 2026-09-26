@@ -25,13 +25,22 @@ public static class AmciRegistration
     /// <summary>
     /// Writes EHR's GUID into the game's mod registration slot so the matchmaker
     /// can filter lobby searches to EHR lobbies only. 
-    /// Call once from <see cref="Main.Load"/>.
+    /// Call once when the mod loads.
     /// The base game code does the rest.
     /// </summary>
     public static void Apply()
     {
         CurrentModRegistration.ModRegistrationGuidString = ModGuidString;
         Logger.Info($"AMCI mod GUID registered: {ModGuidString}", nameof(AmciRegistration));
+    }
+
+    /// <summary>
+    /// Reverts the AMCI mod GUID registration when the mod is unloaded.
+    /// </summary>
+    public static void Revert()
+    {
+        CurrentModRegistration.ModRegistrationGuidString = string.Empty;
+        Logger.Info("AMCI mod GUID removed", nameof(AmciRegistration));
     }
 
     // Fixes not being able to host local games when the mod GUID is registered

@@ -1070,6 +1070,12 @@ internal static class BeginCrewmatePatch
             }
         }
 
+        if (Options.IntegrateNaturalDisasters.GetBool() && Options.CurrentGameMode is not CustomGameMode.NaturalDisasters and not CustomGameMode.Standard)
+        {
+            __instance.ImpostorText.gameObject.SetActive(true);
+            __instance.ImpostorText.text = $"+ {Utils.ColorString(Main.GameModeColors[CustomGameMode.NaturalDisasters], GetString("NDPlayer"))}";
+        }
+
         return;
 
         AudioClip GetAudioClipFromCustomRoleType() =>
@@ -1255,18 +1261,8 @@ internal static class IntroCutsceneDestroyPatch
                 }
             }
 
-            switch (Options.CurrentGameMode)
-            {
-                case CustomGameMode.SoloPVP when SoloPVP.SoloPVP_ChatDuringGame.GetBool():
-                case CustomGameMode.FFA when FreeForAll.FFAChatDuringGame.GetBool():
-                case CustomGameMode.Mingle when Mingle.ChatDuringGameOption.GetBool():
-                case CustomGameMode.Quiz when Quiz.Chat:
-                case CustomGameMode.HideAndSeek when CustomHnS.Chat:
-                case CustomGameMode.NaturalDisasters when NaturalDisasters.Chat:
-                case CustomGameMode.Standard when Options.ChatDuringGame.GetBool():
-                    LateTask.New(() => Main.AllAlivePlayerControlsToList.SetChatVisible(true), 4f);
-                    break;
-            }
+            if (Utils.ChatDuringGame())
+                LateTask.New(() => Main.AllAlivePlayerControlsToList.SetChatVisible(true), 4f);
 
             // LateTask.New(() => Main.EnumeratePlayerControls().Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 

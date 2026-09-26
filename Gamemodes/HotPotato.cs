@@ -162,7 +162,7 @@ internal static class HotPotato
             if (HotPotatoState.TimeLeft <= 0)
             {
                 holder.Suicide();
-                RecordDeath(HotPotatoState.HolderID, (HotPotatoState.RoundNum - 1) * GetKillInterval());
+                RecordDeath(HotPotatoState.HolderID, Options.IntegrateNaturalDisasters.GetBool() ? (int)(Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS - NaturalDisasters.FixedUpdatePatch.WaitTime) : (HotPotatoState.RoundNum - 1) * GetKillInterval());
                 PassHotPotato();
 
                 if (holder.AmOwner)

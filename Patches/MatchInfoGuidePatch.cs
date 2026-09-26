@@ -29,6 +29,7 @@ public static class MatchInfoGuidePatch
         __instance.matchInfoSettingsMaskArea.material.SetInt(PlayerMaterial.MaskLayer, 50);
         __instance.CreatePlayerEntries();
         ReColorTabButtons(__instance);
+        SetAlternativeText(__instance);
         return false;
     }
 
@@ -148,5 +149,13 @@ public static class MatchInfoGuidePatch
                 if (child.childCount > 0) child.DestroyChildren();
             }
         }
+    }
+
+    private static void SetAlternativeText(MatchInfoGuide __instance)
+    {
+        CustomGameMode currentGameMode = Options.CurrentGameMode;
+        var tmp = __instance.rolesEnabledMessage.GetComponent<TextMeshPro>();
+        tmp.DestroyTranslator();
+        tmp.text = currentGameMode == CustomGameMode.Standard ? TranslationController.Instance.GetString(StringNames.MatchInfoGuideNoRolesMessage) : Translator.GetString(Main.HasPlayedGM.ContainsKey(currentGameMode) ? $"GameModeTutorial.{currentGameMode}" : $"ModeDescribe.{currentGameMode}");
     }
 }

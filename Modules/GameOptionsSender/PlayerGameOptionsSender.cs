@@ -605,6 +605,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     break;
                 }
             }
+            
+            if (Options.IntegrateNaturalDisasters.GetBool() && Options.CurrentGameMode != CustomGameMode.NaturalDisasters)
+                NaturalDisasters.ApplyGameOptions(opt, player.PlayerId);
 
             switch (player.GetCustomRoleTypes())
             {
