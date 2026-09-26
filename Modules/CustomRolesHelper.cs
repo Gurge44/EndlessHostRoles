@@ -1737,16 +1737,22 @@ internal static class CustomRolesHelper
 
         public int GetMode()
         {
-            return Options.GetRoleSpawnMode(role);
+            return role switch
+            {
+                CustomRoles.Nuker => !CustomRoles.Bomber.IsEnable() ? 0 : Bomber.NukerChance.GetInt(),
+                CustomRoles.Bard => !CustomRoles.Arrogance.IsEnable() ? 0 : Arrogance.BardChance.GetInt(),
+                CustomRoles.Sunnyboy => !CustomRoles.Jester.IsEnable() ? 0 : Jester.SunnyboyChance.GetInt(),
+                _ => Options.GetRoleSpawnMode(role)
+            };
         }
 
         public bool IsEnable()
         {
             return role switch
             {
-                CustomRoles.Nuker => Bomber.NukerChance.GetInt() > 0,
-                CustomRoles.Bard => Arrogance.BardChance.GetInt() > 0,
-                CustomRoles.Sunnyboy => Jester.SunnyboyChance.GetInt() > 0,
+                CustomRoles.Nuker => CustomRoles.Bomber.IsEnable() && Bomber.NukerChance.GetInt() > 0,
+                CustomRoles.Bard => CustomRoles.Arrogance.IsEnable() && Arrogance.BardChance.GetInt() > 0,
+                CustomRoles.Sunnyboy => CustomRoles.Jester.IsEnable() && Jester.SunnyboyChance.GetInt() > 0,
                 _ => role.GetCount() > 0
             };
         }

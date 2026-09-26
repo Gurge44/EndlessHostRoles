@@ -42,7 +42,11 @@ public static class CollectionExtensions
         /// <param name="value"></param>
         public void SetAllValues(TValue value)
         {
+#if IL2CPP
+            foreach (TKey key in dictionary.Keys)
+#else
             foreach (TKey key in dictionary.Keys.ToArray())
+#endif
                 dictionary[key] = value;
         }
 
@@ -52,7 +56,11 @@ public static class CollectionExtensions
         /// <param name="adjust">The function to adjust the values with</param>
         public void AdjustAllValues(Func<TValue, TValue> adjust)
         {
+#if IL2CPP
+            foreach (TKey key in dictionary.Keys)
+#else
             foreach (TKey key in dictionary.Keys.ToArray())
+#endif
                 dictionary[key] = adjust(dictionary[key]);
         }
 

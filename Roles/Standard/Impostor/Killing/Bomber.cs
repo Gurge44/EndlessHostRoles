@@ -50,7 +50,7 @@ internal class Bomber : RoleBase
         BomberDiesInExplosion = new BooleanOptionItem(2032, "BomberDiesInExplosion", false, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber]);
 
-        NukerChance = new IntegerOptionItem(2033, "NukerChance", new(0, 100, 5), 5, TabGroup.ImpostorRoles)
+        NukerChance = new IntegerOptionItem(2033, "NukerChance", new(0, 100, 5), 0, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
             .SetValueFormat(OptionFormat.Percent);
 

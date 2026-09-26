@@ -212,8 +212,6 @@ public static class Deathrace
         SmokeSpeedReduction = SmokeSpeedReductionOption.GetFloat();
         EnergyDrinkSpeedIncreasement = EnergyDrinkSpeedIncreasementOption.GetFloat();
         PowerUpPickupRange = PowerUpPickupRangeOption.GetFloat();
-        
-        Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
     }
 
     public static IEnumerator GameStart()
@@ -260,14 +258,6 @@ public static class Deathrace
                 yield return new WaitForSecondsRealtime(4f);
                 NameNotifyManager.Reset();
             }
-            
-            if (Main.CurrentMap == MapNames.Airship)
-                players.MassTP(new RandomSpawn.AirshipSpawnMap().Positions[Clockwise ? Track[^1] : Track[0]]);
-        }
-        else if (Main.CurrentMap == MapNames.Airship)
-        {
-            yield return new WaitForSecondsRealtime(3f);
-            players.MassTP(new RandomSpawn.AirshipSpawnMap().Positions[Clockwise ? Track[^1] : Track[0]]);
         }
 
         for (var i = 5; i > 0; i--)
@@ -277,11 +267,10 @@ public static class Deathrace
             yield return new WaitForSecondsRealtime(1f);
         }
         
+        players.MassTP(RandomSpawn.SpawnMap.GetSpawnMap().Positions[Clockwise ? Track[^1] : Track[0]]);
+        
         NameNotifyManager.Reset();
         Utils.NotifyRoles();
-        
-        Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
-        Utils.SyncAllSettings();
         
         GameGoing = true;
     }

@@ -485,8 +485,8 @@ public static class SabotageSystemTypeUpdateSystemPatch
 
             try
             {
-                if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state))
-                    state.Role.OnSabotage(player);
+                if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && !state.Role.OnSabotage(player))
+                    return false;
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
