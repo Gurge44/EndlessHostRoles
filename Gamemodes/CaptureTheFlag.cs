@@ -869,6 +869,8 @@ public static class CaptureTheFlag
                     .SendMessage();
             }
 
+            bool notify = false;
+
             if (TemporarilyOutPlayers.TryGetValue(__instance.PlayerId, out long endTS))
             {
                 if (now >= endTS)
@@ -881,7 +883,7 @@ public static class CaptureTheFlag
                     SpawnProtectionTimes[__instance.PlayerId] = Utils.TimeStamp + SpawnProtectionTime.GetInt();
                 }
                 
-                if (!notified) Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
+                notify = true;
             }
 
             if (SpawnProtectionTimes.TryGetValue(__instance.PlayerId, out long protectionEndTS))
@@ -889,9 +891,11 @@ public static class CaptureTheFlag
                 if (now >= protectionEndTS)
                     SpawnProtectionTimes.Remove(__instance.PlayerId);
                 
-                if (!notified)
-                    Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
+                notify = true;
             }
+            
+            if (!notified && notify && PerSecondUpdateScheduler.ShouldRunUpdate(__instance.PlayerId))
+                Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
         }
     }
 }

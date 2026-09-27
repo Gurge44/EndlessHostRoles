@@ -7,11 +7,14 @@ public class Helper : RoleBase
 {
     public static bool On;
 
+    private static OptionItem AbilityWorksAfterDeath;
+
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
         StartSetup(651300)
+            .AutoSetupOption(ref AbilityWorksAfterDeath, true)
             .CreateOverrideTasksData();
     }
 
@@ -27,6 +30,7 @@ public class Helper : RoleBase
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
+        if (!AbilityWorksAfterDeath.GetBool() && !pc.IsAlive()) return;
         var randomPlayer = Main.EnumeratePlayerControls().Without(pc).Where(x => x.Is(Team.Crewmate)).Select(x => (pc: x, ts: x.GetTaskState())).Where(x => !x.ts.IsTaskFinished && x.ts.HasTasks).Select(x => x.pc).RandomElement();
 #if IL2CPP
         var incompleteTasks = randomPlayer.myTasks.FindAll((Il2CppSystem.Predicate<PlayerTask>)(x => !x.IsComplete));

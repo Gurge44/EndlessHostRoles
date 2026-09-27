@@ -276,7 +276,16 @@ public class Amnesiac : RoleBase
         if (HasArrowsToDeadBodies.GetBool())
         {
             var pos = target.Pos();
-            Instances.ForEach(x => LateTask.New(() => LocateArrow.Add(x.AmnesiacId, pos), IRandom.Instance.Next(ArrowMinDelay.GetInt(), ArrowMaxDelay.GetInt() + 1), "Amnesiac Arrow"));
+            Instances.ForEach(x =>
+            {
+                LateTask.New(() =>
+                {
+                    LocateArrow.Add(x.AmnesiacId, pos);
+                    var pc = x.AmnesiacId.GetPlayer();
+                    if (!pc || !pc.IsAlive()) return;
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                }, IRandom.Instance.Next(ArrowMinDelay.GetInt(), ArrowMaxDelay.GetInt() + 1), "Amnesiac Arrow");
+            });
         }
     }
 

@@ -239,6 +239,7 @@ public class CustomLogger
 
     private const string UnityTag = "-unity";
 
+    private static string LastAppend;
     private static CustomLogger PrivateInstance;
     private float timer = 0.5f;
 
@@ -325,11 +326,18 @@ public class CustomLogger
         
         string unityTag = fromUnity && !containsException ? UnityTag : string.Empty;
 
-        Builder.Append($"""
+        string element = $"""
                         <div class='log-entry{unityTag} {level.ToLower()}{unityTag}'>
                             {message}
                         </div>
-                        """);
+                        """;
+
+        if (LastAppend == element)
+            element = "<span style='color: lime'>+</span>";
+        else
+            LastAppend = element;
+        
+        Builder.Append(element);
 
 #if DEBUG
         Finish(false);

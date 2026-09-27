@@ -64,13 +64,21 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         
         if (PackedWriterMessages > 0 && PackedWriter != null)
         {
-            PackedWriter.EndMessage();
-            var capturedWriter = PackedWriter;
-            DataFlagRateLimiter.Enqueue(() =>
+            try
             {
-                AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
-                capturedWriter.Recycle();
-            }, cleanup: capturedWriter.Recycle);
+                PackedWriter.EndMessage();
+                var capturedWriter = PackedWriter;
+                DataFlagRateLimiter.Enqueue(() =>
+                {
+                    AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
+                    capturedWriter.Recycle();
+                }, cleanup: capturedWriter.Recycle);
+            }
+            catch
+            {
+                try { PackedWriter.Recycle(); }
+                catch { }
+            }
         }
 
         PackedWriter = MessageWriter.Get(SendOption.Reliable);
@@ -95,15 +103,23 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         {
             if (PackedWriterMessages > 0)
             {
-                PackedWriter.EndMessage();
-                Logger.Info($"PackedWriter flush queued - Length: {PackedWriter.Length}, Messages: {PackedWriterMessages}", "SendAllImmediately");
-                var capturedWriter = PackedWriter;
-                qa = DataFlagRateLimiter.Enqueue(() =>
+                try
                 {
-                    AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
-                    capturedWriter.Recycle();
-                    Logger.Info("PackedWriter flush queue finished and sent", "SendAllImmediately");
-                }, cleanup: capturedWriter.Recycle);
+                    PackedWriter.EndMessage();
+                    Logger.Info($"PackedWriter flush queued - Length: {PackedWriter.Length}, Messages: {PackedWriterMessages}", "SendAllImmediately");
+                    var capturedWriter = PackedWriter;
+                    qa = DataFlagRateLimiter.Enqueue(() =>
+                    {
+                        AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
+                        capturedWriter.Recycle();
+                        Logger.Info("PackedWriter flush queue finished and sent", "SendAllImmediately");
+                    }, cleanup: capturedWriter.Recycle);
+                }
+                catch
+                {
+                    try { PackedWriter.Recycle(); }
+                    catch { }
+                }
             }
             else
             {
@@ -304,15 +320,23 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         
         if (PackedWriter.Length > 1000 || PackedWriterMessages >= AmongUsClient.Instance.GetMaxMessagePackingLimit())
         {
-            PackedWriter.EndMessage();
-            Logger.Info($"PackedWriter flush queued - Length: {PackedWriter.Length}, Messages: {PackedWriterMessages}", "SendOptionsArray");
-            var capturedWriter = PackedWriter;
-            DataFlagRateLimiter.Enqueue(() =>
+            try
             {
-                AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
-                capturedWriter.Recycle();
-                Logger.Info("PackedWriter flush queue finished and sent", "SendOptionsArray");
-            }, cleanup: capturedWriter.Recycle);
+                PackedWriter.EndMessage();
+                Logger.Info($"PackedWriter flush queued - Length: {PackedWriter.Length}, Messages: {PackedWriterMessages}", "SendOptionsArray");
+                var capturedWriter = PackedWriter;
+                DataFlagRateLimiter.Enqueue(() =>
+                {
+                    AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
+                    capturedWriter.Recycle();
+                    Logger.Info("PackedWriter flush queue finished and sent", "SendOptionsArray");
+                }, cleanup: capturedWriter.Recycle);
+            }
+            catch
+            {
+                try { PackedWriter.Recycle(); }
+                catch { }
+            }
             PackedWriterMessages = 0;
             PackedWriter = MessageWriter.Get(SendOption.Reliable);
             PackedWriter.StartMessage(26);

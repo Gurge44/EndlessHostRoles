@@ -913,6 +913,7 @@
   "Helper": "Helper",
   "HelperInfo": "Complete Tasks For Others",
   "HelperInfoLong": "(Crewmates):\\nAs the Helper, whenever you complete a task, a random crewmate will also have one of their tasks completed.",
+  "Helper.AbilityWorksAfterDeath": "Ability Works After Death",
   "HelperCompletedTaskForYou": "The {0} completed a task for you!",
   "Ignitor": "Ignitor",
   "IgnitorInfo": "Light Candles for High Vision",

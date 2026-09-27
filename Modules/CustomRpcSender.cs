@@ -547,7 +547,7 @@ public static class CustomRpcSenderExtensions
 
         sender.checkLength = false;
 
-        if (sender.stream.Length + GetSetNameRpcSize(player.NetId, name) > 1100)
+        if (sender.stream.Length + GetSetNameRpcSize(player.NetId, name) > 1180)
         {
             bool packed = sender.packed;
             sender.SendMessage();
