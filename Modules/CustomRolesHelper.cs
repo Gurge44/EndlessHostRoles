@@ -412,6 +412,7 @@ internal static class CustomRolesHelper
                 CustomRoles.DetectiveEHR => CustomRoles.Detective,
                 CustomRoles.ViperEHR => CustomRoles.Viper,
                 CustomRoles.JudgeEHR => CustomRoles.Judge,
+                CustomRoles.SpiritGuideEHR => CustomRoles.SpiritGuide,
 
                 // Hide And Seek
                 CustomRoles.Hider => CustomRoles.Crewmate,
@@ -470,6 +471,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Detective => CustomRoles.DetectiveEHR,
                 CustomRoles.Viper => CustomRoles.ViperEHR,
                 CustomRoles.Judge => CustomRoles.JudgeEHR,
+                CustomRoles.SpiritGuide => CustomRoles.SpiritGuideEHR,
                 _ => role.IsImpostor() ? CustomRoles.ImpostorEHR : CustomRoles.CrewmateEHR
             };
         }
@@ -1379,6 +1381,8 @@ internal static class CustomRolesHelper
                 CustomRoles.DetectiveEHR => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Judge => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.JudgeEHR => RoleOptionType.Crewmate_Miscellaneous,
+                CustomRoles.SpiritGuide => RoleOptionType.Crewmate_Miscellaneous,
+                CustomRoles.SpiritGuideEHR => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Addict => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.CameraMan => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Carrier => RoleOptionType.Crewmate_Miscellaneous,
@@ -1686,6 +1690,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Impostor or
                 CustomRoles.Detective or
                 CustomRoles.Judge or
+                CustomRoles.SpiritGuide or
                 CustomRoles.Viper or
                 CustomRoles.Phantom or
                 CustomRoles.Shapeshifter;

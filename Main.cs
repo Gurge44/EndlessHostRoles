@@ -487,6 +487,7 @@ public class Main : BaseUnityPlugin
                 { CustomRoles.Noisemaker, "#ff4a62" },
                 { CustomRoles.Detective, "#625EEE" },
                 { CustomRoles.Judge, "#f8d85a" },
+                { CustomRoles.SpiritGuide, "#D8E3E6" },
                 // Vanilla Remakes
                 { CustomRoles.CrewmateEHR, "#8cffff" },
                 { CustomRoles.EngineerEHR, "#FF6A00" },
@@ -496,6 +497,7 @@ public class Main : BaseUnityPlugin
                 { CustomRoles.NoisemakerEHR, "#ff4a62" },
                 { CustomRoles.DetectiveEHR, "#625EEE" },
                 { CustomRoles.JudgeEHR, "#f8d85a" },
+                { CustomRoles.SpiritGuideEHR, "#D8E3E6" },
                 // Crewmates
                 { CustomRoles.DoubleAgent, "#ff1919" },
                 { CustomRoles.Luckey, "#b8d7a3" },

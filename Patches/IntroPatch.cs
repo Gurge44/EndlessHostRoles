@@ -842,7 +842,11 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Judge
                     or CustomRoles.JudgeEHR
                     or CustomRoles.Prosecutor
-                => GetIntroSound(RoleTypes.Judge),
+                    => GetIntroSound(RoleTypes.Judge),
+                    
+                CustomRoles.SpiritGuide
+                    or CustomRoles.SpiritGuideEHR
+                    => GetIntroSound(RoleTypes.SpiritGuide),
 
                 CustomRoles.Phantom
                     or CustomRoles.PhantomEHR

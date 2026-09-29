@@ -84,6 +84,7 @@ internal class Analyst : RoleBase
                 CustomRoles.Tracker or CustomRoles.TrackerEHR => CustomRoles.Scout.ColoredTextByRole(GetString("Tracker")),
                 CustomRoles.Detective or CustomRoles.DetectiveEHR => CustomRoles.Forensic.ColoredTextByRole(GetString("Detective")),
                 CustomRoles.Judge or CustomRoles.JudgeEHR => CustomRoles.Prosecutor.ColoredTextByRole(GetString("Judge")),
+                CustomRoles.SpiritGuide or CustomRoles.SpiritGuideEHR => CustomRoles.SpiritGuide.ColoredTextByRole(GetString("SpiritGuide")),
                 _ => string.Empty
             }
             : string.Empty;

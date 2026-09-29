@@ -1450,6 +1450,7 @@ internal static class GameEndChecker
                         or RoleTypes.Tracker
                         or RoleTypes.Detective
                         or RoleTypes.Judge
+                        or RoleTypes.SpiritGuide
                         or RoleTypes.CrewmateGhost
                         or RoleTypes.GuardianAngel)
                     {

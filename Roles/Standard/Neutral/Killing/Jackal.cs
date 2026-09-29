@@ -221,13 +221,14 @@ public class Jackal : RoleBase
 
     public static void OnAnyoneDead()
     {
-        Instances.ForEach(x =>
+        for (var index = Instances.Count - 1; index >= 0; index--)
         {
-            var pc = x.JackalId.GetPlayer();
+            Jackal instance = Instances[index];
+            var pc = instance.JackalId.GetPlayer();
             if (pc && pc.IsAlive()) return;
-            
-            x.PromoteSidekick();
-        });
+
+            instance.PromoteSidekick();
+        }
     }
 }
 

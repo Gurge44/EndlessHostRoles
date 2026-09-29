@@ -580,7 +580,8 @@ internal static class ChatCommands
                 ClientData client = x.GetClient();
                 string name = Main.AllPlayerNames.GetValueOrDefault(x.PlayerId, string.Empty);
                 string id = string.IsNullOrEmpty(name) ? $"ID {x.PlayerId}" : $" (ID {x.PlayerId})";
-                return $"{name}{id} - {x.FriendCode} | {client?.GetHashedPuid()} | {client?.PlatformData.Platform}";
+                string platform = (int?)client?.PlatformData.Platform == 112 ? "Starlight" : client?.PlatformData.Platform.ToString();
+                return $"{name}{id} - {x.FriendCode} | {client?.GetHashedPuid()} | {platform}";
             }) + "</size>", player.PlayerId);
         }
         else if (byte.TryParse(args[1], out byte playerId))
@@ -590,7 +591,8 @@ internal static class ChatCommands
             ClientData client = pc.GetClient();
             string name = Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, string.Empty);
             string id = string.IsNullOrEmpty(name) ? $"ID {pc.PlayerId}" : $" (ID {pc.PlayerId})";
-            Utils.SendMessage($"<b>{name}{id}:</b>\n{pc.FriendCode}\n{client?.GetHashedPuid()}\n{client?.PlatformData.Platform}", player.PlayerId);
+            string platform = (int?)client?.PlatformData.Platform == 112 ? "Starlight" : client?.PlatformData.Platform.ToString();
+            Utils.SendMessage($"<b>{name}{id}:</b>\n{pc.FriendCode}\n{client?.GetHashedPuid()}\n{platform}", player.PlayerId);
         }
     }
     

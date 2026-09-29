@@ -673,6 +673,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomRoles.JudgeEHR:
                     AURoleOptions.JudgeTaskRequirementPercentage = CrewmateVanillaRoles.JudgeTaskRequirementPercentage.GetFloat();
                     break;
+                case CustomRoles.SpiritGuideEHR:
+                    AURoleOptions.SpiritGuideCooldown = CrewmateVanillaRoles.SpiritGuideCooldown.GetFloat();
+                    break;
             }
             
             if (player.UsesJudgeAbilityAsTrigger())
