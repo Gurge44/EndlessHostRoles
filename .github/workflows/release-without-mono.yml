@@ -1,4 +1,4 @@
-name: Build & Release EHR
+name: Build & Release EHR Il2Cpp Only
 
 permissions:
   actions: read
@@ -35,7 +35,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
   # ---------------------------------------------------------
-  # 1) Build EHR - Mono + IL2CPP
+  # 1) Build EHR - IL2CPP
   # ---------------------------------------------------------
   build-ehr:
     runs-on: ubuntu-latest
@@ -49,23 +49,11 @@ jobs:
         with:
           dotnet-version: 6.0.x
 
-      - name: Restore Mono
-        run: dotnet restore EHR.csproj -p:Configuration=Release
-
-      - name: Build Mono
-        run: dotnet build EHR.csproj -c Release --no-restore -o build/mono
-
       - name: Restore IL2CPP
         run: dotnet restore EHR.csproj -p:Configuration=IL2CPP
 
       - name: Build IL2CPP
         run: dotnet build EHR.csproj -c IL2CPP --no-restore -o build/il2cpp
-
-      - name: Upload Mono EHR
-        uses: actions/upload-artifact@v4
-        with:
-          name: ehr-mono
-          path: build/mono/EHR.dll
 
       - name: Upload IL2CPP EHR
         uses: actions/upload-artifact@v4
@@ -125,12 +113,6 @@ jobs:
     needs: [build-ehr, build-control-panel]
 
     steps:
-      - name: Download Mono EHR
-        uses: actions/download-artifact@v4
-        with:
-          name: ehr-mono
-          path: signing/mono
-
       - name: Download IL2CPP EHR
         uses: actions/download-artifact@v4
         with:
@@ -147,7 +129,6 @@ jobs:
         run: |
           cd signing
           zip ../signpath-input.zip \
-            mono/EHR.dll \
             il2cpp/EHR.dll \
             EHR_Control-Panel_BETA.exe
 
@@ -201,7 +182,6 @@ jobs:
         run: |
           mkdir -p epic
           mkdir -p steam
-          mkdir -p mono
 
       # -----------------------------
       # IL2CPP
@@ -235,19 +215,9 @@ jobs:
           cp -rf packaging/il2cppinterop/* epic/BepInEx/core/
 
       - name: Steam App ID
-        run: echo "945360" > steam/steam_appid.txt
-
-      # -----------------------------
-      # Mono
-      # -----------------------------
-
-      - name: Copy Mono packaging files
         run: |
-          cp -rf packaging/mono/* mono/
-
-      - name: Copy Mono EHR dll to plugins
-        run: |
-          cp artifacts/signed/mono/EHR.dll mono/BepInEx/plugins/
+          echo "945360" > steam/steam_appid.txt
+          echo "945360" > epic/steam_appid.txt
 
       # -----------------------------
       # Create ZIPs
@@ -262,11 +232,6 @@ jobs:
         run: |
           cd steam
           zip -r "../EHR.v${{ github.event.inputs.version }}_Itch.zip" .
-
-      - name: Create Mono ZIP
-        run: |
-          cd mono
-          zip -r "../EHR.v${{ github.event.inputs.version }}_Mono.zip" .
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
@@ -326,11 +291,6 @@ jobs:
           name: signed-binaries
           path: release-artifacts/signed
 
-      - name: Prepare standalone DLLs
-        run: |
-          cp release-artifacts/signed/mono/EHR.dll release-artifacts/EHR-Mono.dll
-          cp release-artifacts/signed/il2cpp/EHR.dll release-artifacts/EHR.dll
-
       # -----------------------------
       # Create GitHub Release
       # -----------------------------
@@ -343,8 +303,7 @@ jobs:
           body_path: CHANGELOG.md
           files: |
             release-artifacts/zips/*
-            release-artifacts/EHR-Mono.dll
-            release-artifacts/EHR.dll
+            release-artifacts/signed/il2cpp/EHR.dll
             release-artifacts/signed/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
