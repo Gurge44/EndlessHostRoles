@@ -55,7 +55,7 @@ public class Main : BaseUnityPlugin
     public const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "8.0.2";
     public const string PluginDisplayVersion = "8.0.2";
-    public const int TestBuildNumber = 0; // 0 = Release
+    public const int TestBuildNumber = 1; // 0 = Release
 
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
