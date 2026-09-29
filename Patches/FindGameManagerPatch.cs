@@ -30,7 +30,7 @@ internal static class FindAGameManagerPatch
                 ? existing.GetComponent<TMP_Text>()
                 : CreateTMP(child);
 
-            if (tmpro == null || container.gameListing == null) continue;
+            if (tmpro == null) continue;
 
             tmpro.font = container.capacity?.font;
             tmpro.fontSize = 3f;
