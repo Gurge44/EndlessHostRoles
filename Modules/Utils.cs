@@ -5066,7 +5066,7 @@ public static class Utils
                 return name;
             }
 
-            if (region.PingServer.EndsWith("among.us", StringComparison.Ordinal))
+            if (region.PingServer.EndsWith(".among.us", StringComparison.Ordinal))
             {
                 // Official server
                 name = name switch
@@ -5105,6 +5105,16 @@ public static class Utils
                     if (c == '.') break;
                     name += char.ToUpper(c);
                 }
+
+                return name;
+            }
+
+            if (ip.Contains("gurge44.eu"))
+            {
+                if (ip.Contains("play-hu"))
+                    name = "GG-HU";
+                else if (ip.Contains("play-us"))
+                    name = "GG-US";
 
                 return name;
             }

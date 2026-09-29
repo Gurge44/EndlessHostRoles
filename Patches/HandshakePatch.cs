@@ -79,7 +79,7 @@ public static class HandshakePatch
 
     public static void Postfix(ref Il2CppStructArray<byte> __result)
     {
-        if (!Main.HasReactorPlugin && !ServerManager.Instance.CurrentRegion.PingServer.Contains("among.us"))
+        if (!Main.HasReactorPlugin && !ServerManager.Instance.CurrentRegion.PingServer.Contains(".among.us"))
         {
             var handshake = new MessageWriter(1000);
 

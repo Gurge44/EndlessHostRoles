@@ -576,6 +576,7 @@ public static class GameStates
         Modded,
         Niko,
         AOU,
+        GG,
         Local,
         Custom
     }
@@ -611,6 +612,7 @@ public static class GameStates
                 "MEU" or "MAS" or "MNA" => ServerType.Modded,
                 _ when regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) => ServerType.Niko,
                 _ when regionName.StartsWith("AOU", StringComparison.OrdinalIgnoreCase) => ServerType.AOU,
+                _ when regionName.StartsWith("GG", StringComparison.OrdinalIgnoreCase) => ServerType.GG,
                 _ => ServerType.Custom
             };
         }
@@ -630,6 +632,7 @@ public static class GameStates
                 "MEU" or "MAS" or "MNA" => ServerType.Modded,
                 _ when regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) => ServerType.Niko,
                 _ when regionName.StartsWith("AOU", StringComparison.OrdinalIgnoreCase) => ServerType.AOU,
+                _ when regionName.StartsWith("GG", StringComparison.OrdinalIgnoreCase) => ServerType.GG,
                 _ => ServerType.Custom
             };
         }

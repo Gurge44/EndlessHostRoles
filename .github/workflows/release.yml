@@ -35,11 +35,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
   # ---------------------------------------------------------
-  # 1) Build EHR on Linux
+  # 1) Build EHR - Mono + IL2CPP
   # ---------------------------------------------------------
   build-ehr:
     runs-on: ubuntu-latest
     needs: [prepare-build]
+
     steps:
       - uses: actions/checkout@v4
 
@@ -48,14 +49,29 @@ jobs:
         with:
           dotnet-version: 6.0.x
 
-      - name: Build EHR
-        run: dotnet build EHR.csproj -c Release -o build/
+      - name: Restore Mono
+        run: dotnet restore EHR.csproj -p:Configuration=Release
 
-      - name: Upload EHR artifact
+      - name: Build Mono
+        run: dotnet build EHR.csproj -c Release --no-restore -o build/mono
+
+      - name: Restore IL2CPP
+        run: dotnet restore EHR.csproj -p:Configuration=IL2CPP
+
+      - name: Build IL2CPP
+        run: dotnet build EHR.csproj -c IL2CPP --no-restore -o build/il2cpp
+
+      - name: Upload Mono EHR
         uses: actions/upload-artifact@v4
         with:
-          name: ehr
-          path: build/EHR.dll
+          name: ehr-mono
+          path: build/mono/EHR.dll
+
+      - name: Upload IL2CPP EHR
+        uses: actions/upload-artifact@v4
+        with:
+          name: ehr-il2cpp
+          path: build/il2cpp/EHR.dll
 
   # ---------------------------------------------------------
   # 2) Build Control Panel on Windows using MSBuild
@@ -109,11 +125,17 @@ jobs:
     needs: [build-ehr, build-control-panel]
 
     steps:
-      - name: Download EHR
+      - name: Download Mono EHR
         uses: actions/download-artifact@v4
         with:
-          name: ehr
-          path: signing
+          name: ehr-mono
+          path: signing/mono
+
+      - name: Download IL2CPP EHR
+        uses: actions/download-artifact@v4
+        with:
+          name: ehr-il2cpp
+          path: signing/il2cpp
 
       - name: Download Control Panel
         uses: actions/download-artifact@v4
@@ -124,7 +146,10 @@ jobs:
       - name: Create SignPath ZIP
         run: |
           cd signing
-          zip ../signpath-input.zip EHR.dll EHR_Control-Panel_BETA.exe
+          zip ../signpath-input.zip \
+            mono/EHR.dll \
+            il2cpp/EHR.dll \
+            EHR_Control-Panel_BETA.exe
 
       - name: Upload unsigned artifact
         id: upload-unsigned-artifact
@@ -176,27 +201,33 @@ jobs:
         run: |
           mkdir -p epic
           mkdir -p steam
+          mkdir -p mono
+
+      # -----------------------------
+      # IL2CPP
+      # -----------------------------
 
       - name: Download BepInEx 6 pre-release 735
         run: |
           curl -L https://builds.bepinex.dev/projects/bepinex_be/735/BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.735%2B5fef357.zip -o bepinex-x64.zip
           unzip bepinex-x64.zip -d epic
           chmod -R u+rwX,go+rX epic
+
           curl -L https://builds.bepinex.dev/projects/bepinex_be/735/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.735%2B5fef357.zip -o bepinex-x86.zip
           unzip bepinex-x86.zip -d steam
           chmod -R u+rwX,go+rX steam
 
-      - name: Copy EHR dll to plugins
+      - name: Copy IL2CPP EHR dll to plugins
         run: |
-          cp artifacts/signed/EHR.dll epic/BepInEx/plugins/
-          cp artifacts/signed/EHR.dll steam/BepInEx/plugins/
+          cp artifacts/signed/il2cpp/EHR.dll epic/BepInEx/plugins/
+          cp artifacts/signed/il2cpp/EHR.dll steam/BepInEx/plugins/
 
       - name: Download modded regions DLL
         run: |
           curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o epic/BepInEx/plugins/Mini.RegionInstall.dll
           cp epic/BepInEx/plugins/Mini.RegionInstall.dll steam/BepInEx/plugins/Mini.RegionInstall.dll
 
-      - name: Copy packaging files to BepInEx config
+      - name: Copy IL2CPP packaging files
         run: |
           cp -rf packaging/epic/* epic/
           cp -rf packaging/steam/* steam/
@@ -204,17 +235,38 @@ jobs:
           cp -rf packaging/il2cppinterop/* epic/BepInEx/core/
 
       - name: Steam App ID
-        run : echo "945360" > steam/steam_appid.txt
+        run: echo "945360" > steam/steam_appid.txt
+
+      # -----------------------------
+      # Mono
+      # -----------------------------
+
+      - name: Copy Mono packaging files
+        run: |
+          cp -rf packaging/mono/* mono/
+
+      - name: Copy Mono EHR dll to plugins
+        run: |
+          cp artifacts/signed/mono/EHR.dll mono/BepInEx/plugins/
+
+      # -----------------------------
+      # Create ZIPs
+      # -----------------------------
 
       - name: Create Epic/MS Store ZIP
         run: |
           cd epic
-          zip -r "../EHR.v${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip" .
+          zip -r "../EHR.v${{ github.event.inputs.version }}_Steam_Epic-Games_Microsoft-Store.zip" .
 
       - name: Create Steam ZIP
         run: |
           cd steam
-          zip -r "../EHR.v${{ github.event.inputs.version }}_Steam.zip" .
+          zip -r "../EHR.v${{ github.event.inputs.version }}_Itch.zip" .
+
+      - name: Create Mono ZIP
+        run: |
+          cd mono
+          zip -r "../EHR.v${{ github.event.inputs.version }}_Mono.zip" .
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
@@ -244,19 +296,8 @@ jobs:
           token: ${{ secrets.CURSEFORGE_API_TOKEN }}
           project_id: ${{ secrets.CURSEFORGE_PROJECT_ID }}
           game_endpoint: among-us
-          file_path: release-artifacts/EHR.v${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip
+          file_path: release-artifacts/EHR.v${{ github.event.inputs.version }}_Steam_Epic-Games_Microsoft-Store.zip
           display_name: EHR v${{ github.event.inputs.version }} (x64 - Epic/MS Store)
-          release_type: release
-          game_versions: "18.0.0"
-
-      - name: Upload Steam build to CurseForge
-        uses: itsmeow/curseforge-upload@v3
-        with:
-          token: ${{ secrets.CURSEFORGE_API_TOKEN }}
-          project_id: ${{ secrets.CURSEFORGE_PROJECT_ID }}
-          game_endpoint: among-us
-          file_path: release-artifacts/EHR.v${{ github.event.inputs.version }}_Steam.zip
-          display_name: EHR v${{ github.event.inputs.version }} (x86 - Steam)
           release_type: release
           game_versions: "18.0.0"
 
@@ -285,6 +326,11 @@ jobs:
           name: signed-binaries
           path: release-artifacts/signed
 
+      - name: Prepare standalone DLLs
+        run: |
+          cp release-artifacts/signed/mono/EHR.dll release-artifacts/EHR-Mono.dll
+          cp release-artifacts/signed/il2cpp/EHR.dll release-artifacts/EHR.dll
+
       # -----------------------------
       # Create GitHub Release
       # -----------------------------
@@ -297,7 +343,8 @@ jobs:
           body_path: CHANGELOG.md
           files: |
             release-artifacts/zips/*
-            release-artifacts/signed/EHR.dll
+            release-artifacts/EHR-Mono.dll
+            release-artifacts/EHR.dll
             release-artifacts/signed/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

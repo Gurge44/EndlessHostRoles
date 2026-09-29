@@ -1,14 +1,29 @@
 # Thank you so much for finding and using EHR!
 
-- **Fixed host not being able to use judging as ability trigger**
-- **Fixed comms preventing judging to trigger abilities**
-- Fixed camouflage sometimes not reverting after fixing comms
-- Fixed /spectate on others not being reverted properly
-- Fixed AOU-EU region being auto-selected at all times on launch
+Updated to Among Us v19.0 (2026. 09. 29.)
 
-[Check the changes from v7.9.0](https://github.com/Gurge44/EndlessHostRoles/releases/tag/v8.0.0)
+- Free chat input field fixes by Quine
+- Fixed hot potato survival times being off when natural disasters are integrated
+- Gave more time in room rush when you need to climb a long ladder
+- Attempt at fixing no clip staying enabled after the game starts (if this fix doesn't work then no clip is getting removed from the gui)
+- Fixed sandstorms having no effect when natural disasters are integrated
+- Death reasons aren't displayed in game modes if chatting during the game is enabled
+- Revert AMCI registration on mod unload
+- Improved reveal screen when natural disasters are integrated
+- Attempt at fixing Deathrace on vanilla regions (Bed Wars is hopeless)
+- Fixed hidden roles having wrong enabled/disabled state in role list
+- Fixed sabotage ability triggers not cancelling the sabotage itself
+- Simplified and shortened hot potato tutorial message
+- New setting for Helper: `Ability Works After Death`
+- Fixed Blackmailer per-round limit not resetting
+- Fixed Sidekick/Jackal promotion not working
+- Fixed Amnesiac not seeing arrows
+- `/pi` now shows Starlight instead of 112 as platform
 
-> [!TIP]
-> **Play on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA/AOU-EU) for an overall better experience. Mobile and PC users can install them [from my website](https://ehr.gurge44.eu/regions).
+> [!CAUTION]
+> Steam moved to the 64-bit version. That means you need to reinstall the mod if you're playing on Steam!
+
+> [!NOTE]
+> We're launching our own regions! GG-HU located in Hungary (Europe), and GG-US located in the United States of America!
 
 ---
