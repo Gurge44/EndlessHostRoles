@@ -104,7 +104,7 @@ public class Accumulator : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != AccumulatorId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || Killing) return string.Empty;
+        if (seer.PlayerId != AccumulatorId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting || Killing) return string.Empty;
         return string.Format(Translator.GetString("KCD"), Math.Round(Math.Max(0, KCD), 1));
     }
 }

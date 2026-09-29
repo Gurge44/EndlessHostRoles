@@ -6,20 +6,28 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.Json;
 using AmongUs.GameOptions;
 using BepInEx;
 using BepInEx.Configuration;
-using BepInEx.Unity.IL2CPP;
-using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR;
 using EHR.Modules;
 using EHR.Patches;
 using EHR.Roles;
 using HarmonyLib;
-using Il2CppInterop.Runtime.Injection;
 using UnityEngine;
 using UnityEngine.Networking;
+
+#if IL2CPP
+using BepInEx.Unity.IL2CPP;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+using Il2CppInterop.Runtime.Injection;
+using System.Text.Json;
+#else
+using BepInEx.Bootstrap;
+using Newtonsoft.Json;
+#endif
+
+// ReSharper disable RedundantNameQualifier
 
 [assembly: AssemblyFileVersion(Main.PluginVersion)]
 [assembly: AssemblyInformationalVersion(Main.PluginVersion)]
@@ -36,13 +44,17 @@ namespace EHR;
 [BepInDependency(SubmergedCompatibility.SubmergedGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInProcess("Among Us.exe")]
 [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
+#if IL2CPP
 public class Main : BasePlugin
+#else
+public class Main : BaseUnityPlugin
+#endif
 {
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     public const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "8.0.1";
-    public const string PluginDisplayVersion = "8.0.1";
+    public const string PluginVersion = "8.0.2";
+    public const string PluginDisplayVersion = "8.0.2";
     public const int TestBuildNumber = 0; // 0 = Release
 
     public const string NeutralColor = "#ffab1b";
@@ -66,21 +78,23 @@ public class Main : BasePlugin
 
     public static readonly Version Version = Version.Parse(PluginVersion);
 
+    public static readonly bool Mono = !OperatingSystem.IsAndroid() && Directory.Exists("./MonoBleedingEdge");
+
     //public static ManualLogSource Logger;
     public static bool HasArgumentException;
     public static string CredentialsText;
 
     // Cache
     public static readonly Type[] AllTypes = Assembly.GetExecutingAssembly().GetTypes();
-    public static readonly CustomRoles[] CustomRoleValues = Enum.GetValues<CustomRoles>();
-    public static readonly CustomGameMode[] CustomGameModeValues = Enum.GetValues<CustomGameMode>();
-    public static readonly CountTypes[] CountTypesValues = Enum.GetValues<CountTypes>();
-    public static readonly RoleOptionType[] RoleOptionTypeValues = Enum.GetValues<RoleOptionType>();
-    public static readonly Team[] TeamValues = Enum.GetValues<Team>();
-    public static readonly CustomRoleTypes[] CustomRoleTypesValues = Enum.GetValues<CustomRoleTypes>();
-    public static readonly TabGroup[] TabGroupValues = Enum.GetValues<TabGroup>();
-    public static readonly MapNames[] MapNamesValues = Enum.GetValues<MapNames>();
-    public static readonly RoleTypes[] RoleTypesValues = Enum.GetValues<RoleTypes>();
+    public static readonly CustomRoles[] CustomRoleValues = EnumHelper.GetValues<CustomRoles>();
+    public static readonly CustomGameMode[] CustomGameModeValues = EnumHelper.GetValues<CustomGameMode>();
+    public static readonly CountTypes[] CountTypesValues = EnumHelper.GetValues<CountTypes>();
+    public static readonly RoleOptionType[] RoleOptionTypeValues = EnumHelper.GetValues<RoleOptionType>();
+    public static readonly Team[] TeamValues = EnumHelper.GetValues<Team>();
+    public static readonly CustomRoleTypes[] CustomRoleTypesValues = EnumHelper.GetValues<CustomRoleTypes>();
+    public static readonly TabGroup[] TabGroupValues = EnumHelper.GetValues<TabGroup>();
+    public static readonly MapNames[] MapNamesValues = EnumHelper.GetValues<MapNames>();
+    public static readonly RoleTypes[] RoleTypesValues = EnumHelper.GetValues<RoleTypes>();
 
     public static bool Loaded;
     public static IntPtr? OriginalAffinity;
@@ -166,6 +180,10 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> NumEmergencyMeetingsUsed = [];
     public static int MadmateNum;
 
+    public static readonly Type ConsoleManager = typeof(BepInPlugin).Assembly.GetType("BepInEx.ConsoleManager");
+    public static readonly MethodInfo CreateConsoleMethod = ConsoleManager?.GetMethod("CreateConsole", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+    public static readonly MethodInfo DetachConsoleMethod = ConsoleManager?.GetMethod("DetachConsole", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+
     public static readonly Stopwatch GameTimer = new();
     public static bool GameEndDueToTimer;
 
@@ -182,16 +200,20 @@ public class Main : BasePlugin
 
     // ReSharper disable once StringLiteralTypo
     private static readonly List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
-    private Coroutines coroutines;
 
+#if IL2CPP
+    private Coroutines coroutines;
     public static bool HasReactorPlugin => IL2CPPChainloader.Instance.Plugins.ContainsKey("gg.reactor.api");
+#else
+    public static bool HasReactorPlugin => Chainloader.PluginInfos.ContainsKey("gg.reactor.api");
+#endif
 
     private static HashAuth DebugKeyAuth { get; set; }
     private static ConfigEntry<string> DebugKeyInput { get; set; }
 
     public Harmony Harmony { get; } = new(PluginGuid);
 
-    public static NormalGameOptionsV11 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
+    public static NormalGameOptionsV12 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
 
     // Client Options
     public static ConfigEntry<string> HideName { get; private set; }
@@ -346,7 +368,11 @@ public class Main : BasePlugin
 
     public static bool LIMap => NormalOptions is { MapId: 7 };
 
+#if IL2CPP
     public override void Load()
+#else
+    private void Awake()
+#endif
     {
         // EmbeddedDeps.Install();
         Instance = this;
@@ -383,28 +409,35 @@ public class Main : BasePlugin
         ShowClientControlGUI = Config.Bind("Client Options", "ShowClientControlGUI", true);
         UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
 
+#if IL2CPP
+        ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
+        ClassInjector.RegisterTypeInIl2Cpp<MeetingHudPagingBehaviour>();
+        ClassInjector.RegisterTypeInIl2Cpp<ShapeShifterPagingBehaviour>();
+        ClassInjector.RegisterTypeInIl2Cpp<VitalsPagingBehaviour>();
+        coroutines = AddComponent<Coroutines>();
         AddComponent<ClientControlGUI>();
-        Log.LogInfo("ClientControlGUI registered");
+#else
+        gameObject.AddComponent<ClientControlGUI>();
+#endif
 
         //Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
-        coroutines = AddComponent<Coroutines>();
-        Logger.Enable();
-        Logger.Disable("NotifyRoles");
-        Logger.Disable("SwitchSystem");
-        Logger.Disable("ModNews");
+        EHR.Logger.Enable();
+        EHR.Logger.Disable("NotifyRoles");
+        EHR.Logger.Disable("SwitchSystem");
+        EHR.Logger.Disable("ModNews");
         //Logger.Disable("CustomRpcSender");
 
         if (!DebugModeManager.AmDebugger)
         {
-            Logger.Disable("2018k");
-            Logger.Disable("Github");
+            EHR.Logger.Disable("2018k");
+            EHR.Logger.Disable("Github");
             // Logger.Disable("SendRPC");
-            Logger.Disable("SetRole");
-            Logger.Disable("Info.Role");
+            EHR.Logger.Disable("SetRole");
+            EHR.Logger.Disable("Info.Role");
             //Logger.Disable("TaskState.Init");
-            Logger.Disable("RpcSetNamePrivate");
-            Logger.Disable("SetName");
-            Logger.Disable("PlayerControl.RpcSetRole");
+            EHR.Logger.Disable("RpcSetNamePrivate");
+            EHR.Logger.Disable("SetName");
+            EHR.Logger.Disable("PlayerControl.RpcSetRole");
         }
         //EHR.Logger.isDetail = true;
 
@@ -454,6 +487,7 @@ public class Main : BasePlugin
                 { CustomRoles.Noisemaker, "#ff4a62" },
                 { CustomRoles.Detective, "#625EEE" },
                 { CustomRoles.Judge, "#f8d85a" },
+                { CustomRoles.SpiritGuide, "#D8E3E6" },
                 // Vanilla Remakes
                 { CustomRoles.CrewmateEHR, "#8cffff" },
                 { CustomRoles.EngineerEHR, "#FF6A00" },
@@ -463,6 +497,7 @@ public class Main : BasePlugin
                 { CustomRoles.NoisemakerEHR, "#ff4a62" },
                 { CustomRoles.DetectiveEHR, "#625EEE" },
                 { CustomRoles.JudgeEHR, "#f8d85a" },
+                { CustomRoles.SpiritGuideEHR, "#D8E3E6" },
                 // Crewmates
                 { CustomRoles.DoubleAgent, "#ff1919" },
                 { CustomRoles.Luckey, "#b8d7a3" },
@@ -920,11 +955,11 @@ public class Main : BasePlugin
         }
         catch (ArgumentException ex)
         {
-            Logger.Error("Error: Duplicate keys", "LoadDictionary");
-            Logger.Exception(ex, "LoadDictionary");
+            EHR.Logger.Error("Error: Duplicate keys", "LoadDictionary");
+            EHR.Logger.Exception(ex, "LoadDictionary");
             HasArgumentException = true;
         }
-        catch (Exception ex) { Logger.Fatal(ex.ToString(), "Main"); }
+        catch (Exception ex) { EHR.Logger.Fatal(ex.ToString(), "Main"); }
 
         CustomWinnerHolder.Reset();
         Translator.Init();
@@ -935,9 +970,9 @@ public class Main : BasePlugin
 
         IRandom.SetInstance(new NetRandomWrapper());
 
-        Logger.Info($"{Application.version}", "AmongUs Version");
+        EHR.Logger.Info($"{Application.version}", "AmongUs Version");
 
-        LogHandler handler = Logger.Handler("GitVersion");
+        LogHandler handler = EHR.Logger.Handler("GitVersion");
         handler.Info($"{nameof(ThisAssembly.Git.BaseTag)}: {ThisAssembly.Git.BaseTag}");
         handler.Info($"{nameof(ThisAssembly.Git.Commit)}: {ThisAssembly.Git.Commit}");
         handler.Info($"{nameof(ThisAssembly.Git.Commits)}: {ThisAssembly.Git.Commits}");
@@ -945,14 +980,11 @@ public class Main : BasePlugin
         handler.Info($"{nameof(ThisAssembly.Git.Sha)}: {ThisAssembly.Git.Sha}");
         handler.Info($"{nameof(ThisAssembly.Git.Tag)}: {ThisAssembly.Git.Tag}");
 
-        ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
-        ClassInjector.RegisterTypeInIl2Cpp<MeetingHudPagingBehaviour>();
-        ClassInjector.RegisterTypeInIl2Cpp<ShapeShifterPagingBehaviour>();
-        ClassInjector.RegisterTypeInIl2Cpp<VitalsPagingBehaviour>();
-
-        NormalGameOptionsV11.RecommendedImpostors = NormalGameOptionsV11.MaxImpostors = Enumerable.Repeat(128, 128).ToArray();
-        NormalGameOptionsV11.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
-        HideNSeekGameOptionsV11.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
+        /*
+        NormalGameOptionsV12.RecommendedImpostors = NormalGameOptionsV12.MaxImpostors = Enumerable.Repeat(128, 128).ToArray();
+        NormalGameOptionsV12.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
+        HideNSeekGameOptionsV12.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
+        */
 
         PrivateTagManager.LoadTagsFromFile();
 
@@ -964,11 +996,6 @@ public class Main : BasePlugin
             Harmony.PatchAll(typeof(TextBoxPatch));
             Harmony.PatchAll(typeof(DiscordRPC));
         }
-
-        if (!DebugModeManager.AmDebugger)
-            ConsoleManager.DetachConsole();
-        else
-            ConsoleManager.CreateConsole();
 
         GameModeColors = new()
         {
@@ -992,32 +1019,9 @@ public class Main : BasePlugin
             [CustomGameMode.DoomTag] = Utils.GetRoleColor(CustomRoles.Tagger)
         };
 
-        IL2CPPChainloader.Instance.Finished += () =>
-        {
-            CustomLogger.ClearLog();
-            Loaded = true;
-            BepInEx.Logging.Logger.Listeners.Add(new HtmlLogListener());
-            
-            StartCoroutine(ModNewsFetcher.FetchNews());
-
-            try { DevManager.StartFetchingTags(); }
-            catch (Exception e) { Utils.ThrowException(e); }
-
-            try { SubmergedCompatibility.Initialize(); }
-            catch (Exception e) { Utils.ThrowException(e); }
-
-            try { LevelImposterCompatibility.Init(); }
-            catch (Exception e) { Utils.ThrowException(e); }
-
-            try { HandleRoleColorFiles(); }
-            catch (Exception e) { Utils.ThrowException(e); }
-
-            if (AutoHaunt.Value)
-                Modules.AutoHaunt.Start();
-
-            Logger.Msg("========= EHR loaded! =========", "Plugin Load");
-            Logger.Msg($"EHR Version: {PluginVersion}, Test Build Number: {TestBuildNumber}", "Plugin Load");
-        };
+#if IL2CPP
+        IL2CPPChainloader.Instance.Finished += Start;
+#endif
 
         try
         {
@@ -1025,15 +1029,55 @@ public class Main : BasePlugin
             {
                 var process = Process.GetCurrentProcess();
                 OriginalAffinity = process.ProcessorAffinity;
-                process.ProcessorAffinity = (IntPtr)((1 << 2) | (1 << 3));
+                process.ProcessorAffinity = (IntPtr)(1 << 2 | 1 << 3);
             }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        try
+        {
+            if (!DebugModeManager.AmDebugger)
+                DetachConsoleMethod?.Invoke(null, null);
+            else
+                CreateConsoleMethod?.Invoke(null, null);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
+    private void Start()
+    {
+        CustomLogger.ClearLog();
+        Loaded = true;
+        BepInEx.Logging.Logger.Listeners.Add(new HtmlLogListener());
+            
+        StartCoroutine(ModNewsFetcher.FetchNews());
+
+        try { DevManager.StartFetchingTags(); }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        try { SubmergedCompatibility.Initialize(); }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        try { LevelImposterCompatibility.Init(); }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        try { HandleRoleColorFiles(); }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        if (AutoHaunt.Value)
+            Modules.AutoHaunt.Start();
+
+        EHR.Logger.Msg("========= EHR loaded! =========", "Plugin Load");
+        EHR.Logger.Msg($"EHR Version: {PluginVersion}, Test Build Number: {TestBuildNumber}, Mono: {Mono}", "Plugin Load");
+    }
+
     private static void HandleRoleColorFiles()
     {
+#if IL2CPP
         string serialized = JsonSerializer.Serialize(RoleHtmlColors, new JsonSerializerOptions { WriteIndented = true });
+#else
+        string serialized = JsonConvert.SerializeObject(RoleHtmlColors, Formatting.Indented);
+#endif
         File.WriteAllText($"{DataPath}/OriginalRoleColors.json", serialized);
 
         if (!Directory.Exists($"{DataPath}/EHR_DATA"))
@@ -1049,11 +1093,21 @@ public class Main : BasePlugin
                 string json = File.ReadAllText(path);
                 if (string.IsNullOrWhiteSpace(json) || json == serialized) return;
 
-                foreach ((string roleName, string hex) in JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? [])
+#if IL2CPP
+                Dictionary<string, string> dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+#else
+                Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+#endif
+
+                if (dictionary != null)
                 {
-                    if (!Enum.TryParse(roleName, true, out CustomRoles role)) continue;
-                    RoleHtmlColors[role] = hex;
+                    foreach ((string roleName, string hex) in dictionary)
+                    {
+                        if (!Enum.TryParse(roleName, true, out CustomRoles role)) continue;
+                        RoleHtmlColors[role] = hex;
+                    }
                 }
+
                 InitRoleColors();
             }
             catch (Exception e) { Utils.ThrowException(e); }
@@ -1083,6 +1137,7 @@ public class Main : BasePlugin
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
+#if IL2CPP
     public Coroutine StartCoroutine(Il2CppSystem.Collections.IEnumerator coroutine)
     {
         if (coroutine == null) return null;
@@ -1111,6 +1166,7 @@ public class Main : BasePlugin
     {
         coroutines.StopAllCoroutines();
     }
+#endif
 
     public static IEnumerator GetRandomWord(Action<string> onComplete, string langParam = "", int length = 0, int difficulty = 0)
     {

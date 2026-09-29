@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
@@ -16,45 +16,25 @@ public static class TextBoxPatch
     private static TextMeshPro AdditionalInfoText;
 
     public static bool IsInvalidCommand;
-    
-    private static int CurrentCharPos;
-    public static bool Pasting;
 
-    // from https://github.com/scp222thj/MalumMenu/blob/main/src/Patches/TextBoxTMPPatches.cs
-    // Well I guess cheat menus sometimes have useful code too....
+
     [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.IsCharAllowed))]
     [HarmonyPrefix]
-    public static bool AllowAllCharacters(TextBoxTMP __instance, ref bool __result)
+    // Use the character provided by IsCharAllowed directly.
+    // Tracking a separate character position desyncs when the caret is moved.
+    public static bool ValidateChatCharacter([HarmonyArgument(0)] char c, ref bool __result)
     {
-        string compositionString = Input.compositionString;
-        if (compositionString.Length > 0)
+        // Do not interfere with IME composition input.
+        if (!string.IsNullOrEmpty(Input.compositionString))
         {
             __result = true;
             return false;
         }
 
-        var input = Pasting ? GUIUtility.systemCopyBuffer.Trim() : Input.inputString;
-        Pasting = false;
-
-        if (input.Length == 0)
-        {
-            __result = true;
-            return false;
-        }
-
-        string currentText = __instance.text ?? string.Empty;
-        int caretPos = Mathf.Clamp(__instance.caretPos, 0, currentText.Length);
-        string text = currentText.Insert(caretPos, input);
-        CurrentCharPos = Mathf.Clamp(CurrentCharPos, 0, text.Length - 1);
-        char currentChar = text[CurrentCharPos];
-
-        if (CurrentCharPos >= text.Length - 1) CurrentCharPos = 0;
-        else CurrentCharPos++;
-
-        __result = currentChar is not ('\b' or '\r' or '[');
+        __result = c is not ('\b' or '\r' or '[');
         return false;
     }
-    
+
     [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
     [HarmonyPostfix]
     public static void ShowCommandHelp(TextBoxTMP __instance)
@@ -92,11 +72,11 @@ public static class TextBoxPatch
 
             foreach (Command cmd in Command.AllCommands)
             {
-                string[] commandForms = english ? [.. cmd.CommandForms.TakeWhile(x => x.All(char.IsAscii))] : cmd.CommandForms;
+                string[] commandForms = english ? [.. cmd.CommandForms.TakeWhile(x => x.All(CharHelpers.IsAscii))] : cmd.CommandForms;
 
                 foreach (string form in commandForms)
                 {
-                    if (english && !form.All(char.IsAscii)) continue;
+                    if (english && !form.All(CharHelpers.IsAscii)) continue;
 
                     string check = "/" + form;
                     if (check.Length < inputCheck.Length) continue;
@@ -192,7 +172,7 @@ public static class TextBoxPatch
             }
 
             string inputForm = input.TrimStart('/');
-            string text = "/" + (startsWithCmd ? "cmd " : string.Empty) + (exactMatch ? inputForm : command.CommandForms.TakeWhile(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
+            string text = "/" + (startsWithCmd ? "cmd " : string.Empty) + (exactMatch ? inputForm : command.CommandForms.TakeWhile(x => x.All(CharHelpers.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
             var info = $"<b>{command.Description}</b>";
 
             if (!command.CanUseCommand(PlayerControl.LocalPlayer))

@@ -127,7 +127,7 @@ public static class BanManager
         string sha256Hash = BitConverter.ToString(sha256Bytes).Replace("-", "").ToLower();
 
         // pick front 5 and last 4
-        return string.Concat(sha256Hash.AsSpan(0, 5), sha256Hash.AsSpan(sha256Hash.Length - 4));
+        return string.Concat(sha256Hash[..5], sha256Hash[^4..]);
     }
 
     public static void AddBanPlayer(ClientData player)

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -39,7 +37,7 @@ public class Abyssbringer : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Seconds);
 
-        BlackHoleDespawnMode = new StringOptionItem(++id, "BlackHoleDespawnMode", Enum.GetNames<DespawnMode>(), 0, tab)
+        BlackHoleDespawnMode = new StringOptionItem(++id, "BlackHoleDespawnMode", EnumHelper.GetNames<DespawnMode>(), 0, tab)
             .SetParent(Options.CustomRoleSpawnChances[role]);
 
         BlackHoleDespawnTime = new IntegerOptionItem(++id, "BlackHoleDespawnTime", new(1, 60, 1), 15, tab)
@@ -173,7 +171,7 @@ public class Abyssbringer : RoleBase
                 if (BlackHoleMovesTowardsNearestPlayer.GetBool() && GameStates.IsInTask && !ExileController.Instance)
                 {
                     Vector2 direction = (pos - blackHole.Position).normalized;
-                    Vector2 newPosition = blackHole.Position + (direction * BlackHoleMoveSpeed.GetFloat() * Time.fixedDeltaTime);
+                    Vector2 newPosition = blackHole.Position + direction * BlackHoleMoveSpeed.GetFloat() * Time.fixedDeltaTime;
                     blackHole.NetObject.TP(newPosition);
                     blackHole.Position = newPosition;
                 }
@@ -232,7 +230,7 @@ public class Abyssbringer : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != AbyssbringerId || meeting || (seer.IsModdedClient() && !hud) || BlackHoles.Count == 0) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != AbyssbringerId || meeting || seer.IsModdedClient() && !hud || BlackHoles.Count == 0) return string.Empty;
 
         return string.Format(Translator.GetString("Abyssbringer.Suffix"), BlackHoles.Count, BlackHoles.Join('\n', x => GetBlackHoleFormatText(x.RoomName, x.PlayersConsumed)));
 

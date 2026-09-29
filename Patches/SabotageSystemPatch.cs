@@ -355,7 +355,11 @@ internal static class SabotageSystemTypeAnyActivePatch
 {
     public static bool Prefix(SabotageSystemType __instance, ref bool __result)
     {
+#if IL2CPP
         __result = __instance.specials.Exists((Il2CppSystem.Predicate<IActivatable>)(s => s.IsActive)) || CustomSabotage.Instances.Count > 0;
+#else
+        __result = __instance.specials.Exists(s => s.IsActive) || CustomSabotage.Instances.Count > 0;
+#endif
         return false;
     }
 }
@@ -481,8 +485,8 @@ public static class SabotageSystemTypeUpdateSystemPatch
 
             try
             {
-                if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state))
-                    state.Role.OnSabotage(player);
+                if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && !state.Role.OnSabotage(player))
+                    return false;
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }

@@ -332,7 +332,7 @@ internal static class DoomTag
 
     public static string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false)
     {
-        if (seer.PlayerId != target.PlayerId || GameStates.IsMeeting || (seer.IsModdedClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || GameStates.IsMeeting || seer.IsModdedClient() && !hud) return string.Empty;
 
         byte targetId = GetTarget(seer.PlayerId);
         if (targetId == byte.MaxValue) return string.Empty;

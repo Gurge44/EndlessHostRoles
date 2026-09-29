@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Net.Http;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -34,7 +36,15 @@ public class Bard : RoleBase
         {
             BardCreations++;
 
-            string json = ModUpdater.Get("https://official-joke-api.appspot.com/random_joke");
+            string json;
+            HttpResponseMessage res = ModUpdater.HttpClient.GetAsync("https://official-joke-api.appspot.com/random_joke").Result;
+            Stream stream = res.Content.ReadAsStreamAsync().Result;
+            try
+            {
+                using StreamReader reader = new(stream);
+                json = reader.ReadToEnd();
+            }
+            finally { stream.Close(); }
             var joke = JsonUtility.FromJson<Joke>(json);
             name = $"{joke.setup}\n{joke.punchline}";
 

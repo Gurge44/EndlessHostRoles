@@ -36,7 +36,7 @@ internal class Merchant : RoleBase
 
     private static int GetCurrentAmountOfMoney(byte playerId)
     {
-        return (AddonsSold[playerId] * OptionMoneyPerSell.GetInt()) - (BribedKiller[playerId].Count * OptionMoneyRequiredToBribe.GetInt());
+        return AddonsSold[playerId] * OptionMoneyPerSell.GetInt() - BribedKiller[playerId].Count * OptionMoneyRequiredToBribe.GetInt();
     }
 
     public override void SetupCustomOption()
@@ -117,10 +117,10 @@ internal class Merchant : RoleBase
                 && !x.Is(addon)
                 && CustomRolesHelper.CheckAddonConflict(addon, x)
                 && (!x.Is(CustomRoles.Cleansed) || Cleanser.CleansedCanGetAddon.GetBool())
-                && ((OptionCanTargetCrew.GetBool() && x.IsCrewmate()) ||
-                    (OptionCanTargetImpostor.GetBool() && x.GetCustomRole().IsImpostor()) ||
-                    (OptionCanTargetNeutral.GetBool() && (x.GetCustomRole().IsNeutral() || x.IsNeutralKiller())) ||
-                    (OptionCanTargetCoven.GetBool() && x.Is(Team.Coven)))
+                && (OptionCanTargetCrew.GetBool() && x.IsCrewmate() ||
+                    OptionCanTargetImpostor.GetBool() && x.GetCustomRole().IsImpostor() ||
+                    OptionCanTargetNeutral.GetBool() && (x.GetCustomRole().IsNeutral() || x.IsNeutralKiller()) ||
+                    OptionCanTargetCoven.GetBool() && x.Is(Team.Coven))
             ).ToList();
 
         if (availableTargets.Count <= 0) return;

@@ -45,7 +45,7 @@ public class Rogue : RoleBase
         CanVent = new BooleanOptionItem(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rogue]);
 
-        RewardEnabledSettings = Enum.GetValues<Reward>().ToDictionary(x => x, x => new BooleanOptionItem(Id + 4 + (int)x, $"Rogue.RewardEnabled.{x}", true, TabGroup.NeutralRoles)
+        RewardEnabledSettings = EnumHelper.GetValues<Reward>().ToDictionary(x => x, x => new BooleanOptionItem(Id + 4 + (int)x, $"Rogue.RewardEnabled.{x}", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rogue]));
     }
 
@@ -238,8 +238,8 @@ public class Rogue : RoleBase
                     break;
             }
 
-            Objective objective = Enum.GetValues<Objective>().Except(GotObjectives).RandomElement();
-            Reward reward = Enum.GetValues<Reward>().Except(GotRewards).Where(x => RewardEnabledSettings[x].GetBool()).RandomElement();
+            Objective objective = EnumHelper.GetValues<Objective>().Except(GotObjectives).RandomElement();
+            Reward reward = EnumHelper.GetValues<Reward>().Except(GotRewards).Where(x => RewardEnabledSettings[x].GetBool()).RandomElement();
 
             object data = objective switch
             {
@@ -319,7 +319,7 @@ public class Rogue : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != RoguePC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || MeetingStates.FirstMeeting) return string.Empty;
+        if (seer.PlayerId != RoguePC.PlayerId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || MeetingStates.FirstMeeting) return string.Empty;
 
         if (AllTasksCompleted) return Translator.GetString("Rogue.AllTasksCompleted");
 

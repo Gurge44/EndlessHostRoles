@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -25,7 +24,7 @@ public class Oxyman : RoleBase
     {
         var id = 647700;
         Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Oxyman);
-        (List<Level> trueList, List<Level> falseList) = Enum.GetValues<Level>().Without(Level.None).Split(x => x <= Level.Slow);
+        (List<Level> trueList, List<Level> falseList) = EnumHelper.GetValues<Level>().Without(Level.None).Split(x => x <= Level.Slow);
 
         trueList.ForEach(x => LevelSettings[x] = new IntegerOptionItem(++id, $"Oxyman.{x}.BelowPercentage", new(0, 100, 1), x == Level.Blind ? 10 : 30, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Oxyman])
@@ -169,7 +168,7 @@ public class Oxyman : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != OxymanId || (seer.IsModdedClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != OxymanId || seer.IsModdedClient() && !hud) return string.Empty;
 
         return $"<#ff0000>O<sub>2</sub>:</color> {Utils.ColorString(GetLevelColor(), OxygenLevel.ToString())}%";
     }

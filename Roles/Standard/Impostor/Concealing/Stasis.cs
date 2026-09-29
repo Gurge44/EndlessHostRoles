@@ -112,7 +112,7 @@ public class Stasis : RoleBase
 
         foreach (PlayerControl player in Main.CachedAllPlayerControls())
         {
-            if (!player.IsAlive() || player.PlayerId == pc.PlayerId || (player.Is(Team.Impostor) && !AffectsOtherImpostors.GetBool()))
+            if (!player.IsAlive() || player.PlayerId == pc.PlayerId || player.Is(Team.Impostor) && !AffectsOtherImpostors.GetBool())
             {
                 ReportDeadBodyPatch.CanReport[player.PlayerId] = true;
                 Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -61,7 +60,7 @@ public class MeetingAngel : IGhostRole
         NumMeetingsCooldown = new IntegerOptionItem(658603, "MeetingAngel.NumMeetingsCooldown", new(1, 30, 1), 2, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.MeetingAngel]);
         
-        Enum.GetValues<TeamOptions>()[1..].Do(x => CanProtectOptions[x] = new BooleanOptionItem(658603 + (int)x, $"MeetingAngel.CanProtectOptions.{x}", x == TeamOptions.NeutralBenign, TabGroup.OtherRoles)
+        EnumHelper.GetValues<TeamOptions>()[1..].Do(x => CanProtectOptions[x] = new BooleanOptionItem(658603 + (int)x, $"MeetingAngel.CanProtectOptions.{x}", x == TeamOptions.NeutralBenign, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.MeetingAngel]));
     }
 

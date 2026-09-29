@@ -263,7 +263,7 @@ internal static class RPCHandlerPatch
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
     {
-        if (!AmongUsClient.Instance.AmHost || __instance.AmOwner || (__instance.IsModdedClient() && rpcType == RpcCalls.SendChat)) return true;
+        if (!AmongUsClient.Instance.AmHost || __instance.AmOwner || __instance.IsModdedClient() && rpcType == RpcCalls.SendChat) return true;
         
         if (NumRPCsThisSecond.TryAdd(__instance.PlayerId, [])) LateTask.New(() => NumRPCsThisSecond.Remove(__instance.PlayerId), 1f, log: false);
         Dictionary<RpcCalls, int> calls = NumRPCsThisSecond[__instance.PlayerId];
@@ -608,7 +608,7 @@ internal static class RPCHandlerPatch
 
                     if (cno)
                     {
-                        cno.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(active);
+                        cno.transform.Find("Names").Find("NameText_TMP").gameObject.SetActive(active);
                         cno.Collider.enabled = false;
                     }
 

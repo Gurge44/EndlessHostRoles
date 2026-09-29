@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -214,7 +213,7 @@ internal class Nemesis : RoleBase
             renderer.sprite =  Utils.LoadSprite("EHR.Resources.Images.Skills.MeetingKillButton.png", 140f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => NemesisOnClick(pva.PlayerId)));
+            button.OnClick.AddListener(() => NemesisOnClick(pva.PlayerId));
         }
     }
 

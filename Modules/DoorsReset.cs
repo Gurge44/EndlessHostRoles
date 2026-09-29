@@ -1,3 +1,5 @@
+using EHR.Patches;
+
 namespace EHR.Modules;
 
 public static class DoorsReset
@@ -40,9 +42,10 @@ public static class DoorsReset
     {
         if (!ShipStatus.Instance || !ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType system)) return;
 
-        bool autoOpenDoors = system.TryCast(out AutoDoorsSystemType autoDoorsSystemType);
+        AutoDoorsSystemType autoDoorsSystemType = MapRoomDoorsUpdatePatch.AutoDoorsSystemType;
+        bool autoOpenDoors = autoDoorsSystemType != null;
 
-        for (var index = 0; index < ShipStatus.Instance.AllDoors.Count; index++)
+        for (var index = 0; index < ShipStatus.Instance.AllDoors.Length; index++)
         {
             OpenableDoor door = ShipStatus.Instance.AllDoors[index];
             if (!door) continue;
@@ -56,8 +59,8 @@ public static class DoorsReset
             if (autoOpenDoors) autoDoorsSystemType.dirtyBits |= (uint)(1 << index);
         }
 
-        if (autoOpenDoors || !system.TryCast(out DoorsSystemType doorsSystemType)) return;
-        doorsSystemType.IsDirty = true;
+        if (autoOpenDoors) return;
+        MapRoomDoorsUpdatePatch.DoorsSystemType?.IsDirty = true;
     }
 
     /// <summary>Sets the open/close status of the door. Do nothing for doors that cannot be closed by sabotage</summary>

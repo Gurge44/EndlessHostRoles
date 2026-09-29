@@ -1,6 +1,4 @@
-﻿using System;
-using EHR.Modules;
-using UnityEngine;
+﻿using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR.Roles;
@@ -57,7 +55,7 @@ public class Inquirer : RoleBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.InspectorIcon.png", 160f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => GuessManager.GuesserOnClick(pva.PlayerId, __instance, true)));
+            button.OnClick.AddListener(() => GuessManager.GuesserOnClick(pva.PlayerId, __instance, true));
         }
     }
 

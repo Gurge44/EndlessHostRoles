@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+
 // ReSharper disable InconsistentNaming
 
 namespace EHR.ArabicSupport
@@ -369,7 +370,7 @@ namespace EHR.ArabicSupport
                             break;
                     }
                 }
-                else if ((lettersFinal[i] >= (char)0xD800 && lettersFinal[i] <= (char)0xDBFF) || (lettersFinal[i] >= (char)0xDC00 && lettersFinal[i] <= (char)0xDFFF))
+                else if (lettersFinal[i] >= (char)0xD800 && lettersFinal[i] <= (char)0xDBFF || lettersFinal[i] >= (char)0xDC00 && lettersFinal[i] <= (char)0xDFFF)
                 {
                     AddNumber(lettersFinal[i]);
                 }

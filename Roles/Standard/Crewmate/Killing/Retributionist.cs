@@ -1,4 +1,3 @@
-using System;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -151,7 +150,7 @@ public class Retributionist : RoleBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.MeetingKillButton.png", 140f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => RetributionistOnClick(pva.PlayerId)));
+            button.OnClick.AddListener(() => RetributionistOnClick(pva.PlayerId));
         }
     }
 

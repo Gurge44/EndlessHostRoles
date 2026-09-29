@@ -69,7 +69,7 @@ public class Executioner : RoleBase
                 try
                 {
                     List<PlayerControl> targetList = [];
-                    targetList.AddRange(from target in Main.EnumeratePlayerControls() where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || (!target.IsNeutralEvil() && !target.IsNeutralPariah()) where CanTargetCoven.GetBool() || !target.Is(CustomRoleTypes.Coven) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
+                    targetList.AddRange(from target in Main.EnumeratePlayerControls() where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() && !target.IsNeutralPariah() where CanTargetCoven.GetBool() || !target.Is(CustomRoleTypes.Coven) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
                     targetList.AddRange(Main.EnumeratePlayerControls().Where(x => x.IsCrewmate() && x.GetCustomRole() is not (CustomRoles.Swapper or CustomRoles.Mayor or CustomRoles.NiceGuesser or CustomRoles.Dictator)));
                     targetList.RemoveAll(x => x.GetCustomRole() is CustomRoles.Swapper or CustomRoles.Mayor or CustomRoles.NiceGuesser or CustomRoles.Dictator or CustomRoles.Executioner or CustomRoles.Terrorist or CustomRoles.GM);
                     if (!CanTargetNeutralBenign.GetBool() && !CanTargetNeutralEvil.GetBool() && !CanTargetNeutralKiller.GetBool()) targetList.RemoveAll(x => x.GetCustomRole().IsNeutral() || x.Is(CustomRoles.Bloodlust));
@@ -167,7 +167,7 @@ public class Executioner : RoleBase
 
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
-        bool GetValue = Target.TryGetValue(seer.PlayerId, out byte targetId) || (!seer.IsAlive() && Target.ContainsValue(target.PlayerId));
+        bool GetValue = Target.TryGetValue(seer.PlayerId, out byte targetId) || !seer.IsAlive() && Target.ContainsValue(target.PlayerId);
         return GetValue && (!seer.IsAlive() || targetId == target.PlayerId) ? CustomRoles.Executioner.ColoredTextByRole("♦") : string.Empty;
     }
 

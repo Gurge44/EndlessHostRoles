@@ -12,7 +12,7 @@ public static class Zoom
     private static bool ResetButtons;
     private static Camera Main;
 
-    public static bool CanZoom => ((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && !PlayerControl.LocalPlayer.IsAlive()) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing;
+    public static bool CanZoom => (GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && !PlayerControl.LocalPlayer.IsAlive() || GameStates.IsLobby && GameStates.IsCanMove) && !InGameRoleInfoMenu.Showing;
 
     public static void Postfix()
     {
@@ -117,7 +117,7 @@ public static class Zoom
 
         if (ResetButtons)
         {
-            ResolutionManager.ResolutionChanged.Invoke((float)Screen.width / Screen.height, Screen.width, Screen.height, Screen.fullScreen);
+            ResolutionManager.SetResolution(Screen.width, Screen.height, Screen.fullScreen);
             ResetButtons = false;
         }
 
@@ -147,7 +147,7 @@ public static class Flag
 
     public static void Run(Action action, string type, bool firstrun = false)
     {
-        if (OneTimeList.Contains(type) || (firstrun && !FirstRunList.Contains(type)))
+        if (OneTimeList.Contains(type) || firstrun && !FirstRunList.Contains(type))
         {
             if (!FirstRunList.Contains(type)) FirstRunList.Add(type);
 

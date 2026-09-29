@@ -202,7 +202,7 @@ public class Swooper : RoleBase
 
     bool OnCoEnterVent(PlayerPhysics __instance, int ventId)
     {
-        if (!AmongUsClient.Instance.AmHost || IsInvis || (UsedRole == CustomRoles.Chameleon && UsePets.GetBool()) || (UsedRole != CustomRoles.Chameleon && UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool()))) return false;
+        if (!AmongUsClient.Instance.AmHost || IsInvis || UsedRole == CustomRoles.Chameleon && UsePets.GetBool() || UsedRole != CustomRoles.Chameleon && UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool())) return false;
 
         PlayerControl pc = __instance.myPlayer;
 

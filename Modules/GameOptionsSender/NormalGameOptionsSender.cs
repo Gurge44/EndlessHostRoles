@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using AmongUs.GameOptions;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 
 namespace EHR.Modules;
 
@@ -21,7 +20,7 @@ public sealed class NormalGameOptionsSender : GameOptionsSender
                 {
                     foreach (GameLogicComponent glc in GameManager.Instance.LogicComponents)
                     {
-                        if (glc.TryCast(out LogicOptions lo))
+                        if (glc is LogicOptions lo)
                             _logicOptions = lo;
                     }
                 }
@@ -42,17 +41,17 @@ public sealed class NormalGameOptionsSender : GameOptionsSender
         return BasedGameOptions;
     }
     
-    protected override IEnumerator SendOptionsArrayAsync(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex)
+    protected override IEnumerator SendOptionsArrayAsync(byte[] optionArray, byte logicOptionsIndex)
     {
         yield return DataFlagRateLimiter.Enqueue(SendOptionsAction(optionArray, logicOptionsIndex)).Wait();
     }
 
-    protected override void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex)
+    protected override void SendOptionsArray(byte[] optionArray, byte logicOptionsIndex)
     {
         DataFlagRateLimiter.Enqueue(SendOptionsAction(optionArray, logicOptionsIndex));
     }
 
-    private static Action SendOptionsAction(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex)
+    private static Action SendOptionsAction(byte[] optionArray, byte logicOptionsIndex)
     {
         return () =>
         {

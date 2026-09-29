@@ -206,7 +206,7 @@ public class Glitch : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != GlitchId || seer.PlayerId != target.PlayerId || !seer.IsAlive() || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != GlitchId || seer.PlayerId != target.PlayerId || !seer.IsAlive() || seer.IsModdedClient() && !hud || meeting) return string.Empty;
 
         Suffix.Clear();
 

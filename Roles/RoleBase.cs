@@ -54,7 +54,7 @@ public abstract class RoleBase : IComparable<RoleBase>
 
     public virtual bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.CanVent.GetBool())) && Circumvent.CanUseImpostorVentButton(pc);
+        return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Bloodlust) && Bloodlust.CanVent.GetBool()) && Circumvent.CanUseImpostorVentButton(pc);
     }
 
     public virtual bool CanUseVent(PlayerControl pc, int ventId)
@@ -66,7 +66,7 @@ public abstract class RoleBase : IComparable<RoleBase>
     {
         if (pc.Is(CustomRoles.Aide)) return false;
         if (Options.DisableSabotagingOn1v1.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard && Main.AllAlivePlayerControlsCount == 2) return false;
-        return pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool() && pc.IsAlive());
+        return pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool() && pc.IsAlive();
     }
 
     public virtual void ApplyGameOptions(IGameOptions opt, byte playerId) { }

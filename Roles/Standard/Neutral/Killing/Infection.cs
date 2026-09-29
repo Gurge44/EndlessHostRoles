@@ -133,7 +133,7 @@ public class Infection : RoleBase
         if (!IsEnable) return false;
 
         // Not a plague doctor, or capable of self-infection and infected person created
-        return player.PlayerId != PlayerIdList[0] || (CanInfectSelf && player.GetAbilityUseLimit() == 0);
+        return player.PlayerId != PlayerIdList[0] || CanInfectSelf && player.GetAbilityUseLimit() == 0;
     }
 
     private void SendRPC(byte targetId, float rate)
@@ -223,11 +223,11 @@ public class Infection : RoleBase
                 // Exclude players outside the range
                 if (!FastVector2.DistanceWithinRange(player.Pos(), target.Pos(), InfectDistance)) continue;
 
-                float newRate = oldRate + (Time.fixedDeltaTime / InfectTime * 100);
+                float newRate = oldRate + Time.fixedDeltaTime / InfectTime * 100;
                 newRate = Math.Clamp(newRate, 0, 100);
                 InfectInfos[target.PlayerId] = newRate;
 
-                if ((oldRate < 50 && newRate >= 50) || newRate >= 100)
+                if (oldRate < 50 && newRate >= 50 || newRate >= 100)
                 {
                     changed = true;
                     Updates.Add(target);

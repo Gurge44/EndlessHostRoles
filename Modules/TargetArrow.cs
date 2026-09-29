@@ -143,7 +143,7 @@ internal static class TargetArrow
             byte targetId = arrowInfo.To;
             PlayerControl target = Utils.GetPlayerById(targetId);
 
-            if (seerIsDead || (!target.IsAlive() && !seer.Is(CustomRoles.Spiritualist)))
+            if (seerIsDead || !target.IsAlive() && !seer.Is(CustomRoles.Spiritualist))
             {
                 TargetArrows.Remove(arrowInfo);
                 update = true;

@@ -11,13 +11,13 @@ public static class IGameManagerEx
             opt.SetBool(name, value);
         }
 
-        public void Set(bool value, NormalGameOptionsV11 opt)
+        public void Set(bool value, NormalGameOptionsV12 opt)
         {
             if (name is not BoolOptionNames.GhostsDoTasks and not BoolOptionNames.Roles)
                 opt.SetBool(name, value);
         }
 
-        public void Set(bool value, HideNSeekGameOptionsV11 opt)
+        public void Set(bool value, HideNSeekGameOptionsV12 opt)
         {
             opt.SetBool(name, value);
         }
@@ -30,12 +30,12 @@ public static class IGameManagerEx
             opt.SetInt(name, value);
         }
 
-        public void Set(int value, NormalGameOptionsV11 opt)
+        public void Set(int value, NormalGameOptionsV12 opt)
         {
             opt.SetInt(name, value);
         }
 
-        public void Set(int value, HideNSeekGameOptionsV11 opt)
+        public void Set(int value, HideNSeekGameOptionsV12 opt)
         {
             opt.SetInt(name, value);
         }
@@ -48,12 +48,12 @@ public static class IGameManagerEx
             opt.SetFloat(name, value);
         }
 
-        public void Set(float value, NormalGameOptionsV11 opt)
+        public void Set(float value, NormalGameOptionsV12 opt)
         {
             opt.SetFloat(name, value);
         }
 
-        public void Set(float value, HideNSeekGameOptionsV11 opt)
+        public void Set(float value, HideNSeekGameOptionsV12 opt)
         {
             opt.SetFloat(name, value);
         }
@@ -66,12 +66,12 @@ public static class IGameManagerEx
             opt.SetByte(name, value);
         }
 
-        public void Set(byte value, NormalGameOptionsV11 opt)
+        public void Set(byte value, NormalGameOptionsV12 opt)
         {
             opt.SetByte(name, value);
         }
 
-        public void Set(byte value, HideNSeekGameOptionsV11 opt)
+        public void Set(byte value, HideNSeekGameOptionsV12 opt)
         {
             opt.SetByte(name, value);
         }
@@ -84,12 +84,12 @@ public static class IGameManagerEx
             opt.SetUInt(name, value);
         }
 
-        public void Set(uint value, NormalGameOptionsV11 opt)
+        public void Set(uint value, NormalGameOptionsV12 opt)
         {
             opt.SetUInt(name, value);
         }
 
-        public void Set(uint value, HideNSeekGameOptionsV11 opt)
+        public void Set(uint value, HideNSeekGameOptionsV12 opt)
         {
             opt.SetUInt(name, value);
         }

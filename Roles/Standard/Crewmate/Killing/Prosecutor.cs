@@ -280,7 +280,7 @@ public class Prosecutor : RoleBase
             renderer.sprite = CustomButton.Get("JudgeIcon");
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => JudgeOnClick(pva.PlayerId /*, __instance*/)));
+            button.OnClick.AddListener(() => JudgeOnClick(pva.PlayerId /*, __instance*/));
         }
     }
 

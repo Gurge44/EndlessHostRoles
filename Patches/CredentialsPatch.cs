@@ -192,8 +192,8 @@ public static class UpdateFriendCodeUIPatch
 
         if (friendsButton)
         {
-            friendsButton.transform.FindChild("Highlight").GetComponent<SpriteRenderer>().color = new(0f, 0.647f, 1f, 1f);
-            friendsButton.transform.FindChild("Inactive").GetComponent<SpriteRenderer>().color = new(0f, 0.847f, 1f, 1f);
+            friendsButton.transform.Find("Highlight").GetComponent<SpriteRenderer>().color = new(0f, 0.647f, 1f, 1f);
+            friendsButton.transform.Find("Inactive").GetComponent<SpriteRenderer>().color = new(0f, 0.847f, 1f, 1f);
         }
     }
 }
@@ -241,7 +241,7 @@ internal static class TitleLogoPatch
         int l = (a + 11 * h + 22 * k) / 451;
 
         int month = (h + k - 7 * l + 114) / 31;
-        int day = ((h + k - 7 * l + 114) % 31) + 1;
+        int day = (h + k - 7 * l + 114) % 31 + 1;
 
         return new DateTime(year, month, day);
     }
@@ -298,7 +298,7 @@ internal static class TitleLogoPatch
         if (!(LeftPanel = GameObject.Find("LeftPanel"))) return;
 
         LeftPanel.transform.localScale = new(0.7f, 0.7f, 0.7f);
-        LeftPanel.ForEachChild((Il2CppSystem.Action<GameObject>)ResetParent);
+        LeftPanel.ForEachChild((Action<GameObject>)ResetParent);
         LeftPanel.SetActive(false);
 
         Color shade = new(0f, 0f, 0f, 0f);
@@ -339,11 +339,11 @@ internal static class TitleLogoPatch
         closeRightSpriteRenderer.color = new(1f, 0.78f, 0.9f, 1f);
         var closeRightPassiveButton = CloseRightButton.AddComponent<PassiveButton>();
         closeRightPassiveButton.OnClick = new();
-        closeRightPassiveButton.OnClick.AddListener((Action)MainMenuManagerPatch.HideRightPanel);
+        closeRightPassiveButton.OnClick.AddListener(MainMenuManagerPatch.HideRightPanel);
         closeRightPassiveButton.OnMouseOut = new();
-        closeRightPassiveButton.OnMouseOut.AddListener((Action)(() => closeRightSpriteRenderer.color = new(1f, 0.78f, 0.9f, 1f)));
+        closeRightPassiveButton.OnMouseOut.AddListener(() => closeRightSpriteRenderer.color = new(1f, 0.78f, 0.9f, 1f));
         closeRightPassiveButton.OnMouseOver = new();
-        closeRightPassiveButton.OnMouseOver.AddListener((Action)(() => closeRightSpriteRenderer.color = new(1f, 0.68f, 0.99f, 1f)));
+        closeRightPassiveButton.OnMouseOver.AddListener(() => closeRightSpriteRenderer.color = new(1f, 0.68f, 0.99f, 1f));
 
         Tint = __instance.screenTint.gameObject;
         var ttap = Tint.GetComponent<AspectPosition>();
@@ -365,8 +365,8 @@ internal static class TitleLogoPatch
 
         void FormatButtonColor(PassiveButton button, Color inActiveColor, Color activeColor, Color inActiveTextColor, Color activeTextColor)
         {
-            button.activeSprites.transform.FindChild("Shine")?.gameObject.SetActive(false);
-            button.inactiveSprites.transform.FindChild("Shine")?.gameObject.SetActive(false);
+            button.activeSprites.transform.Find("Shine")?.gameObject.SetActive(false);
+            button.inactiveSprites.transform.Find("Shine")?.gameObject.SetActive(false);
             var activeRenderer = button.activeSprites.GetComponent<SpriteRenderer>();
             var inActiveRenderer = button.inactiveSprites.GetComponent<SpriteRenderer>();
             activeRenderer.sprite = minorActiveSprite;

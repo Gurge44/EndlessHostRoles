@@ -1,7 +1,6 @@
-﻿using HarmonyLib;
-using Il2CppSystem;
+﻿using System;
+using HarmonyLib;
 using static CosmeticsLayer;
-using Action = Il2CppSystem.Action;
 
 namespace EHR.Patches;
 
@@ -168,7 +167,7 @@ public static class LongBoiPatches
     {
         try
         {
-            __instance.targetHeight = (distance / 10f) + 0.5f;
+            __instance.targetHeight = distance / 10f + 0.5f;
             __instance.SetupNeckGrowth(true);
         }
         catch { }

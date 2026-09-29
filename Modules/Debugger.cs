@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using BepInEx.Logging;
@@ -63,7 +64,11 @@ internal static class Logger
             LobbyNotificationMessage newMessage = Object.Instantiate(np.notificationMessageOrigin, Vector3.zero, Quaternion.identity, np.transform);
             newMessage.transform.localPosition = new(0f, 0f, -2f);
             text = "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + text + "</font>";
+#if IL2CPP
             newMessage.SetUp(text, np.settingsChangeSprite, textColor ?? np.settingsChangeColor, (Action)(() => np.OnMessageDestroy(newMessage)));
+#else
+            newMessage.SetUp(text, np.settingsChangeSprite, textColor ?? np.settingsChangeColor, () => np.OnMessageDestroy(newMessage));
+#endif
             np.ShiftMessages();
             np.AddMessageToQueue(newMessage);
 
@@ -73,7 +78,7 @@ internal static class Logger
 
     private static void SendToFile(string text, LogLevel level = LogLevel.Info, string tag = "", bool escapeCRLF = true, int lineNumber = 0, string fileName = "", bool multiLine = false)
     {
-        if (!IsEnable || DisableList.Contains(tag) || (level == LogLevel.Debug && !DebugModeManager.AmDebugger)) return;
+        if (!IsEnable || DisableList.Contains(tag) || level == LogLevel.Debug && !DebugModeManager.AmDebugger) return;
 
 #if DEBUG
         if (IsAlsoInGame) SendInGame($"[{tag}]{text}");
@@ -174,7 +179,7 @@ public sealed class HtmlLogListener : ILogListener
         sb.Append(eventArgs.Source.SourceName);
         sb.Append(']');
         sb.Append(' ');
-        sb.Append(System.Net.WebUtility.HtmlEncode(eventArgs.Data.ToString()));
+        sb.Append(WebUtility.HtmlEncode(eventArgs.Data.ToString()));
         sb.Replace("\r\n", "<br>");
         sb.Replace("\n", "<br>");
         sb.Replace("\\n", "<br>");
@@ -234,6 +239,7 @@ public class CustomLogger
 
     private const string UnityTag = "-unity";
 
+    private static string LastAppend;
     private static CustomLogger PrivateInstance;
     private float timer = 0.5f;
 
@@ -260,7 +266,7 @@ public class CustomLogger
     {
         if (!Directory.Exists(Path.GetDirectoryName(LOGFilePath))) return;
 
-        if (!check || (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0))
+        if (!check || File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0)
         {
             PrivateInstance?.Finish();
             try { Utils.DumpLog(false, false); } catch (Exception e) { LateTask.New(() => Logger.Fatal(e.ToString(), "ClearLog.DumpLog"), 0.1f); }
@@ -320,11 +326,18 @@ public class CustomLogger
         
         string unityTag = fromUnity && !containsException ? UnityTag : string.Empty;
 
-        Builder.Append($"""
+        string element = $"""
                         <div class='log-entry{unityTag} {level.ToLower()}{unityTag}'>
                             {message}
                         </div>
-                        """);
+                        """;
+
+        if (LastAppend == element)
+            element = "<span style='color: lime'>+</span>";
+        else
+            LastAppend = element;
+        
+        Builder.Append(element);
 
 #if DEBUG
         Finish(false);

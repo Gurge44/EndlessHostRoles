@@ -14,16 +14,25 @@ namespace EHR.Modules;
 /// <typeparam name="T">The type of the parent class that owns the state machine.</typeparam>
 public class StateMachineWrapper<T> : CompilerGeneratedObjectWrapper
 {
+#if IL2CPP
     // normally it is fields, but IL2CPP turns them into properties
     private readonly PropertyInfo _thisProperty;
     private readonly PropertyInfo _stateProperty;
+#else
+    private readonly FieldInfo _stateField;
+    private readonly FieldInfo _thisField;
+#endif
 
     private T? _parentInstance;
 
     /// <summary>
     /// Gets the instance of the parent class that owns the state machine.
     /// </summary>
-    public T Instance => _parentInstance ??= (T) _thisProperty.GetValue(GeneratedObject)!;
+#if IL2CPP
+    public T Instance => _parentInstance ??= (T) (_thisProperty.GetValue(GeneratedObject)!);
+#else
+    public T Instance => _parentInstance ??= (T) (_thisField.GetValue(GeneratedObject)!);
+#endif
 
     /// <summary>
     /// Gets or sets the current state of the state machine.
@@ -31,8 +40,13 @@ public class StateMachineWrapper<T> : CompilerGeneratedObjectWrapper
     /// <returns>The current state as an integer.</returns>
     public int State
     {
+#if IL2CPP
         get => (int) _stateProperty.GetValue(GeneratedObject)!;
         set => _stateProperty.SetValue(GeneratedObject, value);
+#else
+        get => (int) _stateField.GetValue(GeneratedObject)!;
+        set => _stateField.SetValue(GeneratedObject, value);
+#endif
     }
 
     /// <summary>
@@ -41,13 +55,13 @@ public class StateMachineWrapper<T> : CompilerGeneratedObjectWrapper
     /// <param name="stateMachine">The state machine instance to wrap.</param>
     public StateMachineWrapper(object stateMachine) : base(stateMachine)
     {
+#if IL2CPP
         _thisProperty = AccessTools.Property(GeneratedType, "__4__this");
         _stateProperty = AccessTools.Property(GeneratedType, "__1__state");
-
-        if (_thisProperty == null || _stateProperty == null)
-        {
-            throw new MissingMemberException($"Could not find required properties in type '{GeneratedType}'.");
-        }
+#else
+        _thisField = AccessTools.Field(GeneratedType, "<>4__this");
+        _stateField = AccessTools.Field(GeneratedType, "<>1__state");
+#endif
     }
 
     /// <summary>

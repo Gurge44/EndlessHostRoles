@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using EHR.Modules;
-using System;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -78,7 +77,7 @@ public class Pawn : RoleBase
         renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.PawnPromotion.png", 160f);
         var button = targetBox.GetComponent<PassiveButton>();
         button.OnClick.RemoveAllListeners();
-        button.OnClick.AddListener((Action)(() => GuessManager.GuesserOnClick(localPva.PlayerId, __instance, true)));
+        button.OnClick.AddListener(() => GuessManager.GuesserOnClick(localPva.PlayerId, __instance, true));
     }
 
     //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]

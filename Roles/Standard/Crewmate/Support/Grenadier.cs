@@ -119,7 +119,7 @@ internal class Grenadier : RoleBase
                     pc.Notify(string.Format(Translator.GetString("GrenadierSkillStop"), (int)pc.GetAbilityUseLimit()));
                     Utils.MarkEveryoneDirtySettingsV3();
                 }, onCanceled: () => GrenadierBlinding.Remove(pc.PlayerId));
-                Main.EnumeratePlayerControls().Where(x => x.IsModdedClient()).Where(x => x.IsImpostor() || (x.GetCustomRole().IsNeutral() && GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
+                Main.EnumeratePlayerControls().Where(x => x.IsModdedClient()).Where(x => x.IsImpostor() || x.GetCustomRole().IsNeutral() && GrenadierCanAffectNeutral.GetBool()).Do(x => x.RPCPlayCustomSound("FlashBang"));
             }
 
             pc.RPCPlayCustomSound("FlashBang");

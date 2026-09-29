@@ -1,9 +1,15 @@
 using System;
+#if IL2CPP
+using Il2CppSystem.Collections.Generic;
+#else
+using System.Collections.Generic;
+#endif
 using System.IO;
 using System.Reflection;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
+using UnityEngine.TextCore.LowLevel;
 
 namespace EHR.Patches;
 
@@ -141,7 +147,7 @@ public static class TmpAwakePatch
         }
 
         // Create or extend the fallback list.
-        var newList = new Il2CppSystem.Collections.Generic.List<TMP_FontAsset>();
+        var newList = new List<TMP_FontAsset>();
         if (fallbacks != null)
         {
             foreach (var f in fallbacks)
@@ -176,7 +182,7 @@ public static class TmpAwakePatch
             TMP_FontAsset fontAsset = TMP_FontAsset.CreateFontAsset(newFont,
                 90,
                 padding,
-                UnityEngine.TextCore.LowLevel.GlyphRenderMode.SDFAA,
+                GlyphRenderMode.SDFAA,
                 2048,
                 2048);
             fontAsset.atlasPopulationMode = AtlasPopulationMode.Dynamic;

@@ -110,7 +110,7 @@ public class Car : RoleBase
         for (Vector2 newPos = target.Pos(); FastVector2.DistanceWithinRange(pos, newPos, distance) && GameStates.IsInTask; newPos += addVector)
         {
             if (IsSkeld && (target.IsInRoom(SystemTypes.LowerEngine) || target.IsInRoom(SystemTypes.UpperEngine))) break;
-            if (PhysicsHelpers.AnythingBetween(collider, collider.bounds.center, newPos + (addVector * 2), Constants.ShipOnlyMask, false)) break;
+            if (PhysicsHelpers.AnythingBetween(collider, collider.bounds.center, newPos + addVector * 2, Constants.ShipOnlyMask, false)) break;
 
             target.TP(newPos, log: false);
             yield return new WaitForSecondsRealtime(0.05f);

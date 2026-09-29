@@ -41,6 +41,6 @@ internal class SuperStar : RoleBase
 
     public override bool KnowRole(PlayerControl seer, PlayerControl target)
     {
-        return base.KnowRole(seer, target) || (target.Is(CustomRoles.SuperStar) && EveryOneKnowSuperStar.GetBool());
+        return base.KnowRole(seer, target) || target.Is(CustomRoles.SuperStar) && EveryOneKnowSuperStar.GetBool();
     }
 }

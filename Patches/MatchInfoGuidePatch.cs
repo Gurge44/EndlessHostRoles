@@ -21,7 +21,7 @@ public static class MatchInfoGuidePatch
         __instance.CreateSettingsEntry(StringNames.GameTaskBarMode, GameManager.Instance.LogicOptions.GetTaskBarMode().ToString());
         CreateModdedSettingEntries(Options.GroupedOptions[TabGroup.GameSettings], __instance, ref num);
         CreateModdedSettingEntries(Options.GroupedOptions[TabGroup.TaskSettings], __instance, ref num);
-        __instance.transform.FindChild("MatchInfoParent").FindChild("SettingsPanel").GetComponentInChildren<Scroller>().SetYBoundsMax(Mathf.Clamp(Mathf.Ceil(num / 4f), 0.0f, 999f));
+        __instance.transform.Find("MatchInfoParent").Find("SettingsPanel").GetComponentInChildren<Scroller>().SetYBoundsMax(Mathf.Clamp(Mathf.Ceil(num / 4f), 0.0f, 999f));
         num = CreateModdedRoleEntries(__instance);
         if (num == 0) __instance.rolesEnabledMessage.SetActive(true);
         __instance.MatchInfoRoleScroller.SetYBoundsMax(Mathf.Clamp(Mathf.Ceil(num / 2f) + __instance.RoleEntryBoundsModifier, 0.0f, 999f));
@@ -29,6 +29,7 @@ public static class MatchInfoGuidePatch
         __instance.matchInfoSettingsMaskArea.material.SetInt(PlayerMaterial.MaskLayer, 50);
         __instance.CreatePlayerEntries();
         ReColorTabButtons(__instance);
+        SetAlternativeText(__instance);
         return false;
     }
 
@@ -143,10 +144,41 @@ public static class MatchInfoGuidePatch
             
             foreach (string stateName in stateNames)
             {
-                var child = matchInfoGuideTabButton.transform.FindChild(stateName);
+                var child = matchInfoGuideTabButton.transform.Find(stateName);
                 child.GetComponent<SpriteRenderer>().color = color;
                 if (child.childCount > 0) child.DestroyChildren();
             }
         }
+    }
+
+    private static void SetAlternativeText(MatchInfoGuide __instance)
+    {
+        var tmp = __instance.rolesEnabledMessage.GetComponent<TextMeshPro>();
+        tmp.DestroyTranslator();
+        tmp.text = GetGameModeDescription();
+    }
+
+    private static string GetGameModeDescription()
+    {
+        CustomGameMode currentGameMode = Options.CurrentGameMode;
+        
+        if (currentGameMode == CustomGameMode.Standard)
+            return TranslationController.Instance.GetString(StringNames.MatchInfoGuideNoRolesMessage);
+        
+        if (Main.HasPlayedGM.ContainsKey(currentGameMode))
+            return Translator.GetString($"GameModeTutorial.{currentGameMode}");
+
+        string description = "<size=80%>";
+        description += Translator.GetString($"ModeDescribe.{currentGameMode}").Replace('\n', ' ').Replace("  ", " ");
+        
+        for (int i = 80; i < description.Length; i += 80)
+        {
+            int index = description.LastIndexOf(' ', i);
+            if (index == -1) continue;
+            description = description.Remove(index, 1).Insert(index, "\n");
+        }
+
+        description += "</size>";
+        return description;
     }
 }

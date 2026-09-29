@@ -74,10 +74,10 @@ public static class BedWars
     private static OptionItem AllBedsBrokenAfterTimeOption;
 
     private static readonly StringBuilder HudText = new();
-    private static readonly BedWarsTeam[] AllBedWarsTeam = Enum.GetValues<BedWarsTeam>();
-    private static readonly Item[] Selections = Enum.GetValues<Item>();
-    private static readonly ItemCategory[] Categories = Enum.GetValues<ItemCategory>()[1..];
-    private static readonly Upgrade[] AllUpgrade = Enum.GetValues<Upgrade>();
+    private static readonly BedWarsTeam[] AllBedWarsTeam = EnumHelper.GetValues<BedWarsTeam>();
+    private static readonly Item[] Selections = EnumHelper.GetValues<Item>();
+    private static readonly ItemCategory[] Categories = EnumHelper.GetValues<ItemCategory>()[1..];
+    private static readonly Upgrade[] AllUpgrade = EnumHelper.GetValues<Upgrade>();
     public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     public static void SetupCustomOption()
@@ -661,7 +661,7 @@ public static class BedWars
                 {
                     PlainShipRoom room = __instance.GetPlainShipRoom();
 
-                    bool allowed = (room && data.Base.Room == room.RoomId) || (Main.CurrentMap, data.Base.Room) switch
+                    bool allowed = room && data.Base.Room == room.RoomId || (Main.CurrentMap, data.Base.Room) switch
                     {
                         (MapNames.Skeld, SystemTypes.Nav) => pos.x > 13f,
                         (MapNames.Dleks, SystemTypes.Nav) => pos.x < -13f,
@@ -670,7 +670,7 @@ public static class BedWars
                         (MapNames.MiraHQ, SystemTypes.Balcony) => pos.y < 2f,
                         (MapNames.Polus, SystemTypes.LifeSupp) => room && room.RoomId == SystemTypes.BoilerRoom,
                         (MapNames.Airship, SystemTypes.CargoBay) => room && room.RoomId == SystemTypes.Ventilation,
-                        (MapNames.Airship, SystemTypes.MeetingRoom) => (room && room.RoomId == SystemTypes.GapRoom) || __instance.inMovingPlat || __instance.onLadder || __instance.MyPhysics.Animations.IsPlayingAnyLadderAnimation(),
+                        (MapNames.Airship, SystemTypes.MeetingRoom) => room && room.RoomId == SystemTypes.GapRoom || __instance.inMovingPlat || __instance.onLadder || __instance.MyPhysics.Animations.IsPlayingAnyLadderAnimation(),
                         (MapNames.Fungle, SystemTypes.Kitchen) => room && room.RoomId == SystemTypes.FishingDock,
                         (MapNames.Fungle, SystemTypes.Comms) => pos is { y: > 8f, x: > 19f },
                         (MapNames.Fungle, SystemTypes.Jungle) => pos is { x: > 10f, y: < -11f },
@@ -1845,7 +1845,7 @@ public static class BedWars
                     {
                         lastNotify = Utils.TimeStamp;
                         var left = (int)Math.Ceiling(timer / totalTime * progressDisplayParts);
-                        string progress = Utils.ColorString(layerDisplay.Color, $"{new('\u25a0', progressDisplayParts - left)}{new('\u25a1', left)}");
+                        string progress = Utils.ColorString(layerDisplay.Color, $"{new string('\u25a0', progressDisplayParts - left)}{new string('\u25a1', left)}");
                         string newStr = string.Format(Translator.GetString("Bedwars.BedStatus.Breaking"), layerName, progress);
                         if (newStr != str) pc.Notify(newStr, 100f, true);
                     }

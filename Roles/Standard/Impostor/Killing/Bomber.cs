@@ -50,7 +50,7 @@ internal class Bomber : RoleBase
         BomberDiesInExplosion = new BooleanOptionItem(2032, "BomberDiesInExplosion", false, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber]);
 
-        NukerChance = new IntegerOptionItem(2033, "NukerChance", new(0, 100, 5), 5, TabGroup.ImpostorRoles)
+        NukerChance = new IntegerOptionItem(2033, "NukerChance", new(0, 100, 5), 0, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
             .SetValueFormat(OptionFormat.Percent);
 
@@ -151,7 +151,7 @@ internal class Bomber : RoleBase
             {
                 if (!tg.IsModdedClient()) tg.KillFlash();
 
-                if (!tg.IsAliveWithConditions() || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
+                if (!tg.IsAliveWithConditions() || Medic.ProtectList.Contains(tg.PlayerId) || tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool() || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
                 if (!FastVector2.DistanceWithinRange(pc.Pos(), tg.Pos(), radius)) continue;
                 if (tg.PlayerId == pc.PlayerId) continue;
 

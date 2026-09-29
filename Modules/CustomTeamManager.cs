@@ -35,7 +35,7 @@ internal static class CustomTeamManager
 
         const int startId = 660000;
         const TabGroup tab = TabGroup.GameSettings;
-        CustomTeamOptions = CustomTeams.Select((x, i) => CreateSetting(x, startId + (20 * i))).ToList();
+        CustomTeamOptions = CustomTeams.Select((x, i) => CreateSetting(x, startId + 20 * i)).ToList();
         UpdateEnabledTeams();
 
         return;
@@ -53,7 +53,7 @@ internal static class CustomTeamManager
 
             var teamPlayerCounts = new Dictionary<Team, IntegerOptionItem[]>();
 
-            foreach (Team teamType in Enum.GetValues<Team>()[1..])
+            foreach (Team teamType in EnumHelper.GetValues<Team>()[1..])
             {
                 var min = new IntegerOptionItem(id++, "CTA.MinPlayers." + teamType, new(0, 15, 1), 1, tab);
                 var max = new IntegerOptionItem(id++, "CTA.MaxPlayers." + teamType, new(0, 15, 1), 15, tab);

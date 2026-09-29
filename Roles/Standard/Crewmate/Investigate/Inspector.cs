@@ -436,7 +436,7 @@ public class Inspector : RoleBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.InspectorIcon.png", 170f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => InspectorOnClick(pva.PlayerId /*, __instance*/)));
+            button.OnClick.AddListener(() => InspectorOnClick(pva.PlayerId /*, __instance*/));
         }
     }
 

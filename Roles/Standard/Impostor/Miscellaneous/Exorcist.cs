@@ -1,5 +1,4 @@
-﻿using System;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -84,7 +83,7 @@ public class Exorcist : RoleBase
         Text_TMP.SetActive(false);
         var button = exorcistButton.GetComponent<PassiveButton>();
         button.OnClick.RemoveAllListeners();
-        button.OnClick.AddListener((Action)(() => ExorcistOnClick(exorcistButton)));
+        button.OnClick.AddListener(() => ExorcistOnClick(exorcistButton));
         GameObject ControllerHighlight = exorcistButton.transform.Find("ControllerHighlight").gameObject;
         ControllerHighlight.transform.localScale = new(0.5f, 2f, 0.5f);
     }

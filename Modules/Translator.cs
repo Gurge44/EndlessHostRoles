@@ -5,8 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.Json;
 using EHR.Gamemodes;
+#if IL2CPP
+using System.Text.Json;
+#else
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+#endif
 
 namespace EHR;
 
@@ -15,7 +20,7 @@ public static class Translator
     private const string LanguageFolderName = "Language";
     private static Dictionary<string, Dictionary<int, string>> TranslateMaps;
     public static Dictionary<CustomRoles, Dictionary<SupportedLangs, string>> OriginalRoleNames;
-    public static readonly StringNames[] AllStringNames = Enum.GetValues<StringNames>();
+    public static readonly StringNames[] AllStringNames = EnumHelper.GetValues<StringNames>();
 
     public static void Init()
     {
@@ -24,12 +29,9 @@ public static class Translator
         Logger.Info("Loaded Custom Translations", "Translator");
     }
 
-    // jsonc load options so that comments and trailing commas are allowed
-    private static readonly JsonSerializerOptions JsoncOptions = new()
-    {
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true
-    };
+#if !IL2CPP
+    private static readonly JsonSerializer JsonSerializer = new();
+#endif
 
     public static void LoadLangs()
     {
@@ -56,20 +58,25 @@ public static class Translator
 
                 try
                 {
-                    // actually you can directly deserialize from resource stream
-                    var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(
-                        resourceStream,
-                        JsoncOptions);
+#if IL2CPP
+                    var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(resourceStream);
+#else
+                    using var reader = new StreamReader(resourceStream);
+                    using var jsonReader = new JsonTextReader(reader);
+                    var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, JToken>>(jsonReader);
+#endif
 
                     if (jsonDictionary == null)
                     {
-                        Logger.Warn($"Failed to deserialize JSON file: {jsonFileName}. Is it a vaild jsonc?", "Translator");
+                        Logger.Warn($"Failed to deserialize JSON file: {jsonFileName}. Is it a valid jsonc?", "Translator");
                         continue;
                     }
 
-                    // read LanguageID
-                    if (!jsonDictionary.TryGetValue("LanguageID", out var langElem) ||
-                        !int.TryParse(langElem.GetString(), out int languageId))
+#if IL2CPP
+                    if (!jsonDictionary.TryGetValue("LanguageID", out var langElem) || langElem.ValueKind != JsonValueKind.String || !int.TryParse(langElem.GetString(), out int languageId))
+#else
+                    if (!jsonDictionary.TryGetValue("LanguageID", out var langElem) || langElem.Type != JTokenType.String || !int.TryParse(langElem.Value<string>(), out int languageId))
+#endif
                     {
                         Logger.Warn($"Invalid JSON format in {jsonFileName}: Missing or invalid 'LanguageID' field.", "Translator");
                         continue;
@@ -93,13 +100,13 @@ public static class Translator
         // Loading custom translation files
         if (!Directory.Exists($"{Main.DataPath}/{LanguageFolderName}")) Directory.CreateDirectory($"{Main.DataPath}/{LanguageFolderName}");
 
-        try { OriginalRoleNames = Main.CustomRoleValues.ToDictionary(x => x, x => Enum.GetValues<SupportedLangs>().ToDictionary(s => s, s => GetString($"{x}", s))); }
+        try { OriginalRoleNames = Main.CustomRoleValues.ToDictionary(x => x, x => EnumHelper.GetValues<SupportedLangs>().ToDictionary(s => s, s => GetString($"{x}", s))); }
         catch (Exception e) { Utils.ThrowException(e); }
 
         // Creating a translation template
         CreateTemplateFile();
 
-        foreach (SupportedLangs lang in Enum.GetValues<SupportedLangs>())
+        foreach (SupportedLangs lang in EnumHelper.GetValues<SupportedLangs>())
         {
             if (File.Exists($"{Main.DataPath}/{LanguageFolderName}/{lang}.dat"))
             {
@@ -109,6 +116,7 @@ public static class Translator
         }
     }
 
+#if IL2CPP
     private static void MergeJsonIntoTranslationMap(Dictionary<string, Dictionary<int, string>> translationMaps, int languageId, Dictionary<string, JsonElement> jsonDictionary)
     {
         foreach ((string key, JsonElement value) in jsonDictionary)
@@ -132,6 +140,31 @@ public static class Translator
             langMap[languageId] = translation.Replace("\\n", "\n").Replace("\\r", "\r");
         }
     }
+#else
+    private static void MergeJsonIntoTranslationMap(Dictionary<string, Dictionary<int, string>> translationMaps, int languageId, Dictionary<string, JToken> jsonDictionary)
+    {
+        foreach ((string key, JToken value) in jsonDictionary)
+        {
+            if (value.Type != JTokenType.String)
+            {
+                Logger.Warn($"Invalid value type for key '{key}' in language ID {languageId}. Expected a string.", "Translator");
+                continue;
+            }
+
+            string translation = value.Value<string>();
+            if (string.IsNullOrEmpty(translation))
+                continue;
+
+            if (!translationMaps.TryGetValue(key, out var langMap))
+            {
+                langMap = [];
+                translationMaps[key] = langMap;
+            }
+
+            langMap[languageId] = translation.Replace("\\n", "\n").Replace("\\r", "\r");
+        }
+    }
+#endif
 
     // Function to get a list of JSON file names in a directory
     private static string[] GetJsonFileNames(Assembly assembly, string directoryName)

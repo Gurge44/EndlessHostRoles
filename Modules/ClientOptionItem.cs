@@ -41,7 +41,7 @@ public class ClientOptionItem
                 closeButton.Background.color = Palette.DisabledGrey;
                 var closePassiveButton = closeButton.GetComponent<PassiveButton>();
                 closePassiveButton.OnClick = new();
-                closePassiveButton.OnClick.AddListener(new Action(() => { CustomBackground.gameObject.SetActive(false); }));
+                closePassiveButton.OnClick.AddListener(() => { CustomBackground.gameObject.SetActive(false); });
 
                 UiElement[] selectableButtons = optionsMenuBehaviour.ControllerSelectable.ToArray();
                 PassiveButton leaveButton = null;
@@ -71,11 +71,11 @@ public class ClientOptionItem
                 modOptionsButton.Background.color = new Color32(0, 165, 255, byte.MaxValue);
                 var modOptionsPassiveButton = modOptionsButton.GetComponent<PassiveButton>();
                 modOptionsPassiveButton.OnClick = new();
-                modOptionsPassiveButton.OnClick.AddListener(new Action(() =>
+                modOptionsPassiveButton.OnClick.AddListener(() =>
                 {
                     AdjustButtonPositions();
                     CustomBackground.gameObject.SetActive(true);
-                }));
+                });
 
                 if (leaveButton != null && leaveButton.transform != null) leaveButton.transform.localPosition = new(-1.35f, -2.411f, -1f);
                 if (returnButton != null) returnButton.transform.localPosition = new(1.35f, -2.411f, -1f);
@@ -87,8 +87,8 @@ public class ClientOptionItem
 
             // ReSharper disable once PossibleLossOfFraction
             ToggleButton.transform.localPosition = new(
-                (OptionButtons.Count - 1) % 3 == 0 ? -2.6f : ((OptionButtons.Count - 1) % 3 == 1 ? 0f : 2.6f),
-                2.2f - (0.5f * ((OptionButtons.Count - 1) / 3)),
+                (OptionButtons.Count - 1) % 3 == 0 ? -2.6f : (OptionButtons.Count - 1) % 3 == 1 ? 0f : 2.6f,
+                2.2f - 0.5f * ((OptionButtons.Count - 1) / 3),
                            -6f);
 
             ToggleButton.name = name;
@@ -96,13 +96,13 @@ public class ClientOptionItem
             var passiveButton = ToggleButton.GetComponent<PassiveButton>();
             passiveButton.OnClick = new();
 
-            passiveButton.OnClick.AddListener(new Action(() =>
+            passiveButton.OnClick.AddListener(() =>
             {
                 config?.Value = !config.Value;
 
                 UpdateToggle();
                 additionalOnClickAction?.Invoke();
-            }));
+            });
 
             UpdateToggle();
         }
@@ -147,7 +147,7 @@ public class ClientOptionItem
                 _ => 2.6f
             };
 
-            float yPos = topPosition - (row * rowSpacing);
+            float yPos = topPosition - row * rowSpacing;
 
             button.transform.localPosition = new Vector3(xPos, yPos, -6f);
         }

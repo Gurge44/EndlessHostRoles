@@ -90,7 +90,7 @@ public class Snitch : RoleBase
 
     public static bool IsSnitchTarget(PlayerControl target)
     {
-        return (target.Is(CustomRoleTypes.Impostor) && !target.Is(CustomRoles.Trickster)) || (target.IsNeutralKiller() && CanFindNeutralKiller) || (target.Is(CustomRoleTypes.Coven) && CanFindCoven) || (target.Is(CustomRoles.Madmate) && CanFindMadmate) || (target.Is(CustomRoles.Rascal) && CanFindMadmate);
+        return target.Is(CustomRoleTypes.Impostor) && !target.Is(CustomRoles.Trickster) || target.IsNeutralKiller() && CanFindNeutralKiller || target.Is(CustomRoleTypes.Coven) && CanFindCoven || target.Is(CustomRoles.Madmate) && CanFindMadmate || target.Is(CustomRoles.Rascal) && CanFindMadmate;
     }
 
     public static string GetWarningMark(PlayerControl seer, PlayerControl target)
@@ -100,7 +100,7 @@ public class Snitch : RoleBase
 
     public static string GetWarningArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (GameStates.IsMeeting || !IsSnitchTarget(seer) || (target && seer.PlayerId != target.PlayerId) || PlayerIdList == null || IsExposed == null) return string.Empty;
+        if (GameStates.IsMeeting || !IsSnitchTarget(seer) || target && seer.PlayerId != target.PlayerId || PlayerIdList == null || IsExposed == null) return string.Empty;
 
         IEnumerable<byte> exposedSnitch = PlayerIdList.Where(s => !Main.PlayerStates[s].IsDead && IsExposed[s]);
         byte[] snitch = exposedSnitch as byte[] ?? exposedSnitch.ToArray();

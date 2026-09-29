@@ -90,6 +90,6 @@ internal class Hider : RoleBase, IHideAndSeekRole
 
         CustomHnS.TimeLeft -= time;
         pc.Notify(string.Format(Translator.GetString("TimeDecreased"), time));
-        if (60 - (CustomHnS.TimeLeft % 60) <= time) Utils.NotifyRoles();
+        if (60 - CustomHnS.TimeLeft % 60 <= time) Utils.NotifyRoles();
     }
 }

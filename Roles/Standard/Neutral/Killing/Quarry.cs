@@ -238,7 +238,7 @@ public class Quarry : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if ((seer.PlayerId != QuarryId && seer.PlayerId != TargetId) || seer.PlayerId != target.PlayerId || meeting || hud || TargetId == byte.MaxValue) return string.Empty;
+        if (seer.PlayerId != QuarryId && seer.PlayerId != TargetId || seer.PlayerId != target.PlayerId || meeting || hud || TargetId == byte.MaxValue) return string.Empty;
         string time = ((int)SeekTimer.Remaining.TotalSeconds).ToString();
         return seer.PlayerId == TargetId ? $"{TargetArrow.GetAllArrows(TargetId)}\n{string.Format(Translator.GetString("Quarry.TimeLeftSuffix"), time, CustomRoles.Quarry.ToColoredString())}" : time;
     }

@@ -32,11 +32,11 @@ public static class Statistics
             PlayerControl lp = PlayerControl.LocalPlayer;
             CustomRoles role = lp.GetCustomRole();
             List<CustomRoles> addons = lp.GetCustomSubRoles();
-            bool won = CustomWinnerHolder.WinnerIds.Contains(lp.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(role) || (CustomWinnerHolder.WinnerTeam == CustomWinner.Bloodlust && addons.Contains(CustomRoles.Bloodlust));
+            bool won = CustomWinnerHolder.WinnerIds.Contains(lp.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(role) || CustomWinnerHolder.WinnerTeam == CustomWinner.Bloodlust && addons.Contains(CustomRoles.Bloodlust);
             CustomGameMode gm = Options.CurrentGameMode;
             ClientData randomClient = apc[1].GetClient();
             
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla || (randomClient != null && !randomClient.ProductUserId.IsNullOrWhiteSpace() && randomClient.ProductUserId.Length == 32))
+            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla || randomClient != null && !randomClient.ProductUserId.IsNullOrWhiteSpace() && randomClient.ProductUserId.Length == 32)
             {
                 try
                 {
@@ -316,16 +316,16 @@ public static class Statistics
                 if (!Main.EnumerateAlivePlayerControls().Any(pc => pc.Is(CustomRoleTypes.Impostor)) && killer.IsCrewmate() && target.IsImpostor() && !Main.EnumerateAlivePlayerControls().Any(x => x.IsNeutralKiller()))
                     Achievements.Type.ImCrewISwear.Complete();
 
-                if ((killer.IsImpostor() && target.IsMadmate()) || (killer.IsMadmate() && target.IsImpostor()))
+                if (killer.IsImpostor() && target.IsMadmate() || killer.IsMadmate() && target.IsImpostor())
                     Achievements.Type.BetrayalLevel100.CompleteAfterGameEnd();
 
                 PlayerState killerState = Main.PlayerStates[killer.PlayerId];
                 PlayerState targetState = Main.PlayerStates[target.PlayerId];
 
-                if ((targetState.MainRole == CustomRoles.Romantic && Romantic.PartnerId == killer.PlayerId) ||
-                    (targetState.SubRoles.Contains(CustomRoles.Lovers) && killer.Is(CustomRoles.Lovers)) ||
-                    (targetState.MainRole == CustomRoles.Lawyer && Lawyer.Target.TryGetValue(target.PlayerId, out byte ltg) && ltg == killer.PlayerId) ||
-                    (targetState.Role is Follower tc && tc.BetPlayer == killer.PlayerId))
+                if (targetState.MainRole == CustomRoles.Romantic && Romantic.PartnerId == killer.PlayerId ||
+                    targetState.SubRoles.Contains(CustomRoles.Lovers) && killer.Is(CustomRoles.Lovers) ||
+                    targetState.MainRole == CustomRoles.Lawyer && Lawyer.Target.TryGetValue(target.PlayerId, out byte ltg) && ltg == killer.PlayerId ||
+                    targetState.Role is Follower tc && tc.BetPlayer == killer.PlayerId)
                     Achievements.Type.WhatHaveIDone.CompleteAfterGameEnd();
 
                 if (targetState.MainRole == CustomRoles.Snitch && Snitch.IsExposed != null && Snitch.IsExposed.TryGetValue(target.PlayerId, out bool exposed) && exposed)

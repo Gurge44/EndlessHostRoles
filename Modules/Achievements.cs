@@ -1,9 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.Json;
 using UnityEngine;
 using UnityEngine.Networking;
+
+#if IL2CPP
+using System.Text.Json;
+#else
+using Newtonsoft.Json;
+#endif
 
 // ReSharper disable InconsistentNaming
 
@@ -213,7 +218,11 @@ public static class Achievements
 
     private static void SaveAllData()
     {
+#if IL2CPP
         string json = JsonSerializer.Serialize(CompletedAchievements);
+#else
+        string json = JsonConvert.SerializeObject(CompletedAchievements);
+#endif
         File.WriteAllText(SaveFilePath, json);
 
         if (!Options.StoreCompletedAchievementsOnEHRDatabase.GetBool()) return;
@@ -232,7 +241,11 @@ public static class Achievements
                 achievements = CompletedAchievements
             };
 
+#if IL2CPP
             string payload = JsonSerializer.Serialize(data);
+#else
+            string payload = JsonConvert.SerializeObject(data);
+#endif
 
             var request = new UnityWebRequest(ApiSaveEndpoint, UnityWebRequest.kHttpVerbPOST)
             {
@@ -253,7 +266,11 @@ public static class Achievements
         if (File.Exists(SaveFilePath))
         {
             string json = File.ReadAllText(SaveFilePath);
+#if IL2CPP
             CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
+#else
+            CompletedAchievements = JsonConvert.DeserializeObject<HashSet<Type>>(json);
+#endif
         }
         else if (Options.StoreCompletedAchievementsOnEHRDatabase.GetBool())
         {
@@ -277,7 +294,11 @@ public static class Achievements
                 else
                 {
                     string json = request.downloadHandler.text;
+#if IL2CPP
                     CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
+#else
+                    CompletedAchievements = JsonConvert.DeserializeObject<HashSet<Type>>(json);
+#endif
                     File.WriteAllText(SaveFilePath, json);
                     Logger.Info("Achievements loaded successfully.", "Achievements.LoadAllData");
                 }

@@ -5,7 +5,9 @@ using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using AmongUs.QuickChat;
+#if IL2CPP
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+#endif
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -73,7 +75,7 @@ internal static class EAC
                         text.Contains('▌') ||
                         text.Contains('▒') ||
                         text.Contains("习近平") ||
-                        (!pc.IsModdedClient() && text.Length > 100))
+                        !pc.IsModdedClient() && text.Length > 100)
                     {
                         Report(pc, "Illegal messages");
                         Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent an illegal message, which has been rejected", "EAC");
@@ -105,7 +107,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if (GameManager.Instance.TryCast<HideAndSeekManager>())
+                    if (GameManager.Instance is HideAndSeekManager)
                     {
                         WarnHost();
                         Report(pc, "Try to Report body in Hide and Seek");
@@ -283,7 +285,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if (((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) || ExileController.Instance) && target != pc && !(Options.UseMeetingShapeshift.GetBool() && (GuessManager.Data.ContainsKey(pc.PlayerId) || pc.UsesMeetingShapeshift())))
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating || ExileController.Instance) && target != pc && !(Options.UseMeetingShapeshift.GetBool() && (GuessManager.Data.ContainsKey(pc.PlayerId) || pc.UsesMeetingShapeshift())))
                     {
                         WarnHost();
                         Report(pc, "Trying to shift during meeting");
@@ -340,7 +342,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating && !ReportDeadBodyPatch.MeetingStarted) || ExileController.Instance)
+                    if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating && !ReportDeadBodyPatch.MeetingStarted || ExileController.Instance)
                     {
                         WarnHost();
                         Report(pc, "Doing task during meeting");
@@ -390,7 +392,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) || ExileController.Instance)
+                    if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating || ExileController.Instance)
                     {
                         WarnHost();
                         Report(pc, "Trying to vanish during meeting");
@@ -412,7 +414,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) || ExileController.Instance)
+                    if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating || ExileController.Instance)
                     {
                         WarnHost();
                         Report(pc, "Trying to appear during meeting");
@@ -444,7 +446,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) || ExileController.Instance)
+                    if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating || ExileController.Instance)
                     {
                         WarnHost();
                         Report(pc, "PlayAnimation Rpc during meeting");
@@ -499,7 +501,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) || ExileController.Instance)
+                    if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating || ExileController.Instance)
                     {
                         WarnHost();
                         Report(pc, "SetScanner Rpc during meeting");
@@ -547,7 +549,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if (GameManager.Instance.TryCast<HideAndSeekManager>())
+                    if (GameManager.Instance is HideAndSeekManager)
                     {
                         WarnHost();
                         Report(pc, "Using platform in hide n seek");
@@ -557,7 +559,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) || ExileController.Instance)
+                    if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating || ExileController.Instance)
                     {
                         WarnHost();
                         Report(pc, "Using platform during meeting");
@@ -591,7 +593,7 @@ internal static class EAC
 
                     if (target == null) break;
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) || ExileController.Instance)
+                    if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating || ExileController.Instance)
                     {
                         WarnHost();
                         Report(pc, "Trying to protect during meeting");
@@ -623,7 +625,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) || ExileController.Instance)
+                    if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating || ExileController.Instance)
                     {
                         WarnHost();
                         Report(pc, "Using zipline during meeting");
@@ -655,7 +657,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) || ExileController.Instance)
+                    if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating || ExileController.Instance)
                     {
                         WarnHost();
                         Report(pc, "Triggering spore during meeting");
@@ -880,7 +882,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) || ExileController.Instance)
+                    if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating || ExileController.Instance)
                     {
                         WarnHost();
                         Report(player, "Venting during meeting");
@@ -954,7 +956,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) || ExileController.Instance)
+                    if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating || ExileController.Instance)
                     {
                         WarnHost();
                         Report(player, "Climbing ladder during meeting");
@@ -1010,7 +1012,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating) || ExileController.Instance)
+                    if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.MeetingStates.Animating || ExileController.Instance)
                     {
                         WarnHost();
                         Report(player, "Petting during meeting");
@@ -1260,12 +1262,26 @@ internal static class GameDataHandlerPatch
         return !OperatingSystem.IsAndroid();
     }
     
+#if IL2CPP
+    private static Il2CppSystem.Collections.IEnumerator EmptyCoroutine()
+    {
+        return DummyCoroutine().WrapToIl2Cpp();
+    }
+
+    private static IEnumerator DummyCoroutine()
+    {
+        yield break;
+    }
+    
+    public static bool Prefix(InnerNetClient __instance, MessageReader reader, int msgNum, ref Il2CppSystem.Collections.IEnumerator __result)
+#else
     private static IEnumerator EmptyCoroutine() // fixes errors if we return false
     {
         yield break;
     }
 
-    public static bool Prefix(InnerNetClient __instance, MessageReader reader, int msgNum, ref Il2CppSystem.Collections.IEnumerator __result)
+    public static bool Prefix(InnerNetClient __instance, MessageReader reader, int msgNum, ref IEnumerator __result)
+#endif
     {
         var tag = (GameDataTag)reader.Tag;
 
@@ -1279,9 +1295,9 @@ internal static class GameDataHandlerPatch
                 {
                     if (obj.AmOwner)
                     {
-                        Logger.Warn($"Received DataFlag for object {netId.ToString()} {obj.name} that we own.", "GameDataHandlerPatch");
-                        EAC.WarnHost();
-                        __result = EmptyCoroutine().WrapToIl2Cpp();
+                        //Logger.Warn($"Received DataFlag for object {netId.ToString()} {obj.name} that we own.", "GameDataHandlerPatch");
+                        //EAC.WarnHost();
+                        __result = EmptyCoroutine();
                         return false;
                     }
 
@@ -1291,7 +1307,7 @@ internal static class GameDataHandlerPatch
                         {
                             Logger.Warn($"Received DataFlag for MeetingHud {netId.ToString()} that we own.", "GameDataHandlerPatch");
                             EAC.WarnHost();
-                            __result = EmptyCoroutine().WrapToIl2Cpp();
+                            __result = EmptyCoroutine();
                             return false;
                         }
 
@@ -1299,7 +1315,7 @@ internal static class GameDataHandlerPatch
                         {
                             Logger.Warn($"Received DataFlag for VoteBanSystem {netId.ToString()} that we own.", "GameDataHandlerPatch");
                             EAC.WarnHost();
-                            __result = EmptyCoroutine().WrapToIl2Cpp();
+                            __result = EmptyCoroutine();
                             return false;
                         }
 
@@ -1307,7 +1323,7 @@ internal static class GameDataHandlerPatch
                         {
                             Logger.Warn($"Received DataFlag for NetworkedPlayerInfo {netId.ToString()} that we own.", "GameDataHandlerPatch");
                             EAC.WarnHost();
-                            __result = EmptyCoroutine().WrapToIl2Cpp();
+                            __result = EmptyCoroutine();
                             return false;
                         }
                     }
@@ -1332,7 +1348,7 @@ internal static class GameDataHandlerPatch
                 if (client == null)
                 {
                     Logger.Warn($"Received SceneChangeFlag for unknown client {clientId}.", "GameDataHandlerPatch");
-                    __result = EmptyCoroutine().WrapToIl2Cpp();
+                    __result = EmptyCoroutine();
                     return false;
                 }
 
@@ -1340,7 +1356,7 @@ internal static class GameDataHandlerPatch
                 {
                     Logger.Warn($"Client {client.PlayerName} ({client.Id}) tried to send SceneChangeFlag with null scene.", "GameDataHandlerPatch");
                     EAC.WarnHost();
-                    __result = EmptyCoroutine().WrapToIl2Cpp();
+                    __result = EmptyCoroutine();
                     return false;
                 }
 
@@ -1351,14 +1367,14 @@ internal static class GameDataHandlerPatch
 
                     if (GameStates.IsOnlineGame && AmongUsClient.Instance.AmHost) Utils.ErrorEnd("SceneChange Tutorial Hack");
 
-                    __result = EmptyCoroutine().WrapToIl2Cpp();
+                    __result = EmptyCoroutine();
                     return false;
                 }
 
                 if (GameStates.IsInGame)
                 {
                     Logger.Warn($"Client {client.PlayerName} ({client.Id}) tried to send SceneChangeFlag during mid of game.", "GameDataHandlerPatch");
-                    __result = EmptyCoroutine().WrapToIl2Cpp();
+                    __result = EmptyCoroutine();
                     return false;
                 }
 
@@ -1374,7 +1390,7 @@ internal static class GameDataHandlerPatch
                 {
                     Logger.Warn($"Received ReadyFlag for unknown client {clientId}.", "GameDataHandlerPatch");
                     EAC.WarnHost();
-                    __result = EmptyCoroutine().WrapToIl2Cpp();
+                    __result = EmptyCoroutine();
                     return false;
                 }
 
@@ -1384,7 +1400,7 @@ internal static class GameDataHandlerPatch
                     {
                         Logger.Warn($"Received ReadyFlag while game is started from {clientId}.", "GameDataHandlerPatch");
                         EAC.WarnHost();
-                        __result = EmptyCoroutine().WrapToIl2Cpp();
+                        __result = EmptyCoroutine();
                         return false;
                     }
                 }

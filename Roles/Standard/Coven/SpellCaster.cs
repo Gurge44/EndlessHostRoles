@@ -142,6 +142,6 @@ public class SpellCaster : CovenBase
 
     private static bool IsWinConditionMet()
     {
-        return PlayerIdList != null && PlayerIdList.ToValidPlayers().Any(x => x.IsAlive()) && Main.EnumerateAlivePlayerControls().All(x => x.Is(Team.Coven) || (HexedPlayers != null && HexedPlayers.ContainsKey(x.PlayerId)));
+        return PlayerIdList != null && PlayerIdList.ToValidPlayers().Any(x => x.IsAlive()) && Main.EnumerateAlivePlayerControls().All(x => x.Is(Team.Coven) || HexedPlayers != null && HexedPlayers.ContainsKey(x.PlayerId));
     }
 }

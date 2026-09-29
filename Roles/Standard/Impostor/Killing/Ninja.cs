@@ -118,7 +118,7 @@ internal class Ninja : RoleBase
     public override bool CanUseKillButton(PlayerControl pc)
     {
         if (!pc || !pc.IsAlive()) return false;
-        return CanKillAfterAssassinate || (!pc.IsShifted() && (pc.Data.Role as PhantomRole) is null or { IsInvisible: false });
+        return CanKillAfterAssassinate || !pc.IsShifted() && (pc.Data.Role as PhantomRole) is null or { IsInvisible: false };
     }
 
     public override void AfterMeetingTasks()

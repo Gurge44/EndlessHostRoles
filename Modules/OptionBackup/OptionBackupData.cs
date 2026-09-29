@@ -13,25 +13,25 @@ public class OptionBackupData
     {
         AllValues = new(32);
 
-        foreach (ByteOptionNames name in Enum.GetValues<ByteOptionNames>())
+        foreach (ByteOptionNames name in EnumHelper.GetValues<ByteOptionNames>())
         {
             if (option.TryGetByte(name, out byte value))
                 AllValues.Add(new ByteOptionBackupValue(name, value));
         }
 
-        foreach (BoolOptionNames name in Enum.GetValues<BoolOptionNames>())
+        foreach (BoolOptionNames name in EnumHelper.GetValues<BoolOptionNames>())
         {
             if (option.TryGetBool(name, out bool value) && name is not BoolOptionNames.GhostsDoTasks and not BoolOptionNames.Roles)
                 AllValues.Add(new BoolOptionBackupValue(name, value));
         }
 
-        foreach (FloatOptionNames name in Enum.GetValues<FloatOptionNames>())
+        foreach (FloatOptionNames name in EnumHelper.GetValues<FloatOptionNames>())
         {
             if (option.TryGetFloat(name, out float value))
                 AllValues.Add(new FloatOptionBackupValue(name, value));
         }
 
-        foreach (Int32OptionNames name in Enum.GetValues<Int32OptionNames>())
+        foreach (Int32OptionNames name in EnumHelper.GetValues<Int32OptionNames>())
         {
             if (option.TryGetInt(name, out int value))
                 AllValues.Add(new IntOptionBackupValue(name, value));
@@ -42,7 +42,7 @@ public class OptionBackupData
         // Since TryGetUInt is not implemented, get it separately
         AllValues.Add(new UIntOptionBackupValue(UInt32OptionNames.Keywords, (uint)option.Keywords));
 
-        RoleTypes[] array = [RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.GuardianAngel, RoleTypes.Shapeshifter, RoleTypes.Noisemaker, RoleTypes.Phantom, RoleTypes.Tracker, RoleTypes.Viper, RoleTypes.Detective, RoleTypes.Judge];
+        RoleTypes[] array = [RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.GuardianAngel, RoleTypes.Shapeshifter, RoleTypes.Noisemaker, RoleTypes.Phantom, RoleTypes.Tracker, RoleTypes.Viper, RoleTypes.Detective, RoleTypes.Judge, RoleTypes.SpiritGuide];
         foreach (RoleTypes role in array) AllValues.Add(new RoleRateBackupValue(role, option.RoleOptions.GetNumPerGame(role), option.RoleOptions.GetChancePerGame(role)));
     }
 

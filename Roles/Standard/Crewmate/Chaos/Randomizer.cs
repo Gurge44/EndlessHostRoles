@@ -482,7 +482,7 @@ internal class Randomizer : RoleBase
 
     private static string RNGString => CustomRoles.Randomizer.ColoredTextByRole(Translator.GetString("RNGHasSpoken"));
 
-    public static float RandomFloat => IRandom.Instance.Next(0, 5) + (IRandom.Instance.Next(0, 10) / 10f);
+    public static float RandomFloat => IRandom.Instance.Next(0, 5) + IRandom.Instance.Next(0, 10) / 10f;
 
     public override bool IsEnable => Exists;
 
@@ -602,7 +602,7 @@ internal class Randomizer : RoleBase
     {
         long now = Utils.TimeStamp;
 
-        Effect[] allEffects = Enum.GetValues<Effect>();
+        Effect[] allEffects = EnumHelper.GetValues<Effect>();
         Effect effect = allEffects.RandomElement();
 
         if (effect == Effect.GhostPlayer)

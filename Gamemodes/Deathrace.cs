@@ -11,7 +11,7 @@ namespace EHR.Gamemodes;
 
 public static class Deathrace
 {
-    private static readonly PowerUp[] AllPowerUp = Enum.GetValues<PowerUp>();
+    private static readonly PowerUp[] AllPowerUp = EnumHelper.GetValues<PowerUp>();
     public static readonly Dictionary<string, HashSet<MapNames>> PlayedMaps = [];
     public static List<SystemTypes> Track = [];
     public static Dictionary<byte, PlayerData> Data = [];
@@ -212,8 +212,6 @@ public static class Deathrace
         SmokeSpeedReduction = SmokeSpeedReductionOption.GetFloat();
         EnergyDrinkSpeedIncreasement = EnergyDrinkSpeedIncreasementOption.GetFloat();
         PowerUpPickupRange = PowerUpPickupRangeOption.GetFloat();
-        
-        Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
     }
 
     public static IEnumerator GameStart()
@@ -260,14 +258,6 @@ public static class Deathrace
                 yield return new WaitForSecondsRealtime(4f);
                 NameNotifyManager.Reset();
             }
-            
-            if (Main.CurrentMap == MapNames.Airship)
-                players.MassTP(new RandomSpawn.AirshipSpawnMap().Positions[Clockwise ? Track[^1] : Track[0]]);
-        }
-        else if (Main.CurrentMap == MapNames.Airship)
-        {
-            yield return new WaitForSecondsRealtime(3f);
-            players.MassTP(new RandomSpawn.AirshipSpawnMap().Positions[Clockwise ? Track[^1] : Track[0]]);
         }
 
         for (var i = 5; i > 0; i--)
@@ -277,11 +267,10 @@ public static class Deathrace
             yield return new WaitForSecondsRealtime(1f);
         }
         
+        players.MassTP(RandomSpawn.SpawnMap.GetSpawnMap().Positions[Clockwise ? Track[^1] : Track[0]]);
+        
         NameNotifyManager.Reset();
         Utils.NotifyRoles();
-        
-        Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
-        Utils.SyncAllSettings();
         
         GameGoing = true;
     }
@@ -294,7 +283,7 @@ public static class Deathrace
 
     public static string GetSuffix(PlayerControl seer, PlayerControl target, bool hud)
     {
-        if (!GameGoing || seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || !Data.TryGetValue(seer.PlayerId, out var data)) return string.Empty;
+        if (!GameGoing || seer.PlayerId != target.PlayerId || seer.IsHost() && !hud || !Data.TryGetValue(seer.PlayerId, out var data)) return string.Empty;
 
         Suffix.Clear().Append("<#ffffff>");
 
@@ -418,7 +407,7 @@ public static class Deathrace
 
     public static bool CanUseVent(PlayerControl pc, int ventId)
     {
-        if (!AmongUsClient.Instance.AmHost || (pc.inVent && pc.GetClosestVent()?.Id == ventId)) return true;
+        if (!AmongUsClient.Instance.AmHost || pc.inVent && pc.GetClosestVent()?.Id == ventId) return true;
         return Data.TryGetValue(pc.PlayerId, out var data) && UsableVentIDs.TryGetValue(Main.CurrentMap, out var dict) && dict.ContainsKey(data.GetNextRoom()) && dict.TryGetValue(data.GetCurrentRoom(), out var vents) && vents.Contains(ventId);
     }
 
@@ -562,7 +551,7 @@ public static class Deathrace
 
                 SystemTypes currentRoom = data.GetCurrentRoom();
 
-                if ((!room && !coordinateCheck) || (room && room.RoomId == currentRoom))
+                if (!room && !coordinateCheck || room && room.RoomId == currentRoom)
                 {
                     CheckAndNotify(data);
                     continue;

@@ -1,10 +1,13 @@
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
+
+#if IL2CPP
+using System.Linq;
+#endif
 
 namespace EHR.Roles;
 

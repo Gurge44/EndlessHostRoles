@@ -131,7 +131,7 @@ public class Duality : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != DualityId || seer.PlayerId != target.PlayerId || (!hud && seer.IsModdedClient()) || meeting || !seer.IsAlive()) return string.Empty;
+        if (seer.PlayerId != DualityId || seer.PlayerId != target.PlayerId || !hud && seer.IsModdedClient() || meeting || !seer.IsAlive()) return string.Empty;
         return $"<size=80%>{string.Format(Translator.GetString(KillingPhase ? "Duality.MustKill" : "Duality.MustDoTask"), (int)Timer.Remaining.TotalSeconds)}</size>";
     }
 }

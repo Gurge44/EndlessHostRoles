@@ -1,7 +1,12 @@
-﻿using System;
+﻿#if IL2CPP
+using Il2CppSystem;
+#else
+using System;
+#endif
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
+// ReSharper disable RedundantNameQualifier
 
 namespace EHR;
 
@@ -44,7 +49,7 @@ public static class LobbyFixedUpdatePatch
                 RightEngineSR.color = Color.cyan;
             }
         }
-        catch (Exception e) { Utils.ThrowException(e); }
+        catch (System.Exception e) { Utils.ThrowException(e); }
     }
 }
 
@@ -62,7 +67,7 @@ public static class HostInfoPanelSetUpPatch
     {
         try
         {
-            if (!HostText) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
+            if (!HostText) HostText = __instance.content.transform.Find("Name").GetComponent<TextMeshPro>();
 
             string name = AmongUsClient.Instance.GetHost().PlayerName.Split('\n')[^1];
             if (name == string.Empty) return;
@@ -81,12 +86,16 @@ public static class HostInfoPanelSetUpPatch
 //[HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.Update))]
 internal static class LobbyBehaviourUpdatePatch
 {
-    private static Func<ISoundPlayer, bool> Lobbybgm;
+    private static Predicate<ISoundPlayer> Lobbybgm;
     private static ISoundPlayer MapThemeSound;
     public static void Postfix(LobbyBehaviour __instance)
     {
         // ReSharper disable once ConvertToLocalFunction
+#if IL2CPP
+        Lobbybgm = (Predicate<ISoundPlayer>)(x => x.Name.Equals("MapTheme"));
+#else
         Lobbybgm = x => x.Name.Equals("MapTheme");
+#endif
         MapThemeSound = SoundManager.Instance.soundPlayers.Find(Lobbybgm);
 
         if (!Main.LobbyMusic.Value)

@@ -1,3 +1,4 @@
+#if IL2CPP
 using System;
 using HarmonyLib;
 using Hazel;
@@ -78,7 +79,7 @@ public static class HandshakePatch
 
     public static void Postfix(ref Il2CppStructArray<byte> __result)
     {
-        if (!Main.HasReactorPlugin)
+        if (!Main.HasReactorPlugin && !ServerManager.Instance.CurrentRegion.PingServer.Contains("among.us"))
         {
             var handshake = new MessageWriter(1000);
 
@@ -87,7 +88,7 @@ public static class HandshakePatch
 
             // Reactor Header
             const byte version = (byte)ReactorProtocolVersion.Latest;
-            const ulong value = (MAGIC << 8) | version;
+            const ulong value = MAGIC << 8 | version;
             handshake.Write(value);
 
             // ModdedHandshakeC2S
@@ -101,3 +102,4 @@ public static class HandshakePatch
         }
     }
 }
+#endif

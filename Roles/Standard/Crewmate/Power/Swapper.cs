@@ -272,7 +272,7 @@ public class Swapper : RoleBase
         {
             __instance.playerStates.ToList().ForEach(x =>
             {
-                Transform swapButton = x.transform.FindChild("ShootButton");
+                Transform swapButton = x.transform.Find("ShootButton");
                 if (swapButton != null) Object.Destroy(swapButton.gameObject);
             });
 
@@ -300,7 +300,7 @@ public class Swapper : RoleBase
 
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => SwapperOnClick(pva.PlayerId, __instance)));
+            button.OnClick.AddListener(() => SwapperOnClick(pva.PlayerId, __instance));
         }
     }
 

@@ -2,13 +2,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using AmongUs.Data;
 using AmongUs.Data.Player;
 using Assets.InnerNet;
 using HarmonyLib;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine.Networking;
+
+#if IL2CPP
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using System.Text.Json;
+#else
+using Newtonsoft.Json;
+#endif
 
 namespace EHR;
 
@@ -44,7 +49,11 @@ public class ModNews
 
     public static List<ModNews> FromJson(string json)
     {
+#if IL2CPP
         return JsonSerializer.Deserialize<List<ModNews>>(json);
+#else
+        return JsonConvert.DeserializeObject<List<ModNews>>(json);
+#endif
     }
 }
 
@@ -89,7 +98,11 @@ public static class ModNewsHistory
 
     [HarmonyPatch(typeof(PlayerAnnouncementData), nameof(PlayerAnnouncementData.SetAnnouncements))]
     [HarmonyPrefix]
+#if IL2CPP
     public static void SetModAnnouncements(ref Il2CppReferenceArray<Announcement> aRange)
+#else
+    public static void SetModAnnouncements(ref Announcement[] aRange)
+#endif
     {
         if (AllModNews.Count == 0)
         {
@@ -101,9 +114,6 @@ public static class ModNewsHistory
         finalAllNews.AddRange(aRange.Where(news => AllModNews.All(x => x.Number != news.Number)));
         finalAllNews.Sort((a1, a2) => DateTime.Compare(DateTime.Parse(a2.Date), DateTime.Parse(a1.Date)));
 
-        aRange = new Il2CppReferenceArray<Announcement>(finalAllNews.Count);
-
-        for (var i = 0; i < finalAllNews.Count; i++)
-            aRange[i] = finalAllNews[i];
+        aRange = finalAllNews.ToArray();
     }
 }

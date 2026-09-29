@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
 
@@ -127,9 +128,14 @@ public static class OptionsMenuBehaviourStartPatch
                 {
                     if (ClientControlGUI.Instance) Object.Destroy(ClientControlGUI.Instance);
                     MainMenuManagerPatch.ShowRightPanelImmediately();
+                    AmciRegistration.Revert();
 
                     Main.Instance.Harmony.UnpatchSelf();
+#if IL2CPP
                     Main.Instance.Unload();
+#else
+                    Object.Destroy(Main.Instance.gameObject);
+#endif
                 }
             }
         }
@@ -248,7 +254,7 @@ public static class OptionsMenuBehaviourStartPatch
                     {
                         var process = Process.GetCurrentProcess();
                         Main.OriginalAffinity = process.ProcessorAffinity;
-                        process.ProcessorAffinity = (IntPtr)((1 << 2) | (1 << 3));
+                        process.ProcessorAffinity = (IntPtr)(1 << 2 | 1 << 3);
                     }
                 }
                 else
@@ -272,7 +278,11 @@ public static class OptionsMenuBehaviourStartPatch
                 switch (Main.ShowClientControlGUI.Value)
                 {
                     case true when !ClientControlGUI.Instance:
+#if IL2CPP
                         Main.Instance.AddComponent<ClientControlGUI>();
+#else
+                        Main.Instance.gameObject.AddComponent<ClientControlGUI>();
+#endif
                         break;
                     case false when ClientControlGUI.Instance:
                         Object.Destroy(ClientControlGUI.Instance);

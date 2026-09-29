@@ -135,7 +135,7 @@ public class Spirit : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != SpiritID || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != SpiritID || seer.IsModdedClient() && !hud || meeting) return string.Empty;
 
         bool firstIsSet = Targets.Item1 != byte.MaxValue;
         bool secondIsSet = Targets.Item2 != byte.MaxValue;

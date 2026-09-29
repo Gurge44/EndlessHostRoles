@@ -110,7 +110,7 @@ public class Hypnotist : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != HypnotistId || meeting || (seer.IsModdedClient() && !hud) || Timer == null) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != HypnotistId || meeting || seer.IsModdedClient() && !hud || Timer == null) return string.Empty;
 
         var timeLeft = (int)Math.Ceiling(Timer.Remaining.TotalSeconds);
         return timeLeft <= 5 || hud ? $"\u25a9 ({timeLeft})" : "\u25a9";

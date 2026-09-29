@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 
@@ -53,7 +52,7 @@ public class Patroller : RoleBase
 
         RoomBoosts = ShipStatus.Instance.AllRooms
             .Shuffle()
-            .Zip(Enum.GetValues<Boost>())
+            .Zip(EnumHelper.GetValues<Boost>())
             .ToDictionary(x => x.Second, x => x.First);
 
         playerId.SetAbilityUseLimit(1);
@@ -96,7 +95,7 @@ public class Patroller : RoleBase
         PlainShipRoom room = pc.GetPlainShipRoom();
         bool roomNull = room == null;
         bool lastRoomNull = LastRoom == null;
-        if ((!lastRoomNull && !roomNull && room == LastRoom) || (lastRoomNull && roomNull)) return;
+        if (!lastRoomNull && !roomNull && room == LastRoom || lastRoomNull && roomNull) return;
 
         LastRoom = room;
 

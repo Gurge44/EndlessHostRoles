@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System;
 using Hazel;
 using UnityEngine;
 
@@ -94,7 +93,7 @@ internal class Markseeker : RoleBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.prophecies.png", 160f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => MarkseekerOnClick(pva.PlayerId)));
+            button.OnClick.AddListener(() => MarkseekerOnClick(pva.PlayerId));
         }
     }
 

@@ -138,6 +138,12 @@ public static class AURoleOptions
         set => Opt.SetFloat(FloatOptionNames.JudgeTaskRequirementPercentage, value);
     }
 
+    public static float SpiritGuideCooldown
+    {
+        get => Opt.GetFloat(FloatOptionNames.SpiritGuideCooldownSeconds);
+        set => Opt.SetFloat(FloatOptionNames.SpiritGuideCooldownSeconds, value);
+    }
+
     public static void SetOpt(IGameOptions opt)
     {
         Opt = opt;

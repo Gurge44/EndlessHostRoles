@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using EHR.Modules;
 using UnityEngine;
 using static EHR.Translator;
@@ -84,7 +83,7 @@ public class Loner : RoleBase
             renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.Sidekick.png", 160f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => GuessManager.GuesserOnClick(pva.PlayerId, __instance, true)));
+            button.OnClick.AddListener(() => GuessManager.GuesserOnClick(pva.PlayerId, __instance, true));
         }
     }
 

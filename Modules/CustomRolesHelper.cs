@@ -412,6 +412,7 @@ internal static class CustomRolesHelper
                 CustomRoles.DetectiveEHR => CustomRoles.Detective,
                 CustomRoles.ViperEHR => CustomRoles.Viper,
                 CustomRoles.JudgeEHR => CustomRoles.Judge,
+                CustomRoles.SpiritGuideEHR => CustomRoles.SpiritGuide,
 
                 // Hide And Seek
                 CustomRoles.Hider => CustomRoles.Crewmate,
@@ -470,13 +471,14 @@ internal static class CustomRolesHelper
                 CustomRoles.Detective => CustomRoles.DetectiveEHR,
                 CustomRoles.Viper => CustomRoles.ViperEHR,
                 CustomRoles.Judge => CustomRoles.JudgeEHR,
+                CustomRoles.SpiritGuide => CustomRoles.SpiritGuideEHR,
                 _ => role.IsImpostor() ? CustomRoles.ImpostorEHR : CustomRoles.CrewmateEHR
             };
         }
 
         public RoleTypes GetDYRole(bool load = false)
         {
-            if (!load && ((Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) || role.AlwaysUsesPhantomBase()) && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Phantom;
+            if (!load && (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() || role.AlwaysUsesPhantomBase()) && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Phantom;
 
             bool UsePets = !load && Options.UsePets.GetBool();
 
@@ -651,12 +653,12 @@ internal static class CustomRolesHelper
 
         public bool IsNonNK(bool check = false)
         {
-            return (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Arsonist.ArsonistKeepsGameGoing != null && !Arsonist.ArsonistKeepsGameGoing.GetBool() && (Arsonist.ArsonistCanIgniteAnytime == null || !Arsonist.ArsonistCanIgniteAnytime.GetBool())) || role.GetNeutralRoleCategory() is RoleOptionType.Neutral_Benign or RoleOptionType.Neutral_Evil or RoleOptionType.Neutral_Pariah;
+            return !check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Arsonist.ArsonistKeepsGameGoing != null && !Arsonist.ArsonistKeepsGameGoing.GetBool() && (Arsonist.ArsonistCanIgniteAnytime == null || !Arsonist.ArsonistCanIgniteAnytime.GetBool()) || role.GetNeutralRoleCategory() is RoleOptionType.Neutral_Benign or RoleOptionType.Neutral_Evil or RoleOptionType.Neutral_Pariah;
         }
 
         public bool IsNK(bool check = false)
         {
-            return (role == CustomRoles.Arsonist && (check || !CanCheck || !Options.IsLoaded || Arsonist.ArsonistKeepsGameGoing == null || Arsonist.ArsonistKeepsGameGoing.GetBool() || (Arsonist.ArsonistCanIgniteAnytime != null && Arsonist.ArsonistCanIgniteAnytime.GetBool()))) || role is
+            return role == CustomRoles.Arsonist && (check || !CanCheck || !Options.IsLoaded || Arsonist.ArsonistKeepsGameGoing == null || Arsonist.ArsonistKeepsGameGoing.GetBool() || Arsonist.ArsonistCanIgniteAnytime != null && Arsonist.ArsonistCanIgniteAnytime.GetBool()) || role is
                 CustomRoles.Jackal or
                 CustomRoles.Jackpot or
                 CustomRoles.Glitch or
@@ -744,7 +746,7 @@ internal static class CustomRolesHelper
 
         public bool IsImpostor()
         {
-            return (role == CustomRoles.DoubleAgent && (!Options.IsLoaded || !Main.IntroDestroyed)) || role is
+            return role == CustomRoles.DoubleAgent && (!Options.IsLoaded || !Main.IntroDestroyed) || role is
                 CustomRoles.Impostor or
                 CustomRoles.ImpostorEHR or
                 CustomRoles.Phantom or
@@ -996,7 +998,7 @@ internal static class CustomRolesHelper
 
         public bool OnlySpawnsWithPets()
         {
-            return !(((Options.UsePhantomBasis.GetBool() && (!role.IsNeutral() || Options.UsePhantomBasisForNKs.GetBool()))) && role.SimpleAbilityTrigger() && role != CustomRoles.Chemist && !role.AlwaysUsesPhantomBase()) && OnlySpawnsWithPetsRoleList.Contains(role);
+            return !(Options.UsePhantomBasis.GetBool() && (!role.IsNeutral() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger() && role != CustomRoles.Chemist && !role.AlwaysUsesPhantomBase()) && OnlySpawnsWithPetsRoleList.Contains(role);
         }
 
         public bool NeedUpdateOnLights()
@@ -1379,6 +1381,8 @@ internal static class CustomRolesHelper
                 CustomRoles.DetectiveEHR => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Judge => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.JudgeEHR => RoleOptionType.Crewmate_Miscellaneous,
+                CustomRoles.SpiritGuide => RoleOptionType.Crewmate_Miscellaneous,
+                CustomRoles.SpiritGuideEHR => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Addict => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.CameraMan => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Carrier => RoleOptionType.Crewmate_Miscellaneous,
@@ -1642,22 +1646,22 @@ internal static class CustomRolesHelper
 
         public bool IsImpostorTeamV2()
         {
-            return (role.IsImpostorTeam() && role != CustomRoles.Trickster && !role.IsConverted()) || role is CustomRoles.Rascal or CustomRoles.Madmate || role.IsMadmate();
+            return role.IsImpostorTeam() && role != CustomRoles.Trickster && !role.IsConverted() || role is CustomRoles.Rascal or CustomRoles.Madmate || role.IsMadmate();
         }
 
         public bool IsNeutralTeamV2()
         {
-            return role.IsConverted() || (role.IsNeutral() && role != CustomRoles.Madmate);
+            return role.IsConverted() || role.IsNeutral() && role != CustomRoles.Madmate;
         }
 
         public bool IsCrewmateTeamV2()
         {
-            return (!role.IsImpostorTeamV2() && !role.IsNeutralTeamV2() && !role.Is(Team.Coven)) || (role == CustomRoles.Trickster && !role.IsConverted());
+            return !role.IsImpostorTeamV2() && !role.IsNeutralTeamV2() && !role.Is(Team.Coven) || role == CustomRoles.Trickster && !role.IsConverted();
         }
 
         public bool IsConverted()
         {
-            return (role == CustomRoles.Egoist && Inspector.InspectorCheckEgoistInt() == 1) || role is
+            return role == CustomRoles.Egoist && Inspector.InspectorCheckEgoistInt() == 1 || role is
                 CustomRoles.Charmed or
                 CustomRoles.Contagious or
                 CustomRoles.Undead or
@@ -1666,12 +1670,12 @@ internal static class CustomRolesHelper
 
         public bool IsRevealingRole(PlayerControl target)
         {
-            return (role is CustomRoles.Mayor && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.AllTasksCompleted()) ||
-                   (role is CustomRoles.SuperStar && Options.EveryOneKnowSuperStar.GetBool()) ||
-                   (role is CustomRoles.Marshall && target.AllTasksCompleted()) ||
-                   (role is CustomRoles.Workaholic && Workaholic.WorkaholicVisibleToEveryone.GetBool()) ||
-                   (role is CustomRoles.Doctor && Options.DoctorVisibleToEveryone.GetBool()) ||
-                   (role is CustomRoles.Bait && Options.BaitNotification.GetBool() && Inspector.InspectorCheckBaitCountType.GetBool());
+            return role is CustomRoles.Mayor && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.AllTasksCompleted() ||
+                   role is CustomRoles.SuperStar && Options.EveryOneKnowSuperStar.GetBool() ||
+                   role is CustomRoles.Marshall && target.AllTasksCompleted() ||
+                   role is CustomRoles.Workaholic && Workaholic.WorkaholicVisibleToEveryone.GetBool() ||
+                   role is CustomRoles.Doctor && Options.DoctorVisibleToEveryone.GetBool() ||
+                   role is CustomRoles.Bait && Options.BaitNotification.GetBool() && Inspector.InspectorCheckBaitCountType.GetBool();
         }
 
         public bool IsVanilla()
@@ -1686,6 +1690,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Impostor or
                 CustomRoles.Detective or
                 CustomRoles.Judge or
+                CustomRoles.SpiritGuide or
                 CustomRoles.Viper or
                 CustomRoles.Phantom or
                 CustomRoles.Shapeshifter;
@@ -1702,6 +1707,7 @@ internal static class CustomRolesHelper
                 CustomRoles.ImpostorEHR or
                 CustomRoles.DetectiveEHR or
                 CustomRoles.JudgeEHR or
+                CustomRoles.SpiritGuideEHR or
                 CustomRoles.ViperEHR or
                 CustomRoles.PhantomEHR or
                 CustomRoles.ShapeshifterEHR;
@@ -1737,16 +1743,22 @@ internal static class CustomRolesHelper
 
         public int GetMode()
         {
-            return Options.GetRoleSpawnMode(role);
+            return role switch
+            {
+                CustomRoles.Nuker => !CustomRoles.Bomber.IsEnable() ? 0 : Bomber.NukerChance.GetInt(),
+                CustomRoles.Bard => !CustomRoles.Arrogance.IsEnable() ? 0 : Arrogance.BardChance.GetInt(),
+                CustomRoles.Sunnyboy => !CustomRoles.Jester.IsEnable() ? 0 : Jester.SunnyboyChance.GetInt(),
+                _ => Options.GetRoleSpawnMode(role)
+            };
         }
 
         public bool IsEnable()
         {
             return role switch
             {
-                CustomRoles.Nuker => Bomber.NukerChance.GetInt() > 0,
-                CustomRoles.Bard => Arrogance.BardChance.GetInt() > 0,
-                CustomRoles.Sunnyboy => Jester.SunnyboyChance.GetInt() > 0,
+                CustomRoles.Nuker => CustomRoles.Bomber.IsEnable() && Bomber.NukerChance.GetInt() > 0,
+                CustomRoles.Bard => CustomRoles.Arrogance.IsEnable() && Arrogance.BardChance.GetInt() > 0,
+                CustomRoles.Sunnyboy => CustomRoles.Jester.IsEnable() && Jester.SunnyboyChance.GetInt() > 0,
                 _ => role.GetCount() > 0
             };
         }
@@ -1898,7 +1910,7 @@ internal static class CustomRolesHelper
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc, bool validateExistingState = false)
     {
-        return role.IsAdditionRole() && !(role.IsGhostRole() && pc.IsAlive()) && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && (validateExistingState || role is not CustomRoles.Lovers) && !pc.Is(CustomRoles.LazyGuy) && (validateExistingState || (Main.IntroDestroyed && Options.AddonAssigningRolesIgnoreMaxAddonsLimit.GetBool()) || !pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()) && (o.Coven.GetBool() || !pc.Is(Team.Coven)))) && (!role.IsImpOnlyAddon() || (pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent)) || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
+        return role.IsAdditionRole() && !(role.IsGhostRole() && pc.IsAlive()) && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && (validateExistingState || role is not CustomRoles.Lovers) && !pc.Is(CustomRoles.LazyGuy) && (validateExistingState || Main.IntroDestroyed && Options.AddonAssigningRolesIgnoreMaxAddonsLimit.GetBool() || !pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven) o) || (o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()) && (o.Coven.GetBool() || !pc.Is(Team.Coven))) && (!role.IsImpOnlyAddon() || pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent) || pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool()) && role switch
         {
             CustomRoles.Blind when pc.Is(CustomRoles.Sensor) => false,
             CustomRoles.Composter when float.IsNaN(pc.GetAbilityUseLimit()) => false,
@@ -1928,7 +1940,7 @@ internal static class CustomRolesHelper
             CustomRoles.Autopsy when pc.Is(CustomRoles.Doctor) || pc.Is(CustomRoles.Tracefinder) || pc.Is(CustomRoles.Scientist) || pc.Is(CustomRoles.ScientistEHR) || pc.Is(CustomRoles.Sunnyboy) => false,
             CustomRoles.Necroview when pc.Is(CustomRoles.Doctor) => false,
             CustomRoles.Lazy when pc.Is(CustomRoles.Speedrunner) => false,
-            CustomRoles.Mischievous when pc.Is(Team.Impostor) || (!pc.GetCustomRole().IsDesyncRole() && !pc.Is(CustomRoles.Bloodlust)) || !pc.IsNeutralKiller() || Main.PlayerStates[pc.PlayerId].Role.CanUseSabotage(pc) => false,
+            CustomRoles.Mischievous when pc.Is(Team.Impostor) || !pc.GetCustomRole().IsDesyncRole() && !pc.Is(CustomRoles.Bloodlust) || !pc.IsNeutralKiller() || Main.PlayerStates[pc.PlayerId].Role.CanUseSabotage(pc) => false,
             CustomRoles.Loyal when pc.IsCrewmate() && !Options.CrewCanBeLoyal.GetBool() => false,
             CustomRoles.Lazy when pc.Is(CustomRoles.LazyGuy) || pc.Is(CustomRoles.Snitch) || pc.Is(CustomRoles.Marshall) || pc.Is(CustomRoles.Transporter) || pc.Is(CustomRoles.Guardian) => false,
             CustomRoles.Tiebreaker when pc.Is(CustomRoles.Dictator) => false,
@@ -1965,8 +1977,8 @@ internal static class CustomRolesHelper
             CustomRoles.Lovers when pc.Is(CustomRoles.Romantic) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.LastImpostor) => false,
             CustomRoles.Swift when pc.Is(CustomRoles.Mare) => false,
-            CustomRoles.Schizophrenic when (!pc.IsImpostor() && !pc.IsCrewmate()) || pc.Is(CustomRoles.Madmate) => false,
-            CustomRoles.Loyal when (!pc.IsImpostor() && !pc.IsCrewmate()) || pc.Is(CustomRoles.Madmate) => false,
+            CustomRoles.Schizophrenic when !pc.IsImpostor() && !pc.IsCrewmate() || pc.Is(CustomRoles.Madmate) => false,
+            CustomRoles.Loyal when !pc.IsImpostor() && !pc.IsCrewmate() || pc.Is(CustomRoles.Madmate) => false,
             CustomRoles.Loyal when pc.IsImpostor() && !Options.ImpCanBeLoyal.GetBool() => false,
             CustomRoles.Seer when pc.GetCustomRole() is CustomRoles.Mortician or CustomRoles.TimeMaster => false,
             CustomRoles.Onbound when pc.GetCustomRole() is CustomRoles.SuperStar or CustomRoles.Ankylosaurus or CustomRoles.Car or CustomRoles.Unbound => false,
@@ -1979,8 +1991,8 @@ internal static class CustomRolesHelper
             CustomRoles.Beartrap when pc.Is(CustomRoles.Bait) => false,
             CustomRoles.Schizophrenic when pc.Is(CustomRoles.Dictator) => false,
             CustomRoles.Swift when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Vampire or CustomRoles.Scavenger or CustomRoles.Puppeteer or CustomRoles.Warlock or CustomRoles.Consigliere or CustomRoles.Witch or CustomRoles.Nemesis or CustomRoles.Viper or CustomRoles.ViperEHR => false,
-            CustomRoles.Reach when (pc.GetCustomRole() is CustomRoles.Mafioso or CustomRoles.Evolver or CustomRoles.Berserker) || pc.Is(CustomRoles.Constricted) => false,
-            CustomRoles.Constricted when (pc.GetCustomRole() is CustomRoles.Mafioso or CustomRoles.Evolver or CustomRoles.Berserker) || pc.Is(CustomRoles.Reach) => false,
+            CustomRoles.Reach when pc.GetCustomRole() is CustomRoles.Mafioso or CustomRoles.Evolver or CustomRoles.Berserker || pc.Is(CustomRoles.Constricted) => false,
+            CustomRoles.Constricted when pc.GetCustomRole() is CustomRoles.Mafioso or CustomRoles.Evolver or CustomRoles.Berserker || pc.Is(CustomRoles.Reach) => false,
             CustomRoles.Beartrap when pc.Is(CustomRoles.GuardianAngelEHR) => false,
             CustomRoles.Focused when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) => false,
             CustomRoles.Dizzy when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) => false,
@@ -1995,7 +2007,7 @@ internal static class CustomRolesHelper
             CustomRoles.Busy when !pc.GetTaskState().HasTasks => false,
             CustomRoles.Truant when pc.Is(CustomRoles.SoulHunter) => false,
             CustomRoles.Nimble when !pc.IsCrewmate() => false,
-            CustomRoles.Physicist when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() || pc.Is(CustomRoles.Survivor) || (pc.Is(CustomRoles.TimeMaster) && !TimeMaster.TimeMasterCanUseVitals.GetBool()) => false,
+            CustomRoles.Physicist when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() || pc.Is(CustomRoles.Survivor) || pc.Is(CustomRoles.TimeMaster) && !TimeMaster.TimeMasterCanUseVitals.GetBool() => false,
             CustomRoles.Finder when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() || pc.Is(CustomRoles.Survivor) => false,
             CustomRoles.Noisy when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() || pc.Is(CustomRoles.Survivor) => false,
             CustomRoles.Examiner when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() || pc.Is(CustomRoles.Survivor) => false,
@@ -2016,7 +2028,7 @@ internal static class CustomRolesHelper
             CustomRoles.DoubleShot when pc.GetCustomRole() is not CustomRoles.EvilGuesser and not CustomRoles.NiceGuesser and not CustomRoles.Augur && !Options.GuesserMode.GetBool() => false,
             CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.EvilGuesser) && pc.Is(CustomRoleTypes.Impostor) && !Options.ImpostorsCanGuess.GetBool() => false,
             CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.NiceGuesser) && pc.Is(CustomRoleTypes.Crewmate) && !Options.CrewmatesCanGuess.GetBool() => false,
-            CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && ((pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool()) || (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool())) => false,
+            CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() || pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool()) => false,
             CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Augur) && pc.Is(CustomRoleTypes.Coven) && !Options.CovenCanGuess.GetBool() => false,
             _ => true
         };

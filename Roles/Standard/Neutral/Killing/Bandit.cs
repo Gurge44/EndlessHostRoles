@@ -90,7 +90,7 @@ public class Bandit : RoleBase
 
     public override bool CanUseSabotage(PlayerControl pc)
     {
-        return base.CanUseSabotage(pc) || (CanSabotage.GetBool() && pc.IsAlive());
+        return base.CanUseSabotage(pc) || CanSabotage.GetBool() && pc.IsAlive();
     }
 
     private static void SendRPC(byte playerId /*, bool isTargetList = false*/)
@@ -144,7 +144,7 @@ public class Bandit : RoleBase
 
     private static bool IsBlacklistedAddon(CustomRoles role)
     {
-        return (role.IsImpOnlyAddon() && !CanStealImpOnlyAddon.GetBool()) || (role.IsBetrayalAddon() && !CanStealBetrayalAddon.GetBool()) || StartGameHostPatch.BasisChangingAddons.ContainsKey(role) || role.IsNotAssignableMidGame();
+        return role.IsImpOnlyAddon() && !CanStealImpOnlyAddon.GetBool() || role.IsBetrayalAddon() && !CanStealBetrayalAddon.GetBool() || StartGameHostPatch.BasisChangingAddons.ContainsKey(role) || role.IsNotAssignableMidGame();
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

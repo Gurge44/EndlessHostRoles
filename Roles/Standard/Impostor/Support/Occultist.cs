@@ -97,7 +97,7 @@ public class Occultist : RoleBase
 
     public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
     {
-        if (!InRevivingMode || reporter.GetAbilityUseLimit() < 1 || target.Disconnected || target.Object.IsAlive() || target.Object.Is(CustomRoles.Disregarded) || (target.Object.Is(Team.Impostor) && !CanReviveImpostorsAndMadmates.GetBool())) return true;
+        if (!InRevivingMode || reporter.GetAbilityUseLimit() < 1 || target.Disconnected || target.Object.IsAlive() || target.Object.Is(CustomRoles.Disregarded) || target.Object.Is(Team.Impostor) && !CanReviveImpostorsAndMadmates.GetBool()) return true;
 
         InRevivingMode = false;
         Vector2 pos = reporter.Pos();
@@ -147,7 +147,7 @@ public class Occultist : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != OccultistPC.PlayerId || seer.PlayerId != target.PlayerId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != OccultistPC.PlayerId || seer.PlayerId != target.PlayerId || meeting || seer.IsModdedClient() && !hud) return string.Empty;
         string str = string.Format(Translator.GetString("OccultistSuffix"), Translator.GetString(InRevivingMode ? "OccultistMode.Revive" : "OccultistMode.Report"), Translator.GetString($"OccultistActionSwitchMode.{ActionSwitchMode}"));
         if (Main.AllAlivePlayerControlsCount < 4) str = str.Split('(')[0].TrimEnd(' ');
         return str;

@@ -306,7 +306,7 @@ internal class Warlock : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != WarlockId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != WarlockId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting) return string.Empty;
 
         Suffix.Clear();
         if (KCD != null) Suffix.Append($"<#ffa500>{Translator.GetString("KillCooldown")}:</color> <#ffffff>{(int)Math.Ceiling(KCD.Remaining.TotalSeconds)}s</color>");

@@ -145,6 +145,7 @@ public enum CustomRoles
     Tracker,
     Detective,
     Judge,
+    SpiritGuide,
 
     // Vanilla Remakes
     CrewmateEHR,
@@ -155,6 +156,7 @@ public enum CustomRoles
     TrackerEHR,
     DetectiveEHR,
     JudgeEHR,
+    SpiritGuideEHR,
 
     // Crewmates
 

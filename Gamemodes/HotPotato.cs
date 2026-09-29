@@ -96,7 +96,7 @@ internal static class HotPotato
 
     public static string GetSuffixText(byte id, bool hud)
     {
-        if (!Main.PlayerStates.TryGetValue(id, out PlayerState state) || (id.IsPlayerModdedClient() && !hud) || (state.IsDead && !hud)) return string.Empty;
+        if (!Main.PlayerStates.TryGetValue(id, out PlayerState state) || id.IsPlayerModdedClient() && !hud || state.IsDead && !hud) return string.Empty;
         string holding = HotPotatoState.HolderID == id ? $"{Translator.GetString("HotPotato_HoldingNotify")}\n" : string.Empty;
         string arrows = TargetArrow.GetAllArrows(id);
         arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
@@ -162,7 +162,7 @@ internal static class HotPotato
             if (HotPotatoState.TimeLeft <= 0)
             {
                 holder.Suicide();
-                RecordDeath(HotPotatoState.HolderID, (HotPotatoState.RoundNum - 1) * GetKillInterval());
+                RecordDeath(HotPotatoState.HolderID, Options.IntegrateNaturalDisasters.GetBool() ? (int)(Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS - NaturalDisasters.FixedUpdatePatch.WaitTime) : (HotPotatoState.RoundNum - 1) * GetKillInterval());
                 PassHotPotato();
 
                 if (holder.AmOwner)

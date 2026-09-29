@@ -155,7 +155,7 @@ public class Wildling : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != WildlingId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != WildlingId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting) return string.Empty;
 
         Suffix.Clear();
 

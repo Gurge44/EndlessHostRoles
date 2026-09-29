@@ -86,7 +86,7 @@ internal class AntiAdminer : RoleBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        if (IsTelecommunication || ExtraAbilityTimer != null || (CanOnlyUseWhileAnyWatch.GetBool() && !IsAdminWatch && !IsVitalWatch && !IsDoorLogWatch && !IsCameraWatch)) return false;
+        if (IsTelecommunication || ExtraAbilityTimer != null || CanOnlyUseWhileAnyWatch.GetBool() && !IsAdminWatch && !IsVitalWatch && !IsDoorLogWatch && !IsCameraWatch) return false;
 
         ExtraAbilityTimer = new CountdownTimer(Delay.GetInt(), () =>
         {
@@ -155,7 +155,7 @@ internal class AntiAdminer : RoleBase
 
         foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
-            if (pc.inVent || (pc.IsImpostor() && !IsTelecommunication)) continue;
+            if (pc.inVent || pc.IsImpostor() && !IsTelecommunication) continue;
 
             try
             {

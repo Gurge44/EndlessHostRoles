@@ -1,21 +1,23 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+#if IL2CPP
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+#endif
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Patches;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
-using Il2CppSystem.Collections;
 using InnerNet;
 using UnityEngine;
 using UnityEngine.UI;
 using static EHR.Modules.CustomRoleSelector;
 using static EHR.Translator;
-using DateTime = Il2CppSystem.DateTime;
+using DateTime = System.DateTime;
 using Exception = System.Exception;
 using Priority = HarmonyLib.Priority;
 
@@ -55,7 +57,8 @@ internal static class ChangeRoleSettings
                 RoleTypes.Tracker,
                 RoleTypes.Detective,
                 RoleTypes.Viper,
-                RoleTypes.Judge
+                RoleTypes.Judge,
+                RoleTypes.SpiritGuide
             }.Do(x => Main.NormalOptions.roleOptions.SetRoleRate(x, 0, 0));
 
             if (Main.NormalOptions.MapId > 5 && !(Main.NormalOptions.MapId == 6 && SubmergedCompatibility.Loaded) && !Main.LIMap)
@@ -356,7 +359,7 @@ internal static class ChangeRoleSettings
 
         return;
 
-        System.Collections.IEnumerator PopulateSkinItems()
+        IEnumerator PopulateSkinItems()
         {
             while (!ShipStatus.Instance) yield return null;
             BlockPopulateSkins = false;
@@ -382,9 +385,9 @@ internal static class StartGameHostPatch
 
     public static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
 
-    private static RoleOptionsCollectionV11 RoleOpt => Main.NormalOptions.roleOptions;
+    private static RoleOptionsCollectionV12 RoleOpt => Main.NormalOptions.roleOptions;
 
-    private static System.Collections.IEnumerator WaitAndSmoothlyUpdate(this LoadingBarManager loadingBarManager, float startPercent, float targetPercent, float duration, string loadingText)
+    private static IEnumerator WaitAndSmoothlyUpdate(this LoadingBarManager loadingBarManager, float startPercent, float targetPercent, float duration, string loadingText)
     {
         float startTime = Time.time;
 
@@ -413,14 +416,21 @@ internal static class StartGameHostPatch
 
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGameHost))]
     [HarmonyPrefix]
-    public static bool CoStartGameHost_Prefix(AmongUsClient __instance, ref IEnumerator __result)
+#if IL2CPP
+    public static bool CoStartGameHost_Prefix(AmongUsClient __instance, ref Il2CppSystem.Collections.IEnumerator __result)
     {
         AUClient = __instance;
         __result = StartGameHost().WrapToIl2Cpp();
+#else
+    public static bool CoStartGameHost_Prefix(AmongUsClient __instance, ref IEnumerator __result)
+    {
+        AUClient = __instance;
+        __result = StartGameHost();
+#endif
         return false;
     }
 
-    private static System.Collections.IEnumerator StartGameHost()
+    private static IEnumerator StartGameHost()
     {
         try { PlayerControl.LocalPlayer.RpcSetName(Main.AllPlayerNames[0]); }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -565,7 +575,7 @@ internal static class StartGameHostPatch
         yield return AssignRoles();
     }
 
-    private static System.Collections.IEnumerator AssignRoles()
+    private static IEnumerator AssignRoles()
     {
         if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended) yield break;
 
@@ -1020,7 +1030,7 @@ internal static class StartGameHostPatch
             }
 
             // Add players with unclassified roles to the list of players who require ResetCam.
-            Main.ResetCamPlayerList.UnionWith(Main.PlayerStates.Where(p => (p.Value.MainRole.IsDesyncRole() && !p.Key.GetPlayer().UsesPetInsteadOfKill()) || p.Value.SubRoles.Contains(CustomRoles.Bloodlust)).Select(p => p.Key));
+            Main.ResetCamPlayerList.UnionWith(Main.PlayerStates.Where(p => p.Value.MainRole.IsDesyncRole() && !p.Key.GetPlayer().UsesPetInsteadOfKill() || p.Value.SubRoles.Contains(CustomRoles.Bloodlust)).Select(p => p.Key));
             Utils.CountAlivePlayers(true);
 
             LateTask.New(() =>
@@ -1191,7 +1201,7 @@ internal static class StartGameHostPatch
 
             if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
-                if (target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.Detective or RoleTypes.Judge or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel))
+                if (target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.Detective or RoleTypes.Judge or RoleTypes.SpiritGuide or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel))
                     displayRole = RoleTypes.Crewmate;
 
                 if (target.Is(Team.Impostor) && roleType is not (RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom or RoleTypes.Viper or RoleTypes.ImpostorGhost))
@@ -1322,7 +1332,7 @@ internal static class StartGameHostPatch
 
             return;
 
-            bool ForceImp(byte id) => IsBasisChangingPlayer(id, CustomRoles.Bloodlust) || (Options.CurrentGameMode == CustomGameMode.Speedrun && Speedrun.CanKill.Contains(id));
+            bool ForceImp(byte id) => IsBasisChangingPlayer(id, CustomRoles.Bloodlust) || Options.CurrentGameMode == CustomGameMode.Speedrun && Speedrun.CanKill.Contains(id);
         }
 
         public static void SendRpcForDesync()
@@ -1366,7 +1376,7 @@ internal static class StartGameHostPatch
                                 };
                             }
 
-                            if (Options.EveryoneCanVent.GetBool() && (roleType == RoleTypes.Crewmate || (Options.OverrideOtherCrewBasedRoles.GetBool() && roleType is RoleTypes.Scientist or RoleTypes.Detective or RoleTypes.Noisemaker or RoleTypes.Tracker)))
+                            if (Options.EveryoneCanVent.GetBool() && (roleType == RoleTypes.Crewmate || Options.OverrideOtherCrewBasedRoles.GetBool() && roleType is RoleTypes.Scientist or RoleTypes.Detective or RoleTypes.Noisemaker or RoleTypes.Tracker))
                                 roleType = RoleTypes.Engineer;
 
                             StoragedData[playerId] = roleType;

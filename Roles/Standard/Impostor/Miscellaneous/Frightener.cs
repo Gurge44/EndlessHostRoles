@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using EHR.Modules;
 using Hazel;
 
@@ -94,7 +93,7 @@ public class Frightener : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != FrightenerId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || AlarmedPlayers.Count == 0) return string.Empty;
+        if (seer.PlayerId != FrightenerId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting || AlarmedPlayers.Count == 0) return string.Empty;
         return string.Format(Translator.GetString("Frightener.Suffix"), AlarmedPlayers.Join(", ", x => x.ColoredPlayerName()));
     }
 }

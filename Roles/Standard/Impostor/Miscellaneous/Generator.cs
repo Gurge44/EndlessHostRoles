@@ -63,7 +63,7 @@ internal static class GeneratorStatic
             MaxChargesStored = new IntegerOptionItem(id + 5, "Generator.MaxChargesStored", new(0, 200, 1), 100, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
 
-            foreach (Action action in Enum.GetValues<Action>())
+            foreach (Action action in EnumHelper.GetValues<Action>())
             {
                 OptionItem option = new IntegerOptionItem(id + 6 + (int)action, $"Generator.{action}.Cost", new(0, 100, 1), action.GetDefaultCost(), TabGroup.ImpostorRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);

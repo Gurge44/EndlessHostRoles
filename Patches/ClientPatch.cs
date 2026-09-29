@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using AmongUs.Data;
 using EHR.Modules;
 using HarmonyLib;
@@ -46,14 +47,14 @@ internal static class MMOnlineManagerStartPatch
 {
     public static void Postfix()
     {
-        if (!((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken)) return;
+        if (!(ModUpdater.HasUpdate && ModUpdater.ForceUpdate || ModUpdater.IsBroken)) return;
 
         GameObject obj = GameObject.Find("FindGameButton");
 
         if (obj)
         {
             obj.SetActive(false);
-            TextMeshPro textObj = Object.Instantiate(obj.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>());
+            TextMeshPro textObj = Object.Instantiate(obj.transform.Find("Text_TMP").GetComponent<TextMeshPro>());
             textObj.transform.position = new(1f, -0.3f, 0);
             textObj.name = "CanNotJoinPublic";
 
@@ -77,7 +78,7 @@ internal static class SplashLogoAnimatorPatch
         Main.Instance.StartCoroutine(Coroutine());
         return;
 
-        System.Collections.IEnumerator Coroutine()
+        IEnumerator Coroutine()
         {
             while (__instance && SceneChanger && SceneChanger.loadOp == null) yield return null;
                 

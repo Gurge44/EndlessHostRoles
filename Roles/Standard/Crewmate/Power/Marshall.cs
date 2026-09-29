@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using static EHR.Options;
 
@@ -18,7 +17,7 @@ public class Marshall : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Marshall);
 
-        Enum.GetValues<SeeingTeam>().Do(x =>
+        EnumHelper.GetValues<SeeingTeam>().Do(x =>
         {
             SeeingTeamOptions[x] = new BooleanOptionItem(Id + 2 + (int)x, $"{x}CanFindMarshall", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Marshall]);

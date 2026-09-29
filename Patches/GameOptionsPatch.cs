@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
 using HarmonyLib;
 
 namespace EHR.Patches;
@@ -10,7 +11,7 @@ internal static class SwitchGameModePatch
 
     public static bool Prefix(GameModes gameMode)
     {
-        if (!Options.IsLoaded || (AmongUsClient.Instance != null && !AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek || Warned || !HudManager.Instance) return true;
+        if (!Options.IsLoaded || AmongUsClient.Instance != null && !AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null || gameMode != GameModes.HideNSeek || Warned || !HudManager.Instance) return true;
 
         ModUpdater.ShowPopup(Translator.GetString("HnSUnloadWarning"), StringNames.OkayDontShow, true, false);
         return false;
@@ -18,7 +19,7 @@ internal static class SwitchGameModePatch
 
     public static void Postfix(GameModes gameMode)
     {
-        if (!Options.IsLoaded || (!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek) return;
+        if (!Options.IsLoaded || !AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null || gameMode != GameModes.HideNSeek) return;
 
         if (!Warned)
         {
@@ -33,7 +34,12 @@ internal static class SwitchGameModePatch
         }
 
         Zoom.SetZoomSize(reset: true);
+        AmciRegistration.Revert();
         Main.Instance.Harmony.UnpatchSelf();
+#if IL2CPP
         Main.Instance.Unload();
+#else
+        Object.Destroy(Main.Instance.gameObject);
+#endif
     }
 }

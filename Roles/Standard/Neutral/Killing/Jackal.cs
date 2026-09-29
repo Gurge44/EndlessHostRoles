@@ -134,7 +134,7 @@ public class Jackal : RoleBase
 
     public override bool CanUseSabotage(PlayerControl pc)
     {
-        return base.CanUseSabotage(pc) || (CanSabotage.GetBool() && pc.IsAlive());
+        return base.CanUseSabotage(pc) || CanSabotage.GetBool() && pc.IsAlive();
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
@@ -221,13 +221,14 @@ public class Jackal : RoleBase
 
     public static void OnAnyoneDead()
     {
-        Instances.ForEach(x =>
+        for (var index = Instances.Count - 1; index >= 0; index--)
         {
-            var pc = x.JackalId.GetPlayer();
+            Jackal instance = Instances[index];
+            var pc = instance.JackalId.GetPlayer();
             if (pc && pc.IsAlive()) return;
-            
-            x.PromoteSidekick();
-        });
+
+            instance.PromoteSidekick();
+        }
     }
 }
 
@@ -272,7 +273,7 @@ public class Sidekick : RoleBase
 
     public override bool CanUseSabotage(PlayerControl pc)
     {
-        return base.CanUseSabotage(pc) || (Jackal.CanSabotageSK.GetBool() && pc.IsAlive());
+        return base.CanUseSabotage(pc) || Jackal.CanSabotageSK.GetBool() && pc.IsAlive();
     }
 
     public override void SetButtonTexts(HudManager __instance, byte id)

@@ -141,7 +141,7 @@ internal static class EndGameNavigationNextGamePatch
         {
             foreach (ClientData client in AmongUsClient.Instance.allClients)
             {
-                if ((!client.IsDisconnected() && client.Character.Data.IsIncomplete) || client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId)
+                if (!client.IsDisconnected() && client.Character.Data.IsIncomplete || client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId)
                 {
                     Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}", Color.yellow);
                     AmongUsClient.Instance.KickPlayer(client.Id, false);

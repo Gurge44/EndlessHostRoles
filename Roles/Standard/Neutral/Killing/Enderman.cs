@@ -57,7 +57,7 @@ internal class Enderman : RoleBase
 
     public override bool CanUseSabotage(PlayerControl pc)
     {
-        return base.CanUseSabotage(pc) || (pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()));
+        return base.CanUseSabotage(pc) || pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool());
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)

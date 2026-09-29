@@ -28,7 +28,7 @@ public class Amogus : RoleBase
     private Levels CurrentLevel;
     public int ExtraVotes;
     private readonly StringBuilder Suffix = new();
-    private static readonly Levels[] AllLevels = Enum.GetValues<Levels>();
+    private static readonly Levels[] AllLevels = EnumHelper.GetValues<Levels>();
 
     public override bool IsEnable => On;
 
@@ -183,7 +183,7 @@ public class Amogus : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != AmogusID || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != AmogusID || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting) return string.Empty;
 
         Suffix.Clear();
         if (AmogusFormTimer != null) Suffix.Append($"\u25a9 ({(int)Math.Ceiling(AmogusFormTimer.Remaining.TotalSeconds)}s)\n");

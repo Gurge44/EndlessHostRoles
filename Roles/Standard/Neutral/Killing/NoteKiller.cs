@@ -57,8 +57,8 @@ public class NoteKiller : RoleBase
     {
         StartSetup(645950, true)
             .AutoSetupOption(ref AbilityCooldown, 15f, new FloatValueRule(0f, 90f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref MinLettersRevealed, 1, new IntegerValueRule(1, Names.Max(x => x.Length), 1))
-            .AutoSetupOption(ref MaxLettersRevealed, 4, new IntegerValueRule(1, Names.Max(x => x.Length), 1))
+            .AutoSetupOption(ref MinLettersRevealed, 1, new IntegerValueRule(1, Enumerable.Max(Names, x => x.Length), 1))
+            .AutoSetupOption(ref MaxLettersRevealed, 4, new IntegerValueRule(1, Enumerable.Max(Names, x => x.Length), 1))
             .AutoSetupOption(ref ClueShowDuration, 5, new IntegerValueRule(0, 30, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref WinCondition, 0, WinConditions)
             .AutoSetupOption(ref NumPlayersToKill, 2, new IntegerValueRule(0, 14, 1), overrideParent: WinCondition)
@@ -121,7 +121,7 @@ public class NoteKiller : RoleBase
         {
             foreach (KeyValuePair<byte, string> kvp in RealNames)
             {
-                IEnumerable<int> range = Enumerable.Range(0, Names.Max(x => x.Length) - 1);
+                IEnumerable<int> range = Enumerable.Range(0, Enumerable.Max(Names, x => x.Length) - 1);
                 bool hasExceptions = revealedPositions.TryGetValue(kvp.Key, out List<int> exceptions);
                 if (hasExceptions) range = range.Except(exceptions);
 

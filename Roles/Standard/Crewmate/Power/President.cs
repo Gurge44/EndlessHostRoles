@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -62,7 +61,7 @@ public class President : RoleBase
         const CustomRoles role = CustomRoles.President;
         Options.SetupSingleRoleOptions(id++, tab, role, hideMaxSetting: true);
 
-        foreach (Decree decree in Enum.GetValues<Decree>())
+        foreach (Decree decree in EnumHelper.GetValues<Decree>())
         {
             DecreeSettings[decree] =
             [
@@ -169,7 +168,7 @@ public class President : RoleBase
         {
             case Decree.Reveal:
                 if (!DecreeSettings[decree][1].GetBool()) pc.RpcSetCustomRole(CustomRoles.Loyal);
-                if ((!DecreeSettings[decree][2].GetBool() && pc.IsConverted()) || pc.Is(CustomRoles.Bloodlust)) return;
+                if (!DecreeSettings[decree][2].GetBool() && pc.IsConverted() || pc.Is(CustomRoles.Bloodlust)) return;
                 Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")), importance: MessageImportance.High);
                 Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.RevealMessage"), pc.PlayerId.ColoredPlayerName()), importance: MessageImportance.High);
                 Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId);
@@ -218,7 +217,7 @@ public class President : RoleBase
 
     public static string GetHelpMessage()
     {
-        return Enum.GetValues<Decree>().Where(x => x.IsEnabled()).Aggregate("<size=80%>", (acc, x) => $"{acc}{Translator.GetString($"President.Decree.{x}")}: {(int)x}\n") + $"\n{Translator.GetString("President.Help")}</size>";
+        return EnumHelper.GetValues<Decree>().Where(x => x.IsEnabled()).Aggregate("<size=80%>", (acc, x) => $"{acc}{Translator.GetString($"President.Decree.{x}")}: {(int)x}\n") + $"\n{Translator.GetString("President.Help")}</size>";
     }
 
     public override void AfterMeetingTasks()

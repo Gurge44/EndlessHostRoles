@@ -110,7 +110,7 @@ public class Explosivist : RoleBase
 
             pc.RevertFreeze(RealPosition);
             
-            if (!Options.UsePets.GetBool() || (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()))
+            if (!Options.UsePets.GetBool() || Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
                 pc.RpcResetAbilityCooldown();
             
             Explosive.Despawn();
@@ -135,7 +135,7 @@ public class Explosivist : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != ExplosivistId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || ExplodeTS == 0) return string.Empty;
+        if (seer.PlayerId != ExplosivistId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting || ExplodeTS == 0) return string.Empty;
         return string.Format(Translator.GetString("ExplosivistSuffix"), ExplodeTS - Utils.TimeStamp);
     }
 }

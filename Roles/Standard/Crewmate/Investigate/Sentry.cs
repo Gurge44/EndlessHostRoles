@@ -54,13 +54,13 @@ internal class Sentry : RoleBase
         CannotSeeInfoDuringComms = new BooleanOptionItem(++id, "Sentry.CannotSeeInfoDuringComms", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
 
-        UsableDevicesForInfoView = new StringOptionItem(++id, "Sentry.UsableDevicesForInfoView", Enum.GetNames<UsableDevicesStrings>(), 0, TabGroup.CrewmateRoles)
+        UsableDevicesForInfoView = new StringOptionItem(++id, "Sentry.UsableDevicesForInfoView", EnumHelper.GetNames<UsableDevicesStrings>(), 0, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
 
-        AdditionalDevicesForInfoView = new StringOptionItem(++id, "Sentry.AdditionalDevicesForInfoView", Enum.GetNames<AdditionalDevicesStrings>(), 0, TabGroup.CrewmateRoles)
+        AdditionalDevicesForInfoView = new StringOptionItem(++id, "Sentry.AdditionalDevicesForInfoView", EnumHelper.GetNames<AdditionalDevicesStrings>(), 0, TabGroup.CrewmateRoles)
             .SetParent(UsableDevicesForInfoView);
 
-        Enum.GetValues<SimpleTeam>().Do(x =>
+        EnumHelper.GetValues<SimpleTeam>().Do(x =>
         {
             TeamsCanSeeInfo[x] = new BooleanOptionItem(++id, "Sentry.TeamsCanSeeInfo." + x, true, TabGroup.CrewmateRoles)
                 .SetParent(UsableDevicesForInfoView);
@@ -107,7 +107,7 @@ internal class Sentry : RoleBase
                     AdditionalDevicesStrings.None => false,
                     AdditionalDevicesStrings.DoorLog => x.Key.Contains("DoorLog"),
                     AdditionalDevicesStrings.Binoculars => x.Key.Contains("Camera") && x.Key.Contains("Fungle") || x.Key.Contains("Binocular"),
-                    AdditionalDevicesStrings.DoorLogAndBinoculars => x.Key.Contains("DoorLog") || (x.Key.Contains("Camera") && x.Key.Contains("Fungle")) || x.Key.Contains("Binocular"),
+                    AdditionalDevicesStrings.DoorLogAndBinoculars => x.Key.Contains("DoorLog") || x.Key.Contains("Camera") && x.Key.Contains("Fungle") || x.Key.Contains("Binocular"),
                     _ => false
                 };
             }
@@ -250,7 +250,7 @@ internal class Sentry : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || meeting || seer.IsModdedClient() && !hud) return string.Empty;
 
         if (seer.PlayerId == SentryPC.PlayerId && MonitoredRoom)
             return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{MonitoredRoom.RoomId}"));

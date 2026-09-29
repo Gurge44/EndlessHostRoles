@@ -272,7 +272,7 @@ public class Deathpact : RoleBase
                 string otherPlayerNames = dp.PlayersInDeathpact.Where(a => a.PlayerId != player.PlayerId).Aggregate(string.Empty, (current, otherPlayerInPact) => current + otherPlayerInPact.name.ToUpper() + ",");
                 otherPlayerNames = otherPlayerNames.Remove(otherPlayerNames.Length - 1);
 
-                var countdown = (int)(dp.DeathpactTime.Remaining.TotalSeconds);
+                var countdown = (int)dp.DeathpactTime.Remaining.TotalSeconds;
 
                 result += $"{ColorString(GetRoleColor(CustomRoles.Impostor), string.Format(GetString("DeathpactActiveDeathpact"), otherPlayerNames, countdown))}";
             }

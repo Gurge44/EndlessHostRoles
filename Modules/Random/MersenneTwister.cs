@@ -64,7 +64,7 @@ public class MersenneTwister : IRandom
 
         if (minValue == maxValue) return minValue;
 
-        return (int)(minValue + (Next() % (maxValue - minValue)));
+        return (int)(minValue + Next() % (maxValue - minValue));
     }
 
     public int Next(int maxValue)
@@ -98,7 +98,7 @@ public class MersenneTwister : IRandom
 
         for (_mtItems = 1; _mtItems < N; _mtItems++)
         {
-            _mt[_mtItems] = (uint)((1812433253U * (_mt[_mtItems - 1] ^ (_mt[_mtItems - 1] >> 30))) + _mtItems);
+            _mt[_mtItems] = (uint)(1812433253U * (_mt[_mtItems - 1] ^ _mt[_mtItems - 1] >> 30) + _mtItems);
             _mt[_mtItems] &= 0xffffffffU;
         }
     }
@@ -114,18 +114,18 @@ public class MersenneTwister : IRandom
 
             for (; kk < N - M; ++kk)
             {
-                y = (_mt[kk] & UpperMask) | (_mt[kk + 1] & LowerMask);
-                _mt[kk] = _mt[kk + M] ^ (y >> 1) ^ _mag01[y & 0x1];
+                y = _mt[kk] & UpperMask | _mt[kk + 1] & LowerMask;
+                _mt[kk] = _mt[kk + M] ^ y >> 1 ^ _mag01[y & 0x1];
             }
 
             for (; kk < N - 1; ++kk)
             {
-                y = (_mt[kk] & UpperMask) | (_mt[kk + 1] & LowerMask);
-                _mt[kk] = _mt[kk + (M - N)] ^ (y >> 1) ^ _mag01[y & 0x1];
+                y = _mt[kk] & UpperMask | _mt[kk + 1] & LowerMask;
+                _mt[kk] = _mt[kk + (M - N)] ^ y >> 1 ^ _mag01[y & 0x1];
             }
 
-            y = (_mt[N - 1] & UpperMask) | (_mt[0] & LowerMask);
-            _mt[N - 1] = _mt[M - 1] ^ (y >> 1) ^ _mag01[y & 0x1];
+            y = _mt[N - 1] & UpperMask | _mt[0] & LowerMask;
+            _mt[N - 1] = _mt[M - 1] ^ y >> 1 ^ _mag01[y & 0x1];
 
             _mtItems = 0;
         }

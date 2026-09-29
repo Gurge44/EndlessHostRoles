@@ -80,7 +80,7 @@ public class Cultist : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = CharmCooldown.GetFloat() + ((CharmMax.GetInt() - id.GetAbilityUseLimit()) * CharmCooldownIncrese.GetFloat());
+        Main.AllPlayerKillCooldown[id] = CharmCooldown.GetFloat() + (CharmMax.GetInt() - id.GetAbilityUseLimit()) * CharmCooldownIncrese.GetFloat();
     }
 
     public override bool CanUseKillButton(PlayerControl player)
@@ -148,7 +148,7 @@ public class Cultist : RoleBase
     public static bool CanBeCharmed(PlayerControl pc)
     {
         return pc != null && (pc.IsCrewmate() || pc.IsImpostor() ||
-                              (CanCharmNeutral.GetBool() && (pc.GetCustomRole().IsNeutral() || pc.IsNeutralKiller()))) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Curser) && !pc.Is(Team.Coven);
+                              CanCharmNeutral.GetBool() && (pc.GetCustomRole().IsNeutral() || pc.IsNeutralKiller())) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Curser) && !pc.Is(Team.Coven);
     }
 
     public static void OnAnyoneDead(PlayerControl target)

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
@@ -306,7 +305,7 @@ public class Witch : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != WitchId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != WitchId || seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || meeting) return string.Empty;
 
         Suffix.Clear();
 
@@ -335,7 +334,7 @@ public class Witch : RoleBase
     {
         if (SpellMode && NowSwitchTrigger != SwitchTrigger.DoubleTrigger)
         {
-            ActionButton button = (NowSwitchTrigger == SwitchTrigger.Vanish ? hud.AbilityButton : hud.KillButton);
+            ActionButton button = NowSwitchTrigger == SwitchTrigger.Vanish ? hud.AbilityButton : hud.KillButton;
             button.OverrideText(IsHM ? GetString("HexButtonText") : GetString("WitchSpellButtonText"));
         }
         else
