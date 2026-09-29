@@ -83,7 +83,7 @@ internal class CrewmateVanillaRoles : IVanillaSettingHolder
         
         SetupRoleOptions(5095, Tab, CustomRoles.SpiritGuideEHR);
         
-        SpiritGuideCooldown = new FloatOptionItem(5097, "SpiritGuideCooldown", new(0f, 250f, 1f), 5f, Tab)
+        SpiritGuideCooldown = new FloatOptionItem(5097, "SpiritGuideCooldown", new(0f, 250f, 5f), 30f, Tab)
             .SetParent(CustomRoleSpawnChances[CustomRoles.SpiritGuideEHR])
             .SetValueFormat(OptionFormat.Seconds);
     }
