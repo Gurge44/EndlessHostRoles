@@ -384,7 +384,7 @@ internal static class StartGameHostPatch
 
     public static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
 
-    private static RoleOptionsCollectionV11 RoleOpt => Main.NormalOptions.roleOptions;
+    private static RoleOptionsCollectionV12 RoleOpt => Main.NormalOptions.roleOptions;
 
     private static IEnumerator WaitAndSmoothlyUpdate(this LoadingBarManager loadingBarManager, float startPercent, float targetPercent, float duration, string loadingText)
     {
