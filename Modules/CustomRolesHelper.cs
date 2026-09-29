@@ -1707,6 +1707,7 @@ internal static class CustomRolesHelper
                 CustomRoles.ImpostorEHR or
                 CustomRoles.DetectiveEHR or
                 CustomRoles.JudgeEHR or
+                CustomRoles.SpiritGuideEHR or
                 CustomRoles.ViperEHR or
                 CustomRoles.PhantomEHR or
                 CustomRoles.ShapeshifterEHR;
