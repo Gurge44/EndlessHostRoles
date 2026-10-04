@@ -20,6 +20,21 @@ internal static class Crowded
     private static CreateOptionsPicker Instance;
     public static readonly int MaxImpostors = GameOptionsManager.Instance.currentHostOptions.MaxPlayers / 2;
     private static int MaxPlayers => CurrentServerType == ServerType.Vanilla ? 15 : 127;
+    
+    [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.Confirm))]
+    public static class CreateGameOptionsConfirm
+    {
+        public static bool Prefix(CreateGameOptions __instance)
+        {
+            if (!DestroyableSingleton<MatchMaker>.Instance.Connecting(__instance)) return false;
+            __instance.logger.Info("Hosting an online game");
+            // - skip player count and impostor count checks -
+            GameOptionsManager.Instance.GameHostOptions.TryGetInt(Int32OptionNames.NumImpostors, out int num);
+            if (num == 0) GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 1);
+            __instance.CoStartGame();
+            return false;
+        }
+    }
 
     [HarmonyPatch(typeof(CreateOptionsPicker), nameof(CreateOptionsPicker.Awake))]
     public static class CreateOptionsPickerAwake

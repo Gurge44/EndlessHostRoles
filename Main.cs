@@ -980,12 +980,6 @@ public class Main : BaseUnityPlugin
         handler.Info($"{nameof(ThisAssembly.Git.Sha)}: {ThisAssembly.Git.Sha}");
         handler.Info($"{nameof(ThisAssembly.Git.Tag)}: {ThisAssembly.Git.Tag}");
 
-        /*
-        NormalGameOptionsV12.RecommendedImpostors = NormalGameOptionsV12.MaxImpostors = Enumerable.Repeat(128, 128).ToArray();
-        NormalGameOptionsV12.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
-        HideNSeekGameOptionsV12.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
-        */
-
         PrivateTagManager.LoadTagsFromFile();
 
         Harmony.PatchAll(Assembly.GetExecutingAssembly());

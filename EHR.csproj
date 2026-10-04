@@ -74,7 +74,7 @@
     <Target Name="Roles" AfterTargets="Build">
         <Copy SourceFiles="CustomRoles.cs" DestinationFolder="CTA/CustomTeamAssigner/"/>
     </Target>
-    <Target Name="Copy" AfterTargets="Build" Condition="'$(AmongUs)' != '' And '$(Configuration)' == 'Debug'">
+    <Target Name="Copy" AfterTargets="Build" Condition="'$(AmongUs)' != '' And Exists('local.props')">
         <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(AmongUs)/BepInEx/plugins/"/>
     </Target>
 </Project>

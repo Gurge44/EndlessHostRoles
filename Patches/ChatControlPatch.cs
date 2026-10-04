@@ -58,7 +58,7 @@ static class ChatControllerAwakePatch
         {
             while (__instance)
             {
-                if (__instance.IsOpenOrOpening)
+                if (__instance.State is ChatControllerState.Open or ChatControllerState.Opening or ChatControllerState.Closing)
                 {
                     __instance.freeChatField.background.color = DarkBackgroundColor;
                 
@@ -70,6 +70,12 @@ static class ChatControllerAwakePatch
     
                     if (!OpenKeyboardIcon) OpenKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform.GetComponent<SpriteRenderer>();
                     if (OpenKeyboardIcon) OpenKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
+                }
+
+                if (!Main.DarkTheme.Value)
+                {
+                    __instance.freeChatField.textArea.outputText.color = Color.black;
+                    yield break;
                 }
                 
                 yield return null;
