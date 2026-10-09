@@ -1,29 +1,23 @@
 # Thank you so much for finding and using EHR!
 
-Updated to Among Us v19.0 (2026. 09. 29.)
+### Mod-side fixes
 
-- Free chat input field fixes by Quine
-- Fixed hot potato survival times being off when natural disasters are integrated
-- Gave more time in room rush when you need to climb a long ladder
-- Attempt at fixing no clip staying enabled after the game starts (if this fix doesn't work then no clip is getting removed from the gui)
-- Fixed sandstorms having no effect when natural disasters are integrated
-- Death reasons aren't displayed in game modes if chatting during the game is enabled
-- Revert AMCI registration on mod unload
-- Improved reveal screen when natural disasters are integrated
-- Attempt at fixing Deathrace on vanilla regions (Bed Wars is hopeless)
-- Fixed hidden roles having wrong enabled/disabled state in role list
-- Fixed sabotage ability triggers not cancelling the sabotage itself
-- Simplified and shortened hot potato tutorial message
-- New setting for Helper: `Ability Works After Death`
-- Fixed Blackmailer per-round limit not resetting
-- Fixed Sidekick/Jackal promotion not working
-- Fixed Amnesiac not seeing arrows
-- `/pi` now shows Starlight instead of 112 as platform
+- Fixed another reason for kicks in Deathrace on vanilla regions
+- Fixed not being able to create lobbies with more than 15 players even on modded regions
+- Fixed Evader always being invisible after meetings
+- Fixed Hypocrite being able to kill
+
+### Major fixes
 
 > [!CAUTION]
-> Steam moved to the 64-bit version. That means you need to reinstall the mod if you're playing on Steam!
+> - BepInEx version updated.
+> - Il2CppInterop updated.
+> - **A full reinstallation is necessary.** Sorry for the inconvenience. This is the only way to fix the current issues with the game. The reason for the crashes was not in the mod (aka. not in EHR.dll), but in Il2CppInterop. Pietro made a custom build of it that fixes those issues, which requires a newer version of BepInEx to work. So please understand that this is necessary.
 
-> [!NOTE]
-> We're launching our own regions! GG-HU located in Hungary (Europe), and GG-US located in the United States of America!
+> [!IMPORTANT]
+> - We have also completed the _mono_ version of EHR. It requires a completely separate installation to work. If you download the Mono zip, it has an `INSTRUCTIONS.txt` which explains what to do to set it up.
+> - Why was this needed, you might ask? As you've already seen, Il2CppInterop causes many, many problems. With the Mono version, the mod talks directly with the game, bypassing/skipping Il2CppInterop entirely. That means far fewer crashes.
+> - Since it requires a separate installation, if you're using other mods along with EHR, they will not work. In that case, stick to the Il2Cpp version that you were using all along. Those mods would also need to update to support Mono to work alongside your Mono EHR installation.
+> - Crossplay between Mono and Il2Cpp installations should work without any problems. I recommend using the Mono version if you're only using EHR (no other plugins).
 
 ---
