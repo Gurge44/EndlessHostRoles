@@ -910,7 +910,7 @@ internal static class SabotageMapPatch
         for (int roomId = 0; roomId < countRooms; roomId++)
         {
             MapRoom mr = __instance.rooms[roomId];
-            if (!mr.special || !mr.special.transform) continue;
+            if (!mr || !mr.special || !mr.special.transform) continue;
 
             SystemTypes room = mr.room;
 
@@ -959,9 +959,7 @@ internal static class MapRoomDoorsStartPatch
         }
     }
 }
-#if !IL2CPP
 [HarmonyPatch(typeof(MapRoom), nameof(MapRoom.DoorsUpdate))]
-#endif
 internal static class MapRoomDoorsUpdatePatch
 {
     public static Dictionary<SystemTypes, TextMeshPro> DoorTimerTexts = [];
