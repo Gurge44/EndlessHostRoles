@@ -209,11 +209,11 @@ jobs:
 
       - name: Download BepInEx 6 pre-release 785
         run: |
-          curl -L https://builds.bepinex.dev/projects/bepinex_be/785/BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.785%2B5fef357.zip -o bepinex-x64.zip
+          curl -L https://builds.bepinex.dev/projects/bepinex_be/785/BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.785%2B6abdba4.zip -o bepinex-x64.zip
           unzip bepinex-x64.zip -d epic
           chmod -R u+rwX,go+rX epic
 
-          curl -L https://builds.bepinex.dev/projects/bepinex_be/785/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.785%2B5fef357.zip -o bepinex-x86.zip
+          curl -L https://builds.bepinex.dev/projects/bepinex_be/785/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.785%2B6abdba4.zip -o bepinex-x86.zip
           unzip bepinex-x86.zip -d steam
           chmod -R u+rwX,go+rX steam
 
