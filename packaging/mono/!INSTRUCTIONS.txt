@@ -1,7 +1,7 @@
 1. Run "AmongUsDotNetInstaller.exe" (this app is made by Pietro, we can all trust him, run it anyway regardless of what your anti-virus says)
 2. Follow its instructions but don't click Launch at the end yet
 3. After the progress bar finishes, remember the folder where you've installed the mono version of the game for step 4
-4. Take all files in this folder apart from "!INSTRUCTIONS.txt" and "AmongUsDotNetInstaller.exe" and put them into that folder
+4. Take all files in this folder apart from "!INSTRUCTIONS.txt" and "AmongUsDotNetInstaller.exe" and put them into that folder from step 3
 5. Have Steam running in the background
 6. Run "Among Us.exe" from this folder, or click Launch in "AmongUsDotNetInstaller.exe" if you still have it open
 
