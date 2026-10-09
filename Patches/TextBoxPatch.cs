@@ -58,9 +58,7 @@ public static class TextBoxPatch
             {
                 Destroy();
                 IsInvalidCommand = false;
-                Color textColor = Main.DarkTheme.Value ? Color.white : Color.black;
-                __instance.compoText.Color(textColor);
-                __instance.outputText.color = textColor;
+                ResetTextColor(__instance);
                 return;
             }
 
@@ -126,9 +124,7 @@ public static class TextBoxPatch
             if (IsInvalidCommand)
             {
                 IsInvalidCommand = false;
-                Color textColor = Main.DarkTheme.Value ? Color.white : Color.black;
-                __instance.compoText.Color(textColor);
-                __instance.outputText.color = textColor;
+                ResetTextColor(__instance);
             }
 
             HudManager hud = HudManager.Instance;
@@ -298,6 +294,17 @@ public static class TextBoxPatch
                 if (showLobbyCode) AdditionalInfoText.text = $"\n\n{Translator.GetString("LobbyCode")}:\n<size=250%><b>{GameCode.IntToGameName(AmongUsClient.Instance.GameId)}</b></size>";
             }
         }
+    }
+
+    private static void ResetTextColor(TextBoxTMP __instance)
+    {
+#if IL2CPP
+        Color textColor = Color.black;
+#else
+        Color textColor = Main.DarkTheme.Value ? Color.white : Color.black;
+#endif
+        __instance.compoText.Color(textColor);
+        __instance.outputText.color = textColor;
     }
 
     public static void OnTabPress(ChatController __instance)

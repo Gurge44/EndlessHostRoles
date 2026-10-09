@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -510,6 +511,8 @@ public static class Deathrace
 
     public static class FixedUpdatePatch
     {
+        private static Stopwatch NotifyTimer = new();
+        
         public static void Postfix()
         {
             if (!AmongUsClient.Instance.AmHost || !GameGoing || GameStates.IsEnded) return;
@@ -612,6 +615,12 @@ public static class Deathrace
             }
 
             Data.Remove(removeId);
+
+            if (NotifyTimer.Elapsed.TotalSeconds >= 1)
+            {
+                NotifyTimer.Reset();
+                Utils.NotifyRoles();
+            }
         }
 
         private static void CheckAndNotify(PlayerData data)
@@ -620,7 +629,7 @@ public static class Deathrace
 
             if (data.LastSuffix != suffix)
             {
-                Utils.NotifyRoles(SpecifySeer: data.Player, SpecifyTarget: data.Player);
+                NotifyTimer.Start();
                 data.LastSuffix = suffix;
             }
         }

@@ -36,6 +36,11 @@ public class Hypocrite : RoleBase
         HypocritePC = playerId.GetPlayer();
     }
 
+    public override bool CanUseKillButton(PlayerControl pc)
+    {
+        return false;
+    }
+
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
         if (!pc.IsAlive()) return;
@@ -63,7 +68,7 @@ public class Hypocrite : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || hud || seer.Is(Team.Impostor) || meeting || HypocritePC == null || !HypocritePC.IsAlive() || !seer.IsAlive()) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || hud || seer.Is(Team.Impostor) || meeting || !HypocritePC || !HypocritePC.IsAlive() || !seer.IsAlive()) return string.Empty;
 
         TaskState ts = HypocritePC.GetTaskState();
         if (!NonImpGetsNotifyWhenLowTasks.GetBool() || ts.RemainingTasksCount > NotifyAtXTasksLeft.GetInt()) return string.Empty;

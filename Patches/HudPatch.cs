@@ -959,7 +959,9 @@ internal static class MapRoomDoorsStartPatch
         }
     }
 }
+#if !IL2CPP
 [HarmonyPatch(typeof(MapRoom), nameof(MapRoom.DoorsUpdate))]
+#endif
 internal static class MapRoomDoorsUpdatePatch
 {
     public static Dictionary<SystemTypes, TextMeshPro> DoorTimerTexts = [];
@@ -1002,16 +1004,11 @@ internal static class MapRoomDoorsUpdatePatch
                 goto Skip;
             }
 
-            foreach (OpenableDoor door in shipStatusInstance.AllDoors)
+            if (AutoOpenDoors.TryGetValue(room, out AutoOpenDoor autoOpenDoor) && autoOpenDoor)
             {
-                if (door.Room != room) continue;
-
-                if (AutoOpenDoors.TryGetValue(room, out AutoOpenDoor autoOpenDoor) && autoOpenDoor)
-                {
-                    total = 30f;
-                    timer = autoOpenDoor.CooldownTimer;
-                    goto Skip;
-                }
+                total = 30f;
+                timer = autoOpenDoor.CooldownTimer;
+                goto Skip;
             }
         }
 

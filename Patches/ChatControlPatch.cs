@@ -1,5 +1,7 @@
 using System;
+#if !IL2CPP
 using System.Collections;
+#endif
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
@@ -15,9 +17,11 @@ namespace EHR;
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.Awake))]
 static class ChatControllerAwakePatch 
 {
+#if !IL2CPP
     private static SpriteRenderer QuickChatIcon;
     private static SpriteRenderer OpenBanMenuIcon;
     private static SpriteRenderer OpenKeyboardIcon;
+#endif
 
     public static readonly Color32 DarkBackgroundColor = new(40, 40, 40, byte.MaxValue);
     
@@ -36,6 +40,7 @@ static class ChatControllerAwakePatch
             chatBubble.TextArea.color = Color.white;
             chatBubble.Background.color = new(0.1f, 0.1f, 0.1f, 1f);
             
+#if !IL2CPP
             __instance.freeChatField.background.color = DarkBackgroundColor;
 
             if (!TextBoxPatch.IsInvalidCommand)
@@ -48,10 +53,11 @@ static class ChatControllerAwakePatch
             __instance.quickChatField.text.color = Color.white;
 
             Main.Instance.StartCoroutine(Coroutine());
+#endif
         }
         else
             __instance.freeChatField.textArea.outputText.color = Color.black;
-
+#if !IL2CPP
         return;
 
         IEnumerator Coroutine()
@@ -81,6 +87,7 @@ static class ChatControllerAwakePatch
                 yield return null;
             }
         }
+#endif
     }
 }
 

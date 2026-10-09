@@ -1384,9 +1384,10 @@ internal static class MeetingHudOnDestroyPatch
 
             try
             {
-                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
-                    if (pc.Is(CustomRoles.Evader))
-                        pc.RpcMakeInvisible();
+                if (CheckForEndVotingPatch.CommsWasCalled || Utils.IsAnySabotageActive())
+                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                        if (pc.Is(CustomRoles.Evader))
+                            pc.RpcMakeInvisible();
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
