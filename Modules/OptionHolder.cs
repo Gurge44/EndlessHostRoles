@@ -1833,7 +1833,7 @@ public static class Options
         EnableAutoMessage = new BooleanOptionItem(19429, "EnableAutoMessage", false, TabGroup.SystemSettings)
             .SetHeader(true);
         
-        AutoMessageSendInterval = new IntegerOptionItem(19430, "AutoMessageSendInterval", new(10, 300, 5), 60, TabGroup.SystemSettings)
+        AutoMessageSendInterval = new IntegerOptionItem(19430, "AutoMessageSendInterval", new(10, 600, 5), 60, TabGroup.SystemSettings)
             .SetParent(EnableAutoMessage)
             .SetValueFormat(OptionFormat.Seconds);
 
