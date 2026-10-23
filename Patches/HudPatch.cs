@@ -955,7 +955,11 @@ internal static class MapRoomDoorsStartPatch
         MapRoomDoorsUpdatePatch.AutoOpenDoors.Clear();
         foreach (OpenableDoor door in shipStatusInstance.AllDoors)
         {
+#if IL2CPP
+            MapRoomDoorsUpdatePatch.AutoOpenDoors[door.Room] = door.CastFast<AutoOpenDoor>();
+#else
             MapRoomDoorsUpdatePatch.AutoOpenDoors[door.Room] = door as AutoOpenDoor;
+#endif
         }
     }
 }
@@ -973,13 +977,20 @@ internal static class MapRoomDoorsUpdatePatch
         SpriteRenderer doorSprite = __instance.door;
         ShipStatus shipStatusInstance = ShipStatus.Instance;
 
-        if (!doorSprite || !shipStatusInstance || SubmergedCompatibility.IsSubmerged()) return false;
+        if (!doorSprite || !shipStatusInstance) return false;
+#if IL2CPP
+        if (SubmergedCompatibility.IsSubmerged() || Main.LIMap) return true;
+#endif
 
         SystemTypes room = __instance.room;
         float total;
         float timer;
 
+#if IL2CPP
+        if (Main.CurrentMap != MapNames.Skeld)
+#else
         if (DoorsSystemType != null)
+#endif
         {
             if (DoorsSystemType.initialCooldown > 0f)
             {
@@ -993,7 +1004,11 @@ internal static class MapRoomDoorsUpdatePatch
             goto Skip;
         }
 
+#if IL2CPP
+        else
+#else
         if (AutoDoorsSystemType != null)
+#endif
         {
             if (AutoDoorsSystemType.initialCooldown > 0.0)
             {
