@@ -2027,6 +2027,7 @@ internal static class CustomRolesHelper
             CustomRoles.Physicist when pc.GetCustomRole() is CustomRoles.Tracefinder or CustomRoles.Doctor => false,
             CustomRoles.Oblivious when pc.GetCustomRole() is CustomRoles.Looter = false,
             CustomRoles.Oblivious when pc.GetCustomRole() is CustomRoles.Sleuth = false,
+            CustomRoles.Oblivious when pc.GetCustomRole() is CustomRoles.Absorber = false,
             CustomRoles.DoubleShot when pc.GetCustomRole() is not CustomRoles.EvilGuesser and not CustomRoles.NiceGuesser and not CustomRoles.Augur && !Options.GuesserMode.GetBool() => false,
             CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.EvilGuesser) && pc.Is(CustomRoleTypes.Impostor) && !Options.ImpostorsCanGuess.GetBool() => false,
             CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.NiceGuesser) && pc.Is(CustomRoleTypes.Crewmate) && !Options.CrewmatesCanGuess.GetBool() => false,
