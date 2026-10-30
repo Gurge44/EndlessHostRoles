@@ -1931,7 +1931,7 @@ internal static class CustomRolesHelper
             CustomRoles.BananaMan when pc.Is(CustomRoles.Disco) || pc.Is(CustomRoles.Doppelganger) => false,
             CustomRoles.Disco when pc.GetCustomRole() is CustomRoles.Chameleon or CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Alchemist or CustomRoles.Doppelganger => false,
             CustomRoles.Egoist when pc.Is(CustomRoles.Gangster) => false,
-            CustomRoles.Nimble when pc.GetCustomRole() is CustomRoles.Oxyman or CustomRoles.EngineerEHR or CustomRoles.Mechanic => false,
+            CustomRoles.Nimble when pc.GetCustomRole() is CustomRoles.Oxyman or CustomRoles.EngineerEHR or CustomRoles.Mechanic or CustomRoles.ScientistEHR or CustomRoles.Doctor or CustomRoles.Tracefinder or CustomRoles.Sunnyboy => false,
             CustomRoles.Magnet when pc.Is(Team.Impostor) => false,
             CustomRoles.Swift when pc.Is(CustomRoles.Magnet) => false,
             CustomRoles.Oblivious when pc.Is(CustomRoles.Amnesiac) && Amnesiac.RememberMode.GetValue() == 0 => false,
