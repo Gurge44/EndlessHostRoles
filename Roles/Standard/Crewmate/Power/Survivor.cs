@@ -114,7 +114,7 @@ public class Survivor : RoleBase
     {
         ShieldTimer?.Dispose();
         ShieldTimer = null;
-        if (!Killing && SurvivorId.GetPlayer().AllTasksCompleted()) SurvivorId.GetPlayer().RpcChangeRoleBasis(CustomRoles.Wizard);
+        if (!Killing && SurvivorId.GetPlayer().AllTasksCompleted()) OnTaskComplete(SurvivorId.GetPlayer(), 1, 0);
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
