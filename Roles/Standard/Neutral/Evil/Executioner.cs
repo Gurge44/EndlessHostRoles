@@ -186,6 +186,18 @@ public class Executioner : RoleBase
         return false;
     }
 
+    public override void AfterMeetingTasks()
+    {
+        foreach (KeyValuePair<byte, byte> kvp in Target)
+        {
+            PlayerControl executioner = Utils.GetPlayerById(kvp.Key);
+            PlayerControl target = Utils.GetPlayerById(kvp.Value);
+
+            if (!executioner || !executioner.IsAlive()) continue;
+            if (!target || !target.IsAlive()) ChangeRoleByTarget(target);
+        }
+    }
+
     private static void ExeWin(byte playerId)
     {
         CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Executioner);

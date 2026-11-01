@@ -68,7 +68,7 @@ public class Swapper : RoleBase
 
     public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || pc.GetCustomRole() != CustomRoles.Swapper) return false;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || pc.GetCustomRole() != CustomRoles.Swapper || Starspawn.IsDayBreak) return false;
 
         Logger.Info($"{pc.GetNameWithRole()} : {msg} (UI: {isUI})", "Swapper");
 

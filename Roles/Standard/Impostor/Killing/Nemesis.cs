@@ -63,7 +63,7 @@ internal class Nemesis : RoleBase
 
         if (!GameStates.IsInGame || pc == null) return false;
 
-        if (!pc.Is(CustomRoles.Nemesis)) return false;
+        if (!pc.Is(CustomRoles.Nemesis) || Starspawn.IsDayBreak) return false;
 
         msg = msg.Trim().ToLower().Replace(" ", string.Empty);
         if (msg.Length < 3 || !msg.StartsWith("/rv")) return false;
