@@ -80,7 +80,7 @@ internal static class AllMapIconsPatch
     }
 }
 
-[HarmonyPatch(typeof(StringOption), nameof(StringOption.Start))]
+[HarmonyPatch(typeof(StringOption), nameof(StringOption.Initialize))]
 public static class AutoselectDleksPatch
 {
     public static void Postfix(StringOption __instance)
