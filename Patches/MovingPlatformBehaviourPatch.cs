@@ -21,18 +21,6 @@ public static class MovingPlatformBehaviourPatch
         }
     }
 
-    [HarmonyPatch(nameof(MovingPlatformBehaviour.IsDirty), MethodType.Getter)]
-    [HarmonyPrefix]
-    public static bool GetIsDirtyPrefix(ref bool __result)
-    {
-        if (IsDisabled)
-        {
-            __result = false;
-            return false;
-        }
-
-        return true;
-    }
 
     [HarmonyPatch(nameof(MovingPlatformBehaviour.Use), typeof(PlayerControl))]
     [HarmonyPrefix]
