@@ -150,6 +150,7 @@ public class Gambler : RoleBase
     {
         if (EffectID != byte.MaxValue) return true;
 
+        bool doKill = true;
         var rd = IRandom.Instance;
         
         if (rd.Next(1, 101) <= PositiveEffectChance.GetInt())
@@ -166,7 +167,8 @@ public class Gambler : RoleBase
                         if (target == null || !target.IsAlive()) return;
                         target.Suicide(PlayerState.DeathReason.Poison, killer);
                     }));
-                    return false;
+                    doKill = false;
+                    break;
                 case 2: // Shield
                     killer.Notify(string.Format(GetString("GamblerGet.Shield"), ShieldDur.GetInt()));
                     IsShielded.Add(killer.PlayerId);
@@ -175,7 +177,8 @@ public class Gambler : RoleBase
                 case 3: // No lunge (Swift kill)
                     killer.Notify(GetString("GamblerGet.NoLunge"));
                     if (killer.RpcCheckAndMurder(target, true)) target.Kill(target);
-                    return false;
+                    doKill = false;
+                    break;
                 case 4: // Swap with random player
                     killer.Notify(GetString("GamblerGet.Swap"));
 
@@ -198,6 +201,7 @@ public class Gambler : RoleBase
                         || (target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && IgnoreCursedWolfAndJinx.GetBool())
                     {
                         killer.Kill(target);
+                        EffectID = byte.MaxValue;
                         return false;
                     }
 
@@ -208,7 +212,8 @@ public class Gambler : RoleBase
                         break;
 
                     killer.RpcCheckAndMurder(target);
-                    return false;
+                    doKill = false;
+                    break;
                 case 6: // Low KCD
                     killer.Notify(string.Format(GetString("GamblerGet.LowKCD"), LowKCD.GetFloat()));
                     LateTask.New(() => killer.SetKillCooldown(LowKCD.GetFloat()), 0.1f, "Gambler SetLowKCD");
@@ -296,7 +301,7 @@ public class Gambler : RoleBase
 
         EffectID = byte.MaxValue;
 
-        return true;
+        return doKill;
     }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)

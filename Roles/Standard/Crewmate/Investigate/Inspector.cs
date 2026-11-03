@@ -106,7 +106,7 @@ public class Inspector : RoleBase
 
     public static bool InspectorCheckMsg(PlayerControl pc, string msg, bool isUI = false)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || !pc.Is(CustomRoles.Inspector)) return false;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || !pc.Is(CustomRoles.Inspector) || Starspawn.IsDayBreak) return false;
 
         int operate; // 1:ID 2:Check
         msg = msg.ToLower().TrimStart().TrimEnd();

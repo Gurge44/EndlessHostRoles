@@ -77,7 +77,7 @@ public class Prosecutor : RoleBase
 
     public static bool TrialMsg(PlayerControl pc, string msg, bool isUI = false)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || !pc.Is(CustomRoles.Prosecutor)) return false;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || !pc.Is(CustomRoles.Prosecutor) || Starspawn.IsDayBreak) return false;
 
         int operate; // 1:ID 2:Trial
         msg = msg.ToLower().TrimStart().TrimEnd();

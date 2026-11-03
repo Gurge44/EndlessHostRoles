@@ -61,6 +61,7 @@ public class Frightener : RoleBase
                 Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
             }, AbilityDuration.GetFloat(), "Frightener Ability");
             
+            shapeshifter.RpcRemoveAbilityUse();
             Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
             Utils.SendRPC(CustomRPC.SyncRoleData, FrightenerId, target.PlayerId);
         }

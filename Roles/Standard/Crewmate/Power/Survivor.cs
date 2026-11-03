@@ -79,7 +79,7 @@ public class Survivor : RoleBase
             PlayerControl player = GetPlayerById(playerId);
             Killing = player.Is(CustomRoles.Bloodlust);
             if (Killing)
-                player.RpcChangeRoleBasis(CustomRoles.Scanner);
+                player.RpcChangeRoleBasis(CustomRoles.Wizard);
         }, 1f, log: false);
     }
 
@@ -114,6 +114,7 @@ public class Survivor : RoleBase
     {
         ShieldTimer?.Dispose();
         ShieldTimer = null;
+        if (!Killing && SurvivorId.GetPlayer().AllTasksCompleted()) OnTaskComplete(SurvivorId.GetPlayer(), 1, 0);
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
@@ -186,10 +187,10 @@ public class Survivor : RoleBase
     // Last ability: Kill
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        if (completedTaskCount + 1 >= totalTaskCount)
+        if (completedTaskCount + 1 >= totalTaskCount && pc.IsAlive())
         {
             Killing = true;
-            pc.RpcChangeRoleBasis(CustomRoles.Scanner);
+            pc.RpcChangeRoleBasis(CustomRoles.Wizard);
             LateTask.New(() => pc.SetKillCooldown(KillCooldown.GetFloat()), 0.2f);
             SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Killing);
             NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

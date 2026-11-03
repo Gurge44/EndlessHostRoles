@@ -63,7 +63,7 @@ public static class GuessManager
     public static bool GuesserMsg(PlayerControl pc, string msg, bool isUI = false)
     {
         if (!AmongUsClient.Instance.AmHost) return false;
-        if (!GameStates.IsMeeting || MeetingHud.Instance.state is MeetingHud.MeetingStates.Results or MeetingHud.MeetingStates.Proceeding || !pc) return false;
+        if (!GameStates.IsMeeting || MeetingHud.Instance.state is MeetingHud.MeetingStates.Results or MeetingHud.MeetingStates.Proceeding || !pc || Starspawn.IsDayBreak) return false;
 
         bool hasGuessingRole = pc.GetCustomRole() is CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.Prosecutor or CustomRoles.Swapper or CustomRoles.Councillor or CustomRoles.NecroGuesser or CustomRoles.Augur;
         if (!hasGuessingRole && !pc.Is(CustomRoles.Guesser) && !Options.GuesserMode.GetBool()) return false;
