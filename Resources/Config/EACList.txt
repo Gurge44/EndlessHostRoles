@@ -130,6 +130,8 @@ signingwry#3704 | 800955a89 |  | slurs in game |
 stoneredox#2794 | 763ef0db5 |  | slurs in game | 
 loanlyric#0220 | f6b3f13ad |  | slurs in game | 
 eagertest#0674 | 076364d50 | Wissal | n word in game | 
+sloepocket#8428 | fadd94242 |  | slurs in game | 
+
 
 
 ## Griefers, Toxic, Harrasing, Racist
