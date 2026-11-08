@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -79,6 +80,11 @@ public class Auditor : RoleBase
         opt.SetFloat(FloatOptionNames.ImpostorLightMod, vision);
     }
 
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = Math.Min(AuditCooldown.GetFloat(), SmokebombCooldown.GetFloat());
+    }
+
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         switch (Mode)
@@ -100,13 +106,15 @@ public class Auditor : RoleBase
                 if (LoweredVisionPlayers.Add(target.PlayerId)) target.MarkDirtySettings();
                 LateTask.New(() =>
                 {
-                    if (target == null || !LoweredVisionPlayers.Remove(target.PlayerId) || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
+                    if (!target || !LoweredVisionPlayers.Remove(target.PlayerId) || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
                     target.MarkDirtySettings();
                 }, LoweredVisionDuration.GetInt());
                 killer.SetKillCooldown(SmokebombCooldown.GetFloat());
                 break;
             }
         }
+        
+        killer.RpcRemoveAbilityUse();
 
         if (RevealedPlayers.Add(target.PlayerId))
         {

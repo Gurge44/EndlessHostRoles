@@ -63,7 +63,7 @@ public static class MatchInfoGuidePatch
     {
         foreach (OptionItem optionItem in settings)
         {
-            if (optionItem.IsCurrentlyHidden(checkCollapsedSection: false) || optionItem.Parent != null || optionItem is PresetOptionItem or TextOptionItem) continue;
+            if (optionItem.IsCurrentlyHidden() || optionItem.Parent != null || optionItem is PresetOptionItem or TextOptionItem) continue;
 
             string value = optionItem switch
             {

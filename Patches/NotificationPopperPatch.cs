@@ -23,8 +23,6 @@ internal static class NotificationPopperPatch
 
     public static void AddSettingsChangeMessage(OptionItem option)
     {
-        if (GameSettingMenuPatch.ChangingPreset) return;
-        
         string optValue = option.GetString();
         if (optValue == "STRMISS") return;
 

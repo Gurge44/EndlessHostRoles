@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
 #if IL2CPP
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 #endif
@@ -622,7 +623,7 @@ public static class LobbyViewSettingsPanePatch
             foreach (OptionItem option in OptionItem.AllOptions)
             {
                 if (option.Tab != tabName) continue;
-                BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
+                BaseGameSetting data = GetSetting(option);
 
                 bool enabledOrNotCollapsed = !option.IsCurrentlyHidden(true) && AllParentsEnabledAndVisible(option.Parent);
 
@@ -800,8 +801,8 @@ public static class LobbyViewSettingsPanePatch
                 if (option.GameMode is not CustomGameMode.All && option.GameMode != LastGameModeSelected) continue;
 
                 bool enabledOrNotCollapsed = !option.IsCurrentlyHidden(true) && AllParentsEnabledAndVisible(option.Parent);
-                bool enabled = !option.IsCurrentlyHidden(true, false) && AllParentsEnabledAndVisible(option.Parent, false);
-                BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
+                bool enabled = !option.IsCurrentlyHidden(true) && AllParentsEnabledAndVisible(option.Parent);
+                BaseGameSetting data = GetSetting(option);
                 string titleName = option.GetName(true).Trim('★', ' ').RemoveHtmlTags();
                 string realName = option.Name;
 
@@ -902,7 +903,7 @@ public static class LobbyViewSettingsPanePatch
                             }
 
                             if (role.IsExperimental()) titleName += $"<size=2>{Translator.GetString("ExperimentalRoleIndicator")}</size>";
-                            if (role.IsGhostRole()) titleName += StringOptionPatch.GetGhostRoleTeam(role);
+                            if (role.IsGhostRole()) titleName += GetGhostRoleTeam(role);
                             if (role.IsDevFavoriteRole()) titleName += "  <size=2><#00ffff>★</color></size>";
 
                             int chanceAddOnPerGame = Options.CustomAdtRoleSpawnRate.TryGetValue(role, out IntegerOptionItem valueAddOnOpt) ? valueAddOnOpt.GetInt() : 0;
@@ -1104,7 +1105,7 @@ public static class LobbyViewSettingsPanePatch
             bool show = firstOption.Name != "Maximum";
             if (!show) continue;
 
-            BaseGameSetting data = GameOptionsMenuPatch.GetSetting(firstOption);
+            BaseGameSetting data = GetSetting(firstOption);
             if (!data) continue;
 
             DrawSetting(firstOption, data);
@@ -1112,7 +1113,7 @@ public static class LobbyViewSettingsPanePatch
 
             foreach (OptionItem secondOption in firstOption.Children)
             {
-                data = GameOptionsMenuPatch.GetSetting(secondOption);
+                data = GetSetting(secondOption);
                 if (!data) continue;
 
                 DrawSetting(secondOption, data);
@@ -1120,7 +1121,7 @@ public static class LobbyViewSettingsPanePatch
 
                 foreach (OptionItem thirdOption in secondOption.Children)
                 {
-                    data = GameOptionsMenuPatch.GetSetting(thirdOption);
+                    data = GetSetting(thirdOption);
                     if (!data) continue;
 
                     DrawSetting(thirdOption, data);
@@ -1181,13 +1182,80 @@ public static class LobbyViewSettingsPanePatch
         }
     }
 
-    private static bool AllParentsEnabledAndVisible(OptionItem o, bool checkCollapsedSection = true)
+    private static bool AllParentsEnabledAndVisible(OptionItem o)
     {
         while (true)
         {
             if (o == null) return true;
-            if (o.IsCurrentlyHidden(true, checkCollapsedSection) || !o.GetBool()) return false;
+            if (o.IsCurrentlyHidden(true) || !o.GetBool()) return false;
             o = o.Parent;
         }
+    }
+    
+    public static BaseGameSetting GetSetting(OptionItem item)
+    {
+        BaseGameSetting baseGameSetting;
+
+        switch (item)
+        {
+            case BooleanOptionItem:
+                var checkboxGameSetting = ScriptableObject.CreateInstance<CheckboxGameSetting>();
+                checkboxGameSetting.Type = OptionTypes.Checkbox;
+                baseGameSetting = checkboxGameSetting;
+                break;
+            case IntegerOptionItem integerOptionItem:
+                var intGameSetting = ScriptableObject.CreateInstance<IntGameSetting>();
+                intGameSetting.Type = OptionTypes.Int;
+                intGameSetting.Value = integerOptionItem.GetInt();
+                intGameSetting.Increment = integerOptionItem.Rule.Step;
+                intGameSetting.ValidRange = new(integerOptionItem.Rule.MinValue, integerOptionItem.Rule.MaxValue);
+                intGameSetting.ZeroIsInfinity = false;
+                intGameSetting.SuffixType = NumberSuffixes.Multiplier;
+                intGameSetting.FormatString = string.Empty;
+                baseGameSetting = intGameSetting;
+                break;
+            case FloatOptionItem floatOptionItem:
+                var floatGameSetting = ScriptableObject.CreateInstance<FloatGameSetting>();
+                floatGameSetting.Type = OptionTypes.Float;
+                floatGameSetting.Value = floatOptionItem.GetFloat();
+                floatGameSetting.Increment = floatOptionItem.Rule.Step;
+                floatGameSetting.ValidRange = new(floatOptionItem.Rule.MinValue, floatOptionItem.Rule.MaxValue);
+                floatGameSetting.ZeroIsInfinity = false;
+                floatGameSetting.SuffixType = NumberSuffixes.Multiplier;
+                floatGameSetting.FormatString = string.Empty;
+                baseGameSetting = floatGameSetting;
+                break;
+            case StringOptionItem stringOptionItem:
+                var stringGameSetting = ScriptableObject.CreateInstance<StringGameSetting>();
+                stringGameSetting.Type = OptionTypes.String;
+                stringGameSetting.Values = new StringNames[stringOptionItem.Selections.Count];
+                stringGameSetting.Index = stringOptionItem.GetInt();
+                baseGameSetting = stringGameSetting;
+                break;
+            default:
+                return null;
+        }
+
+        baseGameSetting.Title = StringNames.Accept;
+        return baseGameSetting;
+    }
+
+    public static string GetGhostRoleTeam(CustomRoles role)
+    {
+        IGhostRole instance = GhostRolesManager.CreateGhostRoleInstance(role);
+        if (instance == null) return string.Empty;
+        
+        StringBuilder stringBuilder = new("<size=2>");
+
+        foreach (Team team in Main.TeamValues[1..])
+        {
+            if ((instance.Team & team) != 0)
+            {
+                if (stringBuilder.Length > 8) stringBuilder.Append('/');
+                stringBuilder.Append(Utils.ColorString(team.GetColor(), Translator.GetString($"ShortTeamName.{team}").ToUpper()));
+            }
+        }
+        
+        return stringBuilder.Append("</size>").ToString();
     }
 }

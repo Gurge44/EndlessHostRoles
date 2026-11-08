@@ -233,7 +233,7 @@ internal static class OnGameJoinedPatch
                     float timer;
                     if (nextGM != CustomGameMode.All) timer = 0f;
                     else if (Options.AutoGMPollCommandAfterJoin.GetBool()) timer = Options.AutoGMPollCommandCooldown.GetInt() - 10;
-                    else if (Main.AutoStart.Value) timer = Options.MinWaitAutoStart.GetFloat() * 60 - 65;
+                    else if (Main.AutoStart.Value) timer = Options.MinWaitAutoStart.GetFloat() * 60 - 70;
                     else timer = 30f;
 
                     Logger.Info($"Auto GM Rotation timer: {timer}", "Auto GM Rotation");

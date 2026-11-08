@@ -12,8 +12,6 @@ public abstract class OptionItem
     public const int PresetId = 0;
     public readonly List<OptionItem> Children;
 
-    public OptionBehaviour OptionBehaviour;
-
     protected OptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue)
     {
         Id = id;
@@ -57,7 +55,7 @@ public abstract class OptionItem
     public bool IsSingleValue { get; }
 
     public Color NameColor { get; set; }
-    private OptionFormat ValueFormat { get; set; }
+    public OptionFormat ValueFormat { get; set; }
     public CustomGameMode GameMode { get; private set; }
     public bool IsHeader { get; protected set; }
     private bool IsHidden { get; set; }
@@ -229,13 +227,13 @@ public abstract class OptionItem
         return IsSingleValue ? SingleValue : AllValues[CurrentPreset];
     }
 
-    public bool IsCurrentlyHidden(bool forLobbyView = false, bool checkCollapsedSection = true)
+    public bool IsCurrentlyHidden(bool forLobbyView = false, bool checkParentEnabled = false)
     {
         try
         {
             for (OptionItem current = this; current != null; current = current.Parent)
             {
-                if (Hidden(current, forLobbyView, checkCollapsedSection))
+                if (Hidden(this, current, forLobbyView, checkParentEnabled))
                     return true;
             }
         }
@@ -243,9 +241,9 @@ public abstract class OptionItem
 
         return false;
 
-        static bool Hidden(OptionItem oi, bool forLobbyView, bool checkCollapsedSection)
+        static bool Hidden(OptionItem instance, OptionItem oi, bool forLobbyView, bool checkParentEnabled)
         {
-            if (checkCollapsedSection && oi.Header is { CollapsesSection: true }) return true;
+            if (checkParentEnabled && oi != instance && !oi.GetBool()) return true;
             CustomGameMode mode = !forLobbyView ? EHR.Options.CurrentGameMode : LobbyViewSettingsPanePatch.LastGameModeSelected;
             const CustomGameMode nd = CustomGameMode.NaturalDisasters;
             return (oi.IsHidden || oi.GameMode != CustomGameMode.All && oi.GameMode != mode ||
@@ -262,12 +260,6 @@ public abstract class OptionItem
 
     private void Refresh()
     {
-        if (OptionBehaviour is StringOption opt)
-        {
-            opt.TitleText.text = GetName();
-            opt.ValueText.text = GetString();
-            opt.oldValue = opt.Value = CurrentValue;
-        }
     }
 
     public void SetValue(int afterValue, bool doSave, bool doSync = true)
@@ -348,6 +340,8 @@ public abstract class OptionItem
 
     #region static
 
+    public static readonly Dictionary<string, OptionItem> BehaviourNameToItem = [];
+    public static readonly Dictionary<string, CustomRoles> SettingObjectNameToRole = [];
     public static IReadOnlyList<OptionItem> AllOptions => Options;
     private static readonly List<OptionItem> Options = new(1024);
     public static IReadOnlyDictionary<int, OptionItem> FastOptions => FastOpts;

@@ -548,7 +548,7 @@ public class ClientControlGUI : MonoBehaviour
         }
 
         bool canZoom = Zoom.CanZoom;
-        bool canNoClip = canMove && Main.IntroDestroyed && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && (!GameStartManager.Instance || GameStartManager.Instance.startState == GameStartManager.StartingStates.NotStarting);
+        bool canNoClip = canMove && GameStartManager.Instance && GameStartManager.Instance.startState == GameStartManager.StartingStates.NotStarting;
         bool canToggleHud = Main.IntroDestroyed && !inMeeting && !ExileController.Instance && !ReportDeadBodyPatch.MeetingStarted;
 
         if (canZoom || canNoClip || canToggleHud)
@@ -591,7 +591,7 @@ public class ClientControlGUI : MonoBehaviour
                 if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
             });
         }
-        else if (ControllerManagerUpdatePatch.NoClipEnabled && OperatingSystem.IsAndroid() && PlayerControl.LocalPlayer)
+        else if (ControllerManagerUpdatePatch.NoClipEnabled && OperatingSystem.IsAndroid() && PlayerControl.LocalPlayer && Main.IntroDestroyed && !Main.HasJustStarted)
         {
             PlayerControl.LocalPlayer.Collider.offset = new Vector2(0f, -0.3636f);
             ControllerManagerUpdatePatch.NoClipEnabled = false;

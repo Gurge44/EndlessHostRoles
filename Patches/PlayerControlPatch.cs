@@ -1248,7 +1248,7 @@ internal static class ReportDeadBodyPatch
                 x.IsBlackOut = false;
                 x.Player.MarkDirtySettings();
             });
-        }, 15f, "RemoveBlackout");
+        }, 5f, "RemoveBlackout");
         
         if (Main.GameTimer.IsRunning && !Options.GameTimeLimitRunsDuringMeetings.GetBool())
             Main.GameTimer.Stop();
@@ -1695,7 +1695,7 @@ internal static class FixedUpdatePatch
                 AmongUsClient.Instance.ChangeGamePublic(false);
 
             // Kick low-level people
-            if (!lowLoad && isLobby && GameSettingMenuPatch.LastPresetChange + 5 < TimeStamp && !player.AmOwner && Options.KickLowLevelPlayer.GetInt() != 0 && (
+            if (!lowLoad && isLobby && !player.AmOwner && Options.KickLowLevelPlayer.GetInt() != 0 && (
                 player.Data.PlayerLevel != 0 && player.Data.PlayerLevel < Options.KickLowLevelPlayer.GetInt() ||
                 player.Data.FriendCode == string.Empty
             ))

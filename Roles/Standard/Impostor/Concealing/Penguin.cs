@@ -16,6 +16,7 @@ public class Penguin : RoleBase
     private static OptionItem OptionMeetingKill;
     private static OptionItem OptionSpeedDuringDrag;
     private static OptionItem OptionVictimCanUseAbilities;
+    private static OptionItem OptionCanVentWhileDragging;
 
     private Stopwatch AbductTimer;
     private float AbductTimerLimit;
@@ -33,6 +34,7 @@ public class Penguin : RoleBase
     private float SpeedDuringDrag;
 
     private bool VictimCanUseAbilities;
+    private bool CanVentWhileDragging;
 
     public override bool IsEnable => PenguinId != byte.MaxValue;
 
@@ -65,6 +67,9 @@ public class Penguin : RoleBase
 
         OptionVictimCanUseAbilities = new BooleanOptionItem(Id + 14, "PenguinVictimCanUseAbilities", false, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin]);
+        
+        OptionCanVentWhileDragging = new BooleanOptionItem(Id + 15, "PenguinCanVentWhileDragging", false, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin]);
     }
 
     public override void Init()
@@ -83,6 +88,7 @@ public class Penguin : RoleBase
             MeetingKill = OptionMeetingKill.GetBool();
             SpeedDuringDrag = OptionSpeedDuringDrag.GetFloat();
             VictimCanUseAbilities = OptionVictimCanUseAbilities.GetBool();
+            CanVentWhileDragging = OptionCanVentWhileDragging.GetBool();
             Cooldown = Options.AdjustedDefaultKillCooldown;
         }
         else
@@ -91,6 +97,7 @@ public class Penguin : RoleBase
             MeetingKill = false;
             SpeedDuringDrag = Goose.OptionSpeedDuringDrag.GetFloat();
             VictimCanUseAbilities = Goose.OptionVictimCanUseAbilities.GetBool();
+            CanVentWhileDragging = false;
             Cooldown = Goose.Cooldown.GetFloat();
         }
 
@@ -109,7 +116,7 @@ public class Penguin : RoleBase
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return !AbductVictim && !IsGoose;
+        return !IsGoose && (CanVentWhileDragging || AbductTimer == null);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

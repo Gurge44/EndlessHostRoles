@@ -52,8 +52,12 @@ public class Frightener : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (shapeshifting && AlarmedPlayers.Add(target.PlayerId))
+        if (!shapeshifting) return true;
+        
+        if (shapeshifter.GetAbilityUseLimit() >= 1f && AlarmedPlayers.Add(target.PlayerId))
         {
+            shapeshifter.RpcRemoveAbilityUse(notify: false);
+            
             LateTask.New(() =>
             {
                 AlarmedPlayers.Remove(target.PlayerId);

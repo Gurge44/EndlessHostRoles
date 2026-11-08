@@ -92,6 +92,18 @@ internal class Adventurer : RoleBase
         }
     }
 
+    private static void RelocateObject(Resource resource, Vector2 newPosition)
+    {
+        for (int objIndex = 0; objIndex < CustomNetObject.AllObjects.Count; objIndex++)
+        {
+            if (CustomNetObject.AllObjects[objIndex] is AdventurerItem item && item.Resource == resource)
+            {
+                item.TP(newPosition);
+                break;
+            }
+        }
+    }
+
     private static OptionItem CreateWeaponEnabledSetting(int id, Weapon weapon)
     {
         return new BooleanOptionItem(id, $"AdventurerWeaponEnabled.{weapon}", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer]);
@@ -287,16 +299,18 @@ internal class Adventurer : RoleBase
 
         if (LastRandomResourceTimeStamp + 20 <= now && pc.PlayerId != AdventurerPC.PlayerId && IRandom.Instance.Next(500) == 0)
         {
+            Vector2 pos = pc.Pos();
+            
             if (ResourceLocations.TryGetValue(Resource.Random, out Vector2 location))
             {
                 LocateArrow.Remove(AdventurerPC.PlayerId, location);
-                HideObject(Resource.Random);
+                RelocateObject(Resource.Random, pos);
             }
+            else
+                _ = new AdventurerItem(pos, Resource.Random, AdventurerPC);
 
-            Vector2 pos = pc.Pos();
             LocateArrow.Add(AdventurerPC.PlayerId, pos);
             ResourceLocations[Resource.Random] = pos;
-            _ = new AdventurerItem(pos, Resource.Random, AdventurerPC);
             LastRandomResourceTimeStamp = now;
             Utils.NotifyRoles(SpecifySeer: AdventurerPC, SpecifyTarget: AdventurerPC);
         }
@@ -323,12 +337,13 @@ internal class Adventurer : RoleBase
                 if (ResourceLocations.TryGetValue(Resource.Grouping, out Vector2 location))
                 {
                     LocateArrow.Remove(AdventurerPC.PlayerId, location);
-                    HideObject(Resource.Grouping);
+                    RelocateObject(Resource.Grouping, pcPos);
                 }
+                else
+                    _ = new AdventurerItem(pcPos, Resource.Grouping, AdventurerPC);
 
                 LocateArrow.Add(AdventurerPC.PlayerId, pcPos);
                 ResourceLocations[Resource.Grouping] = pcPos;
-                _ = new AdventurerItem(pcPos, Resource.Grouping, AdventurerPC);
                 LastGroupingResourceTimeStamp = now;
                 Utils.NotifyRoles(SpecifySeer: AdventurerPC, SpecifyTarget: AdventurerPC);
             }
@@ -377,9 +392,11 @@ internal class Adventurer : RoleBase
     {
         if (!AmongUsClient.Instance.AmHost) return;
         Vector2 pos = shapeshifter.Pos();
+        if (av.ResourceLocations.ContainsKey(Resource.ShapeshiftSkin))
+            RelocateObject(Resource.ShapeshiftSkin, pos);
+        else
+            _ = new AdventurerItem(pos, Resource.ShapeshiftSkin, av.AdventurerPC);
         av.ResourceLocations[Resource.ShapeshiftSkin] = pos;
-        HideObject(Resource.ShapeshiftSkin);
-        _ = new AdventurerItem(pos, Resource.ShapeshiftSkin, av.AdventurerPC);
     }
 
     public static void OnAnyoneDead(PlayerControl target)
@@ -389,9 +406,11 @@ internal class Adventurer : RoleBase
             if (state.Role is Adventurer { IsEnable: true } av)
             {
                 Vector2 pos = target.Pos();
+                if (av.ResourceLocations.ContainsKey(Resource.DeadBody))
+                    RelocateObject(Resource.DeadBody, pos);
+                else
+                    _ = new AdventurerItem(pos, Resource.DeadBody, av.AdventurerPC);
                 av.ResourceLocations[Resource.DeadBody] = pos;
-                HideObject(Resource.DeadBody);
-                _ = new AdventurerItem(pos, Resource.DeadBody, av.AdventurerPC);
             }
         }
     }

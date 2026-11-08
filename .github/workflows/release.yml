@@ -231,8 +231,6 @@ jobs:
         run: |
           cp -rf packaging/epic/* epic/
           cp -rf packaging/steam/* steam/
-          cp -rf packaging/il2cppinterop/* steam/BepInEx/core/
-          cp -rf packaging/il2cppinterop/* epic/BepInEx/core/
 
       - name: Steam App ID
         run: |

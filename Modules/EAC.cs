@@ -295,7 +295,7 @@ internal static class EAC
 
                     break;
                 }
-                case RpcCalls.Shapeshift when !pc.IsNonHostModdedClient():
+                case RpcCalls.Shapeshift when !pc.IsNonHostModdedClient() && pc.PlayerId < 254:
                 {
                     Report(pc, "Directly Shapeshift");
                     MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable);

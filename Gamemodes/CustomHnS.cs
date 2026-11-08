@@ -41,6 +41,7 @@ internal static class CustomHnS
         Color color = new(52, 94, 235, byte.MaxValue);
 
         MaxGameLength = new IntegerOptionItem(id, "FFA_GameTime", new(0, 1200, 10), 600, TabGroup.GameSettings)
+            .SetHeader(true)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color);

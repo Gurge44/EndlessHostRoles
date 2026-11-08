@@ -131,8 +131,6 @@ internal class TimeMaster : RoleBase
 
     private static IEnumerator Rewind()
     {
-        Dictionary<byte, float> originalSpeeds = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
-        
         try
         {
             Rewinding = true;
@@ -142,7 +140,6 @@ internal class TimeMaster : RoleBase
             int length = TimeMasterRewindTimeLength.GetInt();
             float duration = length * delay + 0.55f;
 
-            Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
             ReportDeadBodyPatch.CanReport.SetAllValues(false);
 
             string notify = Utils.ColorString(Color.yellow, string.Format(Translator.GetString("TimeMasterRewindStart"), CustomRoles.TimeMaster.ToColoredString()));
@@ -204,8 +201,6 @@ internal class TimeMaster : RoleBase
         finally
         {
             Rewinding = false;
-            Main.AllPlayerSpeed.AddRange(originalSpeeds);
-            Utils.MarkEveryoneDirtySettings();
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
         }
     }
@@ -220,7 +215,6 @@ internal class TimeMaster : RoleBase
         if (Rewinding)
         {
             Rewinding = false;
-            Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
         }
     }

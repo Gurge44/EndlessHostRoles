@@ -949,7 +949,7 @@ public static class Options
         _ => CustomGameMode.Standard
     };
 
-    public static float DefaultKillCooldown = Main.NormalOptions == null ? FallBackKillCooldownValue?.GetFloat() ?? 25f : Main.NormalOptions.KillCooldown;
+    public static float DefaultKillCooldown = Main.NormalOptions == null || Main.NormalOptions.KillCooldown <= 1.1f ? FallBackKillCooldownValue?.GetFloat() ?? 25f : Main.NormalOptions.KillCooldown;
 
     public static float AdjustedDefaultKillCooldown => !GameStates.InGame
         ? DefaultKillCooldown
@@ -981,6 +981,7 @@ public static class Options
         GroupAddons();
         LoadUserData();
         Achievements.LoadAllData();
+        CustomSettingsUIPatches.GameOptionsMenuPatches.InitializeSections();
         // OptionShower.LastText = Translator.GetString("Loading");
 
         if (AllCrewRolesHaveVanillaColor.GetBool())
@@ -1315,6 +1316,8 @@ public static class Options
         MainLoadingText = "Building system settings";
 
         if (IsLoaded) yield break;
+
+        while (!Main.Loaded) yield return null;
 
         OptionSaver.Initialize();
 
@@ -3131,8 +3134,8 @@ public static class Options
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         IntegrateNaturalDisasters = new BooleanOptionItem(24454, "IntegrateNaturalDisasters", false, TabGroup.GameSettings)
-            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
-            .RegisterUpdateValueEvent((_, _, _) => GameOptionsMenuPatch.ReCreateSettings(TabGroup.GameSettings));
+            .SetHidden(true)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         EnableGameTimeLimit = new BooleanOptionItem(24455, "EnableGameTimeLimit", false, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
@@ -3203,7 +3206,8 @@ public static class Options
         id = 68000;
         
         new TextOptionItem(110040, "MenuTitle.AutoFactionMinMaxSettings", TabGroup.SystemSettings)
-            .SetHeader(true);
+            .SetHeader(true)
+            .SetGameMode(CustomGameMode.Standard);
 
         EnableAutoFactionMinMaxSettings = new BooleanOptionItem(id++, "EnableAutoFactionMinMaxSettings", false, TabGroup.SystemSettings)
             .SetHeader(true)
@@ -3330,11 +3334,6 @@ public static class Options
 
         for (var index = 1; index <= MaxAutoGMRotationRandomGroups; index++)
         {
-            new TextOptionItem(100031 + index, "MenuTitle.AGMR.RandomGroup", TabGroup.SystemSettings)
-                .SetHeader(true)
-                .SetParent(EnableAutoGMRotation)
-                .AddReplacement(("{index}", index.ToString()));
-
             Dictionary<CustomGameMode, OptionItem> dict = [];
 
             foreach (CustomGameMode customGameMode in Main.CustomGameModeValues[..^1])
@@ -3343,7 +3342,9 @@ public static class Options
                     .SetParent(EnableAutoGMRotation)
                     .SetValueFormat(OptionFormat.Percent)
                     .SetColor(Main.GameModeColors[customGameMode])
-                    .AddReplacement(("{gm}", Translator.GetString($"{customGameMode}")));
+                    .SetHeader(customGameMode == CustomGameMode.Standard)
+                    .AddReplacement(("{gm}", Translator.GetString($"{customGameMode}")))
+                    .AddReplacement(("{index}", index.ToString()));
 
                 dict[customGameMode] = chanceToSelectGMInGroup;
             }

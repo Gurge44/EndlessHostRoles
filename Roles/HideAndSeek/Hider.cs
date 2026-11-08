@@ -6,7 +6,7 @@ internal class Hider : RoleBase, IHideAndSeekRole
 {
     private static bool On;
 
-    public const int StartId = 69_211_199;
+    public const int StartId = 69_211_101;
 
     private static OptionItem Vision;
     private static OptionItem Speed;
@@ -25,41 +25,38 @@ internal class Hider : RoleBase, IHideAndSeekRole
 
     public override void SetupCustomOption()
     {
-        new TextOptionItem(StartId, "Hider", TabGroup.CrewmateRoles)
-            .SetGameMode(CustomGameMode.HideAndSeek)
-            .SetHeader(true);
-
-        Vision = new FloatOptionItem(69_211_101, "HiderVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
+        Vision = new FloatOptionItem(StartId, "HiderVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.GameSettings)
+            .SetHeader(true)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(52, 94, 235, byte.MaxValue));
 
-        Speed = new FloatOptionItem(69_211_102, "HiderSpeed", new(0.05f, 5f, 0.05f), 1.4f, TabGroup.CrewmateRoles)
+        Speed = new FloatOptionItem(StartId + 1, "HiderSpeed", new(0.05f, 5f, 0.05f), 1.4f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(52, 94, 235, byte.MaxValue));
 
-        TimeDecreaseOnShortTaskComplete = new IntegerOptionItem(69_211_103, "TimeDecreaseOnShortTaskComplete", new(0, 60, 1), 5, TabGroup.CrewmateRoles)
+        TimeDecreaseOnShortTaskComplete = new IntegerOptionItem(StartId + 2, "TimeDecreaseOnShortTaskComplete", new(0, 60, 1), 5, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new(52, 94, 235, byte.MaxValue));
 
-        TimeDecreaseOnCommonTaskComplete = new IntegerOptionItem(69_211_104, "TimeDecreaseOnCommonTaskComplete", new(0, 60, 1), 10, TabGroup.CrewmateRoles)
+        TimeDecreaseOnCommonTaskComplete = new IntegerOptionItem(StartId + 3, "TimeDecreaseOnCommonTaskComplete", new(0, 60, 1), 10, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new(52, 94, 235, byte.MaxValue));
 
-        TimeDecreaseOnLongTaskComplete = new IntegerOptionItem(69_211_105, "TimeDecreaseOnLongTaskComplete", new(0, 60, 1), 15, TabGroup.CrewmateRoles)
+        TimeDecreaseOnLongTaskComplete = new IntegerOptionItem(StartId + 4, "TimeDecreaseOnLongTaskComplete", new(0, 60, 1), 15, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new(52, 94, 235, byte.MaxValue));
 
-        TimeDecreaseOnSituationalTaskComplete = new IntegerOptionItem(69_211_106, "TimeDecreaseOnSituationalTaskComplete", new(0, 60, 1), 20, TabGroup.CrewmateRoles)
+        TimeDecreaseOnSituationalTaskComplete = new IntegerOptionItem(StartId + 5, "TimeDecreaseOnSituationalTaskComplete", new(0, 60, 1), 20, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new(52, 94, 235, byte.MaxValue));
 
-        TimeDecreaseOnOtherTaskComplete = new IntegerOptionItem(69_211_107, "TimeDecreaseOnOtherTaskComplete", new(0, 60, 1), 5, TabGroup.CrewmateRoles)
+        TimeDecreaseOnOtherTaskComplete = new IntegerOptionItem(StartId + 6, "TimeDecreaseOnOtherTaskComplete", new(0, 60, 1), 5, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new(52, 94, 235, byte.MaxValue));

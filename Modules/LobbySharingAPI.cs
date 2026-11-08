@@ -184,7 +184,7 @@ internal static class ExitGamePatch
         }
 
         if (GameSettingMenu.Instance)
-            GameSettingMenuPatch.Close_Prefix();
+            CustomSettingsUIPatches.GameSettingMenuPatches.PreClose(GameSettingMenu.Instance);
     }
 
     public static void Postfix(InnerNetClient __instance)

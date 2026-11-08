@@ -280,6 +280,7 @@ internal class Bargainer : RoleBase
         List<Item> list = OrderedItems.ToList();
         SelectedItem = list[(list.IndexOf(SelectedItem) + 1) % list.Count];
         Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 2, (int)SelectedItem);
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     public override void OnPet(PlayerControl pc)
@@ -344,18 +345,20 @@ internal class Bargainer : RoleBase
                 Money -= cost;
                 Update();
 
-                pc.Notify(string.Format(Translator.GetString("Bargainer.Notify.PurchasedItem"), Translator.GetString($"Bargainer.{SelectedItem}")));
-
                 switch (SelectedItem)
                 {
                     case Item.EnergyDrink:
                         pc.ResetKillCooldown();
                         pc.SyncSettings();
                         if (Main.KillTimers[pc.PlayerId] > ReducedKillCooldown.GetFloat()) pc.SetKillCooldown(ReducedKillCooldown.GetFloat());
-
-                        break;
+                        goto default;
                     case Item.LensOfTruth:
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: Utils.GetPlayerById(target));
+                        goto default;
+                    case Item.None:
+                        break;
+                    default:
+                        pc.Notify(string.Format(Translator.GetString("Bargainer.Notify.PurchasedItem"), Translator.GetString($"Bargainer.{SelectedItem}")));
                         break;
                 }
 

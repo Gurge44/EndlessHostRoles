@@ -91,7 +91,7 @@ public class Poache : CovenBase
 
     public override void OnReportDeadBody()
     {
-        KillDelays.ForEach(x => x.GetPlayer()?.Suicide(PlayerState.DeathReason.Poison, realKiller: PoacheId.GetPlayer()));
+        KillDelays?.ForEach(x => x.GetPlayer()?.Suicide(PlayerState.DeathReason.Poison, realKiller: PoacheId.GetPlayer()));
         KillDelays = null;
     }
 

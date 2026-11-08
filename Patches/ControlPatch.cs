@@ -87,23 +87,7 @@ internal static class ControllerManagerUpdatePatch
                     PlayerControl.LocalPlayer.Collider.offset = shouldNoclip ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
                 }
 
-                if (!chatIsOpen)
-                {
-                    if (isLobby)
-                    {
-                        /*if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
-
-                        for (var i = 0; i < 9; i++)
-                        {
-                            if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
-                                OptionShower.CurrentPage = i;
-                        }*/
-
-                        if (Input.GetKeyDown(KeyCode.Return) && GameSettingMenu.Instance && GameSettingMenu.Instance.isActiveAndEnabled)
-                            GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
-                    }
-                }
-                else
+                if (chatIsOpen)
                 {
                     ChatController chat = HudManager.Instance.Chat;
 
@@ -308,10 +292,6 @@ internal static class ControllerManagerUpdatePatch
                             OptionSaver.Save();
 
                             IsResetting = false;
-                            
-                            GameOptionsMenuPatch.ReCreateAllSettings();
-                            GameOptionsMenuPatch.RefreshSettingValues();
-                            GameOptionsMenuPatch.RefreshTabButtons();
                         }
                     }
                 }

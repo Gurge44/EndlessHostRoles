@@ -78,7 +78,7 @@ public class Amogus : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return AmogusFormTimer == null;
+        return AmogusFormTimer != null;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -107,7 +107,7 @@ public class Amogus : RoleBase
 
         AmogusFormTimer = new CountdownTimer(AbilityDuration.GetInt(), () =>
         {
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
             FormExpired();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }, onCanceled: () => AmogusFormTimer = null);

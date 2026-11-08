@@ -6,7 +6,7 @@ internal class Seeker : RoleBase, IHideAndSeekRole
 {
     public static bool On;
 
-    public const int StartId = 69_211_299;
+    public const int StartId = 69_211_201;
 
     public static OptionItem Vision;
     public static OptionItem Speed;
@@ -23,30 +23,27 @@ internal class Seeker : RoleBase, IHideAndSeekRole
 
     public override void SetupCustomOption()
     {
-        new TextOptionItem(StartId, "Seeker", TabGroup.ImpostorRoles)
-            .SetGameMode(CustomGameMode.HideAndSeek)
-            .SetHeader(true);
-
-        Vision = new FloatOptionItem(69_211_201, "SeekerVision", new(0.05f, 5f, 0.05f), 0.25f, TabGroup.ImpostorRoles)
+        Vision = new FloatOptionItem(StartId, "SeekerVision", new(0.05f, 5f, 0.05f), 0.25f, TabGroup.GameSettings)
+            .SetHeader(true)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(255, 25, 25, byte.MaxValue));
 
-        Speed = new FloatOptionItem(69_211_202, "SeekerSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
+        Speed = new FloatOptionItem(StartId + 1, "SeekerSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(255, 25, 25, byte.MaxValue));
 
-        CanVent = new BooleanOptionItem(69_211_204, "CanVent", false, TabGroup.ImpostorRoles)
+        CanVent = new BooleanOptionItem(StartId + 3, "CanVent", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(255, 25, 25, byte.MaxValue));
 
-        BlindTime = new FloatOptionItem(69_211_206, "BlindTime", new(0f, 60f, 1f), 10f, TabGroup.ImpostorRoles)
+        BlindTime = new FloatOptionItem(StartId + 5, "BlindTime", new(0f, 60f, 1f), 10f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new(255, 25, 25, byte.MaxValue));
 
-        KillCooldown = new IntegerOptionItem(69_211_207, "KillCooldown", new(0, 60, 1), 10, TabGroup.ImpostorRoles)
+        KillCooldown = new IntegerOptionItem(StartId + 6, "KillCooldown", new(0, 60, 1), 10, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new(255, 25, 25, byte.MaxValue));

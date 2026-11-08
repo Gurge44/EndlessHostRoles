@@ -19,7 +19,7 @@ public static class DiscordRPC
         
         activity.Assets = new ActivityAssets
         {
-            LargeImage = "https://i.imgur.com/07BjW2j.png"
+            LargeImage = "https://i.imgur.com/fa7kFkv.png"
         };
 
         try

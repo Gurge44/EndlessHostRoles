@@ -14,12 +14,13 @@ using System.Text.Json;
 using Newtonsoft.Json;
 #endif
 
+// ReSharper disable PossibleLossOfFraction
+
 namespace EHR.Modules;
 
 public static class OnlinePresetsManager
 {
-    private static readonly Dictionary<int, StringOption> OptionBehaviourCache = [];
-    private static readonly Dictionary<int, CategoryHeaderMasked> HeaderCache = [];
+    public static readonly Dictionary<int, GameObject> Buttons = [];
     public static List<PresetMeta> CachedPresets = [];
     public static bool PresetsLoaded = false;
 
@@ -28,15 +29,86 @@ public static class OnlinePresetsManager
         if (!PresetsLoaded) return;
 
         float y = 2.0f;
-
+        
         {
-            CategoryHeaderMasked header = HeaderCache.TryGetValue(0, out CategoryHeaderMasked cache) ? cache : ModGameOptionsMenu.Track(Object.Instantiate(
+            CategoryHeaderMasked header = Object.Instantiate(
                 menu.categoryHeaderOrigin,
                 Vector3.zero,
                 Quaternion.identity,
                 menu.settingsContainer
-            ));
-            HeaderCache[0] = header;
+            );
+
+            header.SetHeader(StringNames.RolesCategory, 20);
+            header.Title.DestroyTranslator();
+            header.Title.text = Translator.GetString("LocalPresets");
+            header.transform.localScale = Vector3.one * 0.63f;
+            header.transform.localPosition = new(-0.903f, y, -2f);
+
+            y -= 0.8f;
+
+            PassiveButton template = CustomSettingsUIPatches.GamePresetsTabPatches.TemplatePresetButton;
+            string[] childrenNames = ["Active", "Inactive", "Selected", "InactiveSelected"];
+
+            for (int i = 1; i <= 20; i++)
+            {
+                int num = i - 1;
+                GameObject button = Object.Instantiate(template.gameObject, Vector3.zero, Quaternion.identity, menu.settingsContainer);
+                button.SetActive(true);
+                button.name = $"PresetButton_{i}";
+                button.transform.localScale *= 0.2f;
+                button.transform.localPosition = new Vector3(-1.6f + (num % 10 * 0.6f), 1f - (0.85f * (num / 10)), -2f);
+                var passiveButton = button.GetComponent<PassiveButton>();
+                passiveButton.SelectButton(OptionItem.CurrentPreset == num);
+                passiveButton.OnClick.RemoveAllListeners();
+                passiveButton.OnClick.AddListener(() =>
+                {
+                    Options.Preset.SetValue(num);
+                    foreach (GameObject gameObject in Buttons.Values)
+                        gameObject.GetComponent<PassiveButton>().SelectButton(false);
+                    passiveButton.SelectButton(true);
+                    GameSettingMenu.Instance.RoleSettingsButton.gameObject.SetActive(Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek);
+                    CustomSettingsUIPatches.GameSettingMenuPatches.IsDirty = true;
+                    CustomSettingsUIPatches.GameOptionsMenuPatches.SetAllDirty();
+                });
+                
+                Color color = Color.black;
+
+                foreach (string name in childrenNames)
+                {
+                    Transform transform = button.transform.Find(name);
+                    var label = transform.Find("Label").GetComponent<SpriteRenderer>();
+                    label.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
+                    label.color = color;
+                    var frame = transform.Find("Frame").GetComponent<SpriteRenderer>();
+                    frame.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
+                    frame.color = color;
+                    Object.Destroy(transform.Find("Background").gameObject);
+                }
+                
+                var textMeshPro = button.transform.Find("ModeText").GetComponent<TextMeshPro>();
+                textMeshPro.DestroyTranslator();
+                textMeshPro.text = $"<font=\"DIN_Pro_Bold_700 SDF\">{Translator.GetString("Preset").ToUpper()}</font>";
+                textMeshPro.fontWeight = FontWeight.Bold;
+                textMeshPro.color = Color.white;
+                
+                var numberText = Object.Instantiate(textMeshPro, textMeshPro.transform.parent);
+                numberText.transform.localPosition += new Vector3(0f, 1.8f, 0f);
+                numberText.GetComponent<RectTransform>().sizeDelta = new(1.5f, 1.5f);
+                numberText.text = $"<font=\"DIN_Pro_Bold_700 SDF\"><size=300%>{i}</size></font>";
+                
+                Buttons[i] = button;
+            }
+            
+            y -= 1.8f;
+        }
+
+        {
+            CategoryHeaderMasked header = Object.Instantiate(
+                menu.categoryHeaderOrigin,
+                Vector3.zero,
+                Quaternion.identity,
+                menu.settingsContainer
+            );
 
             header.SetHeader(StringNames.RolesCategory, 20);
             header.Title.DestroyTranslator();
@@ -46,7 +118,7 @@ public static class OnlinePresetsManager
 
             y -= 0.8f;
 
-            StringOption upload = OptionBehaviourCache.TryGetValue(-1, out StringOption uploadCache) ? uploadCache : ModGameOptionsMenu.Track(Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer));
+            StringOption upload = Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer);
             upload.name = nameof(OnlinePresetsManager) + ";" + Translator.GetString("UploadPreset");
             upload.transform.localPosition = new Vector3(0.952f, y, -2f);
             upload.SetClickMask(menu.ButtonClickMask);
@@ -70,19 +142,17 @@ public static class OnlinePresetsManager
             upload.gameObject.SetActive(true);
             
             menu.Children.Add(upload);
-            OptionBehaviourCache[-1] = upload;
 
             y -= 0.6f;
         }
 
         {
-            CategoryHeaderMasked header = HeaderCache.TryGetValue(1, out CategoryHeaderMasked cache) ? cache : ModGameOptionsMenu.Track(Object.Instantiate(
+            CategoryHeaderMasked header = Object.Instantiate(
                 menu.categoryHeaderOrigin,
                 Vector3.zero,
                 Quaternion.identity,
                 menu.settingsContainer
-            ));
-            HeaderCache[1] = header;
+            );
 
             header.SetHeader(StringNames.RolesCategory, 20);
             header.Title.DestroyTranslator();
@@ -96,7 +166,7 @@ public static class OnlinePresetsManager
         for (var index = 0; index < CachedPresets.Count; index++)
         {
             PresetMeta preset = CachedPresets[index];
-            StringOption row = OptionBehaviourCache.TryGetValue(index, out StringOption cache) ? cache : ModGameOptionsMenu.Track(Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer));
+            StringOption row = Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer);
             row.name = $"{nameof(OnlinePresetsManager)};{string.Format(Translator.GetString("OnlinePresetInfo"), preset.name, preset.author, (Utils.TimeStamp - (long)preset.created_at) / 86400, preset.downloads)}";
             row.transform.localPosition = new Vector3(0.952f, y, -2f);
             row.SetClickMask(menu.ButtonClickMask);
@@ -119,21 +189,48 @@ public static class OnlinePresetsManager
             row.PlusBtn.OnClick = new();
             row.PlusBtn.OnClick.AddListener(() =>
             {
-                bool b = plusText.text == "ⓘ";
-                GameObject.Find("PlayerOptionsMenu(Clone)").transform.Find("What Is This?").gameObject.SetActive(b);
-                GameSettingMenuPatch.GMButtons.Values.Do(x => x.gameObject.SetActive(!b));
-                if (b) GameSettingMenu.Instance.MenuDescriptionText.text = preset.description;
-                plusText.text = b ? "∅" : "ⓘ";
+                TransitionOpen popup = Object.Instantiate(CustomSettingsUIPatches.GamePresetsTabPatches.TemplateConfirmPopUp, menu.transform, false);
+                popup.gameObject.SetActive(true);
+                popup.transform.localPosition = new Vector3(3f, -2f, popup.transform.localPosition.z);
+                Transform background = popup.transform.Find("Background");
+                Object.Destroy(background.Find("TitleText_TMP").gameObject);
+                Object.Destroy(background.Find("DividerImage").gameObject);
+                Object.Destroy(background.Find("BackButton").gameObject);
+                Object.Destroy(background.Find("ContinueButton").gameObject);
+                TextMeshPro textMeshPro = background.Find("Text_TMP").GetComponent<TextMeshPro>();
+                textMeshPro.DestroyTranslator();
+                textMeshPro.text = preset.description;
+                RectTransform rectTransform = textMeshPro.GetComponent<RectTransform>();
+                rectTransform.sizeDelta = new(rectTransform.sizeDelta.x, 2.5f);
+                PassiveButton closeButton = background.Find("CloseButton").GetComponent<PassiveButton>();
+                closeButton.OnClick.RemoveAllListeners();
+                closeButton.OnClick.AddListener(() =>
+                {
+                    LateTask.New(() => Object.Destroy(popup.gameObject), 0.5f);
+                    ControllerManager.Instance.CloseOverlayMenu(popup.name);
+                    popup.Close();
+                });
+                ControllerManager.Instance.OpenOverlayMenu(popup.name, closeButton, closeButton);
             });
 
             row.MinusBtn.transform.localPosition += new Vector3(1.7f, 0f, 0f);
             row.MinusBtn.OnClick = new();
             row.MinusBtn.OnClick.AddListener(() =>
             {
-                LateTask.New(() => { }, 0.01f);
-                GameSettingMenu.Instance.Close();
-
-                Prompt.Show(Translator.GetString("Promt.ApplyPreset"), () =>
+                var confirmPresetPopUp = Object.Instantiate(CustomSettingsUIPatches.GamePresetsTabPatches.TemplateConfirmPopUp, menu.transform, false);
+                confirmPresetPopUp.transform.localPosition = new Vector3(3f, -2f, confirmPresetPopUp.transform.localPosition.z);
+                Transform background = confirmPresetPopUp.transform.Find("Background");
+                PassiveButton presetConfirmButton = background.Find("ContinueButton").GetComponent<PassiveButton>();
+                PassiveButton[] presetCancelButtons = [background.Find("BackButton").GetComponent<PassiveButton>(), background.Find("CloseButton").GetComponent<PassiveButton>()];
+                confirmPresetPopUp.gameObject.SetActive(true);
+                presetConfirmButton.OnClick.RemoveAllListeners();
+#if IL2CPP
+                foreach (PassiveButton presetCancelButton in presetCancelButtons)
+                    presetCancelButton.OnClick.RemoveAllListeners();
+#else
+                presetCancelButtons.ForEach(x => x.OnClick.RemoveAllListeners());
+#endif
+                presetConfirmButton.OnClick.AddListener(() =>
                 {
                     Logger.SendInGame(Translator.GetString("DownloadingPreset"));
 
@@ -153,22 +250,36 @@ public static class OnlinePresetsManager
                             Logger.SendInGame(Translator.GetString("PresetApplied"), Color.green);
                         })
                     );
-                }, () =>
-                {
-                    LateTask.New(() =>
-                    {
-                        if (!GameStates.IsLobby) return;
-                        GameObject.Find("Host Buttons").transform.Find("Edit").GetComponent<PassiveButton>().ReceiveClickDown();
-                    }, 0.1f);
+                    
+                    ControllerManager.Instance.CloseOverlayMenu(confirmPresetPopUp.name);
+                    confirmPresetPopUp.Close();
 
                     LateTask.New(() =>
                     {
-                        if (!GameStates.IsLobby || !GameSettingMenu.Instance) return;
-                        const int tabIndex = (int)TabGroup.PresetExplorer + 3;
-                        GameSettingMenu.Instance.ChangeTab(tabIndex, Controller.currentTouchType == Controller.TouchType.Joystick);
-                        ModGameOptionsMenu.TabIndex = tabIndex;
-                    }, 0.4f);
-                }, showBackButton: false);
+                        Object.Destroy(confirmPresetPopUp.gameObject);
+                        if (!GameSettingMenu.Instance) return;
+                        GameSettingMenu.Instance.Close();
+                    }, 0.5f);
+                });
+#if IL2CPP
+                foreach (PassiveButton presetCancelButton in presetCancelButtons)
+                {
+                    presetCancelButton.OnClick.AddListener(() =>
+                    {
+                        ControllerManager.Instance.CloseOverlayMenu(confirmPresetPopUp.name);
+                        confirmPresetPopUp.Close();
+                        LateTask.New(() => Object.Destroy(confirmPresetPopUp.gameObject), 0.5f);
+                    });
+                }
+#else
+                presetCancelButtons.ForEach(x => x.OnClick.AddListener(() =>
+                {
+                    ControllerManager.Instance.CloseOverlayMenu(confirmPresetPopUp.name);
+                    confirmPresetPopUp.Close();
+                    LateTask.New(() => Object.Destroy(confirmPresetPopUp.gameObject), 0.5f);
+                }));
+#endif
+                ControllerManager.Instance.OpenOverlayMenu(confirmPresetPopUp.name, presetCancelButtons[0], presetConfirmButton);
             });
             TextMeshPro minusText = row.MinusBtn.GetComponentInChildren<TextMeshPro>();
             minusText.DestroyTranslator();
@@ -177,7 +288,6 @@ public static class OnlinePresetsManager
             row.gameObject.SetActive(true);
 
             menu.Children.Add(row);
-            OptionBehaviourCache[index] = row;
 
             y -= 0.6f;
         }
@@ -330,6 +440,7 @@ public static class OnlinePresetsManager
         if (request.result != UnityWebRequest.Result.Success)
         {
             Logger.SendInGame($"Preset list fetch failed: {request.error}");
+            onSuccess?.Invoke([]);
             yield break;
         }
 
@@ -348,12 +459,14 @@ public static class OnlinePresetsManager
             Logger.SendInGame("Preset list parse failed");
             Logger.Info(request.downloadHandler.text.Trim(), "Response");
             Utils.ThrowException(ex);
+            onSuccess?.Invoke([]);
             yield break;
         }
 
         if (response?.presets == null)
         {
             Logger.SendInGame("Preset list empty or invalid");
+            onSuccess?.Invoke([]);
             yield break;
         }
 

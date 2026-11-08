@@ -979,7 +979,7 @@ internal static class MapRoomDoorsUpdatePatch
 
         if (!doorSprite || !shipStatusInstance) return false;
 #if IL2CPP
-        if (SubmergedCompatibility.IsSubmerged() || Main.LIMap) return true;
+        if (SubmergedCompatibility.IsSubmerged() || Main.LIMap || Main.CurrentMap == MapNames.MiraHQ) return true;
 #endif
 
         SystemTypes room = __instance.room;

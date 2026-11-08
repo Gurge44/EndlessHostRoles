@@ -142,6 +142,8 @@ public static class Camouflage
 
     private static IEnumerator UpdateCamouflageStatusAsync()
     {
+        bool camouflage = IsCamouflage;
+        
         foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             if (pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat)
@@ -153,9 +155,14 @@ public static class Camouflage
             RpcSetSkin(pc);
 
             yield return new WaitForSecondsRealtime(0.1f);
+            
+            if (camouflage != IsCamouflage) yield break;
         }
 
         yield return new WaitForSecondsRealtime(0.5f);
+        
+        if (camouflage != IsCamouflage) yield break;
+        
         yield return Utils.NotifyEveryoneAsync();
     }
 

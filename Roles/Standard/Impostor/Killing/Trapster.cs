@@ -7,7 +7,7 @@ namespace EHR.Roles;
 
 internal class Trapster : RoleBase
 {
-    private static List<byte> TrapsterBody = [];
+    public static List<byte> TrapsterBody = [];
     private static Dictionary<byte, byte> KillerOfTrapsterBody = [];
 
     public static bool On;
@@ -138,8 +138,7 @@ internal class Trapster : RoleBase
         {
             Vector2 location = player.Pos();
             TrapsterBody.Add(player.PlayerId);
-            PlayerControl randomPlayer = Main.EnumerateAlivePlayerControls().Without(player).RandomElement();
-            Utils.RpcCreateDeadBody(location, (byte)randomPlayer.CurrentOutfit.ColorId, randomPlayer);
+            Utils.RpcCreateDeadBody(location, (byte)IRandom.Instance.Next(0, 18), player);
             return false;
         }
 

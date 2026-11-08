@@ -37,8 +37,6 @@ public class Gambler : RoleBase
     private static readonly HashSet<byte> IsShielded = [];
     private static HashSet<byte> IsVisionChange = [];
 
-    private byte EffectID = byte.MaxValue;
-
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -116,7 +114,6 @@ public class Gambler : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        EffectID = byte.MaxValue;
         WaitingDelayedKills = [];
         IsVisionChange = [];
     }
@@ -124,7 +121,6 @@ public class Gambler : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        EffectID = byte.MaxValue;
     }
 
     public override void Remove(byte playerId)
@@ -148,22 +144,21 @@ public class Gambler : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (EffectID != byte.MaxValue) return true;
-
         var rd = IRandom.Instance;
+        byte effectID;
         
         if (rd.Next(1, 101) <= PositiveEffectChance.GetInt())
         {
-            EffectID = (byte)rd.Next(1, 8);
+            effectID = (byte)rd.Next(1, 8);
 
-            switch (EffectID)
+            switch (effectID)
             {
                 case 1: // Delayed kill
                     killer.Notify(string.Format(GetString("GamblerGet.DelayedKill"), KillDelay.GetInt()));
                     WaitingDelayedKills.TryAdd(target.PlayerId, new CountdownTimer(KillDelay.GetInt(), () =>
                     {
                         WaitingDelayedKills.Remove(target.PlayerId);
-                        if (target == null || !target.IsAlive()) return;
+                        if (!target || !target.IsAlive()) return;
                         target.Suicide(PlayerState.DeathReason.Poison, killer);
                     }));
                     return false;
@@ -218,13 +213,13 @@ public class Gambler : RoleBase
                     killer.Notify(string.Format(GetString("GamblerGet.Speedup"), speedDur, Speed.GetFloat()));
                     _ = new CountdownTimer(speedDur, () =>
                     {
-                        if (killer == null) return;
+                        if (!killer) return;
                         Main.AllPlayerSpeed[killer.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                         if (!killer.IsAlive()) return;
                         killer.MarkDirtySettings();
                     }, onCanceled: () =>
                     {
-                        if (killer == null) return;
+                        if (!killer) return;
                         Main.AllPlayerSpeed[killer.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                     });
                     Main.AllPlayerSpeed[killer.PlayerId] = Speed.GetFloat();
@@ -237,9 +232,9 @@ public class Gambler : RoleBase
         }
         else
         {
-            EffectID = (byte)rd.Next(1, 5);
+            effectID = (byte)rd.Next(1, 5);
 
-            switch (EffectID)
+            switch (effectID)
             {
                 case 1: // BSR
                     float delay = Math.Max(0.15f, BsrDelay.GetFloat());
@@ -256,13 +251,13 @@ public class Gambler : RoleBase
                     killer.Notify(string.Format(GetString("GamblerGet.Freeze"), freezeDur));
                     _ = new CountdownTimer(freezeDur, () =>
                     {
-                        if (killer == null) return;
+                        if (!killer) return;
                         Main.AllPlayerSpeed[killer.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                         if (!killer.IsAlive()) return;
                         killer.MarkDirtySettings();
                     }, onCanceled: () =>
                     {
-                        if (killer == null) return;
+                        if (!killer) return;
                         Main.AllPlayerSpeed[killer.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                     });
                     Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;
@@ -273,13 +268,13 @@ public class Gambler : RoleBase
                     IsVisionChange.Add(killer.PlayerId);
                     _ = new CountdownTimer(LowVisionDur.GetInt(), () =>
                     {
-                        if (killer == null) return;
+                        if (!killer) return;
                         IsVisionChange.Remove(killer.PlayerId);
                         if (!killer.IsAlive()) return;
                         killer.MarkDirtySettings();
                     }, onCanceled: () =>
                     {
-                        if (killer == null) return;
+                        if (!killer) return;
                         IsVisionChange.Remove(killer.PlayerId);
                     });
                     killer.MarkDirtySettings();
@@ -294,8 +289,6 @@ public class Gambler : RoleBase
             }
         }
 
-        EffectID = byte.MaxValue;
-
         return true;
     }
 
@@ -306,8 +299,6 @@ public class Gambler : RoleBase
 
     public override void OnReportDeadBody()
     {
-        EffectID = byte.MaxValue;
-
         foreach ((byte playerId, CountdownTimer timer) in WaitingDelayedKills)
         {
             timer.Dispose();

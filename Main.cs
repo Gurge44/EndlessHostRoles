@@ -78,7 +78,11 @@ public class Main : BaseUnityPlugin
 
     public static readonly Version Version = Version.Parse(PluginVersion);
 
-    public static readonly bool Mono = !OperatingSystem.IsAndroid() && Directory.Exists("./MonoBleedingEdge");
+#if IL2CPP
+    private const bool Mono = false;
+#else
+    private const bool Mono = true;
+#endif
 
     //public static ManualLogSource Logger;
     public static bool HasArgumentException;

@@ -209,20 +209,22 @@ public static class Utils
 
         nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
         nt.SetDirtyBit(uint.MaxValue);
-
+        
         if (NumSnapToCallsThisRound >= 80)
         {
             if (log) Logger.Warn($"Too many Reliable SnapTo calls this round ({NumSnapToCallsThisRound}) - Changed to SendOption.None", "TP");
             sendOption = SendOption.None;
         }
-
-        if (NumSnapToCallsThisRound >= 100)
+        
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
         {
-            if (log) Logger.Warn($"Too many Total SnapTo calls this round and this second ({NumSnapToCallsThisRound}) - Canceled", "TP");
-            return false;
+            if (NumSnapToCallsThisRound >= 100)
+            {
+                if (log) Logger.Warn($"Too many Total SnapTo calls this round and this second ({NumSnapToCallsThisRound}) - Canceled", "TP");
+                return false;
+            }
         }
-
-        if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+        else
             sendOption = SendOption.Reliable;
 
         var newSid = (ushort)(nt.lastSequenceId + 8);
@@ -1272,7 +1274,7 @@ public static class Utils
 
         void CheckAndAppendOptionString(OptionItem item)
         {
-            if (item.GetBool() && item.Parent == null && !item.IsCurrentlyHidden(checkCollapsedSection: false))
+            if (item.GetBool() && item.Parent == null && !item.IsCurrentlyHidden())
                 sb.Append($"\n{item.GetName(true)}: {item.GetString()}");
         }
     }
@@ -1317,7 +1319,7 @@ public static class Utils
 
         foreach (OptionItem opt in OptionItem.AllOptions)
         {
-            if (opt.GetBool() && opt.Parent == null && opt.Id is >= 80000 and < 640000 && !opt.IsCurrentlyHidden(checkCollapsedSection: false))
+            if (opt.GetBool() && opt.Parent == null && opt.Id is >= 80000 and < 640000 && !opt.IsCurrentlyHidden())
             {
                 if (opt.Name is "KillFlashDuration" or "RoleAssigningAlgorithm")
                     sb.Append($"\n【{opt.GetName(true)}: {opt.GetString()}】\n");
@@ -1365,7 +1367,7 @@ public static class Utils
 
         sb.Append($"━━━━━━━━━━━━【{GetString("Settings")}】━━━━━━━━━━━━");
 
-        foreach (OptionItem opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Id is >= 80000 and < 640000 && !x.IsCurrentlyHidden(checkCollapsedSection: false)))
+        foreach (OptionItem opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Id is >= 80000 and < 640000 && !x.IsCurrentlyHidden()))
         {
             if (opt.Name == "KillFlashDuration")
                 sb.Append($"\n【{opt.GetName(true)}: {opt.GetString()}】\n");
@@ -4302,6 +4304,9 @@ public static class Utils
 
             switch (target.GetCustomRole())
             {
+                case CustomRoles.Trapster:
+                    Trapster.TrapsterBody.Remove(target.PlayerId);
+                    break;
                 case CustomRoles.Veteran when target.AmOwner && Veteran.VeteranInProtect.Contains(target.PlayerId):
                     Achievements.Type.BadEncounter.Complete();
                     break;

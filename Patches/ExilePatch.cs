@@ -21,13 +21,14 @@ internal static class ExileControllerWrapUpPatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
         
-        var decidedWinner = false;
+        CustomRoles role = exiled.GetCustomRole();
+        bool collectorWin = Collector.CollectorWin(false);
+        bool decidedWinner = collectorWin;
 
-        if (!Collector.CollectorWin(false) && exiled != null)
+        if (!collectorWin && exiled != null)
         {
             //exiled.IsDead = true;
             Main.PlayerStates[exiled.PlayerId].deathReason = PlayerState.DeathReason.Vote;
-            CustomRoles role = exiled.GetCustomRole();
 
             if (Main.EnumeratePlayerControls().Any(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId))
             {
@@ -59,20 +60,20 @@ internal static class ExileControllerWrapUpPatch
                 Damocles.OnCrewmateEjected();
             }
 
-            if (role == CustomRoles.Jester)
-            {
-                if (decidedWinner) CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Jester);
-                else CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jester);
-
-                CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
-                decidedWinner = true;
-            }
-
-            if (Executioner.CheckExileTarget(exiled)) decidedWinner = true;
-
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist)
                 Main.PlayerStates[exiled.PlayerId].SetDead();
         }
+
+        if (role == CustomRoles.Jester)
+        {
+            if (decidedWinner) CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Jester);
+            else CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jester);
+
+            CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
+            decidedWinner = true;
+        }
+
+        if (Executioner.CheckExileTarget(exiled)) decidedWinner = true;
 
         Witch.RemoveSpelledPlayer();
 

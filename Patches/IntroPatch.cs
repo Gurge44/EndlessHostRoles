@@ -439,7 +439,7 @@ internal static class SetUpRoleTextPatch
 
             foreach (OptionItem o in options)
             {
-                if (!o.IsCurrentlyHidden(checkCollapsedSection: false) && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
+                if (!o.IsCurrentlyHidden() && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
                     sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
 
                 if (i++ > 20)
@@ -1211,7 +1211,11 @@ internal static class IntroCutsceneDestroyPatch
 
         Main.IntroDestroyed = true;
         PreventKill = true;
-        LateTask.New(() => PreventKill = false, Options.StartingKillCooldown?.GetFloat() ?? 10f, "PreventKillReset");
+        LateTask.New(() =>
+        {
+            PreventKill = false;
+            Main.ProcessShapeshifts = true;
+        }, Options.StartingKillCooldown?.GetFloat() ?? 10f, "PreventKillReset");
 
         var apc = Main.AllPlayerControlsToList;
 
