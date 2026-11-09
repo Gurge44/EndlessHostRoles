@@ -10,6 +10,6 @@ internal class Lazy : IAddon
 
     public void SetupCustomOption()
     {
-        SetupAdtRoleOptions(14100, CustomRoles.Lazy, canSetNum: true);
+        SetupAdtRoleOptions(14100, CustomRoles.Lazy, canSetNum: true, teamSpawnOptions: true);
     }
 }

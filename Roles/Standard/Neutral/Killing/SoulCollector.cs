@@ -59,7 +59,7 @@ public class SoulCollector : RoleBase
         
         if (Main.PlayerStates.TryGetValue(target.PlayerId, out PlayerState state))
         {
-            state.deathReason = PlayerState.DeathReason.Kill;
+            state.deathReason = PlayerState.DeathReason.Collected;
             state.SetDead();
             target.SetRealKiller(killer);
         }

@@ -218,7 +218,7 @@ internal static class CustomSettingsUIPatches
             List<int> irrelevantOptionIds =
             [
                 .. Options.CustomRoleSpawnChances.Values
-                    .Concat(Options.CustomRoleSpawnChances.Values.SelectMany(x => x.Children))
+                    .Concat(Options.CustomRoleSpawnChances.Values.SelectMany(GetAllChildren))
                     .Concat(Options.CustomRoleCounts.Values)
                     .Concat(Options.AddonGuessSettings.Values)
                     .Concat(Options.CustomAdtRoleSpawnRate.Values)
@@ -1090,7 +1090,11 @@ internal static class CustomSettingsUIPatches
         private static void ValueChanged(OptionBehaviour obj)
         {
             RolesSettingsMenu instance = GameSettingMenu.Instance.RoleSettingsTab;
+#if IL2CPP
+            if (obj.TryCastFast(out RoleOptionSetting roleOptionSetting))
+#else
             if (obj is RoleOptionSetting roleOptionSetting)
+#endif
             {
                 CustomRoles role = OptionItem.SettingObjectNameToRole[roleOptionSetting.name];
                 Options.CustomRoleSpawnChances[role].SetValue(roleOptionSetting.RoleChance / 5);
@@ -1098,7 +1102,8 @@ internal static class CustomSettingsUIPatches
                     Options.CustomRoleCounts[role].SetValue(Math.Max(roleOptionSetting.RoleMaxCount - 1, 0));
                 else
                     roleOptionSetting.roleMaxCount = Math.Clamp(roleOptionSetting.roleMaxCount, 0, 1);
-                roleOptionSetting.CountMinusBtn.transform.parent.Find($"MODDED_{role}_AdvancedSettingsButton").gameObject.SetActive(role.IsEnable());
+                Transform transform = roleOptionSetting.CountMinusBtn.transform.parent.Find($"MODDED_{role}_AdvancedSettingsButton");
+                if (transform) transform.gameObject.SetActive(role.IsEnable());
             }
             else
             {
@@ -1131,7 +1136,6 @@ internal static class CustomSettingsUIPatches
             GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.IsDefaults, false);
             RefreshChildren();
             GameOptionsManager.Instance.GameHostOptions = GameOptionsManager.Instance.CurrentGameOptions;
-            GameManager.Instance.LogicOptions.SyncOptions();
         }
 
         private static void CreateAdvancedSettings(CustomRoles role)
@@ -1241,18 +1245,6 @@ internal static class CustomSettingsUIPatches
             instance.scrollBar.CalculateAndSetYBounds(num + 3, 1f, 6f, 0.45f);
             instance.InitializeControllerNavigation();
             instance.scrollBar.ScrollToTop();
-        }
-
-        private static IEnumerable<OptionItem> GetAllChildren(OptionItem optionItem)
-        {
-            for (var index = 0; index < optionItem.Children.Count; index++)
-            {
-                OptionItem child = optionItem.Children[index];
-                yield return child;
-
-                foreach (OptionItem descendant in GetAllChildren(child))
-                    yield return descendant;
-            }
         }
     }
 
@@ -1611,6 +1603,8 @@ internal static class CustomSettingsUIPatches
                 Options.CompileAutoGMRotationSettings();
 
             Options.AutoSetFactionMinMaxSettings();
+            
+            GameManager.Instance.LogicOptions.SyncOptions();
 
             NotificationPopperPatch.ReleaseRpcs();
         }
@@ -1709,6 +1703,9 @@ internal static class CustomSettingsUIPatches
         private static bool UpdateValue(NumberOption __instance)
         {
             if (!OptionItem.BehaviourNameToItem.TryGetValue(__instance.name, out OptionItem item)) return true;
+
+            if (item.Name.Contains("KillCooldown", StringComparison.OrdinalIgnoreCase) && (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)))
+                __instance.Value = Main.NormalOptions?.KillCooldown ?? Options.FallBackKillCooldownValue.GetFloat();
 
             switch (item)
             {
@@ -2031,5 +2028,17 @@ internal static class CustomSettingsUIPatches
 
         if (!titleText) titleText = optionBehaviour.transform.Find("Title Text").GetComponent<TextMeshPro>();
         return titleText;
+    }
+
+    private static IEnumerable<OptionItem> GetAllChildren(OptionItem optionItem)
+    {
+        for (var index = 0; index < optionItem.Children.Count; index++)
+        {
+            OptionItem child = optionItem.Children[index];
+            yield return child;
+
+            foreach (OptionItem descendant in GetAllChildren(child))
+                yield return descendant;
+        }
     }
 }

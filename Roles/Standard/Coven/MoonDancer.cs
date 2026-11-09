@@ -93,7 +93,7 @@ public class MoonDancer : CovenBase
         
         void GiveAddon()
         {
-            CustomRoles addon = Options.GroupedAddons[target.Is(Team.Coven) ? AddonTypes.Helpful : AddonTypes.Harmful].Where(x => !target.Is(x) && !x.IsNotAssignableMidGame() && !x.IsConverted() && CustomRolesHelper.CheckAddonConflict(x, target)).RandomElement();
+            CustomRoles addon = Options.GroupedAddons[target.Is(Team.Coven) ? AddonTypes.Helpful : AddonTypes.Harmful].Where(x => !target.Is(x) && x.IsEnable() && !x.IsNotAssignableMidGame() && !x.IsConverted() && CustomRolesHelper.CheckAddonConflict(x, target)).RandomElement();
             if (addon == default(CustomRoles))
                 return;
 

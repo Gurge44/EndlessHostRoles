@@ -78,6 +78,7 @@ public class PlayerState(byte playerId)
         Shot,
         Diseased,
         Stoned,
+        Collected,
 
         // Natural Disasters
         Meteor,

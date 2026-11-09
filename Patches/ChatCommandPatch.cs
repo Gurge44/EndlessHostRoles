@@ -2411,8 +2411,10 @@ internal static class ChatCommands
 
     private static void SayCommand(PlayerControl player, string text, string[] args)
     {
-        if (!player.IsHost() && !IsPlayerModerator(player.FriendCode)) return;
-        if (args.Length > 1) Utils.SendMessage(args[1..].Join(delimiter: " "), title: $"<color=#ff0000>{GetString(player.IsHost() ? "MessageFromTheHost" : "SayTitle")}</color>", importance: player.IsHost() ? MessageImportance.High : MessageImportance.Medium);
+        if (!player.IsHost() && !IsPlayerModerator(player.FriendCode) || args.Length <= 1) return;
+
+        string title = player.IsHost() ? GetString("MessageFromTheHost") : $"{GetString("SayTitle")} [{player.PlayerId.ColoredPlayerName()}]";
+        Utils.SendMessage(args[1..].Join(delimiter: " "), title: $"<color=#ff0000>{title}</color>", importance: player.IsHost() ? MessageImportance.High : MessageImportance.Medium);
     }
 
     private static void DeathCommand(PlayerControl player, string text, string[] args)

@@ -9794,6 +9794,7 @@
   "DeathReason.Bugged": "Bugged",
   "DeathReason.Bombed": "Exploded",
   "DeathReason.Collapsed": "Collapsed",
+  "DeathReason.Collected": "Collected",
   "DeathReason.Consumed": "Consumed",
   "DeathReason.Curse": "Cursed",
   "DeathReason.Cursed": "Cursed",
