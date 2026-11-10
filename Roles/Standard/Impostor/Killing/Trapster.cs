@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using static EHR.Options;
@@ -98,33 +99,35 @@ internal class Trapster : RoleBase
 
     public static bool OnAnyoneCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
-        if (TrapsterBody.Contains(target.PlayerId) && reporter.IsAlive() && !target.Object.Is(CustomRoles.Disregarded) && LegacyTrapster.GetBool())
+        if (!On || !reporter.IsAlive() || !Object.FindObjectsOfType<DeadBody>(true).Any(x => x.name == "FAKE" && x.ParentId == target.PlayerId)) return true;
+
+        if (LegacyTrapster.GetBool())
         {
-            if (!TrapOnlyWorksOnTheBodyTrapster.GetBool())
+            if (!target.Object.Is(CustomRoles.Disregarded))
             {
-                byte killerID = KillerOfTrapsterBody[target.PlayerId];
+                if (!TrapOnlyWorksOnTheBodyTrapster.GetBool())
+                {
+                    byte killerID = KillerOfTrapsterBody[target.PlayerId];
 
-                reporter.Suicide(PlayerState.DeathReason.Trapped, Utils.GetPlayerById(killerID));
-                RPC.PlaySoundRPC(killerID, Sounds.KillSound);
+                    reporter.Suicide(PlayerState.DeathReason.Trapped, Utils.GetPlayerById(killerID));
+                    RPC.PlaySoundRPC(killerID, Sounds.KillSound);
 
-                if (!TrapsterBody.Contains(reporter.PlayerId) && TrapConsecutiveBodies.GetBool())
-                    TrapsterBody.Add(reporter.PlayerId);
+                    if (!TrapsterBody.Contains(reporter.PlayerId) && TrapConsecutiveBodies.GetBool())
+                        TrapsterBody.Add(reporter.PlayerId);
 
-                KillerOfTrapsterBody.TryAdd(reporter.PlayerId, killerID);
+                    KillerOfTrapsterBody.TryAdd(reporter.PlayerId, killerID);
+                    return false;
+                }
+
+                reporter.Suicide(PlayerState.DeathReason.Trapped, target.Object);
+                RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
                 return false;
             }
-
-            byte killerID2 = target.PlayerId;
-
-            reporter.Suicide(PlayerState.DeathReason.Trapped, Utils.GetPlayerById(killerID2));
-            RPC.PlaySoundRPC(killerID2, Sounds.KillSound);
-            return false;
         }
-
-        if (TrapsterBody.Contains(target.PlayerId) && reporter.IsAlive() && !LegacyTrapster.GetBool())
+        else
         {
             if (reporter.IsImpostor()) return true;
-            reporter.Suicide(PlayerState.DeathReason.Trapped, Utils.GetPlayerById(target.PlayerId));
+            reporter.Suicide(PlayerState.DeathReason.Trapped, target.Object);
             RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
             return false;
         }
@@ -136,9 +139,7 @@ internal class Trapster : RoleBase
     {
         if (!LegacyTrapster.GetBool())
         {
-            Vector2 location = player.Pos();
-            TrapsterBody.Add(player.PlayerId);
-            Utils.RpcCreateDeadBody(location, (byte)IRandom.Instance.Next(0, 18), player);
+            Utils.RpcCreateDeadBody(player.Pos(), (byte)IRandom.Instance.Next(0, 18), Main.CachedAlivePlayerControls().RandomElement(), true);
             return false;
         }
 

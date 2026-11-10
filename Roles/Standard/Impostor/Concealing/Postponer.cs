@@ -56,7 +56,7 @@ public class Postponer : RoleBase
         LateTask.New(() =>
         {
             if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
-            Utils.RpcCreateDeadBody(position, colorId, target);
+            Utils.RpcCreateDeadBody(position, colorId, target, true);
         }, BodyDelay.GetInt(), "Postponer Body Delay");
         
         return false;

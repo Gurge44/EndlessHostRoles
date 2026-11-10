@@ -64,6 +64,7 @@ public class Dealer : RoleBase
         killer.SetKillCooldown(AbilityCooldown.GetFloat());
         
         var randomAddon = Options.GroupedAddons.Values.Flatten().Where(x => !x.IsNotAssignableMidGame() && x.GetMode() != 0).RandomElement();
+        if (randomAddon == default(CustomRoles)) return false;
 
         switch (AddonAppears.GetValue())
         {

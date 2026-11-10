@@ -78,7 +78,7 @@ internal class Butcher : RoleBase
                         Vector2 location = new(ops.x + (float)(rd.Next(0, 201) - 100) / 100, ops.y + (float)(rd.Next(0, 201) - 100) / 100);
                         location += new Vector2(0, 0.3636f);
 
-                        Utils.RpcCreateDeadBody(location, (byte)target.CurrentOutfit.ColorId, target);
+                        Utils.RpcCreateDeadBody(location, (byte)target.CurrentOutfit.ColorId, target, false);
 
                         yield return new WaitForSecondsRealtime(0.2f);
                     }

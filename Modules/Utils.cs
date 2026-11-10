@@ -5235,30 +5235,31 @@ public static class Utils
 
     // Next 2: From MoreGamemodes by Rabek009
 
-    private static void CreateDeadBody(Vector3 position, byte colorId, PlayerControl deadBodyParent)
+    private static void CreateDeadBody(Vector3 position, byte colorId, PlayerControl deadBodyParent, bool reportable)
     {
         int baseColorId = deadBodyParent.Data.DefaultOutfit.ColorId;
         deadBodyParent.Data.DefaultOutfit.ColorId = colorId;
         DeadBody deadBody = Object.Instantiate(GameManager.Instance.deadBodyPrefab[0]);
-        deadBody.enabled = false;
+        deadBody.enabled = reportable;
         deadBody.ParentId = deadBodyParent.PlayerId;
+        deadBody.name = "FAKE";
         foreach (SpriteRenderer b in deadBody.bodyRenderers)
             deadBodyParent.SetPlayerMaterialColors(b);
         deadBodyParent.SetPlayerMaterialColors(deadBody.bloodSplatter);
-        Vector3 vector = position + deadBodyParent.KillAnimations[0].BodyOffset;
+        Vector3 vector = position + deadBodyParent.KillAnimations[0]!.BodyOffset;
         vector.z = vector.y / 1000f;
         deadBody.transform.position = vector;
         deadBodyParent.Data.DefaultOutfit.ColorId = baseColorId;
     }
 
-    public static void RpcCreateDeadBody(Vector3 position, byte colorId, PlayerControl deadBodyParent)
+    public static void RpcCreateDeadBody(Vector3 position, byte colorId, PlayerControl deadBodyParent, bool reportable)
     {
         if (!deadBodyParent || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost) return;
         
         DataFlagRateLimiter.Enqueue(() =>
         {
             if (!deadBodyParent) return;
-            CreateDeadBody(position, colorId, deadBodyParent);
+            CreateDeadBody(position, colorId, deadBodyParent, reportable);
             PlayerControl playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = deadBodyParent.PlayerId;
             playerControl.isNew = false;

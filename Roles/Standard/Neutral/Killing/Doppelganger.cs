@@ -235,29 +235,32 @@ public class Doppelganger : RoleBase
 
         TotalSteals[killer.PlayerId]++;
 
-        LateTask.New(() =>
+        if (ResetMode.GetValue() == 2)
         {
-            if (ResetMode.GetValue() == 2 && TotalSteals[killer.PlayerId] > 0 && target)
+            LateTask.New(() =>
             {
-                RpcChangeSkin(target, DoppelPresentSkin[target.PlayerId]);
-                RpcChangeSkin(killer, DoppelDefaultSkin[killer.PlayerId]);
-                DoppelVictim[killer.PlayerId] = string.Empty;
+                if (TotalSteals[killer.PlayerId] > 0 && target)
+                {
+                    RpcChangeSkin(target, DoppelPresentSkin[target.PlayerId]);
+                    RpcChangeSkin(killer, DoppelDefaultSkin[killer.PlayerId]);
+                    DoppelVictim[killer.PlayerId] = string.Empty;
 
-                if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks)
-                    Utils.NotifyRoles();
-            }
-        }, ResetTimer.GetInt());
+                    if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks)
+                        Utils.NotifyRoles();
+                }
+            }, ResetTimer.GetInt());
+        }
 
         string kname;
 
-        if (killer.AmOwner && Main.NickName.Length != 0)
+        if (killer.AmOwner && Main.NickName.Length != 0 && !SwappedIDs.Any(x => x.Item1 == killer.PlayerId || x.Item2 == killer.PlayerId))
             kname = Main.NickName;
         else
             kname = killer.Data.PlayerName;
 
         string tname;
 
-        if (target.AmOwner && Main.NickName.Length != 0)
+        if (target.AmOwner && Main.NickName.Length != 0 && !SwappedIDs.Any(x => x.Item1 == target.PlayerId || x.Item2 == target.PlayerId))
             tname = Main.NickName;
         else
             tname = target.Data.PlayerName;

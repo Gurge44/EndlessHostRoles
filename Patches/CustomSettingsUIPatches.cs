@@ -589,12 +589,12 @@ internal static class CustomSettingsUIPatches
                     {
                         __instance.roleChances.Add(roleOptionSetting);
 #if IL2CPP
-                        roleOptionSetting.OnValueChanged = (Action<OptionBehaviour>)ValueChanged;
+                        roleOptionSetting.OnValueChanged = (Action<OptionBehaviour>)(obj => ValueChanged(obj, true));
                         
                         foreach (var button in roleOptionSetting.ControllerSelectable)
                             __instance.QuotaTabSelectables.Add(button);
 #else
-                        roleOptionSetting.OnValueChanged = ValueChanged;
+                        roleOptionSetting.OnValueChanged = obj => ValueChanged(obj, true);
                         __instance.QuotaTabSelectables.AddRange(roleOptionSetting.ControllerSelectable);
 #endif
                     }
@@ -940,9 +940,9 @@ internal static class CustomSettingsUIPatches
             roleOptionSetting.transform.localPosition = new Vector3(-0.15f, yPos, -2f);
             RoleOptionSettingPatches.SetRole(roleOptionSetting, role, 20);
 #if IL2CPP
-            roleOptionSetting.OnValueChanged = (Action<OptionBehaviour>)ValueChanged;
+            roleOptionSetting.OnValueChanged = (Action<OptionBehaviour>)(obj => ValueChanged(obj, true));
 #else
-            roleOptionSetting.OnValueChanged = ValueChanged;
+            roleOptionSetting.OnValueChanged = obj => ValueChanged(obj, true);
 #endif
             roleOptionSetting.SetClickMask(instance.ButtonClickMask);
             roleOptionSetting.name = $"MODDED_{role}";
@@ -1001,9 +1001,9 @@ internal static class CustomSettingsUIPatches
             {
                 OptionBehaviour advancedSettingChild = instance.advancedSettingChildren[index];
 #if IL2CPP
-                advancedSettingChild.OnValueChanged = (Action<OptionBehaviour>)ValueChanged;
+                advancedSettingChild.OnValueChanged = (Action<OptionBehaviour>)(obj => ValueChanged(obj, false));
 #else
-                advancedSettingChild.OnValueChanged = ValueChanged;
+                advancedSettingChild.OnValueChanged = obj => ValueChanged(obj, false);
 #endif
                 if (AmongUsClient.Instance && !AmongUsClient.Instance.AmHost)
                     advancedSettingChild.SetAsPlayer();
@@ -1087,15 +1087,17 @@ internal static class CustomSettingsUIPatches
             }
         }
 
-        private static void ValueChanged(OptionBehaviour obj)
+        private static void ValueChanged(OptionBehaviour obj, bool roleSetting)
         {
             RolesSettingsMenu instance = GameSettingMenu.Instance.RoleSettingsTab;
-#if IL2CPP
-            if (obj.TryCastFast(out RoleOptionSetting roleOptionSetting))
-#else
-            if (obj is RoleOptionSetting roleOptionSetting)
-#endif
+
+            if (roleSetting)
             {
+#if IL2CPP
+                RoleOptionSetting roleOptionSetting = obj.CastFast<RoleOptionSetting>();
+#else
+                RoleOptionSetting roleOptionSetting = (RoleOptionSetting)obj;
+#endif
                 CustomRoles role = OptionItem.SettingObjectNameToRole[roleOptionSetting.name];
                 Options.CustomRoleSpawnChances[role].SetValue(roleOptionSetting.RoleChance / 5);
                 if (!Options.SingleRoles.Contains(role))

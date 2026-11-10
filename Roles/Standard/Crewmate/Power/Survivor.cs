@@ -186,7 +186,7 @@ public class Survivor : RoleBase
     // Last ability: Kill
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        if (completedTaskCount + 1 >= totalTaskCount)
+        if (completedTaskCount + 1 >= totalTaskCount && pc.IsAlive())
         {
             Killing = true;
             pc.RpcChangeRoleBasis(CustomRoles.Scanner);
