@@ -1580,7 +1580,7 @@ internal static class FixedUpdatePatch
 
             byte id = __instance.PlayerId;
 
-            if (AmongUsClient.Instance.AmHost && GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && !id.IsPlayerRoleBlocked() && ReportDeadBodyPatch.WaitReport[id].Count > 0)
+            if (AmongUsClient.Instance.AmHost && GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && !id.IsPlayerRoleBlocked() && __instance.IsAlive() && ReportDeadBodyPatch.WaitReport[id].Count > 0)
             {
                 NetworkedPlayerInfo info = ReportDeadBodyPatch.WaitReport[id][0];
                 ReportDeadBodyPatch.WaitReport[id].Clear();

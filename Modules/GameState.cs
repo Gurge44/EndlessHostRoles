@@ -79,6 +79,7 @@ public class PlayerState(byte playerId)
         Diseased,
         Stoned,
         Collected,
+        Frozen,
 
         // Natural Disasters
         Meteor,
