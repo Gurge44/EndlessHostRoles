@@ -194,9 +194,8 @@ internal static class ExternalRpcPetPatch
         {
             if (pc.Is(CustomRoles.Dizzy))
             {
-                Vector2 pos = pc.Pos();
                 float range = pc.GetKillDistance();
-                PlayerControl[] allInRange = FastVector2.GetPlayersInRange(pos, range, x => x.PlayerId != pc.PlayerId).ToArray();
+                PlayerControl[] allInRange = FastVector2.GetPlayersInRangeOf(pc, range).ToArray();
 
                 if (allInRange.Length > 1)
                 {

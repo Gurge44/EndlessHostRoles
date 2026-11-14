@@ -243,7 +243,7 @@ public class Rogue : RoleBase
 
             object data = objective switch
             {
-                Objective.KillInSpecificRoom => Translator.GetString(ShipStatus.Instance.AllRooms.RandomElement().RoomId.ToString()),
+                Objective.KillInSpecificRoom => Translator.GetString(ShipStatus.Instance.AllRooms.Select(x => x.RoomId).Without(SystemTypes.Hallway).Without(SystemTypes.Outside).RandomElement()),
                 Objective.KillSpecificPlayer => Main.EnumerateAlivePlayerControls().Select(x => x.PlayerId).Without(RoguePC.PlayerId).RandomElement(),
                 Objective.VentXTimes => IRandom.Instance.Next(2, 20),
                 Objective.KillXTimes => IRandom.Instance.Next(2, 5),

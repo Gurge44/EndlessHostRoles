@@ -121,9 +121,7 @@ public class Siren : CovenBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        PlayerControl[] nearbyPlayers = FastVector2.GetPlayersInRange(pc.Pos(), SingRange.GetFloat()).Without(pc).Where(x => !x.Is(Team.Coven)).ToArray();
-
-        foreach (PlayerControl player in nearbyPlayers)
+        foreach (PlayerControl player in FastVector2.GetPlayersInRangeOf(pc, SingRange.GetFloat(), x => !x.Is(Team.Coven)))
         {
             if (!Stages.ContainsKey(player.PlayerId))
                 Stages[player.PlayerId] = HasNecronomicon ? 2 : 1;
@@ -137,6 +135,7 @@ public class Siren : CovenBase
                     _ = new CountdownTimer(Stage1EffectsLength.GetInt(), () =>
                     {
                         AffectedPlayers.Remove(player.PlayerId);
+                        Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                         player.MarkDirtySettings();
                     }, onCanceled: () => AffectedPlayers.Remove(player.PlayerId));
                     player.MarkDirtySettings();
@@ -147,6 +146,7 @@ public class Siren : CovenBase
                     _ = new CountdownTimer(Stage2EffectsLength.GetInt(), () =>
                     {
                         AffectedPlayers.Remove(player.PlayerId);
+                        Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                         ReportDeadBodyPatch.CanReport[player.PlayerId] = true;
                         player.MarkDirtySettings();
                     }, onCanceled: () =>

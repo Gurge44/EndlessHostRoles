@@ -555,7 +555,7 @@ internal static class CheckForEndVotingPatch
         if (Options.CurrentGameMode == CustomGameMode.TheMindGame)
             name = TheMindGame.GetEjectionMessage(exileId);
 
-        name = name.Replace("color=", string.Empty) + "<size=0>";
+        name = name.Replace("color=#", "#") + "<size=0>";
         TempExiledPlayer = exiledPlayer;
         EjectionText = name;
     }
@@ -1042,7 +1042,7 @@ internal static class MeetingHudStartPatch
             }, 8f, log: false);
 
             NotifyRoleSkillOnMeetingStart();
-
+            
             LateTask.New(() =>
             {
                 var sender = CustomRpcSender.Create("RpcSetNameEx on meeting start", SendOption.Reliable);

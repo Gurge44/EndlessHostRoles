@@ -117,7 +117,6 @@ public class RouleteGrandeur : RoleBase
         Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, LastRoll);
 
         string result = new(NoHitIcon, BulletCount);
-        result = $"<#ffffff>{result}</color>";
         HashSet<int> takenSlots = [];
 
         for (var i = 0; i < Bullets; i++)
@@ -156,7 +155,7 @@ public class RouleteGrandeur : RoleBase
                 Achievements.Type.CloseCall.Complete();
         }
 
-        pc.Notify($"<size=80%>{str}</size>\n{result}", 15f);
+        pc.Notify($"<size=80%>{str}</size>\n<#ffffff>{result}", 15f);
     }
 
     public void ReceiveRPC(MessageReader reader)

@@ -127,9 +127,8 @@ internal static class CheckMurderPatch
             
             if (killer.Is(CustomRoles.Dizzy))
             {
-                Vector2 pos = killer.Pos();
                 float range = killer.GetKillDistance();
-                PlayerControl[] allInRange = FastVector2.GetPlayersInRange(pos, range, x => x.PlayerId != killer.PlayerId).ToArray();
+                PlayerControl[] allInRange = FastVector2.GetPlayersInRangeOf(killer, range).ToArray();
 
                 if (allInRange.Length > 1)
                 {

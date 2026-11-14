@@ -36,9 +36,8 @@ public class Introvert : IAddon
 
         TeleportAwayDelays ??= [];
 
-        Vector2 pos = pc.Pos();
         float radius = Radius.GetFloat();
-        bool anyoneNear = FastVector2.GetPlayersInRange(pos, radius).Any(x => x.PlayerId != pc.PlayerId);
+        bool anyoneNear = FastVector2.GetPlayersInRangeOf(pc, radius).Any();
 
         if (!anyoneNear)
         {

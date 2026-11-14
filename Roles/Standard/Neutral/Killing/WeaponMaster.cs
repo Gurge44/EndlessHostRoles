@@ -125,18 +125,18 @@ public class WeaponMaster : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        SwitchMode();
+        SwitchMode(pc);
     }
 
     public override bool OnSabotage(PlayerControl pc)
     {
-        SwitchMode();
+        SwitchMode(pc);
         return pc.Is(CustomRoles.Mischievous);
     }
 
     public override bool OnVanish(PlayerControl pc)
     {
-        SwitchMode();
+        SwitchMode(pc);
         return false;
     }
 
@@ -144,17 +144,12 @@ public class WeaponMaster : RoleBase
     {
         if (!shapeshifting) return true;
 
-        SwitchMode();
+        SwitchMode(shapeshifter);
         return false;
     }
 
-    private void SwitchMode()
+    private void SwitchMode(PlayerControl pc)
     {
-        byte id = PlayerIdList[0];
-        PlayerControl WM = Utils.GetPlayerById(id);
-
-        if (WM == null || !WM.IsAlive()) return;
-
         if (Mode == 3)
             Mode = 0;
         else
@@ -163,48 +158,39 @@ public class WeaponMaster : RoleBase
         switch (Mode)
         {
             case 1:
-                Main.AllPlayerKillCooldown[id] = HighKCD.GetFloat();
+                Main.AllPlayerKillCooldown[pc.PlayerId] = HighKCD.GetFloat();
                 break;
             case 2:
-                Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+                Main.AllPlayerKillCooldown[pc.PlayerId] = KillCooldown.GetFloat();
                 break;
             case 3 when shieldUsed:
-                WM.Notify(GetString("WMShieldAlreadyUsed"));
+                pc.Notify(GetString("WMShieldAlreadyUsed"));
+                Mode = 0;
                 break;
         }
 
         SendRPC();
-        WM.MarkDirtySettings();
+        pc.MarkDirtySettings();
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null) return false;
-
-        if (target == null) return false;
-
         switch (Mode)
         {
             case 0:
                 return true;
             case 1:
-                LateTask.New(() =>
+                foreach (PlayerControl pc in FastVector2.GetPlayersInRangeOf(killer, Radius.GetFloat()))
                 {
-                    foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
-                    {
-                        if (player == killer || target == player || player.Is(CustomRoles.Pestilence) || Veteran.VeteranInProtect.Contains(target.PlayerId)) continue;
+                    pc.Suicide(PlayerState.DeathReason.Kill, killer);
+                    
+                    if (killer.AmOwner && pc.Is(CustomRoles.Tree))
+                        Achievements.Type.Lumberjack.CompleteAfterGameEnd();
+                }
 
-                        if (FastVector2.DistanceWithinRange(killer.Pos(), player.Pos(), Radius.GetFloat()))
-                            player.Suicide(PlayerState.DeathReason.Kill, killer);
-                        
-                        if (killer.AmOwner && player.Is(CustomRoles.Tree))
-                            Achievements.Type.Lumberjack.CompleteAfterGameEnd();
-                    }
-
-                    killer.SetKillCooldown(HighKCD.GetFloat());
-                }, 0.1f, "Weapon Master Axe Kill");
-
-                return true;
+                killer.SetKillCooldown(HighKCD.GetFloat());
+                return false;
             case 2:
                 if (killer.RpcCheckAndMurder(target, true))
                 {
@@ -233,9 +219,9 @@ public class WeaponMaster : RoleBase
         return true;
     }
 
-    public override void OnEnterVent(PlayerControl pc, Vent vent)
+    public override bool CanUseVent(PlayerControl pc, int ventId)
     {
-        if (Mode == 2) pc?.MyPhysics?.RpcExitVent(vent.Id);
+        return !IsThisRole(pc) || pc.PlayerId != WMId || Mode != 2;
     }
 
     public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)

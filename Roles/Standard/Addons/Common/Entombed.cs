@@ -32,7 +32,7 @@ public class Entombed : IAddon
         if (BlockedRoom == null) return;
         
         MeetingEndTS = Utils.TimeStamp;
-        GracePeriodLength = 5 + 5 / Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        GracePeriodLength = 8 + 5 / Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
 
         if (Utils.DoRPC)
         {
@@ -79,6 +79,6 @@ public class Entombed : IAddon
     {
         if (BlockedRoom == null || !BlockedRoom.TryGetValue(seer.PlayerId, out SystemTypes blockedRoom) || !seer.IsAlive()) return string.Empty;
         long elapsed = Utils.TimeStamp - MeetingEndTS;
-        return string.Format(Translator.GetString(elapsed < GracePeriodLength ? "Entombed.SuffixGracePeriod" : "Entombed.SuffixActive"), Translator.GetString(blockedRoom.ToString()), GracePeriodLength - elapsed);
+        return string.Format(Translator.GetString(elapsed < GracePeriodLength ? "Entombed.SuffixGracePeriod" : "Entombed.SuffixActive"), Translator.GetString(blockedRoom.ToString()), (int)GracePeriodLength - elapsed);
     }
 }

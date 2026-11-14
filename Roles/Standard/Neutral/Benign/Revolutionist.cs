@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -237,7 +238,12 @@ internal class Revolutionist : RoleBase
                         if (player.AmOwner)
                             Achievements.Type.OutOfTime.Complete();
                     }
-                    else RevolutionistCountdown[playerId] = countdown;
+                    else
+                    {
+                        int oldValue = RevolutionistCountdown.GetValueOrDefault(playerId, countdown);
+                        if (oldValue != countdown) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player, SendOption: SendOption.None);
+                        RevolutionistCountdown[playerId] = countdown;
+                    }
                 }
                 else RevolutionistLastTime.TryAdd(playerId, start);
             }

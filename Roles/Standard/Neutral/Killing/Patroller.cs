@@ -51,6 +51,7 @@ public class Patroller : RoleBase
         LastRoom = null;
 
         RoomBoosts = ShipStatus.Instance.AllRooms
+            .Where(x => x.RoomId is not (SystemTypes.Hallway or SystemTypes.Outside))
             .Shuffle()
             .Zip(EnumHelper.GetValues<Boost>())
             .ToDictionary(x => x.Second, x => x.First);
@@ -75,11 +76,12 @@ public class Patroller : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
+        PlayerControl pc = Utils.GetPlayerById(id);
+        if (!pc) return;
+        
         if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
 
-        PlainShipRoom room = Utils.GetPlayerById(id)?.GetPlainShipRoom();
-        if (room == null) return;
-
+        PlainShipRoom room = pc.GetPlainShipRoom();
         opt.SetVision(room == RoomBoosts[Boost.Vision]);
         opt.SetInt(Int32OptionNames.KillDistance, room == RoomBoosts[Boost.Range] ? 2 : 0);
         Main.AllPlayerSpeed[id] = room == RoomBoosts[Boost.Speed] ? IncreasedSpeed.GetFloat() : Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
@@ -93,13 +95,10 @@ public class Patroller : RoleBase
         Count = 0;
 
         PlainShipRoom room = pc.GetPlainShipRoom();
-        bool roomNull = room == null;
-        bool lastRoomNull = LastRoom == null;
-        if (!lastRoomNull && !roomNull && room == LastRoom || lastRoomNull && roomNull) return;
-
+        if (room == LastRoom) return;
         LastRoom = room;
 
-        if (!roomNull)
+        if (room)
         {
             string roomName = Translator.GetString(room.RoomId.ToString());
 

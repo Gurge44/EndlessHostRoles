@@ -145,7 +145,6 @@ public class Magician : RoleBase
 
         var sb = new StringBuilder();
 
-        sb.Append("\n\n");
         sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Card name: <color=#ffffff>{GetString($"Magician-GetIdToName-{CardId}")}</color>"));
         sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Description: <color=#ffffff>{GetString($"Magician-GetIdToDesc-{CardId}")}</color>"));
         sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Trigger by: <color=#ffffff>{(UsePets.GetBool() ? "Pet button" : UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool() ? "Vanish button" : "Sabotage")}</color>"));

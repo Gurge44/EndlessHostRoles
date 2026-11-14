@@ -36,7 +36,7 @@ namespace EHR
             using IEnumerator<TSource> enumerator = source.GetEnumerator();
 
             if (!enumerator.MoveNext())
-                throw new InvalidOperationException("Sequence contains no elements.");
+                return default(TSource);
 
             TSource min = enumerator.Current;
             TKey minKey = keySelector(min);
@@ -79,7 +79,7 @@ namespace EHR
             int count = source.Count;
 
             if (count == 0)
-                throw new InvalidOperationException("Sequence contains no elements.");
+                return default(TSource);
 
             TSource min = source[0];
             TKey minKey = keySelector(min);
@@ -127,7 +127,7 @@ namespace EHR
             using IEnumerator<TSource> enumerator = source.GetEnumerator();
 
             if (!enumerator.MoveNext())
-                throw new InvalidOperationException("Sequence contains no elements.");
+                return default(TSource);
 
             TSource max = enumerator.Current;
             TKey maxKey = keySelector(max);
@@ -170,7 +170,7 @@ namespace EHR
             int count = source.Count;
 
             if (count == 0)
-                throw new InvalidOperationException("Sequence contains no elements.");
+                return default(TSource);
 
             TSource max = source[0];
             TKey maxKey = keySelector(max);

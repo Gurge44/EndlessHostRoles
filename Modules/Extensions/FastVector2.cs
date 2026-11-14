@@ -49,6 +49,32 @@ public static class FastVector2
     }
     
     /// <summary>
+    /// Finds all living players in range of a given player, excluding the origin player.
+    /// </summary>
+    public static IEnumerable<PlayerControl> GetPlayersInRangeOf(PlayerControl origin, float range, Predicate<PlayerControl> predicate = null)
+    {
+        predicate ??= _ => true;
+        float rangeSq = range * range;
+        Vector2 originPos = origin.Pos();
+
+        var players = Main.CachedAlivePlayerControls();
+        for (byte playerIndex = 0; playerIndex < players.Count; playerIndex++)
+        {
+            PlayerControl pc = players[playerIndex];
+            if (pc.inVent || pc.PlayerId == origin.PlayerId || !predicate(pc)) continue;
+            
+            Vector2 p = pc.Pos();
+            float dx = p.x - originPos.x;
+            float dy = p.y - originPos.y;
+            float sq = dx * dx + dy * dy;
+
+            if (sq > rangeSq) continue;
+
+            yield return pc;
+        }
+    }
+    
+    /// <summary>
     /// Finds the closest position to origin within the given range.
     /// Returns true if one was found.
     /// </summary>

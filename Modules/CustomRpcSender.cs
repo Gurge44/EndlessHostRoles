@@ -530,7 +530,7 @@ public static class CustomRpcSenderExtensions
         bool seerIsNull = !seer;
         int targetClientId = seerIsNull ? -1 : seer.OwnerId;
 
-        name = name.Replace("color=", string.Empty);
+        name = name.Replace("color=#", "#");
 
         switch (seerIsNull)
         {

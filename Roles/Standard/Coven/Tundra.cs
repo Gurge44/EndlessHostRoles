@@ -63,7 +63,7 @@ public class Tundra : CovenBase
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        foreach (PlayerControl victim in FastVector2.GetPlayersInRange(killer.Pos(), FreezeRange.GetFloat(), x => x.PlayerId != killer.PlayerId && x.PlayerId != target.PlayerId))
+        foreach (PlayerControl victim in FastVector2.GetPlayersInRangeOf(killer, FreezeRange.GetFloat(), x => x.PlayerId != target.PlayerId))
             Frigid(killer, victim);
     }
 

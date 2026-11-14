@@ -61,8 +61,7 @@ public class Banshee : CovenBase
     public override bool OnVanish(PlayerControl pc)
     {
         float radius = Radius.GetFloat();
-        Vector2 pos = pc.Pos();
-        IEnumerable<PlayerControl> nearbyPlayers = FastVector2.GetPlayersInRange(pos, radius).Without(pc);
+        IEnumerable<PlayerControl> nearbyPlayers = FastVector2.GetPlayersInRangeOf(pc, radius);
 
         if (!HasNecronomicon) ScreechedPlayers = nearbyPlayers.Select(x => x.PlayerId).ToHashSet();
         else nearbyPlayers.Do(x => x.Suicide(PlayerState.DeathReason.Deafened, pc));

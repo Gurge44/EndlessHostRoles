@@ -494,7 +494,7 @@ public static class Utils
         }
         catch (KeyNotFoundException) { mode = GetString("Rate0"); }
 
-        mode = mode.Replace("color=", string.Empty);
+        mode = mode.Replace("color=#", "#");
         return parentheses ? $"({mode})" : mode;
     }
     
@@ -1311,7 +1311,7 @@ public static class Utils
             }
             catch (KeyNotFoundException) { continue; }
 
-            mode = mode.Replace("color=", string.Empty);
+            mode = mode.Replace("color=#", "#");
 
             sb.Append($"\n【{GetRoleName(role.Key)}:{mode} ×{role.Key.GetCount()}】\n");
             ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], sb);
@@ -1359,7 +1359,7 @@ public static class Utils
             }
             catch (KeyNotFoundException) { continue; }
 
-            mode = mode.Replace("color=", string.Empty);
+            mode = mode.Replace("color=#", "#");
 
             sb.Append($"\n【{GetRoleName(role.Key)}:{mode} ×{role.Key.GetCount()}】\n");
             ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], sb);
@@ -1426,7 +1426,7 @@ public static class Utils
         });
 
         roles.DoIf(x => x.Value.Count > 0, x => sb.Append($"\n\n<u>{GetString($"TabGroup.{x.Key}")}:</u>\n{string.Join(", ", x.Value)}"));
-        SendMessage("\n", playerId, sb.ToString().Replace("color=", string.Empty).Trim());
+        SendMessage("\n", playerId, sb.ToString().Replace("color=#", "#").Trim());
     }
 
     public static void ShowChildrenSettings(OptionItem option, StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)
@@ -1452,7 +1452,7 @@ public static class Utils
             }
 
             string value = opt.Value.GetString().Replace("ON", "<#00ffa5>ON</color>").Replace("OFF", "<#ff0000>OFF</color>");
-            var name = $"{opt.Value.GetName(disableColor).Replace("color=", string.Empty)}</color>";
+            var name = $"{opt.Value.GetName(disableColor).Replace("color=#", "#")}</color>";
             sb.Append($"{name}: <#ffff00>{value}</color>\n");
             if (opt.Value.GetBool()) ShowChildrenSettings(opt.Value, sb, deep + 1, disableColor: disableColor);
         }
@@ -1848,7 +1848,7 @@ public static class Utils
             }
 
             text = text.Replace("color=#", "#");
-            title = title.Replace("color=", string.Empty);
+            title = title.Replace("color=#", "#");
 
             var serverType = GameStates.CurrentServerType;
             bool vanilla = serverType == GameStates.ServerType.Vanilla;
@@ -3203,7 +3203,7 @@ public static class Utils
                 if (!forMeeting) selfName += "\r\n";
             }
 
-            selfName = selfName.Trim().Replace("color=", "").Replace("<#ffffff><#ffffff>", "<#ffffff>");
+            selfName = selfName.Trim().Replace("color=#", "#").Replace("<#ffffff><#ffffff>", "<#ffffff>");
             if (selfName.EndsWith("</size>")) selfName = selfName.Remove(selfName.Length - 7);
             if (selfName.EndsWith("</color>")) selfName = selfName.Remove(selfName.Length - 8);
 
@@ -3518,7 +3518,7 @@ public static class Utils
                             // Camouflage
                             if (Camouflage.IsCamouflage && !camouflageIsForMeeting) targetName = $"<size=0>{targetName}</size>";
 
-                            targetName = targetName.Trim().Replace("color=", "").Replace("<#ffffff><#ffffff>", "<#ffffff>");
+                            targetName = targetName.Trim().Replace("color=#", "#").Replace("<#ffffff><#ffffff>", "<#ffffff>");
                             if (targetName.EndsWith("</size>")) targetName = targetName.Remove(targetName.Length - 7);
                             if (targetName.EndsWith("</color>")) targetName = targetName.Remove(targetName.Length - 8);
 

@@ -452,6 +452,7 @@ public enum CustomRoles
     SpellCaster,
     Summoner,
     Timelord,
+    Tundra,
     VoodooMaster,
     Wyrd,
 
