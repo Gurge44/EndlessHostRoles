@@ -9050,6 +9050,8 @@
   "AnagramDiff.Medium": "Medium",
   "AnagramDiff.MediumHard": "Medium-Hard",
   "AnagramDiff.Hard": "Hard",
+  "Additional8BallResponses": "Enable Additional /8ball Responses",
+  "UseOGResponses": "Keep using Original /8ball Responses",
   "MenuTitle.Other": "★ Different ★",
   "LadderDeath": "Fall From Ladders",
   "LadderDeathChance": "Fall To Death Chance",
