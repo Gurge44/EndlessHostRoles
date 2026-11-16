@@ -43,6 +43,7 @@
     </ItemGroup>
     
     <ItemGroup Condition="'$(Configuration)' == 'IL2CPP'">
+        <PackageReference Include="AsmResolver.DotNet" Version="6.0.1" />
         <PackageReference Include="AmongUs.GameLibs.Steam" Version="2026.9.29" PrivateAssets="all" />
         <PackageReference Include="NextBepLoader.BepInEx.IL2CPP.MSBuild" Version="2.1.0-dev-6" />
         <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.785" Private="false" ExcludeAssets="runtime;native" />
