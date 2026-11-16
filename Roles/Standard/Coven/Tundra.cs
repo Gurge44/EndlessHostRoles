@@ -17,6 +17,8 @@ public class Tundra : CovenBase
     private static OptionItem KillCooldown;
     private static OptionItem FrigidCountdown;
     private static OptionItem FreezeRange;
+    private static OptionItem CanVentBeforeNecronomicon;
+    private static OptionItem CanVentAfterNecronomicon;
 
     public override void SetupCustomOption()
     {
@@ -24,7 +26,9 @@ public class Tundra : CovenBase
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref FrigidCountdown, 10, new IntegerValueRule(1, 60, 1), OptionFormat.Seconds)
-            .AutoSetupOption(ref FreezeRange, 2f, new FloatValueRule(0.1f, 10f, 0.1f), OptionFormat.Multiplier);
+            .AutoSetupOption(ref FreezeRange, 2f, new FloatValueRule(0.1f, 10f, 0.1f), OptionFormat.Multiplier)
+            .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
+            .AutoSetupOption(ref CanVentAfterNecronomicon, true);
     }
 
     public override void Init()

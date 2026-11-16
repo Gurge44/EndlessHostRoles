@@ -9656,6 +9656,7 @@
   "CommandForms.Level": "level",
   "CommandForms.MTHY": "mt,hy",
   "CommandForms.MapPoll": "mp,mpoll,pollm,mappoll",
+  "CommandForms.Mark": "mark",
   "CommandForms.Medium": "ms,mediumship,medium",
   "CommandForms.MessageWait": "mw,messagewait",
   "CommandForms.Mute": "mute",

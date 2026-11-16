@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -159,7 +160,7 @@ public static class Deathrace
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        PowerUpSpawnFrequencyOption = new IntegerOptionItem(id++, "Deathrace.PowerUpSpawnFrequencyOption", new(1, 60, 1), 10, tab)
+        PowerUpSpawnFrequencyOption = new IntegerOptionItem(id++, "Deathrace.PowerUpSpawnFrequencyOption", new(1, 60, 1), 15, tab)
             .SetParent(SpawnPowerUpsOption)
             .SetColor(color)
             .SetGameMode(gameMode)
@@ -318,7 +319,7 @@ public static class Deathrace
             Suffix.Append($"\n<#ffff44>{Translator.GetString("Deathrace.VentUse")}</color>");
 
         if (coordinateCheck)
-            Suffix.Append($"\n<#ffff44>{string.Format(Translator.GetString($"Deathrace.CoordinateCheckInfo.{(int)nextRoomType}"), Math.Round(Vector2.Distance(coordinates, seer.Pos()), 1))}</color>");
+            Suffix.Append($"\n<#ffff44>{string.Format(CultureInfo.CurrentCulture, Translator.GetString($"Deathrace.CoordinateCheckInfo.{(int)nextRoomType}"), Math.Round(Vector2.Distance(coordinates, seer.Pos()), 1))}</color>");
 
         if (data.PowerUps.Count > 0)
         {
@@ -511,7 +512,7 @@ public static class Deathrace
 
     public static class FixedUpdatePatch
     {
-        private static Stopwatch NotifyTimer = new();
+        private static readonly Stopwatch NotifyTimer = new();
         
         public static void Postfix()
         {
@@ -616,7 +617,7 @@ public static class Deathrace
 
             Data.Remove(removeId);
 
-            if (NotifyTimer.Elapsed.TotalSeconds >= 1)
+            if (NotifyTimer.Elapsed.TotalSeconds >= (SpawnPowerUps ? 2 : 1))
             {
                 NotifyTimer.Reset();
                 Utils.NotifyRoles();
