@@ -737,6 +737,8 @@ public static class Options
     public static OptionItem AnagramLanguage;
     public static OptionItem AnagramWordLength;
     public static OptionItem AnagramDifficulty;
+    public static OptionItem Additional8BallResponses;
+    public static OptionItem UseOGResponses;
 
     public static OptionItem LadderDeath;
     public static OptionItem LadderDeathChance;
@@ -3074,6 +3076,12 @@ public static class Options
             .SetParent(EnableAnagramCommand)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
+        Additional8BallResponses = new BooleanOptionItem(23830, "Additional8BallResponses", false, TabGroup.GameSettings)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
+        UseOGResponses = new BooleanOptionItem(23831, "UseOGResponses", true, TabGroup.GameSettings)
+            .SetParent(Additional8BallResponses)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
         new TextOptionItem(100028, "MenuTitle.Other", TabGroup.GameSettings)
             .SetHeader(true)

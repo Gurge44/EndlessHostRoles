@@ -1109,7 +1109,26 @@ internal static class ChatCommands
             return;
         }
 
-        Utils.SendMessage(GetString($"8BallResponse.{IRandom.Instance.Next(20)}"), player.IsAlive() ? byte.MaxValue : player.PlayerId, GetString("8BallResponseTitle"));
+        var responsesFilePath = $"{Main.DataPath}/EHR_DATA/8BallResponses.txt";
+    
+        if (!File.Exists(responsesFilePath))
+            File.WriteAllText(responsesFilePath, string.Empty);
+    
+        var responses = File.ReadAllLines(responsesFilePath)
+            .Where(line => !string.IsNullOrWhiteSpace(line))
+            .ToArray();
+    
+        bool useAdditional = Options.Additional8BallResponses.GetBool();
+        bool useOG = !useAdditional || responses.Length == 0 || Options.UseOGResponses.GetBool();
+    
+        int ogCount = useOG ? 20 : 0;
+        int customCount = useAdditional ? responses.Length : 0;
+        int totalCount = ogCount + customCount;
+    
+        int index = IRandom.Instance.Next(totalCount);
+        string response = index < ogCount ? GetString($"8BallResponse.{index}") : responses[index - ogCount];
+
+        Utils.SendMessage(response, player.IsAlive() ? byte.MaxValue : player.PlayerId, GetString("8BallResponseTitle"));
     }
 
     public static void GameModePollCommand(PlayerControl player, string text, string[] args)
