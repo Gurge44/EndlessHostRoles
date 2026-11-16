@@ -1,23 +1,55 @@
 # Thank you so much for finding and using EHR!
 
-### Mod-side fixes
-
-- Fixed another reason for kicks in Deathrace on vanilla regions
-- Fixed not being able to create lobbies with more than 15 players even on modded regions
-- Fixed Evader always being invisible after meetings
-- Fixed Hypocrite being able to kill
-
-### Major fixes
+- **IL2CPP (Non-Mono): Fixed crash when opening the sabotage map**
+- **Brand-new lobby settings UI**
+- New role: Tundra (Coven Miscellaneous)
+- Misc optimizations
+- Fixed camouflage not reverting for some players if comms are fixed very fast
+- Fixed no clip not disabling for starlight players after game start
+- Fixed incorrect color tags in names
+- Fixed CNOs causing "Directly Shapeshift" EAC report
+- Fixed some meeting abilities still being usable after Starspawn daybreak
+- Fixed some commands not working for non-ASCII languages
+- Fixes regarding Trapster
+- When a non-host player uses `/say`, it now says who used it
+- New Discord activity image by Yoshi
+- Fixed Jester & Executioner being unable to win when Collector wins
+- Fixed shapeshifts not working in the first round when the last game ended mid-meeting
+- Fixed Frightener suffix missing string
+- New setting for Penguin: `Can Vent While Dragging`
+- New command settings by Newholiday: `Enable Additional /8ball Responses`, `Keep using Original /8ball Responses`
+- Fixed Markseeker not being able to use `/mark`
+- New death reason for Soul Collector: `Collected`
+- Fixed Entombed showing the remaining time in fractions instead of a whole number
+- Lazy now has team spawn options
+- Moon Dancer can no longer give disabled add-ons
+- Fixed players affected by Siren's ability not gaining their original speed back when the effect expires
+- Fixed Survivor half-reviving when completing a task after death
+- Time Master no longer freezes players during rewind
+- Mastermind no longer sets victims' kill cooldowns
+- Fixed host not being able to report bodies created by Postponer
+- Fixed Wiper > `Kill Other Impostors` setting doing nothing
+- Fixed Frightener not consuming ability uses
+- Fixed Gambler sometimes not getting any effects after killing
+- Fixed Dealer assigning vanilla Crewmate if no add-on can be given to the player
+- Fixed Revolutionist countdown not updating for vanilla clients
+- Fixed Amogus being able to kill when it shouldn't be, and vice versa
+- Fixed Bargainer selected item not updating for vanilla clients
+- Fixed Bargainer showing "None" as a purchased item
+- Fixed host nicknames breaking Doppelganger
+- Fixed Patroller/Rogue issues with hallways
+- Fixed Roulette Grandeur bullets notify
+- Sharpshooter now doesn't kill other Sharpshooters while using their ability (e.g. Schrödinger's Cat who just became that role on kill attempt)
+- Fixed Soul Collector victims not performing any on-death effects
+- Fixed multiple Weapon Masters not being able to cycle weapons
+- Fixed Weapon Master current weapon not updating for vanilla clients
+- Fixed Weapon Master vent kicking getting the player stuck (venting is prevented properly now)
+- Fixed Auditor not consuming any ability uses
+- Adventurer shouldn't kick the host anymore on vanilla regions
+- Deathrace shouldn't kick the host either (if it still does then I can't do anything more about it)
+- Hopefully fixed vision being stuck on 0x after meetings apparently
 
 > [!CAUTION]
-> - BepInEx version updated.
-> - Il2CppInterop updated.
-> - **A full reinstallation is necessary.** Sorry for the inconvenience. This is the only way to fix the current issues with the game. The reason for the crashes was not in the mod (aka. not in EHR.dll), but in Il2CppInterop. Pietro made a custom build of it that fixes those issues, which requires a newer version of BepInEx to work. So please understand that this is necessary.
-
-> [!IMPORTANT]
-> - We have also completed the _mono_ version of EHR. It requires a completely separate installation to work. If you download the Mono zip, it has an `INSTRUCTIONS.txt` which explains what to do to set it up.
-> - Why was this needed, you might ask? As you've already seen, Il2CppInterop causes many, many problems. With the Mono version, the mod talks directly with the game, bypassing/skipping Il2CppInterop entirely. That means far fewer crashes.
-> - Since it requires a separate installation, if you're using other mods along with EHR, they will not work. In that case, stick to the Il2Cpp version that you were using all along. Those mods would also need to update to support Mono to work alongside your Mono EHR installation.
-> - Crossplay between Mono and Il2Cpp installations should work without any problems. I recommend using the Mono version if you're only using EHR (no other plugins).
+> If you're using the IL2CPP (Non-Mono) version of the mod, you need to fully reinstall it. The reason is that the custom il2cppinterop files are no longer necessary, and they were replaced with a patcher plugin that does it better and more cleanly.
 
 ---

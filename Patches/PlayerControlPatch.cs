@@ -1233,7 +1233,7 @@ internal static class ReportDeadBodyPatch
                 Main.PlayerStates.Values.DoIf(x => !x.IsDead, x =>
                 {
                     x.IsBlackOut = true;
-                    x.Player.MarkDirtySettings();
+                    if (x.Player) x.Player.MarkDirtySettings();
                 });
                 PlayerGameOptionsSender.SendAllImmediately();
             }
@@ -1244,10 +1244,14 @@ internal static class ReportDeadBodyPatch
         {
             Main.PlayerStates.Values.DoIf(x => x.IsBlackOut, x =>
             {
-                x.IsBlackOut = false;
-                x.Player.MarkDirtySettings();
+                try
+                {
+                    x.IsBlackOut = false;
+                    if (x.Player) x.Player.MarkDirtySettings();
+                }
+                catch (Exception e) { ThrowException(e); }
             });
-        }, 5f, "RemoveBlackout");
+        }, 15f, "RemoveBlackout");
         
         if (Main.GameTimer.IsRunning && !Options.GameTimeLimitRunsDuringMeetings.GetBool())
             Main.GameTimer.Stop();
