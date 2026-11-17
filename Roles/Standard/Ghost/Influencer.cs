@@ -4,8 +4,6 @@ namespace EHR.Roles;
 
 public class Influencer : IGhostRole
 {
-    private static OptionItem CD;
-    
     public Team Team => Team.Crewmate;
     public RoleTypes RoleTypes => RoleTypes.SpiritGuide;
     public int Cooldown => CrewmateVanillaRoles.SpiritGuideCooldown.GetInt();

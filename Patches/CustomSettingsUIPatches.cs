@@ -950,21 +950,18 @@ internal static class CustomSettingsUIPatches
             OptionItem.SettingObjectNameToRole[roleOptionSetting.name] = role;
             instance.roleChances.Add(roleOptionSetting);
 
-            if (optionItem.Children.Count > 1)
-            {
-                GameOptionButton settingsButton = Object.Instantiate(roleOptionSetting.CountMinusBtn, roleOptionSetting.CountMinusBtn.transform.parent, true);
-                settingsButton.name = $"MODDED_{role}_AdvancedSettingsButton";
-                var text = settingsButton.GetComponentInChildren<TextMeshPro>();
-                text.SetText("✽");
-                text.color = Color.white;
-                settingsButton.buttonSprite.color = Color.black;
-                settingsButton.interactableColor = Color.black;
-                settingsButton.interactableHoveredColor = Utils.GetRoleColor(role);
-                settingsButton.transform.localPosition += new Vector3(-2.4f, 0f, 0f);
-                settingsButton.OnClick = new();
-                settingsButton.OnClick.AddListener(() => ChangeTab(role));
-                settingsButton.gameObject.SetActive(role.IsEnable());
-            }
+            GameOptionButton settingsButton = Object.Instantiate(roleOptionSetting.CountMinusBtn, roleOptionSetting.CountMinusBtn.transform.parent, true);
+            settingsButton.name = $"MODDED_{role}_AdvancedSettingsButton";
+            var text = settingsButton.GetComponentInChildren<TextMeshPro>();
+            text.SetText(optionItem.Children.Count > 1 ? "✽" : "ⓘ");
+            text.color = Color.white;
+            settingsButton.buttonSprite.color = Color.black;
+            settingsButton.interactableColor = Color.black;
+            settingsButton.interactableHoveredColor = Utils.GetRoleColor(role);
+            settingsButton.transform.localPosition += new Vector3(-2.4f, 0f, 0f);
+            settingsButton.OnClick = new();
+            settingsButton.OnClick.AddListener(() => ChangeTab(role));
+            settingsButton.gameObject.SetActive(role.IsEnable());
 
             if (index != 0)
             {
@@ -1104,8 +1101,7 @@ internal static class CustomSettingsUIPatches
                     Options.CustomRoleCounts[role].SetValue(Math.Max(roleOptionSetting.RoleMaxCount - 1, 0));
                 else
                     roleOptionSetting.roleMaxCount = Math.Clamp(roleOptionSetting.roleMaxCount, 0, 1);
-                Transform transform = roleOptionSetting.CountMinusBtn.transform.parent.Find($"MODDED_{role}_AdvancedSettingsButton");
-                if (transform) transform.gameObject.SetActive(role.IsEnable());
+                roleOptionSetting.CountMinusBtn.transform.parent.Find($"MODDED_{role}_AdvancedSettingsButton").gameObject.SetActive(role.IsEnable());
             }
             else
             {
