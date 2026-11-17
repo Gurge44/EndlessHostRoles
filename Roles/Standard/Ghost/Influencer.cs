@@ -8,15 +8,11 @@ public class Influencer : IGhostRole
     
     public Team Team => Team.Crewmate;
     public RoleTypes RoleTypes => RoleTypes.SpiritGuide;
-    public int Cooldown => CD.GetInt();
+    public int Cooldown => CrewmateVanillaRoles.SpiritGuideCooldown.GetInt();
 
     public void SetupCustomOption()
     {
         Options.SetupRoleOptions(647000, TabGroup.OtherRoles, CustomRoles.Influencer);
-
-        CD = new IntegerOptionItem(647002, "SpiritGuideCooldown", new(0, 120, 1), 30, TabGroup.OtherRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Influencer])
-            .SetValueFormat(OptionFormat.Seconds);
     }
     
     public void OnProtect(PlayerControl pc, PlayerControl target)

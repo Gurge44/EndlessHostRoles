@@ -588,6 +588,7 @@ public enum CustomRoles
     Haste,
     Haunter, // Ghost role
     Hidden,
+    Influencer, // SpiritGuide - Ghost role
     Insane,
     Introvert,
     Knighted,
