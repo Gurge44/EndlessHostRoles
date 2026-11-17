@@ -114,7 +114,7 @@ README file in the root directory of this source tree.
 
         <Frame Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="10" Name="Navigator" NavigationUIVisibility="Hidden"/>
 
-        <Label Content="EHR Control Panel" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2" FontSize="70" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" Foreground="LightGray" Name="Title"/>
+        <Label Content="EHR Control Panel" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2" FontSize="70" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" Foreground="LightGray" Name="TitleLabel"/>
 
         <Border Grid.Column="1" Grid.Row="3" Grid.RowSpan="4" Background="#2D2D2D" CornerRadius="20" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Name="ButtonGroup">
             <StackPanel>

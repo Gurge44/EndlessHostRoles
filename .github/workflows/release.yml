@@ -15,7 +15,7 @@ jobs:
   prepare-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Sync translations from Crowdin
         uses: crowdin/github-action@v2
@@ -42,10 +42,10 @@ jobs:
     needs: [prepare-build]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 6.0.x
 
@@ -62,13 +62,13 @@ jobs:
         run: dotnet build EHR.csproj -c IL2CPP --no-restore -o build/il2cpp
 
       - name: Upload Mono EHR
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ehr-mono
           path: build/mono/EHR.dll
 
       - name: Upload IL2CPP EHR
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ehr-il2cpp
           path: build/il2cpp/EHR.dll
@@ -80,15 +80,15 @@ jobs:
     runs-on: windows-latest
     needs: [prepare-build]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup .NET 
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with: 
           dotnet-version: 6.0.x 
       
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
 
       - name: Restore .NET packages
         run: dotnet restore -p:SelfContained=true CTA/CustomTeamAssigner/CustomTeamAssigner.csproj
@@ -112,7 +112,7 @@ jobs:
           mv CTA/CustomTeamAssigner/build/CustomTeamAssigner.exe build/EHR_Control-Panel_BETA.exe
 
       - name: Upload Control Panel artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: control-panel
           path: build\EHR_Control-Panel_BETA.exe
@@ -126,19 +126,19 @@ jobs:
 
     steps:
       - name: Download Mono EHR
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ehr-mono
           path: signing/mono
 
       - name: Download IL2CPP EHR
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ehr-il2cpp
           path: signing/il2cpp
 
       - name: Download Control Panel
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: control-panel
           path: signing
@@ -153,7 +153,7 @@ jobs:
 
       - name: Upload unsigned artifact
         id: upload-unsigned-artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: signpath-input
           path: signpath-input.zip
@@ -176,7 +176,7 @@ jobs:
           unzip signed/*.zip -d extracted
 
       - name: Upload signed binaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: signed-binaries
           path: extracted/*
@@ -189,10 +189,10 @@ jobs:
     needs: [sign]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download signed binaries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: signed-binaries
           path: artifacts/signed
@@ -269,7 +269,7 @@ jobs:
           zip -r "../EHR.v${{ github.event.inputs.version }}_Mono.zip" .
 
       - name: Upload release artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: final-zips
           path: ./EHR*.zip
@@ -282,10 +282,8 @@ jobs:
     needs: [package]
 
     steps:
-      - uses: actions/checkout@v4
-
       - name: Download packaged ZIPs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: final-zips
           path: release-artifacts
@@ -308,19 +306,19 @@ jobs:
     needs: [package]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # -----------------------------
       # Download all artifacts
       # -----------------------------
       - name: Download packaged ZIPs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: final-zips
           path: release-artifacts/zips
 
       - name: Download signed binaries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: signed-binaries
           path: release-artifacts/signed
@@ -351,7 +349,7 @@ jobs:
       # Send Mod News
       # -----------------------------
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: 3.x
 

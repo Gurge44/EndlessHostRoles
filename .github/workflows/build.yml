@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 6.0.x
 
@@ -24,7 +24,7 @@ jobs:
         run: dotnet build EHR.csproj -c Release -o build/
 
       - name: Upload EHR artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ehr
           path: build/EHR.dll
@@ -37,15 +37,15 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup .NET 
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with: 
           dotnet-version: 6.0.x 
       
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
 
       - name: Restore .NET packages
         run: dotnet restore -p:SelfContained=true CTA/CustomTeamAssigner/CustomTeamAssigner.csproj
@@ -69,7 +69,7 @@ jobs:
           mv CTA/CustomTeamAssigner/build/CustomTeamAssigner.exe build/EHR_Control-Panel_BETA.exe
 
       - name: Upload Control Panel artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: control-panel
           path: build/EHR_Control-Panel_BETA.exe
