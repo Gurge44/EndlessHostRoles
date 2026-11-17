@@ -32,7 +32,7 @@ namespace CustomTeamAssigner
 
         public static void SetMainWindowContents(Visibility visibility)
         {
-            MainWindow.Instance.Title.Visibility = visibility;
+            MainWindow.Instance.TitleLabel.Visibility = visibility;
             MainWindow.Instance.MainGrid.Children.OfType<Button>().Do(x => x.Visibility = visibility);
             MainWindow.Instance.ButtonGroup.Visibility = visibility;
         }
