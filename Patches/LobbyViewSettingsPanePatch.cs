@@ -889,6 +889,7 @@ public static class LobbyViewSettingsPanePatch
                             viewSettingsInfoPanelRoleVariant.transform.localPosition = new Vector3(xPos, yPos, -2f);
 
                             if (role.ToString().Contains("GuardianAngel")) role = CustomRoles.GA;
+                            if (role.ToString().Contains("Influencer")) role = CustomRoles.Influencer;
 
                             titleName = titleName.RemoveHtmlTags();
 

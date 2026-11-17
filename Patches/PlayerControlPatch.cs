@@ -2537,7 +2537,7 @@ static class PlayerControlRevivePatch
                 var sender = CustomRpcSender.Create($"LIReviveSync:{__instance.GetRealName()}", SendOption.Reliable);
                 var hasValue = sender.SyncGeneralOptions(__instance);
                 sender.SendMessage(dispose: !hasValue);
-                __instance.TP(FastVector2.TryGetClosest(__instance.Pos(), Main.EnumerateAlivePlayerControls().Without(__instance).Select(x => x.Pos()).Concat(ShipStatus.Instance.AllVents.Select(x => new Vector2(x.transform.position.x, x.transform.position.y + 0.3636f))), out Vector2 closest) ? closest : Vector2.zero);
+                __instance.TP(FastVector2.TryGetClosest(__instance.Pos(), Main.CachedAlivePlayerControls().Without(__instance).Select(x => x.Pos()).Concat(ShipStatus.Instance.AllVents.Select(x => new Vector2(x.transform.position.x, x.transform.position.y + 0.3636f))), out Vector2 closest) ? closest : Vector2.zero);
             }
         }, 0.2f);
     }
@@ -2560,17 +2560,21 @@ public static class PlayerControlCheckUseZiplinePatch
     {
         Logger.Info($"{__instance.GetNameWithRole()}, target: {target.GetNameWithRole()}, {(fromTop ? $"from Top, travel time: {ziplineBehaviour.downTravelTime}s" : $"from Bottom, travel time: {ziplineBehaviour.upTravelTime}s")}", "Zipline Use");
 
-        if (Options.CurrentGameMode == CustomGameMode.Deathrace) return true;
+        CustomGameMode currentGameMode = Options.CurrentGameMode;
+        if (currentGameMode == CustomGameMode.Deathrace) return true;
         
         if (AmongUsClient.Instance.AmHost)
         {
             if (Options.DisableZiplineFromTop.GetBool() && fromTop) return false;
             if (Options.DisableZiplineFromUnder.GetBool() && !fromTop) return false;
 
-            if (__instance.Is(CustomRoleTypes.Coven) && Options.DisableZiplineForCoven.GetBool()) return false;
-            if (__instance.IsImpostor() && Options.DisableZiplineForImps.GetBool()) return false;
-            if (__instance.GetCustomRole().IsNeutral() && Options.DisableZiplineForNeutrals.GetBool()) return false;
-            if (__instance.IsCrewmate() && Options.DisableZiplineForCrew.GetBool()) return false;
+            if (currentGameMode == CustomGameMode.Standard)
+            {
+                if (__instance.Is(CustomRoleTypes.Coven) && Options.DisableZiplineForCoven.GetBool()) return false;
+                if (__instance.IsImpostor() && Options.DisableZiplineForImps.GetBool()) return false;
+                if (__instance.GetCustomRole().IsNeutral() && Options.DisableZiplineForNeutrals.GetBool()) return false;
+                if (__instance.IsCrewmate() && Options.DisableZiplineForCrew.GetBool()) return false;
+            }
         }
 
         return true;

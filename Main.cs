@@ -785,6 +785,7 @@ public class Main : BaseUnityPlugin
                 { CustomRoles.Haunter, "#d1b1de" },
                 { CustomRoles.Bloodmoon, "#ff1313" },
                 { CustomRoles.GA, "#8cffff" },
+                { CustomRoles.Influencer, "#D8E3E6" },
                 { CustomRoles.Facilitator, CovenColor },
                 { CustomRoles.Shade, "#060270" },
                 { CustomRoles.MeetingAngel, "#a7e8b5" },
