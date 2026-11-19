@@ -1932,12 +1932,12 @@ public static class Options
             .SetColor(new Color32(255, 255, 68, byte.MaxValue))
             .RegisterUpdateValueEvent((_, _, newValue) => Main.NormalOptions.KillDistance = newValue);
 
-        ImpostorVision = new FloatOptionItem(20002, nameof(StringNames.GameImpostorLight), new(0f, 1.3f, 0.05f), 1.3f, TabGroup.GameSettings)
+        ImpostorVision = new FloatOptionItem(20002, nameof(StringNames.GameImpostorLight), new(0f, 1.5f, 0.05f), 1.3f, TabGroup.GameSettings)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new Color32(255, 255, 68, byte.MaxValue))
             .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.ImpostorLightMod = option.GetFloat());
 
-        CrewmateVision = new FloatOptionItem(20003, nameof(StringNames.GameCrewLight), new(0f, 1.3f, 0.05f), 0.5f, TabGroup.GameSettings)
+        CrewmateVision = new FloatOptionItem(20003, nameof(StringNames.GameCrewLight), new(0f, 1.5f, 0.05f), 0.5f, TabGroup.GameSettings)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new Color32(255, 255, 68, byte.MaxValue))
             .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.CrewLightMod = option.GetFloat());

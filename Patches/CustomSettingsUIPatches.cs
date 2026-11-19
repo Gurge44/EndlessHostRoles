@@ -596,7 +596,7 @@ internal static class CustomSettingsUIPatches
                     foreach (RoleOptionSetting roleOptionSetting in gameObject.GetComponentsInChildren<RoleOptionSetting>(true))
                     {
                         __instance.roleChances.Add(roleOptionSetting);
-                        CustomRoles role = Enum.Parse<CustomRoles>(roleOptionSetting.name.Split('_')[1]);
+                        CustomRoles role = Enum.Parse<CustomRoles>(roleOptionSetting.name[7..]);
                         roleOptionSetting.CountMinusBtn.transform.parent.Find($"MODDED_{role}_AdvancedSettingsButton").gameObject.SetActive(role.IsEnable());
 #if IL2CPP
                         roleOptionSetting.OnValueChanged = (Action<OptionBehaviour>)(obj => ValueChanged(obj, true));
@@ -1388,9 +1388,13 @@ internal static class CustomSettingsUIPatches
             
             foreach (GameOptionsMenu irrelevantMenu in CachedGameOptionsMenus.Values)
                 irrelevantMenu.gameObject.SetActive(false);
-            
-            if (tabNum == 0)
-                __instance.MenuDescriptionText.text = Translator.GetString("MenuDescription.GameModes");
+
+            __instance.MenuDescriptionText.text = tabNum switch
+            {
+                0 => Translator.GetString("MenuDescription.GameModes"),
+                1000 => Translator.GetString(StringNames.GamePresetsDescription),
+                _ => __instance.MenuDescriptionText.text
+            };
 
             if (tabNum < 10) return;
 
