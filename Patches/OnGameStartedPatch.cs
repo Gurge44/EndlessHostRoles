@@ -185,6 +185,7 @@ internal static class ChangeRoleSettings
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
+            Options.SyncVanillaSettings();
             GameOptionsManager.Instance.currentNormalGameOptions.ConfirmImpostor = false;
             Main.RealOptionsData = new(GameOptionsManager.Instance.CurrentGameOptions);
 

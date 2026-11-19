@@ -259,6 +259,22 @@ public static class Options
     public static readonly Dictionary<GameStateInfo, OptionItem> GameStateSettings = [];
     public static OptionItem MinPlayersForGameStateCommand;
     public static OptionItem AnonymousKillerCount;
+    
+    public static OptionItem KillCooldown;
+    public static OptionItem KillDistance;
+    public static OptionItem ImpostorVision;
+    public static OptionItem CrewmateVision;
+    public static OptionItem PlayerSpeed;
+    public static OptionItem NumEmergencyMeetings;
+    public static OptionItem EmergencyCooldown;
+    public static OptionItem DiscussionTime;
+    public static OptionItem VotingTime;
+    public static OptionItem AnonymousVotes;
+    public static OptionItem TaskBarUpdates;
+    public static OptionItem NumCommonTasks;
+    public static OptionItem NumShortTasks;
+    public static OptionItem NumLongTasks;
+    public static OptionItem VisualTasks;
 
     public static OptionItem DisableMeeting;
     public static OptionItem DisableCloseDoor;
@@ -745,7 +761,6 @@ public static class Options
 
     public static OptionItem FixFirstKillCooldown;
     public static OptionItem StartingKillCooldown;
-    public static OptionItem FallBackKillCooldownValue;
     public static OptionItem ShieldPersonDiedFirst;
     public static OptionItem GhostCanSeeOtherRoles;
     public static OptionItem GhostCanSeeOtherVotes;
@@ -951,7 +966,7 @@ public static class Options
         _ => CustomGameMode.Standard
     };
 
-    public static float DefaultKillCooldown = Main.NormalOptions == null || Main.NormalOptions.KillCooldown <= 1.1f ? FallBackKillCooldownValue?.GetFloat() ?? 25f : Main.NormalOptions.KillCooldown;
+    public static float DefaultKillCooldown = KillCooldown?.GetFloat() ?? 30f;
 
     public static float AdjustedDefaultKillCooldown => !GameStates.InGame
         ? DefaultKillCooldown
@@ -1903,6 +1918,78 @@ public static class Options
 
         LoadingPercentage = 65;
         MainLoadingText = "Building game settings";
+
+        new TextOptionItem(100021, "TabGroup.VanillaSettings", TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue));
+
+        KillCooldown = new FloatOptionItem(20000, nameof(StringNames.GameKillCooldown), new(0f, 600f, 0.5f), 30f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.KillCooldown = option.GetFloat());
+
+        KillDistance = new StringOptionItem(20001, nameof(StringNames.GameKillDistance), [nameof(StringNames.SettingShort), nameof(StringNames.SettingMedium), nameof(StringNames.SettingLong)], 0, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((_, _, newValue) => Main.NormalOptions.KillDistance = newValue);
+
+        ImpostorVision = new FloatOptionItem(20002, nameof(StringNames.GameImpostorLight), new(0f, 1.3f, 0.05f), 1.3f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.ImpostorLightMod = option.GetFloat());
+
+        CrewmateVision = new FloatOptionItem(20003, nameof(StringNames.GameCrewLight), new(0f, 1.3f, 0.05f), 0.5f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.CrewLightMod = option.GetFloat());
+
+        PlayerSpeed = new FloatOptionItem(20004, nameof(StringNames.GamePlayerSpeed), new(-3f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.PlayerSpeedMod = option.GetFloat());
+
+        NumEmergencyMeetings = new IntegerOptionItem(20005, nameof(StringNames.GameNumMeetings), new(0, 50, 1), 1, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.NumEmergencyMeetings = option.GetInt());
+
+        EmergencyCooldown = new IntegerOptionItem(20006, nameof(StringNames.GameEmergencyCooldown), new(0, 300, 1), 20, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.EmergencyCooldown = option.GetInt());
+
+        DiscussionTime = new IntegerOptionItem(20007, nameof(StringNames.GameDiscussTime), new(0, 600, 1), 30, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.DiscussionTime = option.GetInt());
+
+        VotingTime = new IntegerOptionItem(20008, nameof(StringNames.GameVotingTime), new(0, 600, 1), 90, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.VotingTime = option.GetInt());
+
+        AnonymousVotes = new BooleanOptionItem(20009, nameof(StringNames.GameAnonymousVotes), true, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.AnonymousVotes = option.GetBool());
+
+        TaskBarUpdates = new StringOptionItem(20010, nameof(StringNames.GameTaskBarMode), [nameof(StringNames.SettingNormalTaskMode), nameof(StringNames.SettingMeetingTaskMode), nameof(StringNames.SettingInvisibleTaskMode)], 1, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((_, _, newValue) => Main.NormalOptions.TaskBarMode = (AmongUs.GameOptions.TaskBarMode)newValue);
+
+        NumCommonTasks = new IntegerOptionItem(20011, nameof(StringNames.GameCommonTasks), new(0, 85, 1), 1, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.NumCommonTasks = option.GetInt());
+
+        NumLongTasks = new IntegerOptionItem(20012, nameof(StringNames.GameLongTasks), new(0, 85, 1), 2, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.NumLongTasks = option.GetInt());
+
+        NumShortTasks = new IntegerOptionItem(20013, nameof(StringNames.GameShortTasks), new(0, 85, 1), 4, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.NumShortTasks = option.GetInt());
+
+        VisualTasks = new BooleanOptionItem(20014, nameof(StringNames.GameVisualTasks), false, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 255, 68, byte.MaxValue))
+            .RegisterUpdateValueEvent((option, _, _) => Main.NormalOptions.VisualTasks = option.GetBool());
+
 
         new TextOptionItem(100023, "MenuTitle.Ejections", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
@@ -3104,10 +3191,6 @@ public static class Options
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
 
-        FallBackKillCooldownValue = new FloatOptionItem(23951, "KillCooldown", new(0.5f, 60f, 0.5f), 25f, TabGroup.GameSettings)
-            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
-            .SetValueFormat(OptionFormat.Seconds);
-
         ShieldPersonDiedFirst = new BooleanOptionItem(24000, "ShieldPersonDiedFirst", false, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
@@ -3368,6 +3451,15 @@ public static class Options
         IsLoaded = true;
 
         PostLoadTasks();
+    }
+
+    public static void SyncVanillaSettings()
+    {
+        foreach (OptionItem optionItem in new[] { KillCooldown, KillDistance, ImpostorVision, CrewmateVision, PlayerSpeed, NumEmergencyMeetings, EmergencyCooldown, DiscussionTime, VotingTime, AnonymousVotes, TaskBarUpdates, NumCommonTasks, NumLongTasks, NumShortTasks, VisualTasks })
+        {
+            int value = optionItem.CurrentValue;
+            optionItem.CallUpdateValueEvent(value, value);
+        }
     }
 
     private static int LastUsedPlayerCount;

@@ -211,7 +211,6 @@ internal static class CustomSettingsUIPatches
     {
         private static readonly Dictionary<string, List<OptionItem>> Sections = [];
         private static readonly HashSet<string> DirtySections = [];
-        private static string BasicSettingsSection;
 
         public static void InitializeSections()
         {
@@ -234,9 +233,6 @@ internal static class CustomSettingsUIPatches
                 0,
                 1
             ];
-
-            BasicSettingsSection = $"MODDED_{Translator.GetString("BasicSettings").ToUpper()}";
-            Sections[BasicSettingsSection] = [];
 
             foreach ((EHR.TabGroup tab, OptionItem[] options) in Options.GroupedOptions)
             {
@@ -291,8 +287,6 @@ internal static class CustomSettingsUIPatches
                 __instance.name = Sections.Keys.ElementAt(idx - 10);
             }
 
-            if (__instance.name == BasicSettingsSection) return true;
-
             if (__instance.Children != null && __instance.Children.Count != 0)
             {
                 if (DirtySections.Remove(__instance.name))
@@ -301,8 +295,24 @@ internal static class CustomSettingsUIPatches
                 return false;
             }
 
-            Object.Destroy(__instance.MapPicker.gameObject);
-            __instance.Children = new();
+            if (!Sections.ContainsKey(__instance.name))
+            {
+                __instance.MapPicker.Initialize(20);
+                __instance.MapPicker.SetUpFromData(null, 20);
+                __instance.MapPicker.optionName = ByteOptionNames.MapId;
+#if IL2CPP
+                __instance.Children = new();
+                __instance.Children.Add(__instance.MapPicker);
+#else
+                __instance.Children = [__instance.MapPicker];
+#endif
+            }
+            else
+            {
+                Object.Destroy(__instance.MapPicker.gameObject);
+                __instance.Children = new();
+            }
+            
             __instance.CreateSettings();
             __instance.cachedData = GameOptionsManager.Instance.CurrentGameOptions;
 
@@ -326,9 +336,6 @@ internal static class CustomSettingsUIPatches
         [HarmonyPrefix]
         private static bool CreateSettings(GameOptionsMenu __instance)
         {
-            if (__instance.name == BasicSettingsSection)
-                return true;
-
             var y = 2f;
 
             if (Sections.TryGetValue(__instance.name, out List<OptionItem> options))
@@ -434,6 +441,7 @@ internal static class CustomSettingsUIPatches
             }
             else
             {
+                y -= 1.287f;
                 var index = 0;
 
                 foreach (string sectionTitle in Sections.Keys)
@@ -1339,8 +1347,6 @@ internal static class CustomSettingsUIPatches
         private static int NumImpsOnOpen = 1;
         private static int MinImpsOnOpen = 1;
         private static int MaxImpsOnOpen = 1;
-        private static float VanillaKillCooldownOnOpen = 1;
-        private static float ModdedKillCooldownOnOpen = 1;
 
         [HarmonyPatch(nameof(GameSettingMenu.ChangeTab))]
         [HarmonyPrefix]
@@ -1458,8 +1464,6 @@ internal static class CustomSettingsUIPatches
             MinImpsOnOpen = minSetting.GetInt();
             MaxImpsOnOpen = maxSetting.GetInt();
             NumImpsOnOpen = Main.NormalOptions.NumImpostors;
-            VanillaKillCooldownOnOpen = Main.NormalOptions.KillCooldown;
-            ModdedKillCooldownOnOpen = Options.FallBackKillCooldownValue.GetFloat();
         }
 
         private static void CreatePresetExplorerUI()
@@ -1589,14 +1593,6 @@ internal static class CustomSettingsUIPatches
                 EHR.Logger.SendInGame(string.Format(Translator.GetString("MinMaxModdedImpCountsSettingsChangedAuto"), numImpostors));
             }
 
-            float vanillaKillCooldown = Main.NormalOptions.KillCooldown;
-            float moddedKillCooldown = Options.FallBackKillCooldownValue.GetFloat();
-            bool vanillaChanged = !Mathf.Approximately(vanillaKillCooldown, VanillaKillCooldownOnOpen);
-            bool moddedChanged = !Mathf.Approximately(moddedKillCooldown, ModdedKillCooldownOnOpen);
-
-            if (!Mathf.Approximately(vanillaKillCooldown, moddedKillCooldown) && vanillaChanged && !moddedChanged)
-                Options.FallBackKillCooldownValue.SetValue((int)Math.Round(Math.Round(vanillaKillCooldown, 1) / 0.5f - 1));
-
             if (Options.AutoGMRotationRecompileOnClose)
                 Options.CompileAutoGMRotationSettings();
 
@@ -1653,35 +1649,6 @@ internal static class CustomSettingsUIPatches
         {
             switch (__instance.Title)
             {
-                case StringNames.GameVotingTime:
-                    __instance.ValidRange = new(0, 600);
-                    __instance.Value = (float)Math.Round(__instance.Value, 2);
-                    break;
-                case StringNames.GameShortTasks:
-                case StringNames.GameLongTasks:
-                case StringNames.GameCommonTasks:
-                    __instance.ValidRange = new(0, 85);
-                    __instance.Value = (float)Math.Round(__instance.Value, 2);
-                    break;
-                case StringNames.GameKillCooldown:
-                    __instance.ValidRange = new(0, 180);
-                    __instance.Increment = 0.5f;
-                    __instance.Value = (float)Math.Round(__instance.Value, 2);
-                    break;
-                case StringNames.GamePlayerSpeed:
-                    __instance.Increment = 0.05f;
-                    __instance.Value = Mathf.Clamp((float)Math.Round(__instance.Value, 2), __instance.ValidRange.min, __instance.ValidRange.max);
-                    break;
-                case StringNames.GameCrewLight:
-                case StringNames.GameImpostorLight:
-                    __instance.Increment = 0.05f;
-                    __instance.Value = (float)Math.Round(__instance.Value, 2);
-                    break;
-                case StringNames.GameNumImpostors:
-                    __instance.ValidRange = new(0, Crowded.MaxImpostors);
-                    __instance.Value = Mathf.Clamp((float)Math.Round(__instance.Value, 2), __instance.ValidRange.min, __instance.ValidRange.max);
-                    if (DebugModeManager.AmDebugger) __instance.ValidRange.min = 0;
-                    break;
                 case StringNames.CapacityLabel:
                     __instance.ValidRange = new(4, 127);
                     __instance.Value = Mathf.Clamp(__instance.Value, __instance.ValidRange.min, __instance.ValidRange.max);
@@ -1703,7 +1670,7 @@ internal static class CustomSettingsUIPatches
             if (!OptionItem.BehaviourNameToItem.TryGetValue(__instance.name, out OptionItem item)) return true;
 
             if (item.Name.Contains("KillCooldown", StringComparison.OrdinalIgnoreCase) && (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)))
-                __instance.Value = Main.NormalOptions?.KillCooldown ?? Options.FallBackKillCooldownValue.GetFloat();
+                __instance.Value = Options.KillCooldown.GetFloat();
 
             switch (item)
             {

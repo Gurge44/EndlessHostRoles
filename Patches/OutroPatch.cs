@@ -133,6 +133,7 @@ internal static class EndGamePatch
         if (AmongUsClient.Instance.AmHost)
         {
             Main.RealOptionsData.Restore(GameOptionsManager.Instance.CurrentGameOptions);
+            Options.SyncVanillaSettings();
             GameOptionsSender.AllSenders.Clear();
             GameOptionsSender.AllSenders.Add(new NormalGameOptionsSender());
 

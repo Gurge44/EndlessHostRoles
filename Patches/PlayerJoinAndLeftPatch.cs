@@ -93,6 +93,7 @@ internal static class OnGameJoinedPatch
                 JoiningGame = false;
                 
                 Main.RealOptionsData?.Restore(GameOptionsManager.Instance.CurrentGameOptions);
+                Options.SyncVanillaSettings();
 
                 Options.AutoSetFactionMinMaxSettings();
 
@@ -111,12 +112,6 @@ internal static class OnGameJoinedPatch
 
                 //Main.Instance.StartCoroutine(OptionShower.GetText());
             }, 2f, "OnGameJoinedPatch");
-
-            LateTask.New(() =>
-            {
-                if (Main.NormalOptions != null && Mathf.Approximately(Main.NormalOptions.KillCooldown, 25f))
-                    Main.NormalOptions.KillCooldown = Options.FallBackKillCooldownValue?.GetFloat() ?? 25f;
-            }, 5f, log: false);
 
             Main.SetRoles = [];
             Main.SetAddOns = [];
