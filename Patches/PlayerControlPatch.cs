@@ -334,7 +334,11 @@ internal static class CheckMurderPatch
                 }
             }
 
-            if (killer.Is(CustomRoles.Mare)) killer.ResetKillCooldown();
+            if (killer.Is(CustomRoles.Mare))
+            {
+                killer.ResetKillCooldown(false);
+                killer.SyncSettings();
+            }
 
             if (!DoubleTrigger.FirstTriggerTimer.ContainsKey(killer.PlayerId) && killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
             {

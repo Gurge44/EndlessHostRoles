@@ -260,7 +260,7 @@ internal static class EffectExtenstions
                             if (pc.PlayerId == randomizer.PlayerId) break;
 
                             pc.RpcSetCustomRole(pc.GetCustomRole().GetErasedRole());
-                            pc.SyncSettings();
+                            pc.MarkDirtySettings();
                             NotifyAboutRNG(pc);
                         }
 

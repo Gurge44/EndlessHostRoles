@@ -195,7 +195,6 @@ public class Evolver : RoleBase
         if (GameStates.IsInTask)
         {
             EvolverPC.ResetKillCooldown();
-            EvolverPC.SyncSettings();
             if (Main.KillTimers[EvolverPC.PlayerId] > Stats.KillCooldown) EvolverPC.SetKillCooldown();
 
             if (PlayerControl.LocalPlayer.PlayerId == EvolverPC.PlayerId) HudManager.Instance.SetHudActive(EvolverPC, EvolverPC.Data.Role, true);

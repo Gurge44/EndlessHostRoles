@@ -155,7 +155,7 @@ public class Summoner : CovenBase
                 summoned.RpcSetCustomRole(CustomRoles.SerialKiller);
                 summoned.RpcChangeRoleBasis(CustomRoles.SerialKiller);
                 summoned.SyncGeneralOptions();
-                summoned.SyncSettings();
+                summoned.MarkDirtySettings();
                 LateTask.New(() => summoned.SetKillCooldown(SummonedKillCooldown.GetFloat()), 0.2f);
                 
                 Utils.SendRPC(CustomRPC.SyncRoleData, SummonerId, 1, SummonedPlayerId);

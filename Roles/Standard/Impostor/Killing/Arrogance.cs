@@ -133,8 +133,8 @@ public class Arrogance : RoleBase
     {
         NowCooldown = Math.Clamp(NowCooldown - ReduceKCD, MinKCD, DefaultKCD);
         Utils.SendRPC(CustomRPC.SyncRoleData, ArroganceID, NowCooldown);
-        killer?.ResetKillCooldown();
-        killer?.SyncSettings();
+        killer.ResetKillCooldown(false);
+        killer.SyncSettings();
 
         if (UsedRole == CustomRoles.Juggernaut && target)
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Destroyed;

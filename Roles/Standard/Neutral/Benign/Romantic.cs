@@ -133,14 +133,10 @@ public class Romantic : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        float beforeCD = Main.AllPlayerKillCooldown.GetValueOrDefault(RomanticId, 0f);
-
         if (HasPickedPartner)
             Main.AllPlayerKillCooldown[RomanticId] = ProtectCooldown.GetFloat();
         else
             Main.AllPlayerKillCooldown[RomanticId] = BetCooldown.GetFloat();
-
-        if (Math.Abs(beforeCD - Main.AllPlayerKillCooldown[RomanticId]) > 0.5f) RomanticPC?.SyncSettings();
     }
 
     public override bool KnowRole(PlayerControl player, PlayerControl target)

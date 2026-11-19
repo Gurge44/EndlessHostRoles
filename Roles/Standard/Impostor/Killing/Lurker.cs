@@ -54,7 +54,7 @@ public class Lurker : RoleBase
         if (newCd <= 0) return;
 
         Main.AllPlayerKillCooldown[pc.PlayerId] = newCd;
-        pc.SyncSettings();
+        pc.MarkDirtySettings();
     }
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)

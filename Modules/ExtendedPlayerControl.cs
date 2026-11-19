@@ -508,14 +508,16 @@ internal static class ExtendedPlayerControl
             sender.RpcResetAbilityCooldown(player);
             sender.SyncGeneralOptions(player);
 
-            LateTask.New(() => player.SetKillCooldown(), 0.2f, log: false);
+            LateTask.New(() =>
+            {
+                player.MarkDirtySettings();
+                player.SetKillCooldown();
+            }, 0.2f, log: false);
 
             if (Options.AnonymousBodies.GetBool() && Main.AllPlayerNames.TryGetValue(player.PlayerId, out string name))
                 RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
             else
                 Camouflage.RpcSetSkin(player);
-            
-            sender.SyncSettings(player);
 
             sender.SendMessage();
 
@@ -1883,7 +1885,7 @@ internal static class ExtendedPlayerControl
             if (Committed.ReduceKCD != null && Committed.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
                 Main.AllPlayerKillCooldown[player.PlayerId] -= reduction;
 
-            if (sync) player.SyncSettings();
+            if (sync) player.MarkDirtySettings();
         }
 
         public void BeartrapKilled(PlayerControl target)

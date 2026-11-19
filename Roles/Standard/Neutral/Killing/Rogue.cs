@@ -230,7 +230,6 @@ public class Rogue : RoleBase
                     break;
                 case Reward.DecreasedKillCooldown:
                     RoguePC.ResetKillCooldown();
-                    RoguePC.SyncSettings();
                     RoguePC.SetKillCooldown();
                     break;
                 case Reward.Sabotage when RoguePC.IsHost():

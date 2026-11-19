@@ -97,7 +97,7 @@ public class CopyCat : RoleBase
         Main.PlayerStates[CopyCatPC.PlayerId].Role = this;
         SetKillCooldown(CopyCatPC.PlayerId);
         CopyCatPC.SetAbilityUseLimit(TempLimit);
-        CopyCatPC.SyncSettings();
+        CopyCatPC.MarkDirtySettings();
     }
 
     public static void ResetRoles()
@@ -186,7 +186,7 @@ public class CopyCat : RoleBase
             pc.SetAbilityUseLimit(tpc.GetAbilityUseLimit());
 
             pc.Notify(string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
-            pc.SyncSettings();
+            pc.MarkDirtySettings();
 
             LateTask.New(() => pc.SetKillCooldown(), 0.2f, log: false);
             return false;

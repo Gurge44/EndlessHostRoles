@@ -27,7 +27,7 @@ internal class Phantasm : IGhostRole
             taskState.AllTasksCount = Utils.TotalTaskCountForReset - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
 
             pc.RpcResetTasks();
-            pc.SyncSettings();
+            pc.MarkDirtySettings();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }, 1f, "Phantasm Assign");
     }

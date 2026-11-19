@@ -138,7 +138,7 @@ internal class Ninja : RoleBase
 
             if (canUseKillButton)
             {
-                killer.ResetKillCooldown();
+                killer.ResetKillCooldown(false);
                 killer.SyncSettings();
 
                 if (Main.Invisible.Contains(killer.PlayerId) && !target.Is(CustomRoles.Bait))
@@ -162,7 +162,6 @@ internal class Ninja : RoleBase
         if (killer.IsModdedClient()) killer.RpcResetAbilityCooldown();
         if (UsePets.GetBool()) killer.AddAbilityCD(includeDuration: false);
 
-        killer.SyncSettings();
         killer.RPCPlayCustomSound("Clothe");
         return false;
     }

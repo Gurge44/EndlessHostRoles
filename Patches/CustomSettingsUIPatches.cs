@@ -596,6 +596,8 @@ internal static class CustomSettingsUIPatches
                     foreach (RoleOptionSetting roleOptionSetting in gameObject.GetComponentsInChildren<RoleOptionSetting>(true))
                     {
                         __instance.roleChances.Add(roleOptionSetting);
+                        CustomRoles role = Enum.Parse<CustomRoles>(roleOptionSetting.name.Split('_')[1]);
+                        roleOptionSetting.CountMinusBtn.transform.parent.Find($"MODDED_{role}_AdvancedSettingsButton").gameObject.SetActive(role.IsEnable());
 #if IL2CPP
                         roleOptionSetting.OnValueChanged = (Action<OptionBehaviour>)(obj => ValueChanged(obj, true));
                         
@@ -615,16 +617,19 @@ internal static class CustomSettingsUIPatches
                 {
                     button.transform.SetParent(__instance.roleSettingsTabParent);
                     button.transform.localPosition = position;
+                    button.SelectButton(false);
                     button.gameObject.SetActive(currentGameMode == CustomGameMode.Standard);
                     __instance.roleTabs.Add(button);
                 }
-                    
-                __instance.roleTabs[^1].gameObject.SetActive(currentGameMode == CustomGameMode.HideAndSeek);
+
+                bool hns = currentGameMode == CustomGameMode.HideAndSeek;
+                __instance.roleTabs[^1].gameObject.SetActive(hns);
+                __instance.roleTabs[hns ? ^1 : 0].SelectButton(true);
                     
                 if (__instance.AllButton)
                     TidyStuff(__instance);
 
-                Tabs[currentGameMode == CustomGameMode.HideAndSeek ? (EHR.TabGroup)100 : EHR.TabGroup.ImpostorRoles].SetActive(true);
+                Tabs[hns ? (EHR.TabGroup)100 : EHR.TabGroup.ImpostorRoles].SetActive(true);
             }
             else
                 __instance.RoleChancesSettings.SetActive(true);
@@ -1104,7 +1109,9 @@ internal static class CustomSettingsUIPatches
                 RoleOptionSetting roleOptionSetting = (RoleOptionSetting)obj;
 #endif
                 CustomRoles role = OptionItem.SettingObjectNameToRole[roleOptionSetting.name];
-                Options.CustomRoleSpawnChances[role].SetValue(roleOptionSetting.RoleChance / 5);
+                bool addon = role.IsAdditionRole() && !role.IsGhostRole();
+                Options.CustomRoleSpawnChances[role].SetValue(addon ? Math.Min(1, roleOptionSetting.RoleChance) : roleOptionSetting.RoleChance / 5);
+                if (addon) Options.CustomAdtRoleSpawnRate[role].SetValue(role == CustomRoles.Madmate ? roleOptionSetting.RoleMaxCount == 0 ? 0 : 20 : roleOptionSetting.RoleChance / 5);
                 if (!Options.SingleRoles.Contains(role))
                     Options.CustomRoleCounts[role].SetValue(Math.Max(roleOptionSetting.RoleMaxCount - 1, 0));
                 else
@@ -1154,7 +1161,7 @@ internal static class CustomSettingsUIPatches
             instance.advancedSettingChildren.Clear();
             float scrollPercY = instance.scrollBar.GetScrollPercY();
             float y = -1.2f;
-            int skip = role.IsAdditionRole() ? 2 : 1;
+            int skip = role.IsAdditionRole() && !role.IsGhostRole() ? 2 : 1;
             int index = 0;
             int num = 1;
             StringOptionItem stringOptionItem = Options.CustomRoleSpawnChances[role];
@@ -1284,7 +1291,7 @@ internal static class CustomSettingsUIPatches
         public static void UpdateValuesAndText(RoleOptionSetting __instance, CustomRoles role)
         {
             __instance.roleMaxCount = role.GetCount();
-            __instance.roleChance = role.GetMode();
+            __instance.roleChance = role.IsAdditionRole() && !role.IsGhostRole() ? role.GetAddonMode() : role.GetMode();
             __instance.countText.text = __instance.roleMaxCount.ToString();
             __instance.chanceText.text = __instance.roleChance.ToString();
             __instance.AdjustCountButtonsActiveState();

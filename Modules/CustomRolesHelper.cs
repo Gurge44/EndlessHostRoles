@@ -1754,6 +1754,11 @@ internal static class CustomRolesHelper
             };
         }
 
+        public int GetAddonMode()
+        {
+            return role.IsEnable() && Options.CustomAdtRoleSpawnRate.TryGetValue(role, out IntegerOptionItem integerOptionItem) ? integerOptionItem.GetInt() : 0;
+        }
+
         public bool IsEnable()
         {
             return role switch

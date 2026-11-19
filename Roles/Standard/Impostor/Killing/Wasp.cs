@@ -151,12 +151,10 @@ public class Wasp : RoleBase
                 else
                 {
                     target.ResetKillCooldown();
-                    target.SyncSettings();
                     target.SetKillCooldown(StingCooldown.GetInt());
                 }
             }, onTick: () => Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target), cancelOnMeeting: false, onCanceled: () => SwarmModeEnd = null);
             Utils.SendRPC(CustomRPC.SyncRoleData, WaspPC.PlayerId);
-            target.SyncSettings();
             target.SetKillCooldown(0.01f);
         }
         else

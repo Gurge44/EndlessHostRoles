@@ -133,6 +133,7 @@ public class Greedy : RoleBase // Also used for Pulse as the NK version of this
 
         IsOdd = !IsOdd;
         SendRPC(killer.PlayerId);
+        killer.ResetKillCooldown(false);
         killer.SyncSettings();
         return base.OnCheckMurder(killer, target);
     }

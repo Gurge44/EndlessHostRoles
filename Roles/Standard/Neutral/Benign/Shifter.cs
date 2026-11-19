@@ -53,7 +53,6 @@ public class Shifter : RoleBase
         if (!pc) return;
 
         pc.ResetKillCooldown();
-        pc.SyncSettings();
         pc.SetKillCooldown();
     }
 
@@ -97,7 +96,7 @@ public class Shifter : RoleBase
         TaskState taskState = target.GetTaskState();
         if (taskState.HasTasks) Main.PlayerStates[killer.PlayerId].TaskState = taskState;
 
-        killer.SyncSettings();
+        killer.MarkDirtySettings();
         LateTask.New(() => killer.SetKillCooldown(), 0.2f, log: false);
 
         // ------------------------------------------------------------------------------------------
@@ -106,7 +105,7 @@ public class Shifter : RoleBase
         target.RpcChangeRoleBasis(CustomRoles.Shifter);
         Main.AbilityUseLimit.Remove(target.PlayerId);
         Utils.SendRPC(CustomRPC.RemoveAbilityUseLimit, target.PlayerId);
-        target.SyncSettings();
+        target.MarkDirtySettings();
         LateTask.New(() => target.SetKillCooldown(), 0.2f, log: false);
 
         // ------------------------------------------------------------------------------------------

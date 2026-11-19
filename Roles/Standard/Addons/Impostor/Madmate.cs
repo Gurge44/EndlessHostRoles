@@ -8,7 +8,7 @@ internal class Madmate : IAddon
 
     public void SetupCustomOption()
     {
-        SetupAdtRoleOptions(15800, CustomRoles.Madmate, canSetNum: true, canSetChance: false, allowZeroCount: true);
+        SetupAdtRoleOptions(15800, CustomRoles.Madmate, canSetNum: true, canSetChance: false);
 
         MadmateSpawnMode = new StringOptionItem(15810, "MadmateSpawnMode", MadmateSpawnModeStrings, 0, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);

@@ -127,7 +127,7 @@ public class HeadHunter : RoleBase
 
         if (Math.Abs(KCD - tempkcd) > 0.1f)
         {
-            killer.ResetKillCooldown();
+            killer.ResetKillCooldown(false);
             killer.SyncSettings();
         }
 

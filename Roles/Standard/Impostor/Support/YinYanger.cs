@@ -92,10 +92,7 @@ public class YinYanger : RoleBase
         SendRPC(false, target.PlayerId);
 
         if (YinYangedPlayers.Count == 2)
-        {
             killer.ResetKillCooldown();
-            killer.SyncSettings();
-        }
 
         killer.SetKillCooldown();
         return false;

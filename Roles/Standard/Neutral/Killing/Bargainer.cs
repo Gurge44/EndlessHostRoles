@@ -349,7 +349,6 @@ internal class Bargainer : RoleBase
                 {
                     case Item.EnergyDrink:
                         pc.ResetKillCooldown();
-                        pc.SyncSettings();
                         if (Main.KillTimers[pc.PlayerId] > ReducedKillCooldown.GetFloat()) pc.SetKillCooldown(ReducedKillCooldown.GetFloat());
                         goto default;
                     case Item.LensOfTruth:

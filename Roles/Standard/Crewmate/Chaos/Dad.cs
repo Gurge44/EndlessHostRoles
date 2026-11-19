@@ -307,7 +307,7 @@ public class Dad : RoleBase
         if (completedTaskCount + 1 >= totalTaskCount)
         {
             pc.RpcResetTasks();
-            pc.SyncSettings();
+            pc.MarkDirtySettings();
             DoneTasks = true;
             GameData.Instance.RecomputeTaskCounts();
         }

@@ -768,7 +768,7 @@ public static class CustomRpcSenderExtensions
             if (player.GetCustomRole() is not CustomRoles.Inhibitor and not CustomRoles.Saboteur)
             {
                 player.ResetKillCooldown(sync: false);
-                LateTask.New(player.SyncSettings, 1f, log: false);
+                LateTask.New(player.MarkDirtySettings, 1f, log: false);
             }
 
             return returnValue;
