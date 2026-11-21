@@ -17,8 +17,8 @@ namespace EHR.Modules;
 public static class AmciRegistration
 {
     /// <summary>
-    /// EHR's AMCI mod GUID. Do not change this after it ships to players or they won't be able
-    /// to find EHR lobbies until they update.
+    /// EHR's AMCI mod GUID.
+    /// The GUID is generated per release version by the release workflow and patched into this file at build time.
     /// </summary>
     private const string ModGuidString = "446420cc-ce35-4c2f-8f5d-b14f84354421";
 
