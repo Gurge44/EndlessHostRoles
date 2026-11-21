@@ -578,11 +578,24 @@ internal static class CustomSettingsUIPatches
         private static readonly Dictionary<Vector3, PassiveButton> TabButtons = [];
         private static Vector3 TabPosition;
         private static Transform TempParent;
+        private static RolesSettingsMenu TabSetupRunningFor;
+
+        private static void DiscardStaleCache()
+        {
+            bool stale = Tabs.Values.Any(x => !x) || TabButtons.Values.Any(x => !x);
+            if (!stale) return;
+
+            Tabs.Clear();
+            TabChildrenCount.Clear();
+            TabButtons.Clear();
+        }
 
         [HarmonyPatch(nameof(RolesSettingsMenu.OnEnable))]
         [HarmonyPrefix]
         public static bool OnEnable(RolesSettingsMenu __instance)
         {
+            DiscardStaleCache();
+
             if (Tabs.Count > 0)
             {
                 __instance.roleChances = new();
@@ -650,13 +663,27 @@ internal static class CustomSettingsUIPatches
         [HarmonyPrefix]
         static bool OpenMenu(RolesSettingsMenu __instance, bool controllerSelected = true)
         {
+            DiscardStaleCache();
+
             if (controllerSelected)
             {
                 ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
                 __instance.EnableTabControllerGlyphs(true);
             }
-            EnsureSetupCompleted(controllerSelected);
-            OpenChancesTab(Options.CurrentGameMode == CustomGameMode.HideAndSeek ? (EHR.TabGroup)100 : EHR.TabGroup.ImpostorRoles, __instance.roleTabs[0], controllerSelected);
+
+            try
+            {
+                EnsureSetupCompleted(controllerSelected);
+                OpenFirstTab(__instance, controllerSelected);
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+
+                if (controllerSelected)
+                    ControllerManager.Instance.CloseOverlayMenu(__instance.name);
+            }
+
             return false;
         }
 
@@ -695,6 +722,8 @@ internal static class CustomSettingsUIPatches
         [HarmonyPrefix]
         public static bool Update(RolesSettingsMenu __instance)
         {
+            if (__instance.roleTabs == null) return false;
+
             if (__instance.cachedData != GameOptionsManager.Instance.CurrentGameOptions.RoleOptions)
             {
                 __instance.cachedData = GameOptionsManager.Instance.CurrentGameOptions.RoleOptions;
@@ -776,10 +805,47 @@ internal static class CustomSettingsUIPatches
         [HarmonyPrefix]
         public static bool SetQuotaTab(RolesSettingsMenu __instance)
         {
+            if (TabSetupRunningFor && TabSetupRunningFor == __instance) return false;
+            if (!__instance.AllButton || !__instance.RoleChancesSettings) return false;
+            if (Tabs.Count > 0 && Tabs.Values.All(x => x)) return false;
+
+            TabSetupRunningFor = __instance;
             Main.Instance.StartCoroutine(CreateRoleSettingsTabs());
             return false;
 
             System.Collections.IEnumerator CreateRoleSettingsTabs()
+            {
+                try
+                {
+                    var steps = BuildTabs();
+                    var failed = false;
+
+                    while (!failed)
+                    {
+                        var hasNext = false;
+
+                        try { hasNext = steps.MoveNext(); }
+                        catch (Exception e)
+                        {
+                            Utils.ThrowException(e);
+                            Tabs.Clear();
+                            TabChildrenCount.Clear();
+                            TabButtons.Clear();
+                            failed = true;
+                        }
+
+                        if (failed || !hasNext) break;
+
+                        yield return null;
+                    }
+                }
+                finally
+                {
+                    if (TabSetupRunningFor == __instance) TabSetupRunningFor = null;
+                }
+            }
+
+            System.Collections.Generic.IEnumerator<object> BuildTabs()
             {
                 float tabXPos = -1.928f;
                 __instance.roleTabs = new();
@@ -1031,9 +1097,26 @@ internal static class CustomSettingsUIPatches
         [HarmonyPrefix]
         static bool OpenChancesTabRedirect(RolesSettingsMenu __instance, bool controllerSelected = true)
         {
-            EnsureSetupCompleted(controllerSelected);
-            OpenChancesTab(Options.CurrentGameMode == CustomGameMode.HideAndSeek ? (EHR.TabGroup)100 : EHR.TabGroup.ImpostorRoles, __instance.roleTabs[0], controllerSelected);
+            DiscardStaleCache();
+
+            try
+            {
+                EnsureSetupCompleted(controllerSelected);
+                OpenFirstTab(__instance, controllerSelected);
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+
             return false;
+        }
+
+        private static void OpenFirstTab(RolesSettingsMenu menu, bool controllerSelected)
+        {
+            EHR.TabGroup first = Options.CurrentGameMode == CustomGameMode.HideAndSeek ? (EHR.TabGroup)100 : EHR.TabGroup.ImpostorRoles;
+
+            if (menu.roleTabs == null || menu.roleTabs.Count == 0 || !menu.roleTabs[0] || !Tabs.TryGetValue(first, out GameObject tab) || !tab)
+                return;
+
+            OpenChancesTab(first, menu.roleTabs[0], controllerSelected);
         }
 
         private static void OpenChancesTab(EHR.TabGroup tabGroup, PassiveButton button, bool controllerSelected = true, bool goneBack = false)
@@ -1041,9 +1124,10 @@ internal static class CustomSettingsUIPatches
             RolesSettingsMenu instance = GameSettingMenu.Instance.RoleSettingsTab;
             instance.selectedRoleTab = (int)tabGroup == 100 ? 6 : tabGroup - EHR.TabGroup.ImpostorRoles;
             EnsureSetupCompleted(controllerSelected);
+            if (!Tabs.TryGetValue(tabGroup, out GameObject selectedTab) || !selectedTab) return;
             foreach (GameObject gameObject in Tabs.Values)
-                gameObject.SetActive(false);
-            Tabs[tabGroup].SetActive(true);
+                if (gameObject) gameObject.SetActive(false);
+            selectedTab.SetActive(true);
             instance.AdvancedRolesSettings.SetActive(false);
             instance.scrollBar.CalculateAndSetYBounds(TabChildrenCount[tabGroup] + 3, 1f, 6f, 0.43f);
             if (!goneBack) instance.scrollBar.ScrollToTop();
