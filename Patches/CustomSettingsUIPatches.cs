@@ -579,15 +579,29 @@ internal static class CustomSettingsUIPatches
         private static Vector3 TabPosition;
         private static Transform TempParent;
         private static RolesSettingsMenu TabSetupRunningFor;
+        private static bool TabsComplete;
 
         private static void DiscardStaleCache()
         {
-            bool stale = Tabs.Values.Any(x => !x) || TabButtons.Values.Any(x => !x);
-            if (!stale) return;
+            // Tabs of a destroyed menu or an unfinished build can't be reused
+            bool partial = !TabsComplete && Tabs.Count > 0 && !TabSetupRunningFor;
+            if (partial || Tabs.Values.Any(x => !x) || TabButtons.Values.Any(x => !x))
+                ClearTabCache();
+        }
+
+        private static void ClearTabCache()
+        {
+            // Destroy cached objects before clearing the references to avoid leaving them alive under DontDestroyOnLoad parent
+            foreach (GameObject tab in Tabs.Values)
+                if (tab) Object.Destroy(tab);
+
+            foreach (PassiveButton button in TabButtons.Values)
+                if (button) Object.Destroy(button.gameObject);
 
             Tabs.Clear();
             TabChildrenCount.Clear();
             TabButtons.Clear();
+            TabsComplete = false;
         }
 
         [HarmonyPatch(nameof(RolesSettingsMenu.OnEnable))]
@@ -596,7 +610,7 @@ internal static class CustomSettingsUIPatches
         {
             DiscardStaleCache();
 
-            if (Tabs.Count > 0)
+            if (TabsComplete && Tabs.Count > 0)
             {
                 __instance.roleChances = new();
                 __instance.QuotaTabSelectables = new();
@@ -680,6 +694,7 @@ internal static class CustomSettingsUIPatches
             {
                 Utils.ThrowException(e);
 
+                // Don't leave the overlay open, it blocks input
                 if (controllerSelected)
                     ControllerManager.Instance.CloseOverlayMenu(__instance.name);
             }
@@ -805,9 +820,17 @@ internal static class CustomSettingsUIPatches
         [HarmonyPrefix]
         public static bool SetQuotaTab(RolesSettingsMenu __instance)
         {
+            // Only one build at a time, a second one would run into the destroyed AllButton
             if (TabSetupRunningFor && TabSetupRunningFor == __instance) return false;
-            if (!__instance.AllButton || !__instance.RoleChancesSettings) return false;
-            if (Tabs.Count > 0 && Tabs.Values.All(x => x)) return false;
+
+            DiscardStaleCache();
+
+            if (!__instance.AllButton || !__instance.RoleChancesSettings) return false; // already built and tidied
+            if (TabsComplete && Tabs.Count > 0 && Tabs.Values.All(x => x)) return false;
+
+            // Hide the vanilla "ALL" tab while ours are being built
+            __instance.RoleChancesSettings.SetActive(false);
+            __instance.AllButton.gameObject.SetActive(false);
 
             TabSetupRunningFor = __instance;
             Main.Instance.StartCoroutine(CreateRoleSettingsTabs());
@@ -828,9 +851,7 @@ internal static class CustomSettingsUIPatches
                         catch (Exception e)
                         {
                             Utils.ThrowException(e);
-                            Tabs.Clear();
-                            TabChildrenCount.Clear();
-                            TabButtons.Clear();
+                            ClearTabCache(); // Don't cache incomplete tabs, as they can't be reused safely.
                             failed = true;
                         }
 
@@ -849,9 +870,19 @@ internal static class CustomSettingsUIPatches
             {
                 float tabXPos = -1.928f;
                 __instance.roleTabs = new();
+
+                // The menu may be destroyed while the tabs are still being built (e.g. player closes the menu midway)
+                // Stop the build and clear the cache so the next open can rebuild all tabs
+                bool MenuAlive() => __instance && __instance.RoleChancesSettings && __instance.AllButton && GameSettingMenu.Instance;
                 
                 for (EHR.TabGroup tabGroup = EHR.TabGroup.ImpostorRoles; tabGroup <= EHR.TabGroup.OtherRoles; tabGroup++)
                 {
+                    if (!MenuAlive())
+                    {
+                        ClearTabCache();
+                        yield break;
+                    }
+
                     AddRoleTab(tabGroup, ref tabXPos);
 
                     GameObject tab = Object.Instantiate(__instance.RoleChancesSettings, __instance.RoleChancesSettings.transform.parent, false);
@@ -908,6 +939,12 @@ internal static class CustomSettingsUIPatches
                     TabChildrenCount[tabGroup] = index + num * 2;
 
                     yield return null;
+                }
+
+                if (!MenuAlive())
+                {
+                    ClearTabCache();
+                    yield break;
                 }
 
                 // HNS Roles tab
@@ -987,7 +1024,17 @@ internal static class CustomSettingsUIPatches
                     yield return null;
                 }
 
+                if (!MenuAlive())
+                {
+                    ClearTabCache();
+                    yield break;
+                }
+
+                TabsComplete = true;
                 TidyStuff(__instance);
+
+                // OpenMenu may have run before the tabs existed
+                if (__instance) OpenFirstTab(__instance, false);
             }
         }
 
@@ -1113,6 +1160,7 @@ internal static class CustomSettingsUIPatches
         {
             EHR.TabGroup first = Options.CurrentGameMode == CustomGameMode.HideAndSeek ? (EHR.TabGroup)100 : EHR.TabGroup.ImpostorRoles;
 
+            // Tabs are created asynchronously (SetQuotaTab coroutine), so they may not exist yet
             if (menu.roleTabs == null || menu.roleTabs.Count == 0 || !menu.roleTabs[0] || !Tabs.TryGetValue(first, out GameObject tab) || !tab)
                 return;
 
@@ -1470,8 +1518,10 @@ internal static class CustomSettingsUIPatches
         {
             if (previewOnly) return;
             
+            // Cached menus die together with the old settings menu
             foreach (GameOptionsMenu irrelevantMenu in CachedGameOptionsMenus.Values)
-                irrelevantMenu.gameObject.SetActive(false);
+                if (irrelevantMenu)
+                    irrelevantMenu.gameObject.SetActive(false);
 
             __instance.MenuDescriptionText.text = tabNum switch
             {
@@ -1482,7 +1532,7 @@ internal static class CustomSettingsUIPatches
 
             if (tabNum < 10) return;
 
-            if (!CachedGameOptionsMenus.TryGetValue(tabNum, out GameOptionsMenu gameOptionsMenu))
+            if (!CachedGameOptionsMenus.TryGetValue(tabNum, out GameOptionsMenu gameOptionsMenu) || !gameOptionsMenu)
             {
                 gameOptionsMenu = Object.Instantiate(TemplateGameOptionsMenu, __instance.GameSettingsTab.transform.parent);
                 gameOptionsMenu.name = $"IDX_{tabNum}";
@@ -1539,7 +1589,9 @@ internal static class CustomSettingsUIPatches
                     OnlinePresetsManager.CachedPresets = list;
                     OnlinePresetsManager.PresetsLoaded = true;
                     CreatePresetExplorerUI();
-                    presetsButton.gameObject.SetActive(true);
+
+                    // The preset list is fetched online (can be slow or rate limited) and can arrive after the settings menu was already closed
+                    if (presetsButton) presetsButton.gameObject.SetActive(true);
                 }));
             }
             else
@@ -1563,6 +1615,8 @@ internal static class CustomSettingsUIPatches
 
         private static void CreatePresetExplorerUI()
         {
+            if (!GameSettingMenu.Instance || !TemplateGameOptionsMenu) return;
+
             GameOptionsMenu gameOptionsMenu = Object.Instantiate(TemplateGameOptionsMenu, GameSettingMenu.Instance.GameSettingsTab.transform.parent);
             gameOptionsMenu.name = "IDX_1000";
             Object.Destroy(gameOptionsMenu.MapPicker.gameObject);
