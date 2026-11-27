@@ -1806,7 +1806,7 @@ internal static class ExtendedPlayerControl
         /// Sets a players kill cooldown without syncing settings.
         /// When using this method, ResetKillCooldown should set the player's kill cooldown to twice the value.
         /// </summary>
-        public void SetKillCooldownNonSync(float kcd)
+        public void SetKillCooldownNonSync(float kcd, PlayerControl target = null)
         {
             if (player.AmOwner)
             {
@@ -1824,8 +1824,9 @@ internal static class ExtendedPlayerControl
                 // MurderPlayer RPC with FailedProtected flag sets a player's kill cooldown to half the set value.
                 // *2 /2 = the value we began with. This avoids syncing settings on every CheckMurder.
                 // This works if the kill cooldown is consistent throughout the entire game.
+                if (!target) target = player;
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, player.OwnerId);
-                writer.WriteNetObject(player);
+                writer.WriteNetObject(target);
                 writer.Write((int)MurderResultFlags.FailedProtected);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
@@ -1837,7 +1838,7 @@ internal static class ExtendedPlayerControl
 
             Main.AllPlayerKillCooldown[player.PlayerId] = player.GetCustomRole() switch
             {
-                CustomRoles.Challenger => SoloPVP.SoloPVP_ATKCooldown.GetFloat(),
+                CustomRoles.Challenger => SoloPVP.SoloPVP_ATKCooldown.GetFloat() * 2f,
                 CustomRoles.Killer => FreeForAll.FFAKcd.GetFloat(),
                 CustomRoles.Runner => Speedrun.KCD,
                 CustomRoles.Potato => 2f,

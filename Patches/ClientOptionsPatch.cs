@@ -133,6 +133,7 @@ public static class OptionsMenuBehaviourStartPatch
                     Main.Instance.Harmony.UnpatchSelf();
 #if IL2CPP
                     Main.Instance.Unload();
+                    PerfectCommsVoiceIntegration.Unregister();
 #else
                     Object.Destroy(Main.Instance.gameObject);
 #endif

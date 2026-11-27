@@ -104,6 +104,7 @@ internal static class GhostRolesManager
                 case CustomRoles.Backstabber:
                 case CustomRoles.Innocent:
                 case CustomRoles.Workaholic when !Workaholic.WorkaholicCannotWinAtDeath.GetBool():
+                case CustomRoles.Revenant when ((Revenant)Main.PlayerStates[pc.PlayerId].Role).ShouldBeRevived:
                     return false;
             }
 

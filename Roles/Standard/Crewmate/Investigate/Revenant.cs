@@ -12,7 +12,7 @@ internal class Revenant : RoleBase
     ];
 
     private byte RevenantId;
-    private bool ShouldBeRevived;
+    public bool ShouldBeRevived;
 
     public override bool IsEnable => On;
 

@@ -42,6 +42,7 @@ namespace EHR;
 [BepInIncompatibility("com.crewmod.showcase")]
 [BepInIncompatibility("xyz.crowdedmods.crowdedmod")]
 [BepInDependency(SubmergedCompatibility.SubmergedGuid, BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("com.edgetel.perfectcomms", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInProcess("Among Us.exe")]
 [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
 #if IL2CPP
@@ -53,8 +54,8 @@ public class Main : BaseUnityPlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     public const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "8.1.1";
-    public const string PluginDisplayVersion = "8.1.1";
+    public const string PluginVersion = "8.1.2";
+    public const string PluginDisplayVersion = "8.1.2";
     public const int TestBuildNumber = 0; // 0 = Release
 
     public const string NeutralColor = "#ffab1b";
@@ -414,6 +415,7 @@ public class Main : BaseUnityPlugin
         UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
 
 #if IL2CPP
+        PerfectCommsVoiceIntegration.Register();
         ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
         ClassInjector.RegisterTypeInIl2Cpp<MeetingHudPagingBehaviour>();
         ClassInjector.RegisterTypeInIl2Cpp<ShapeShifterPagingBehaviour>();

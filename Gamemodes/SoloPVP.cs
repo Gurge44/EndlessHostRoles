@@ -233,8 +233,8 @@ internal static class SoloPVP
         LastHurt[target.PlayerId] = Utils.TimeStamp;
 
         float kcd = SoloPVP_ATKCooldown.GetFloat();
-        if (killer.AmOwner) kcd += Math.Max(0.5f, Utils.CalculatePingDelay());
-        killer.SetKillCooldown(kcd, target);
+        if (killer.AmOwner) kcd += Utils.CalculatePingDelay() * 2f;
+        killer.SetKillCooldownNonSync(kcd, target);
 
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);

@@ -29,6 +29,8 @@ public class Shadow : CovenBase
     private NetworkedPlayerInfo.PlayerOutfit OriginalTargetOutfit;
     private CountdownTimer OthersCamoTimer;
 
+    public bool IsCamouflaged(byte id) => (ShadowId == id && SelfTimer != null) || (TargetId == id && OthersCamoTimer != null);
+
     public override void SetupCustomOption()
     {
         StartSetup(658700)
@@ -193,7 +195,7 @@ public class Shadow : CovenBase
             OthersCamoTimer = null;
             PlayerControl pc = TargetId.GetPlayer();
             if (Camouflage.IsCamouflage || !pc) return;
-            Utils.RpcChangeSkin(pc, OriginalOutfit);
+            Utils.RpcChangeSkin(pc, OriginalTargetOutfit);
         }
     }
 

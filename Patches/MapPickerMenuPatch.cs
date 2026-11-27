@@ -76,6 +76,8 @@ public static class GameOptionsMapPickerPatch
                     dleksButton_MapButton.Button.OnClick.RemoveAllListeners();
                     dleksButton_MapButton.Button.OnClick.AddListener(() =>
                     {
+                        SetDleks = true;
+
                         __instance.SelectMap(__instance.AllMapIcons[0]);
 
                         if (__instance.selectedButton)
@@ -84,8 +86,6 @@ public static class GameOptionsMapPickerPatch
                         __instance.selectedButton = dleksButton_MapButton;
                         __instance.selectedButton.Button.SelectButton(true);
                         __instance.selectedMapId = dleksPos;
-
-                        SetDleks = true;
 
                         Main.NormalOptions.MapId = 0;
 

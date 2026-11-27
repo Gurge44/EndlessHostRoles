@@ -48,8 +48,8 @@ internal class Command(string key, string arguments, Command.UsageLevels usageLe
     public string[] CommandForms = GetString($"CommandForms.{key}").Split(',', StringSplitOptions.RemoveEmptyEntries);
     public string Key => key;
     public string Arguments => arguments;
-    public string Description => GetString($"CommandDescription.{key}");
-    public string[] ArgsDescriptions => argsDescriptions ?? [];
+    public string Description = GetString($"CommandDescription.{key}");
+    public string[] ArgsDescriptions = argsDescriptions ?? [];
     public UsageLevels UsageLevel => usageLevel;
     public UsageTimes UsageTime => usageTime;
     public Action<PlayerControl, string, string[]> Action => action;
@@ -242,6 +242,7 @@ internal static class ChatCommands
             new("TimeLimit", "", Command.UsageLevels.Everyone, Command.UsageTimes.InGame, TimeLimitCommand, true, false),
             new("Exo", "", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ExoCommand, true, true),
             new("Reroll", "", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RerollCommand, true, true),
+            new("Pet", "", Command.UsageLevels.Everyone, Command.UsageTimes.InGame, PetCommand, true, false),
             
             new("ConfirmAuth", "{uuid}", Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
 
@@ -536,6 +537,16 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void PetCommand(PlayerControl player, string text, string[] args)
+    {
+        if (GameStates.IsMeeting || ExileController.Instance || ReportDeadBodyPatch.MeetingStarted || GameStates.IsEnded || !player.IsAlive() || Main.Invisible.Contains(player.PlayerId) || !Options.UsePets.GetBool()) return;
+        
+        string petId = PetsHelper.GetPetId();
+        PetsHelper.SetPet(player, petId);
+        player.Data.DefaultOutfit.PetSequenceId += 10;
+        player.RpcSetPet(petId);
+    }
+    
     public static void ExoCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
@@ -546,7 +557,7 @@ internal static class ChatCommands
         Exorcist.AbilityEndTS = Utils.TimeStamp + duration;
         player.RpcRemoveAbilityUse();
 
-        Utils.SendMessage(string.Format(GetString("Exorcist.AbilityUsedMsg"), duration), title: CustomRoles.Exorcist.ToColoredString());
+        Utils.SendMessage(string.Format(GetString("Exorcist.AbilityUsedMsg"), duration), title: CustomRoles.Exorcist.ToColoredString(), importance: MessageImportance.High);
         
         LateTask.New(() =>
         {
@@ -3344,7 +3355,7 @@ internal static class ChatCommands
 
     // -------------------------------------------------------------------------------------------------------------------------
 
-    private static bool CheckMute(byte id)
+    public static bool CheckMute(byte id)
     {
         if (!MutedPlayers.TryGetValue(id, out (long MuteTimeStamp, int Duration, long LastMessageTimeStamp) mute)) return false;
 

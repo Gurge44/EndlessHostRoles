@@ -50,6 +50,7 @@
         </PackageReference>
         <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.735" Private="false" ExcludeAssets="runtime;native" />
         <PackageReference Include="Samboy063.Cpp2IL.Core" Version="2022.1.0-pre-release.21" />
+        <PackageReference Include="PerfectComms.Api" Version="4.1.7.1" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(Configuration)' == 'Release' Or '$(Configuration)' == 'Debug'">

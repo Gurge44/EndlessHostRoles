@@ -12,13 +12,8 @@ public static class MatchInfoGuidePatch
     [HarmonyPatch(typeof(MatchInfoGuide), nameof(MatchInfoGuide.CreateNormalModeSettings)), HarmonyPrefix]
     public static bool CreateModdedSettings(MatchInfoGuide __instance)
     {
-        int num = 6;
+        int num = 4;
         CreateTeamSizeSettingEntries(__instance);
-        __instance.CreateSettingsEntry(StringNames.GameKillCooldown, GameManager.Instance.AllGameSettingData[StringNames.GameKillCooldown].GetValueString(GameManager.Instance.LogicOptions.GetKillCooldown()));
-        __instance.CreateSettingsEntry(StringNames.GameEmergencyCooldown, GameManager.Instance.AllGameSettingData[StringNames.GameEmergencyCooldown].GetValueString(GameManager.Instance.LogicOptions.GetEmergencyCooldown()));
-        __instance.CreateSettingsEntry(StringNames.GameVisualTasks, __instance.GetBoolString(GameManager.Instance.LogicOptions.GetVisualTasks()));
-        __instance.CreateSettingsEntry(StringNames.GameAnonymousVotes, __instance.GetBoolString(GameManager.Instance.LogicOptions.GetAnonymousVotes()));
-        __instance.CreateSettingsEntry(StringNames.GameTaskBarMode, GameManager.Instance.LogicOptions.GetTaskBarMode().ToString());
         CreateModdedSettingEntries(Options.GroupedOptions[TabGroup.GameSettings], __instance, ref num);
         CreateModdedSettingEntries(Options.GroupedOptions[TabGroup.TaskSettings], __instance, ref num);
         __instance.transform.Find("MatchInfoParent").Find("SettingsPanel").GetComponentInChildren<Scroller>().SetYBoundsMax(Mathf.Clamp(Mathf.Ceil(num / 4f), 0.0f, 999f));
@@ -70,7 +65,7 @@ public static class MatchInfoGuidePatch
                 BooleanOptionItem b => __instance.GetBoolString(b.GetBool()),
                 FloatOptionItem f => f.GetFloat().ToString(CultureInfo.CurrentCulture),
                 IntegerOptionItem i => i.GetInt().ToString(),
-                StringOptionItem s => s.noTranslation ? s.Selections[s.GetValue()] : Translator.GetString(s.Selections[s.GetValue()]),
+                StringOptionItem s => s.GetString(),
                 _ => string.Empty
             };
 

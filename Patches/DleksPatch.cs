@@ -144,3 +144,22 @@ public static class MapSelectionGameSettingPatch
         }
     }
 }
+
+[HarmonyPatch(typeof(OptionBehaviour), nameof(OptionBehaviour.GetValueString))]
+static class OptionBehaviourGetValueStringPatch
+{
+    public static bool Prefix(OptionBehaviour __instance, ref string __result)
+    {
+#if IL2CPP
+        if (!__instance.data && __instance.TryCastFast(out GameOptionsMapPicker gameOptionsMapPicker))
+#else
+        if (__instance is GameOptionsMapPicker gameOptionsMapPicker)
+#endif
+        {
+            __result = Translator.GetString(((MapNames)gameOptionsMapPicker.selectedMapId).ToString());
+            return false;
+        }
+
+        return true;
+    }
+}
