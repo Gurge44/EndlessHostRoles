@@ -2,6 +2,9 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP;
+#endif
 using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
@@ -133,7 +136,7 @@ public static class OptionsMenuBehaviourStartPatch
                     Main.Instance.Harmony.UnpatchSelf();
 #if IL2CPP
                     Main.Instance.Unload();
-                    PerfectCommsVoiceIntegration.Unregister();
+                    if (IL2CPPChainloader.Instance.Plugins.ContainsKey("com.edgetel.perfectcomms")) PerfectCommsVoiceIntegration.Unregister();
 #else
                     Object.Destroy(Main.Instance.gameObject);
 #endif

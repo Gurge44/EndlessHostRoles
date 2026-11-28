@@ -1,4 +1,7 @@
 using AmongUs.GameOptions;
+#if IL2CPP
+using BepInEx.Unity.IL2CPP;
+#endif
 using EHR.Modules;
 using HarmonyLib;
 
@@ -38,7 +41,7 @@ internal static class SwitchGameModePatch
         Main.Instance.Harmony.UnpatchSelf();
 #if IL2CPP
         Main.Instance.Unload();
-        PerfectCommsVoiceIntegration.Unregister();
+        if (IL2CPPChainloader.Instance.Plugins.ContainsKey("com.edgetel.perfectcomms")) PerfectCommsVoiceIntegration.Unregister();
 #else
         Object.Destroy(Main.Instance.gameObject);
 #endif

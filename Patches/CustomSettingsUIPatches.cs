@@ -776,153 +776,144 @@ internal static class CustomSettingsUIPatches
         [HarmonyPrefix]
         public static bool SetQuotaTab(RolesSettingsMenu __instance)
         {
-            Main.Instance.StartCoroutine(CreateRoleSettingsTabs());
-            return false;
-
-            System.Collections.IEnumerator CreateRoleSettingsTabs()
+            float tabXPos = -1.928f;
+            __instance.roleTabs = new();
+                
+            for (EHR.TabGroup tabGroup = EHR.TabGroup.ImpostorRoles; tabGroup <= EHR.TabGroup.OtherRoles; tabGroup++)
             {
-                float tabXPos = -1.928f;
-                __instance.roleTabs = new();
-                
-                for (EHR.TabGroup tabGroup = EHR.TabGroup.ImpostorRoles; tabGroup <= EHR.TabGroup.OtherRoles; tabGroup++)
-                {
-                    AddRoleTab(tabGroup, ref tabXPos);
+                AddRoleTab(tabGroup, ref tabXPos);
 
-                    GameObject tab = Object.Instantiate(__instance.RoleChancesSettings, __instance.RoleChancesSettings.transform.parent, false);
-                    var localPosition = tab.transform.localPosition;
-                    localPosition.z = -3f;
-                    TabPosition = tab.transform.localPosition = localPosition;
+                GameObject tab = Object.Instantiate(__instance.RoleChancesSettings, __instance.RoleChancesSettings.transform.parent, false);
+                var localPosition = tab.transform.localPosition;
+                localPosition.z = -3f;
+                TabPosition = tab.transform.localPosition = localPosition;
                     
-                    float y = 1f;
-                    int index = 0;
-                    int num = 0;
+                float y = 1f;
+                int index = 0;
+                int num = 0;
 
-                    foreach (var group in Options.CustomRoleSpawnChances.Where(x => x.Value.Tab == tabGroup && x.Value.GameMode == CustomGameMode.Standard).GroupBy(x => tabGroup switch
-                    {
-                        EHR.TabGroup.Addons => (int)Options.GroupedAddons.First(k => k.Value.Contains(x.Key)).Key,
-                        EHR.TabGroup.OtherRoles => (int)RoleOptionType.Crewmate_Miscellaneous,
-                        _ => (int)x.Key.GetRoleOptionType()
-                    }))
-                    {
-                        bool addons = tabGroup == EHR.TabGroup.Addons;
-                        Color color = addons ? ((AddonTypes)group.Key).GetAddonTypeColor() : ((RoleOptionType)group.Key).GetRoleOptionTypeColor();
+                foreach (var group in Options.CustomRoleSpawnChances.Where(x => x.Value.Tab == tabGroup && x.Value.GameMode == CustomGameMode.Standard).GroupBy(x => tabGroup switch
+                {
+                    EHR.TabGroup.Addons => (int)Options.GroupedAddons.First(k => k.Value.Contains(x.Key)).Key,
+                    EHR.TabGroup.OtherRoles => (int)RoleOptionType.Crewmate_Miscellaneous,
+                    _ => (int)x.Key.GetRoleOptionType()
+                }))
+                {
+                    bool addons = tabGroup == EHR.TabGroup.Addons;
+                    Color color = addons ? ((AddonTypes)group.Key).GetAddonTypeColor() : ((RoleOptionType)group.Key).GetRoleOptionTypeColor();
                         
-                        var categoryHeaderEditRole = Object.Instantiate(__instance.categoryHeaderEditRoleOrigin, Vector3.zero, Quaternion.identity, tab.transform);
-                        categoryHeaderEditRole.SetHeader(StringNames.None, 20);
-                        categoryHeaderEditRole.Title.text = Translator.GetString(addons ? $"ROT.AddonType.{((AddonTypes)group.Key)}" : $"ROT.{((RoleOptionType)group.Key)}").Trim('★', ' ').ToUpper();
-                        categoryHeaderEditRole.Title.color = Utils.GetTextColor(color);
-                        categoryHeaderEditRole.Background.color = color;
-                        categoryHeaderEditRole.blankLabel.color = color.ShadeColor(0.5f);
-                        categoryHeaderEditRole.chanceLabel.color = color.ShadeColor(0.25f);
-                        categoryHeaderEditRole.countLabel.color = color.ShadeColor(0.25f);
-                        categoryHeaderEditRole.transform.localPosition = new Vector3(4.986f, y, -2f);
-                        categoryHeaderEditRole.gameObject.SetActive(true);
-                        num++;
-                        y -= 0.522f;
-                        bool any = false;
+                    var categoryHeaderEditRole = Object.Instantiate(__instance.categoryHeaderEditRoleOrigin, Vector3.zero, Quaternion.identity, tab.transform);
+                    categoryHeaderEditRole.SetHeader(StringNames.None, 20);
+                    categoryHeaderEditRole.Title.text = Translator.GetString(addons ? $"ROT.AddonType.{((AddonTypes)group.Key)}" : $"ROT.{((RoleOptionType)group.Key)}").Trim('★', ' ').ToUpper();
+                    categoryHeaderEditRole.Title.color = Utils.GetTextColor(color);
+                    categoryHeaderEditRole.Background.color = color;
+                    categoryHeaderEditRole.blankLabel.color = color.ShadeColor(0.5f);
+                    categoryHeaderEditRole.chanceLabel.color = color.ShadeColor(0.25f);
+                    categoryHeaderEditRole.countLabel.color = color.ShadeColor(0.25f);
+                    categoryHeaderEditRole.transform.localPosition = new Vector3(4.986f, y, -2f);
+                    categoryHeaderEditRole.gameObject.SetActive(true);
+                    num++;
+                    y -= 0.522f;
+                    bool any = false;
 
-                        foreach ((CustomRoles role, StringOptionItem stringOptionItem) in group)
-                        {
-                            CreateQuotaOption(role, ref y, index, tab, stringOptionItem);
-                            any = true;
-                            index++;
-                        }
-
-                        if (!any)
-                        {
-                            Object.Destroy(categoryHeaderEditRole.gameObject);
-                            y += 0.742f;
-                        }
-                        
-                        y -= 0.22f;
+                    foreach ((CustomRoles role, StringOptionItem stringOptionItem) in group)
+                    {
+                        CreateQuotaOption(role, ref y, index, tab, stringOptionItem);
+                        any = true;
+                        index++;
                     }
 
-                    tab.SetActive(false);
-                    Tabs[tabGroup] = tab;
-                    TabChildrenCount[tabGroup] = index + num * 2;
-
-                    yield return null;
+                    if (!any)
+                    {
+                        Object.Destroy(categoryHeaderEditRole.gameObject);
+                        y += 0.742f;
+                    }
+                        
+                    y -= 0.22f;
                 }
 
-                // HNS Roles tab
-                {
-                    const EHR.TabGroup tabGroup = (EHR.TabGroup)100;
-                    
-                    // AddRoleTab reimplementation
-                    {
-                        PassiveButton tabButton = Object.Instantiate(__instance.AllButton, Vector3.zero, Quaternion.identity, __instance.roleSettingsTabParent);
-                        tabButton.name = "MODDED_HNSRoles";
-                        tabButton.transform.localPosition = new Vector3(-2.69f, 2.275f, -2f);
-                        Color color = Main.GameModeColors[CustomGameMode.HideAndSeek];
-                        tabButton.transform.Find("Inactive").GetComponent<SpriteRenderer>().color = color;
-                        tabButton.transform.Find("Highlight").GetComponent<SpriteRenderer>().color = color;
-                        tabButton.transform.Find("Selected").GetComponent<SpriteRenderer>().color = color;
-
-                        TextMeshPro textMeshPro = tabButton.transform.Find("Text").GetComponent<TextMeshPro>();
-                        textMeshPro.DestroyTranslator();
-                        textMeshPro.color = Color.black;
-                        textMeshPro.text = $"☯\n<font=\"DIN_Pro_Bold_700 SDF\"><size=25%>{Translator.GetString("ShortTabName.HNSRoles")}  </size></font>";
-                        
-                        tabButton.OnClick.RemoveAllListeners();
-                        tabButton.OnClick.AddListener(() => OpenChancesTab(tabGroup, tabButton, ActiveInputManager.currentControlType == ActiveInputManager.InputType.Joystick));
-                        tabButton.gameObject.SetActive(Options.CurrentGameMode == CustomGameMode.HideAndSeek);
-                        __instance.roleTabs.Add(tabButton);
-                        TabButtons[tabButton.transform.localPosition] = tabButton;
-                    }
-
-                    GameObject tab = Object.Instantiate(__instance.RoleChancesSettings, __instance.RoleChancesSettings.transform.parent, false);
-                    var localPosition = tab.transform.localPosition;
-                    localPosition.z = -3f;
-                    tab.transform.localPosition = localPosition;
-                
-                    float y = 1f;
-                    int index = 0;
-                    int num = 0;
-
-                    foreach (var group in CustomHnS.GetAllHnsRoleTypes().Select(x => (Role: Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name), Interface: (IHideAndSeekRole)Activator.CreateInstance(x))).Where(x => x.Role is not (CustomRoles.Hider or CustomRoles.Seeker)).GroupBy(x => x.Interface.Team))
-                    {
-                        Team team = group.Key;
-                        Color color = team.GetColor();
-                    
-                        var categoryHeaderEditRole = Object.Instantiate(__instance.categoryHeaderEditRoleOrigin, Vector3.zero, Quaternion.identity, tab.transform);
-                        categoryHeaderEditRole.SetHeader(StringNames.None, 20);
-                        categoryHeaderEditRole.Title.text = Translator.GetString($"HNS.{team}Roles").ToUpper();
-                        categoryHeaderEditRole.Title.color = Utils.GetTextColor(color);
-                        categoryHeaderEditRole.Background.color = color;
-                        categoryHeaderEditRole.blankLabel.color = color.ShadeColor(0.5f);
-                        categoryHeaderEditRole.chanceLabel.color = color.ShadeColor(0.25f);
-                        categoryHeaderEditRole.countLabel.color = color.ShadeColor(0.25f);
-                        categoryHeaderEditRole.transform.localPosition = new Vector3(4.986f, y, -2f);
-                        categoryHeaderEditRole.gameObject.SetActive(true);
-                        num++;
-                        y -= 0.522f;
-                        bool any = false;
-
-                        foreach ((CustomRoles role, _) in group)
-                        {
-                            CreateQuotaOption(role, ref y, index, tab, Options.CustomRoleSpawnChances[role]);
-                            any = true;
-                            index++;
-                        }
-
-                        if (!any)
-                        {
-                            Object.Destroy(categoryHeaderEditRole.gameObject);
-                            y += 0.742f;
-                        }
-                    
-                        y -= 0.22f;
-                    }
-
-                    tab.SetActive(false);
-                    Tabs[tabGroup] = tab;
-                    TabChildrenCount[tabGroup] = index + num * 2;
-
-                    yield return null;
-                }
-
-                TidyStuff(__instance);
+                tab.SetActive(false);
+                Tabs[tabGroup] = tab;
+                TabChildrenCount[tabGroup] = index + num * 2;
             }
+
+            // HNS Roles tab
+            {
+                const EHR.TabGroup tabGroup = (EHR.TabGroup)100;
+                    
+                // AddRoleTab reimplementation
+                {
+                    PassiveButton tabButton = Object.Instantiate(__instance.AllButton, Vector3.zero, Quaternion.identity, __instance.roleSettingsTabParent);
+                    tabButton.name = "MODDED_HNSRoles";
+                    tabButton.transform.localPosition = new Vector3(-2.69f, 2.275f, -2f);
+                    Color color = Main.GameModeColors[CustomGameMode.HideAndSeek];
+                    tabButton.transform.Find("Inactive").GetComponent<SpriteRenderer>().color = color;
+                    tabButton.transform.Find("Highlight").GetComponent<SpriteRenderer>().color = color;
+                    tabButton.transform.Find("Selected").GetComponent<SpriteRenderer>().color = color;
+
+                    TextMeshPro textMeshPro = tabButton.transform.Find("Text").GetComponent<TextMeshPro>();
+                    textMeshPro.DestroyTranslator();
+                    textMeshPro.color = Color.black;
+                    textMeshPro.text = $"☯\n<font=\"DIN_Pro_Bold_700 SDF\"><size=25%>{Translator.GetString("ShortTabName.HNSRoles")}  </size></font>";
+                        
+                    tabButton.OnClick.RemoveAllListeners();
+                    tabButton.OnClick.AddListener(() => OpenChancesTab(tabGroup, tabButton, ActiveInputManager.currentControlType == ActiveInputManager.InputType.Joystick));
+                    tabButton.gameObject.SetActive(Options.CurrentGameMode == CustomGameMode.HideAndSeek);
+                    __instance.roleTabs.Add(tabButton);
+                    TabButtons[tabButton.transform.localPosition] = tabButton;
+                }
+
+                GameObject tab = Object.Instantiate(__instance.RoleChancesSettings, __instance.RoleChancesSettings.transform.parent, false);
+                var localPosition = tab.transform.localPosition;
+                localPosition.z = -3f;
+                tab.transform.localPosition = localPosition;
+                
+                float y = 1f;
+                int index = 0;
+                int num = 0;
+
+                foreach (var group in CustomHnS.GetAllHnsRoleTypes().Select(x => (Role: Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name), Interface: (IHideAndSeekRole)Activator.CreateInstance(x))).Where(x => x.Role is not (CustomRoles.Hider or CustomRoles.Seeker)).GroupBy(x => x.Interface.Team))
+                {
+                    Team team = group.Key;
+                    Color color = team.GetColor();
+                    
+                    var categoryHeaderEditRole = Object.Instantiate(__instance.categoryHeaderEditRoleOrigin, Vector3.zero, Quaternion.identity, tab.transform);
+                    categoryHeaderEditRole.SetHeader(StringNames.None, 20);
+                    categoryHeaderEditRole.Title.text = Translator.GetString($"HNS.{team}Roles").ToUpper();
+                    categoryHeaderEditRole.Title.color = Utils.GetTextColor(color);
+                    categoryHeaderEditRole.Background.color = color;
+                    categoryHeaderEditRole.blankLabel.color = color.ShadeColor(0.5f);
+                    categoryHeaderEditRole.chanceLabel.color = color.ShadeColor(0.25f);
+                    categoryHeaderEditRole.countLabel.color = color.ShadeColor(0.25f);
+                    categoryHeaderEditRole.transform.localPosition = new Vector3(4.986f, y, -2f);
+                    categoryHeaderEditRole.gameObject.SetActive(true);
+                    num++;
+                    y -= 0.522f;
+                    bool any = false;
+
+                    foreach ((CustomRoles role, _) in group)
+                    {
+                        CreateQuotaOption(role, ref y, index, tab, Options.CustomRoleSpawnChances[role]);
+                        any = true;
+                        index++;
+                    }
+
+                    if (!any)
+                    {
+                        Object.Destroy(categoryHeaderEditRole.gameObject);
+                        y += 0.742f;
+                    }
+                    
+                    y -= 0.22f;
+                }
+
+                tab.SetActive(false);
+                Tabs[tabGroup] = tab;
+                TabChildrenCount[tabGroup] = index + num * 2;
+            }
+
+            TidyStuff(__instance);
+            return false;
         }
 
         private static void TidyStuff(RolesSettingsMenu __instance)

@@ -415,7 +415,7 @@ public class Main : BaseUnityPlugin
         UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
 
 #if IL2CPP
-        PerfectCommsVoiceIntegration.Register();
+        if (IL2CPPChainloader.Instance.Plugins.ContainsKey("com.edgetel.perfectcomms")) PerfectCommsVoiceIntegration.Register();
         ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
         ClassInjector.RegisterTypeInIl2Cpp<MeetingHudPagingBehaviour>();
         ClassInjector.RegisterTypeInIl2Cpp<ShapeShifterPagingBehaviour>();
