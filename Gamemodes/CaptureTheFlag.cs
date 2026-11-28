@@ -554,7 +554,7 @@ public static class CaptureTheFlag
         {
             case 0:
                 target.TP(targetTeam.GetFlagBase().Position);
-                Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[target.PlayerId] = Options.PlayerSpeed.GetFloat();
                 target.MarkDirtySettings();
                 SpawnProtectionTimes[target.PlayerId] = Utils.TimeStamp + SpawnProtectionTime.GetInt();
                 break;
@@ -751,7 +751,7 @@ public static class CaptureTheFlag
 
             Logger.Info($"{id.ColoredPlayerName().RemoveHtmlTags()} picked up the {team} flag", "CTF");
 
-            Main.AllPlayerSpeed[id] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) - SpeedReductionForFlagCarrier.GetFloat();
+            Main.AllPlayerSpeed[id] = Options.PlayerSpeed.GetFloat() - SpeedReductionForFlagCarrier.GetFloat();
             PlayerGameOptionsSender.SetDirty(id);
 
             if (AlertTeamMembersOfFlagTaken.GetBool())
@@ -790,7 +790,7 @@ public static class CaptureTheFlag
                 byte id = FlagCarrier;
                 FlagCarrier = byte.MaxValue;
 
-                Main.AllPlayerSpeed[id] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[id] = Options.PlayerSpeed.GetFloat();
                 PlayerGameOptionsSender.SetDirty(id);
 
                 if (ArrowToEnemyFlagCarrier.GetBool() || ArrowToOwnFlagCarrier.GetBool())
@@ -875,7 +875,7 @@ public static class CaptureTheFlag
             {
                 if (now >= endTS)
                 {
-                    Main.AllPlayerSpeed[__instance.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    Main.AllPlayerSpeed[__instance.PlayerId] = Options.PlayerSpeed.GetFloat();
                     TemporarilyOutPlayers.Remove(__instance.PlayerId);
                     __instance.ReviveFromTemporaryExile();
                     __instance.TP(team.GetFlagBase().Position);

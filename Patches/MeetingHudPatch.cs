@@ -897,7 +897,7 @@ internal static class MeetingHudStartPatch
     {
         Logger.Info("------------Meeting Start------------", "Phase");
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
-        ReportDeadBodyPatch.WaitReport.SetAllValues([]);
+        ReportDeadBodyPatch.WaitReport.Values.Do(x => x.Clear());
         MeetingStates.MeetingCalled = true;
         MeetingStates.MeetingNum++;
         CheckForEndVotingPatch.TempExiledPlayer = null;

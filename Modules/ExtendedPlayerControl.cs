@@ -2026,7 +2026,7 @@ internal static class ExtendedPlayerControl
                     LateTask.New(() =>
                     {
                         if (GameStates.IsEnded) return;
-                        Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[target.PlayerId] = Options.PlayerSpeed.GetFloat();
                         target.MarkDirtySettings();
                     }, 0.7f, "Anonymous Body Delay 3");
                 }, 0.1f, "Anonymous Body Delay 1");

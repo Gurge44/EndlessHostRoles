@@ -154,7 +154,7 @@ public class Sharpshooter : RoleBase
 
     private void RevertAbility()
     {
-        Main.AllPlayerSpeed[SharpshooterId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        Main.AllPlayerSpeed[SharpshooterId] = Options.PlayerSpeed.GetFloat();
         Main.PlayerStates[SharpshooterId].IsBlackOut = false;
         AbilityEndTS = 0;
     }

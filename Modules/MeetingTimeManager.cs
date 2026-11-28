@@ -16,8 +16,8 @@ public static class MeetingTimeManager
 
     public static void Init()
     {
-        DefaultDiscussionTime = Main.RealOptionsData.GetInt(Int32OptionNames.DiscussionTime);
-        DefaultVotingTime = Main.RealOptionsData.GetInt(Int32OptionNames.VotingTime);
+        DefaultDiscussionTime = Options.DiscussionTime.GetInt();
+        DefaultVotingTime = Options.VotingTime.GetInt();
         Logger.Info($"DefaultDiscussionTime: {DefaultDiscussionTime}s, DefaultVotingTime: {DefaultVotingTime}s", "MeetingTimeManager.Init");
         ResetMeetingTime();
     }

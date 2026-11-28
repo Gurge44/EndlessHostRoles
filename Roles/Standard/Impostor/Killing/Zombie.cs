@@ -65,7 +65,7 @@ internal class Zombie : RoleBase
 
             if (!pc.IsAlive())
             {
-                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
                 pc.MarkDirtySettings();
                 timer.Dispose();
                 return;

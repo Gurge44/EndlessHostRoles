@@ -322,7 +322,7 @@ public static class ElectricTaskCompletePatch
                 }
 
                 if (pc.Is(CustomRoles.Sleep))
-                    Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
             }
         }
 

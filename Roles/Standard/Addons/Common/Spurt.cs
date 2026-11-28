@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 
@@ -65,7 +64,7 @@ internal class Spurt : IAddon
 
     public static void DeathTask(PlayerControl player)
     {
-        Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        Main.AllPlayerSpeed[player.PlayerId] = Options.PlayerSpeed.GetFloat();
         player.MarkDirtySettings();
     }
 

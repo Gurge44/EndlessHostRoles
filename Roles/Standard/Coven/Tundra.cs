@@ -1,5 +1,4 @@
-﻿using AmongUs.GameOptions;
-using EHR.Modules.Extensions;
+﻿using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -78,14 +77,14 @@ public class Tundra : CovenBase
         target.MarkDirtySettings();
         _ = new CountdownTimer(FrigidCountdown.GetInt(), () =>
         {
-            Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[target.PlayerId] = Options.PlayerSpeed.GetFloat();
             target.MarkDirtySettings();
             target.Suicide(PlayerState.DeathReason.Frozen, killer);
             ReportDeadBodyPatch.CanReport[target.PlayerId] = true;
         }, onCanceled: () =>
         {
             if (GameStates.IsEnded || GameStates.IsLobby || !GameStates.InGame) return;
-            Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[target.PlayerId] = Options.PlayerSpeed.GetFloat();
             ReportDeadBodyPatch.CanReport[target.PlayerId] = true;
         });
     }

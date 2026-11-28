@@ -827,7 +827,7 @@ internal static class ChatCommands
         if (!player.IsAlive() || !Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.Role is not Retributionist { Notified: true } rb || rb.Camping == byte.MaxValue) return;
 
         PlayerControl campTarget = Utils.GetPlayerById(rb.Camping);
-        if (campTarget == null || campTarget.IsAlive() || !Main.PlayerStates.TryGetValue(campTarget.PlayerId, out PlayerState campState)) return;
+        if (!campTarget || campTarget.IsAlive() || !Main.PlayerStates.TryGetValue(campTarget.PlayerId, out PlayerState campState)) return;
 
         if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId)) return;
 
@@ -843,7 +843,7 @@ internal static class ChatCommands
         {
             PlayerControl killer = Utils.GetPlayerById(realKiller);
 
-            if (killer == null || !killer.IsAlive())
+            if (!killer || !killer.IsAlive())
             {
                 rb.Notified = false;
                 Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.KillerDead"));
@@ -976,24 +976,23 @@ internal static class ChatCommands
             return;
         }
 
-        if (state.Role is Pawn pawn)
+        switch (state.Role)
         {
-            pawn.ChosenRole = role;
-            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PawnChosenRole"), role.ToColoredString()));
-        }
-        else if (state.Role is Changeling changeling)
-        {
-            if (!Changeling.Roles.Contains(role))
-            {
+            case Pawn pawn:
+                pawn.ChosenRole = role;
+                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PawnChosenRole"), role.ToColoredString()));
+                break;
+            case Changeling when !Changeling.Roles.Contains(role):
                 Utils.SendMessage("\n", player.PlayerId, GetString("ChangelingChooseFail"));
                 return;
-            }
-            changeling.CurrentRole = role;
-            changeling.UsedCommand = true;
-            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("ChangelingChosenRole"), role.ToColoredString()));
+            case Changeling changeling:
+                changeling.CurrentRole = role;
+                changeling.UsedCommand = true;
+                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("ChangelingChosenRole"), role.ToColoredString()));
+                break;
+            default:
+                return;
         }
-        else
-            return;
 
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
@@ -2008,7 +2007,7 @@ internal static class ChatCommands
                     Options.GameMode.SetValue((int)winnerGM - 1, doSave: true, doSync: true);
                 }
 
-                if (mPoll) Main.NormalOptions.MapId = (byte)winnerIndex;
+                if (mPoll) Main.NormalOptions.MapId = (byte)MPollMaps[winnerIndex];
                 if (pPoll) Options.Preset?.SetValue(winnerIndex);
             }
         }

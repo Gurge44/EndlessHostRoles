@@ -115,12 +115,12 @@ public class Stasis : RoleBase
             if (!player.IsAlive() || player.PlayerId == pc.PlayerId || player.Is(Team.Impostor) && !AffectsOtherImpostors.GetBool())
             {
                 ReportDeadBodyPatch.CanReport[player.PlayerId] = true;
-                Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[player.PlayerId] = Options.PlayerSpeed.GetFloat();
                 Main.PlayerStates[player.PlayerId].IsBlackOut = false;
             }
             else
             {
-                if (Main.KillTimers[player.PlayerId] < time) player.SetKillCooldown(time);
+                player.SetKillCooldown(Main.KillTimers[player.PlayerId] + time);
                 player.RpcResetAbilityCooldown();
 
                 if (!player.HasAbilityCD() && player.GetCustomRole().PetActivatedAbility())
@@ -134,7 +134,7 @@ public class Stasis : RoleBase
 
         IEnumerator Countdown()
         {
-            PlayerControl[] imps = AffectsOtherImpostors.GetBool() ? [pc] : Main.EnumerateAlivePlayerControls().Where(x => x.Is(Team.Impostor)).ToArray();
+            List<PlayerControl> imps = AffectsOtherImpostors.GetBool() ? [pc] : Main.CachedAlivePlayerControls().FindAll(x => x.Is(Team.Impostor));
 
             for (var i = 0; i < time; i++)
             {
@@ -164,7 +164,7 @@ public class Stasis : RoleBase
         {
             UsingAbility = false;
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
-            Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+            Main.AllPlayerSpeed.SetAllValues(Options.PlayerSpeed.GetFloat());
         }
     }
 

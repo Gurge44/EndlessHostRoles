@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Modules;
 using UnityEngine;
 using static EHR.Translator;
@@ -431,7 +430,7 @@ internal static class FreeForAll
                 {
                     Logger.Info(pc.GetRealName() + "'s decreased speed expired", "FFA");
                     FFADecreasedSpeedList.Remove(pc.PlayerId);
-                    Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
                     sync = true;
                 }
 
@@ -439,7 +438,7 @@ internal static class FreeForAll
                 {
                     Logger.Info(pc.GetRealName() + "'s increased speed expired", "FFA");
                     FFAIncreasedSpeedList.Remove(pc.PlayerId);
-                    Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
                     sync = true;
                 }
 

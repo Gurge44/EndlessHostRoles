@@ -120,7 +120,7 @@ public class DonutDelivery : RoleBase
 
                 LateTask.New(() =>
                 {
-                    Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    Main.AllPlayerSpeed[target.PlayerId] = Options.PlayerSpeed.GetFloat();
                     target.MarkDirtySettings();
                 }, SEDuration.GetFloat(), log: false);
             }, SEDelay.GetFloat(), log: false);

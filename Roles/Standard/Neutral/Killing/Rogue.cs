@@ -87,7 +87,7 @@ public class Rogue : RoleBase
     {
         opt.SetVision(GotRewards.Contains(Reward.ImpostorVision));
         opt.SetInt(Int32OptionNames.KillDistance, GotRewards.Contains(Reward.LongReach) ? 2 : 0);
-        float defSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        float defSpeed = Options.PlayerSpeed.GetFloat();
         Main.AllPlayerSpeed[id] = GotRewards.Contains(Reward.IncreasedSpeed) ? defSpeed + 0.5f : defSpeed;
     }
 

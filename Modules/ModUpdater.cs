@@ -190,7 +190,7 @@ public static class ModUpdater
         {
             JObject asset = assets[i] as JObject;
 
-            if (asset?["name"]?.ToString() == "EHR.dll")
+            if (asset?["name"]?.ToString() == "EHR-Mono.dll")
                 return asset["browser_download_url"]?.ToString();
         }
 
@@ -205,7 +205,7 @@ public static class ModUpdater
         Main.Instance.StartCoroutine(DownloadDLL(url));
     }
 
-    private static bool NewVersionCheck()
+    private static void NewVersionCheck()
     {
         try
         {
@@ -216,13 +216,7 @@ public static class ModUpdater
                 Logger.Warn("Directory deleted: TOH_DATA", "NewVersionCheck");
             }
         }
-        catch (Exception ex)
-        {
-            Logger.Exception(ex, "NewVersionCheck");
-            return false;
-        }
-
-        return true;
+        catch (Exception ex) { Logger.Exception(ex, "NewVersionCheck"); }
     }
 
     private static void DeleteOldFiles()

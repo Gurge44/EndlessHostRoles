@@ -24,7 +24,7 @@ internal class Phantasm : IGhostRole
 
             taskState.HasTasks = true;
             taskState.CompletedTasksCount = 0;
-            taskState.AllTasksCount = Utils.TotalTaskCountForReset - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
+            taskState.AllTasksCount = Utils.TotalTaskCountForReset;
 
             pc.RpcResetTasks();
             pc.MarkDirtySettings();

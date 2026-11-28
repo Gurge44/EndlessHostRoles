@@ -1211,11 +1211,25 @@ internal static class IntroCutsceneDestroyPatch
 
         Main.IntroDestroyed = true;
         PreventKill = true;
+
+        float time = 10f;
+
+        try
+        {
+            if (Options.CurrentGameMode == CustomGameMode.Standard)
+                time = Options.StartingKillCooldown.GetFloat();
+            else if (Main.CurrentMap == MapNames.Airship)
+                time = 8f;
+            else
+                time = 3f;
+        }
+        catch { }
+        
         LateTask.New(() =>
         {
             PreventKill = false;
             Main.ProcessShapeshifts = true;
-        }, Options.StartingKillCooldown?.GetFloat() ?? 10f, "PreventKillReset");
+        }, time, "PreventKillReset");
 
         var apc = Main.AllPlayerControlsToList;
 

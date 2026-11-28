@@ -1,7 +1,6 @@
 ﻿#if IL2CPP
 using System;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 namespace EHR;
 

@@ -174,7 +174,7 @@ public class Thanos : RoleBase
                 case Stone.Time:
                     Main.EnumerateAlivePlayerControls().DoIf(x => x.PlayerId != pc.PlayerId, x =>
                     {
-                        Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[x.PlayerId] = Options.PlayerSpeed.GetFloat();
                         if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks) x.MarkDirtySettings();
                     });
                     break;

@@ -217,7 +217,7 @@ public class Pelican : RoleBase
             if (!player || !target) continue;
 
             target.TP(player);
-            Main.AllPlayerSpeed[tar] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[tar] = Options.PlayerSpeed.GetFloat();
             ReportDeadBodyPatch.CanReport[tar] = true;
             target.MarkDirtySettings();
             RPC.PlaySoundRPC(tar, Sounds.TaskComplete);

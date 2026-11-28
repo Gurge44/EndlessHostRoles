@@ -209,8 +209,8 @@ internal static class ChangeRoleSettings
             ExtendedPlayerControl.NameWithRoleCache.Clear();
 
             MeetingTimeManager.Init();
-            Main.DefaultCrewmateVision = Main.RealOptionsData.GetFloat(FloatOptionNames.CrewLightMod);
-            Main.DefaultImpostorVision = Main.RealOptionsData.GetFloat(FloatOptionNames.ImpostorLightMod);
+            Main.DefaultCrewmateVision = Options.CrewmateVision.GetFloat();
+            Main.DefaultImpostorVision = Options.ImpostorVision.GetFloat();
 
             Main.LastNotifyNames = [];
             Main.NumEmergencyMeetingsUsed = [];
@@ -250,7 +250,7 @@ internal static class ChangeRoleSettings
                 }
 
                 Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
-                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
                 Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown + Main.CurrentMap switch
                 {
                     MapNames.Polus => Options.ExtraKillCooldownOnPolus.GetFloat(),

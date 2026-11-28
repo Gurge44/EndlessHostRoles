@@ -60,7 +60,7 @@ internal class Freezer : RoleBase
 
             LateTask.New(() =>
             {
-                Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[target.PlayerId] = Options.PlayerSpeed.GetFloat();
                 target.MarkDirtySettings();
             }, FreezeDuration.GetFloat(), "FreezerFreezeDuration");
 

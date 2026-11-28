@@ -165,7 +165,7 @@ public class Dad : RoleBase
     {
         Instances?.Remove(this);
         if (!AmongUsClient.Instance.AmHost) return;
-        Main.AllPlayerSpeed[playerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        Main.AllPlayerSpeed[playerId] = Options.PlayerSpeed.GetFloat();
         PlayerGameOptionsSender.SetDirty(playerId);
     }
 

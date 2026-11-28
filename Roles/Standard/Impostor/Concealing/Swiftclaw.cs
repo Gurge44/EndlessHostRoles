@@ -71,7 +71,7 @@ internal class Swiftclaw : RoleBase
         LateTask.New(() =>
         {
             if (Main.RealOptionsData == null) return;
-            Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
             if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
             pc.MarkDirtySettings();
         }, DashDuration.GetInt(), "Swiftclaw Dash End");

@@ -112,7 +112,7 @@ public class Farmer : RoleBase
                                 pc.RpcMakeVisible();
                                 break;
                             case Seed.Tomato:
-                                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                                Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
                                 pc.MarkDirtySettings();
                                 break;
                         }
@@ -120,7 +120,7 @@ public class Farmer : RoleBase
                     {
                         ActiveSeeds.Remove(existing.Seed);
                         if (existing.Seed != Seed.Tomato || Main.RealOptionsData == null) return;
-                        Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
                     });
                     break;
             }

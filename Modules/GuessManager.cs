@@ -91,7 +91,7 @@ public static class GuessManager
                     return true;
                 }
 
-                if (!Options.CanGuessDuringDiscussionTime.GetBool() && MeetingHud.Instance && MeetingHud.Instance.state is MeetingHud.MeetingStates.Discussion or MeetingHud.MeetingStates.Animating && Main.RealOptionsData.GetInt(Int32OptionNames.DiscussionTime) > 0)
+                if (!Options.CanGuessDuringDiscussionTime.GetBool() && MeetingHud.Instance && MeetingHud.Instance.state is MeetingHud.MeetingStates.Discussion or MeetingHud.MeetingStates.Animating && Options.DiscussionTime.GetInt() > 0)
                 {
                     ShowMessage("GuessDuringDiscussion");
                     return true;

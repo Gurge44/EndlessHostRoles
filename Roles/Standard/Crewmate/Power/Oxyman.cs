@@ -121,7 +121,7 @@ public class Oxyman : RoleBase
                 break;
             case Level.None:
                 Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
-                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
                 pc.MarkDirtySettings();
                 break;
             case Level.Invulnerable:

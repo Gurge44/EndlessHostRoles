@@ -536,7 +536,7 @@ public static class NaturalDisasters
                 float speed = FastVector2.DistanceWithinRange(pc.Pos(), Position, Range * 1.25f) switch
                 {
                     true when AffectedPlayers.Add(pc.PlayerId) => Speed.GetFloat(),
-                    false when AffectedPlayers.Remove(pc.PlayerId) => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod),
+                    false when AffectedPlayers.Remove(pc.PlayerId) => Options.PlayerSpeed.GetFloat(),
                     _ => float.NaN
                 };
 
@@ -558,7 +558,7 @@ public static class NaturalDisasters
                 {
                     if (AffectedPlayers.Remove(pc.PlayerId))
                     {
-                        Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
                         pc.MarkDirtySettings();
                     }
                 }

@@ -56,7 +56,7 @@ internal class Benefactor : RoleBase
         if (!IsEnable) return;
 
         ShieldedPlayers.Clear();
-        TaskIndex.SetAllValues([]);
+        TaskIndex.Values.Do(x => x.Clear());
     }
 
     public static void OnTaskComplete(PlayerControl player, PlayerTask task) // Special case for Benefactor

@@ -118,7 +118,7 @@ public static class Utils
         }
     }
 
-    public static int TotalTaskCountForReset => Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
+    public static int TotalTaskCountForReset => Options.NumLongTasks.GetInt() + Options.NumShortTasks.GetInt();
     public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
 
     public static void ErrorEnd(string text)
@@ -4190,7 +4190,7 @@ public static class Utils
                         {
                             LateTask.New(() =>
                             {
-                                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                                Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
                                 pc.MarkDirtySettings();
                             }, Options.TruantWaitingTime.GetFloat() - 2f, $"Truant Waiting: {pc.GetNameWithRole()}");
                         }
@@ -4449,7 +4449,7 @@ public static class Utils
 
             if (!target.HasGhostRole() && !Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(target.PlayerId)))
             {
-                Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[target.PlayerId] = Options.PlayerSpeed.GetFloat();
                 target.MarkDirtySettings();
             }
         }

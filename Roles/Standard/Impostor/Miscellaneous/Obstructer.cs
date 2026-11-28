@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -68,7 +67,7 @@ public class Obstructer : RoleBase
         } while (Utils.IsAnySabotageActive());
 
         DidCauseSabotage = false;
-        Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+        Main.AllPlayerSpeed.SetAllValues(Options.PlayerSpeed.GetFloat());
         
         if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsEnded || !GameStates.IsInTask) yield break;
         

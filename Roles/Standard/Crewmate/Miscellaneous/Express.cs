@@ -1,5 +1,4 @@
-﻿using AmongUs.GameOptions;
-using EHR.Modules.Extensions;
+﻿using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -47,13 +46,13 @@ internal class Express : RoleBase
         Timer = new CountdownTimer(Options.ExpressSpeedDur.GetInt(), () =>
         {
             Timer = null;
-            Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[player.PlayerId] = Options.PlayerSpeed.GetFloat();
             player.MarkDirtySettings();
         }, onCanceled: () =>
         {
             Timer = null;
             if (Main.RealOptionsData == null) return;
-            Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[player.PlayerId] = Options.PlayerSpeed.GetFloat();
         });
     }
 }

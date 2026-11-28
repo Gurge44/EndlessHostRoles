@@ -846,7 +846,7 @@ public static class RoomRush
 
         DonePlayers.Clear();
         RoomGoal = AllRooms.Without(previous).RandomElement();
-        float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        float speed = Options.PlayerSpeed.GetFloat();
         int time;
         
         if (RawTimeNeeded.TryGetValue(map, out Dictionary<(SystemTypes, SystemTypes), int> rawTimes))

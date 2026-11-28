@@ -229,7 +229,7 @@ internal static class RpcSetTasksPatch
         // Processing to delete unnecessary assigned tasks
         // If the setting is to assign common tasks, delete all others than common tasks
         // Empty the list if no common tasks are assigned
-        int defaultCommonTasksNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
+        int defaultCommonTasksNum = Options.NumCommonTasks.GetInt();
 
         if (hasCommonTasks)
             TasksList.RemoveRange(defaultCommonTasksNum, TasksList.Count - defaultCommonTasksNum);

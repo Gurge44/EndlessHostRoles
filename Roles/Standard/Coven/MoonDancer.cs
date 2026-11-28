@@ -108,7 +108,7 @@ public class MoonDancer : CovenBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        CustomRoles addon = Main.CustomRoleValues.Where(x => x.IsAdditionRole() && !x.IsGhostRole() && !pc.Is(x) && !x.IsNotAssignableMidGame() && !x.IsConverted()).RandomElement();
+        CustomRoles addon = Main.CustomRoleValues.Where(x => x.IsAdditionRole() && !x.IsGhostRole() && x.IsEnable() && !pc.Is(x) && !x.IsNotAssignableMidGame() && !x.IsConverted()).RandomElement();
         if (addon == default(CustomRoles)) return false;
         pc.RpcSetCustomRole(addon);
         return false;
@@ -119,7 +119,7 @@ public class MoonDancer : CovenBase
         foreach ((byte id, List<CustomRoles> addons) in ToAssign)
         {
             var pc = id.GetPlayer();
-            if (pc == null || !pc.IsAlive()) continue;
+            if (!pc || !pc.IsAlive()) continue;
             
             addons.ForEach(x => pc.RpcSetCustomRole(x));
         }

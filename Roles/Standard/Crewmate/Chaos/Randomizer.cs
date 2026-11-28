@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Modules.Extensions;
 using Hazel;
@@ -271,7 +270,7 @@ internal static class EffectExtenstions
                             {
                                 RevertSpeedChangesForPlayer(pc, false);
                                 AddEffectForPlayer(pc, effect);
-                                Main.AllPlayerSpeed[pc.PlayerId] = -Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                                Main.AllPlayerSpeed[pc.PlayerId] = -Options.PlayerSpeed.GetFloat();
                                 NotifyAboutRNG(pc);
                             }
 
@@ -624,7 +623,7 @@ internal class Randomizer : RoleBase
 
             if (CurrentEffects != null && CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && effects.Any(x => x.Key.IsSpeedChangingEffect()))
             {
-                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
                 if (sync) pc.MarkDirtySettings();
 
                 IEnumerable<Effect> keys = effects.Keys.AsEnumerable();
@@ -659,7 +658,7 @@ internal class Randomizer : RoleBase
             RevertSpeedChangesForPlayer(pc, false);
             RevertVisionChangesForPlayer(pc, false);
 
-            Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
             pc.MarkDirtySettings();
         }
         catch (Exception e) { Logger.Exception(e, "Randomizer"); }

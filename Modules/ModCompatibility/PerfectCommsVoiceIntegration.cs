@@ -1,6 +1,7 @@
 ﻿#if IL2CPP
 using System.Linq;
 using System.Runtime.CompilerServices;
+using BepInEx.Unity.IL2CPP;
 using EHR.Roles;
 using PerfectComms.Api;
 
@@ -11,6 +12,8 @@ internal static class PerfectCommsVoiceIntegration
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal static void Register()
     {
+        if (!IL2CPPChainloader.Instance.Plugins.ContainsKey("com.edgetel.perfectcomms")) return;
+        
         PerfectCommsApi.RegisterVoiceRule(Main.PluginGuid, ctx =>
         {
             if (ChatCommands.CheckMute(ctx.Player.PlayerId)) return VoiceRuleResult.Mute("Muted");
@@ -51,6 +54,10 @@ internal static class PerfectCommsVoiceIntegration
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    internal static void Unregister() => PerfectCommsApi.Unregister(Main.PluginGuid);
+    internal static void Unregister()
+    {
+        if (!IL2CPPChainloader.Instance.Plugins.ContainsKey("com.edgetel.perfectcomms")) return;
+        PerfectCommsApi.Unregister(Main.PluginGuid);
+    }
 }
 #endif

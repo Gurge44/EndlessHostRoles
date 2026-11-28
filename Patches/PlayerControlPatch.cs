@@ -1059,7 +1059,7 @@ internal static class ReportDeadBodyPatch
 
             if (!target && Main.NumEmergencyMeetingsUsed.TryGetValue(__instance.PlayerId, out int used))
             {
-                if (used >= Main.RealOptionsData.GetInt(Int32OptionNames.NumEmergencyMeetings))
+                if (used >= Options.NumEmergencyMeetings.GetInt())
                 {
                     Notify("NoMoreEmergencyMeetingsLeft");
                     return false;
@@ -1731,9 +1731,9 @@ internal static class FixedUpdatePatch
 
             if (!isLobby)
             {
-                if (player.Is(CustomRoles.Spurt) && !Mathf.Approximately(Main.AllPlayerSpeed[playerId], Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod)) && !inTask && !GameStates.IsMeeting) // fix ludicrous bug
+                if (player.Is(CustomRoles.Spurt) && !Mathf.Approximately(Main.AllPlayerSpeed[playerId], Options.PlayerSpeed.GetFloat()) && !inTask && !GameStates.IsMeeting) // fix ludicrous bug
                 {
-                    Main.AllPlayerSpeed[playerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    Main.AllPlayerSpeed[playerId] = Options.PlayerSpeed.GetFloat();
                     player.MarkDirtySettings();
                 }
 

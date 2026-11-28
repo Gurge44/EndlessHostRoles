@@ -849,7 +849,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 if (Mathf.Approximately(speed, 0f)) speed = Main.MinSpeed;
                 
                 if (Camouflage.IsCamouflage && Options.CommsCamouflageSetSameSpeed.GetBool())
-                    speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    speed = Options.PlayerSpeed.GetFloat();
                 
                 AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, -limit, limit);
             }

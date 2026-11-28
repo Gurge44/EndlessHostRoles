@@ -165,7 +165,7 @@ public class Spider : RoleBase
                     trapped.Keys.ToValidPlayers().Do(x =>
                     {
                         RPC.PlaySoundRPC(x.PlayerId, Sounds.TaskComplete);
-                        Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[x.PlayerId] = Options.PlayerSpeed.GetFloat();
                         x.MarkDirtySettings();
                     });
                 }, 0.2f, log: false);
@@ -189,7 +189,7 @@ public class Spider : RoleBase
 
     public override void OnReportDeadBody()
     {
-        Webs.SetAllValues([]);
+        Webs.Values.Do(x => x.Clear());
     }
 
     public static void OnAnyoneApplyGameOptions(IGameOptions opt, byte id)

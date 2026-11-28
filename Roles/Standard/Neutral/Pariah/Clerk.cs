@@ -94,7 +94,7 @@ public class Clerk : RoleBase
 
     public override void OnReportDeadBody()
     {
-        HasBoost.Do(x => Main.AllPlayerSpeed[x] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+        HasBoost.Do(x => Main.AllPlayerSpeed[x] = Options.PlayerSpeed.GetFloat());
         HasBoost = [];
     }
 

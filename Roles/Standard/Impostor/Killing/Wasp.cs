@@ -162,12 +162,12 @@ public class Wasp : RoleBase
             PestControlEnd = new CountdownTimer(PestControlDuration.GetInt(), () =>
             {
                 PestControlEnd = null;
-                Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[target.PlayerId] = Options.PlayerSpeed.GetFloat();
                 target.MarkDirtySettings();
             }, onCanceled: () =>
             {
                 PestControlEnd = null;
-                Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[target.PlayerId] = Options.PlayerSpeed.GetFloat();
             });
             Main.AllPlayerSpeed[target.PlayerId] = PestControlSpeed.GetFloat();
             target.MarkDirtySettings();

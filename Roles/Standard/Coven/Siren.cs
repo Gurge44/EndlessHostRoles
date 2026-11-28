@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules.Extensions;
 
@@ -135,9 +134,13 @@ public class Siren : CovenBase
                     _ = new CountdownTimer(Stage1EffectsLength.GetInt(), () =>
                     {
                         AffectedPlayers.Remove(player.PlayerId);
-                        Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[player.PlayerId] = Options.PlayerSpeed.GetFloat();
                         player.MarkDirtySettings();
-                    }, onCanceled: () => AffectedPlayers.Remove(player.PlayerId));
+                    }, onCanceled: () =>
+                    {
+                        AffectedPlayers.Remove(player.PlayerId);
+                        Main.AllPlayerSpeed[player.PlayerId] = Options.PlayerSpeed.GetFloat();
+                    });
                     player.MarkDirtySettings();
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
                     break;
@@ -146,12 +149,13 @@ public class Siren : CovenBase
                     _ = new CountdownTimer(Stage2EffectsLength.GetInt(), () =>
                     {
                         AffectedPlayers.Remove(player.PlayerId);
-                        Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[player.PlayerId] = Options.PlayerSpeed.GetFloat();
                         ReportDeadBodyPatch.CanReport[player.PlayerId] = true;
                         player.MarkDirtySettings();
                     }, onCanceled: () =>
                     {
                         AffectedPlayers.Remove(player.PlayerId);
+                        Main.AllPlayerSpeed[player.PlayerId] = Options.PlayerSpeed.GetFloat();
                         ReportDeadBodyPatch.CanReport[player.PlayerId] = true;
                     });
                     ReportDeadBodyPatch.CanReport[player.PlayerId] = false;

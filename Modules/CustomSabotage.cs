@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace EHR.Modules;
@@ -48,7 +47,7 @@ public abstract class CustomSabotage
 
     protected static void AdjustTimeLimitBasedOnPlayerSpeed(ref int timeLimit)
     {
-        float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        float speed = Options.PlayerSpeed.GetFloat();
         timeLimit = (int)Math.Ceiling(timeLimit / speed);
     }
 

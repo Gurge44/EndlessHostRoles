@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
 using EHR.Modules.Extensions;
 
 #if IL2CPP
@@ -62,14 +61,14 @@ public class Tar : RoleBase
         {
             Timer = null;
             if (!pc || !pc.IsAlive()) return;
-            Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
             Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
             pc.RpcChangeColor((byte)ColorId);
             pc.MarkDirtySettings();
         }, cancelOnMeeting: false, onCanceled: () =>
         {
             Timer = null;
-            Main.AllPlayerSpeed[TarId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[TarId] = Options.PlayerSpeed.GetFloat();
             Main.PlayerStates[TarId].IsBlackOut = false;
         });
     }
@@ -94,7 +93,7 @@ public class Tar : RoleBase
         {
             Timer.Dispose();
             Timer = null;
-            Main.AllPlayerSpeed[TarId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[TarId] = Options.PlayerSpeed.GetFloat();
             Main.PlayerStates[TarId].IsBlackOut = false;
             TarId.GetPlayer()?.RpcChangeColor((byte)ColorId);
         }

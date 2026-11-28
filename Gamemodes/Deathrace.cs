@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles;
 using UnityEngine;
@@ -401,7 +400,7 @@ public static class Deathrace
         LateTask.New(() =>
         {
             if (!target) return;
-            Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[target.PlayerId] = Options.PlayerSpeed.GetFloat();
             RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskComplete);
             target.MarkDirtySettings();
         }, PowerUpEffectDuration, $"Taser Revert ({Main.AllPlayerNames.GetValueOrDefault(killer.PlayerId, $"ID {killer.PlayerId}")} => {Main.AllPlayerNames.GetValueOrDefault(target.PlayerId, $"ID {target.PlayerId}")})");
@@ -457,7 +456,7 @@ public static class Deathrace
                 
                 LateTask.New(() =>
                 {
-                    if (!pc || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod)) || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.MinSpeed)) return;
+                    if (!pc || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Options.PlayerSpeed.GetFloat()) || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.MinSpeed)) return;
                     if (Main.AllPlayerSpeed[pc.PlayerId] < 0f) Main.AllPlayerSpeed[pc.PlayerId] += EnergyDrinkSpeedIncreasement;
                     else Main.AllPlayerSpeed[pc.PlayerId] -= EnergyDrinkSpeedIncreasement;
                     pc.MarkDirtySettings();

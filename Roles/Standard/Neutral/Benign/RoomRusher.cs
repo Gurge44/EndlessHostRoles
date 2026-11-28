@@ -100,7 +100,7 @@ public class RoomRusher : RoleBase
         PlayerControl rrpc = RoomRusherId.GetPlayer();
         RoomGoal = AllRooms.Without(previous).RandomElement();
         Vector2 goalPos = RoomGoal.GetRoomClass().transform.position;
-        float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        float speed = Options.PlayerSpeed.GetFloat();
         var rawTimes = RoomRush.RawTimeNeeded.GetValueOrDefault(map, []);
         var time = initial ? rawTimes.Values.Max() : rawTimes.GetValueOrDefault((previous, RoomGoal), rawTimes.GetValueOrDefault((RoomGoal, previous), 25));
         time = (int)Math.Round(time / (speed / 1.25f));

@@ -111,7 +111,7 @@ public class Venerer : RoleBase
                 LateTask.New(() =>
                 {
                     if (!pc || !pc.IsAlive()) return;
-                    Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
                     if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks) pc.MarkDirtySettings();
                 }, AbilityDuration.GetInt(), log: false);
                 goto case 1;
@@ -129,7 +129,7 @@ public class Venerer : RoleBase
                     {
                         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks)
                         {
-                            frozenPlayers.Do(x => Main.AllPlayerSpeed[x] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+                            frozenPlayers.Do(x => Main.AllPlayerSpeed[x] = Options.PlayerSpeed.GetFloat());
                             yield break;
                         }
 
@@ -138,7 +138,7 @@ public class Venerer : RoleBase
                         {
                             PlayerControl p = Utils.GetPlayerById(x);
                             if (!p || !p.IsAlive()) return;
-                            Main.AllPlayerSpeed[p.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                            Main.AllPlayerSpeed[p.PlayerId] = Options.PlayerSpeed.GetFloat();
                             p.MarkDirtySettings();
                         });
                         nearbyPlayers.Except(frozenPlayers).Do(x =>
@@ -158,7 +158,7 @@ public class Venerer : RoleBase
                     {
                         PlayerControl p = Utils.GetPlayerById(x);
                         if (!p || !p.IsAlive()) return;
-                        Main.AllPlayerSpeed[p.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[p.PlayerId] = Options.PlayerSpeed.GetFloat();
                         if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks) p.MarkDirtySettings();
                     });
                 }

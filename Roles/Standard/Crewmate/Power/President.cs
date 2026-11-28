@@ -124,7 +124,7 @@ public class President : RoleBase
 
     public static void OnAnyoneApplyGameOptions(IGameOptions opt)
     {
-        bool value = Main.RealOptionsData.GetBool(BoolOptionNames.AnonymousVotes);
+        bool value = Options.AnonymousVotes.GetBool();
         
         if (!GameStates.IsMeeting)
         {

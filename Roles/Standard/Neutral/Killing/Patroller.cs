@@ -84,7 +84,7 @@ public class Patroller : RoleBase
         PlainShipRoom room = pc.GetPlainShipRoom();
         opt.SetVision(room == RoomBoosts[Boost.Vision]);
         opt.SetInt(Int32OptionNames.KillDistance, room == RoomBoosts[Boost.Range] ? 2 : 0);
-        Main.AllPlayerSpeed[id] = room == RoomBoosts[Boost.Speed] ? IncreasedSpeed.GetFloat() : Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        Main.AllPlayerSpeed[id] = room == RoomBoosts[Boost.Speed] ? IncreasedSpeed.GetFloat() : Options.PlayerSpeed.GetFloat();
     }
 
     public override void OnFixedUpdate(PlayerControl pc)

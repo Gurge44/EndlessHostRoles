@@ -48,6 +48,8 @@ public class Shifter : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
+        
+        if (!AmongUsClient.Instance.AmHost) return;
 
         PlayerControl pc = playerId.GetPlayer();
         if (!pc) return;

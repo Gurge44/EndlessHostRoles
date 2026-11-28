@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Modules;
 using UnityEngine;
 using static EHR.Options;
@@ -171,7 +170,7 @@ public class ToiletMaster : RoleBase
                         Main.AllPlayerSpeed[playerId] -= BrownPoopSpeedBoost.GetFloat();
                         break;
                     case Poop.Red:
-                        float defaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        float defaultSpeed = Options.PlayerSpeed.GetFloat();
                         ActivePoopDataList = (List<PlayerControl>)activePoop.Data;
 
                         if (ActivePoopDataList != null)

@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Modules;
 using UnityEngine;
 
@@ -290,8 +289,7 @@ public static class Mingle
         }
 
         TimeEndTS = Utils.TimeStamp + Time;
-        if (PlayerControl.AllPlayerControls.Count >= 50) return;
-        Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+        Main.AllPlayerSpeed.SetAllValues(Options.PlayerSpeed.GetFloat());
         Utils.MarkEveryoneDirtySettings();
     }
 
@@ -325,7 +323,7 @@ public static class Mingle
                     Time = Math.Max(Time - TimeDecreaseOnNoDeath, MinTime);
                     break;
                 case var x when x == aapc.Count:
-                    Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+                    Main.AllPlayerSpeed.SetAllValues(Options.PlayerSpeed.GetFloat());
                     Main.PlayerStates.Values.DoIf(s => !s.IsDead, s => s.RealKiller.TimeStamp = DateTime.Now);
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                     GameGoing = false;

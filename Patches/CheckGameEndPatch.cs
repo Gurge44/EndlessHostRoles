@@ -1412,7 +1412,7 @@ internal static class GameEndChecker
             bool anyHasTasks = false;
             foreach (var ps in Main.PlayerStates.Values)
             {
-                if (!ps.TaskState.HasTasks)
+                if (ps.TaskState.HasTasks)
                 {
                     anyHasTasks = true;
                     break;

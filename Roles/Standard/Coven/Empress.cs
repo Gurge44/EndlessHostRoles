@@ -137,7 +137,7 @@ public class Empress : CovenBase
     {
         Killed = [];
         
-        Encouraged?.Do(x => Main.AllPlayerSpeed[x] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+        Encouraged?.Do(x => Main.AllPlayerSpeed[x] = Options.PlayerSpeed.GetFloat());
         Encouraged = null;
         
         if (Weakened)
@@ -179,7 +179,7 @@ public class Empress : CovenBase
                         LateTask.New(() =>
                         {
                             if (!FrostGazed.Remove(target.PlayerId)) return;
-                            Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                            Main.AllPlayerSpeed[target.PlayerId] = Options.PlayerSpeed.GetFloat();
                             if (GameStates.IsEnded || ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) return;
                             target.MarkDirtySettings();
                             target.Suicide(realKiller: killer);

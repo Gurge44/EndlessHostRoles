@@ -273,7 +273,7 @@ public class Jackpot : RoleBase
         LastNearMissState = nearMissActive;
         LastJackpotState = jackpotActive;
 
-        float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        float speed = Options.PlayerSpeed.GetFloat();
 
         if (jackpotActive) speed = JackpotSpeed.GetFloat();
         else if (nearMissActive) speed = NearMissSpeed.GetFloat();

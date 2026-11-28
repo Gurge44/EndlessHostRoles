@@ -88,7 +88,7 @@ public class Addict : RoleBase
 
     public override void OnReportDeadBody()
     {
-        PlayerIdList.ForEach(x => Main.AllPlayerSpeed[x] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+        PlayerIdList.ForEach(x => Main.AllPlayerSpeed[x] = Options.PlayerSpeed.GetFloat());
     }
 
     public override void AfterMeetingTasks()
@@ -175,7 +175,7 @@ public class Addict : RoleBase
 
         LateTask.New(() =>
         {
-            Main.AllPlayerSpeed[addict.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[addict.PlayerId] = Options.PlayerSpeed.GetFloat();
             ReportDeadBodyPatch.CanReport[addict.PlayerId] = true;
             addict.MarkDirtySettings();
         }, FreezeTimeAfterImmortal.GetFloat(), "AddictGetDown");

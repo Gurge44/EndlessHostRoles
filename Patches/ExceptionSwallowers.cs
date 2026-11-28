@@ -23,6 +23,8 @@ static class ExceptionSwallowers
         yield return AccessTools.Method(typeof(InnerNetClient), nameof(InnerNetClient.SendOrDisconnect));
         yield return AccessTools.Method(typeof(DisconnectPopup), nameof(DisconnectPopup.DoShow));
         yield return AccessTools.Method(typeof(IGameOptionsExtensions), nameof(IGameOptionsExtensions.GetValue));
+        yield return AccessTools.Method(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.Halt));
+        yield return AccessTools.Method(typeof(GameStartManager), nameof(GameStartManager.ToggleButtonGlyphs));
     }
     
     public static Exception Finalizer()

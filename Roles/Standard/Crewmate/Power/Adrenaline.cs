@@ -1,5 +1,4 @@
-﻿using AmongUs.GameOptions;
-using EHR.Modules;
+﻿using EHR.Modules;
 using EHR.Modules.Extensions;
 using Hazel;
 
@@ -82,7 +81,7 @@ public class Adrenaline : RoleBase
         {
             Timer = null;
             if (Main.RealOptionsData == null) return;
-            Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[target.PlayerId] = Options.PlayerSpeed.GetFloat();
         });
         Utils.SendRPC(CustomRPC.SyncRoleData, target.PlayerId);
         Main.AllPlayerSpeed[target.PlayerId] += SpeedIncreaseDuringTimer.GetFloat();

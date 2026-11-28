@@ -1,5 +1,4 @@
-﻿using AmongUs.GameOptions;
-using EHR.Modules;
+﻿using EHR.Modules;
 
 namespace EHR.Roles;
 
@@ -69,7 +68,7 @@ public class Tree : RoleBase
         
         LateTask.New(() =>
         {
-            Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
             if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || !pc || !pc.IsAlive()) return;
             pc.MarkDirtySettings();
             
@@ -97,7 +96,7 @@ public class Tree : RoleBase
                     
                     LateTask.New(() =>
                     {
-                        Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[x.PlayerId] = Options.PlayerSpeed.GetFloat();
                         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || !pc || !pc.IsAlive()) return;
                         x.MarkDirtySettings();
                     }, FallStunDuration.GetFloat(), log: false);

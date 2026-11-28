@@ -749,7 +749,7 @@ public static class BedWars
                             if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby || !enemy) return;
                             RPC.PlaySoundRPC(enemy.PlayerId, Sounds.TaskComplete);
                             Trapped.Remove(enemy.PlayerId);
-                            Main.AllPlayerSpeed[enemy.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                            Main.AllPlayerSpeed[enemy.PlayerId] = Options.PlayerSpeed.GetFloat();
                             enemy.MarkDirtySettings();
                         }, TrapEffectDuration);
 
@@ -1662,7 +1662,7 @@ public static class BedWars
                             LateTask.New(() =>
                             {
                                 if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby) return;
-                                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                                Main.AllPlayerSpeed[pc.PlayerId] = Options.PlayerSpeed.GetFloat();
                                 pc.MarkDirtySettings();
                             }, SpeedPotionDuration);
                             break;

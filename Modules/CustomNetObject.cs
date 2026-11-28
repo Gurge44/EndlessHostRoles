@@ -612,8 +612,7 @@ namespace EHR
 
         public override void OnMeeting()
         {
-            if (Abyssbringer.ShouldDespawnCNOOnMeeting) Despawn();
-            else base.OnMeeting();
+            Despawn();
         }
 
         protected override bool ConstantlyChangesPosition => Abyssbringer.BlackHoleMovesTowardsNearestPlayer.GetBool();

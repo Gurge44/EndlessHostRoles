@@ -91,7 +91,7 @@ internal static class DoomTag
 
         if (Options.CurrentGameMode != CustomGameMode.DoomTag) return;
 
-        DefaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        DefaultSpeed = Options.PlayerSpeed.GetFloat();
 
         Utils.SendRPC(CustomRPC.DoomTagSync, 1, false);
     }

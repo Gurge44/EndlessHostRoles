@@ -963,7 +963,9 @@ internal static class MapRoomDoorsStartPatch
         }
     }
 }
+#if !IL2CPP
 [HarmonyPatch(typeof(MapRoom), nameof(MapRoom.DoorsUpdate))]
+#endif
 internal static class MapRoomDoorsUpdatePatch
 {
     public static Dictionary<SystemTypes, TextMeshPro> DoorTimerTexts = [];
@@ -978,19 +980,13 @@ internal static class MapRoomDoorsUpdatePatch
         ShipStatus shipStatusInstance = ShipStatus.Instance;
 
         if (!doorSprite || !shipStatusInstance) return false;
-#if IL2CPP
-        if (SubmergedCompatibility.IsSubmerged() || Main.LIMap || Main.CurrentMap == MapNames.MiraHQ) return true;
-#endif
+        if (SubmergedCompatibility.IsSubmerged() || Main.LIMap) return true;
 
         SystemTypes room = __instance.room;
         float total;
         float timer;
 
-#if IL2CPP
-        if (Main.CurrentMap != MapNames.Skeld)
-#else
         if (DoorsSystemType != null)
-#endif
         {
             if (DoorsSystemType.initialCooldown > 0f)
             {
@@ -1004,11 +1000,7 @@ internal static class MapRoomDoorsUpdatePatch
             goto Skip;
         }
 
-#if IL2CPP
-        else
-#else
         if (AutoDoorsSystemType != null)
-#endif
         {
             if (AutoDoorsSystemType.initialCooldown > 0.0)
             {

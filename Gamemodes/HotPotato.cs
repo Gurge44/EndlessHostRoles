@@ -75,7 +75,7 @@ internal static class HotPotato
         SurvivalTimes = [];
         foreach (PlayerControl pc in Main.CachedAllPlayerControls()) SurvivalTimes[pc.PlayerId] = 0;
 
-        DefaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        DefaultSpeed = Options.PlayerSpeed.GetFloat();
     }
 
     public static void OnGameStart()
@@ -212,11 +212,8 @@ internal static class HotPotato
                     LateTask.New(() => target.SetKillCooldownNonSync(1f), 0.2f, log: false);
                 }
 
-                if (aapcCount < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt())
-                {
-                    Vector2 pos = target.Pos();
-                    TargetArrow.Add(HotPotatoState.HolderID, aapc.Without(target).Where(x => x.PlayerId != HotPotatoState.LastHolderID).MinBy(x => Vector2.Distance(x.Pos(), pos)).PlayerId);
-                }
+                if (aapcCount < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt() && FastVector2.TryGetClosestPlayerTo(target, out PlayerControl closest, x => x.PlayerId != HotPotatoState.LastHolderID))
+                    TargetArrow.Add(HotPotatoState.HolderID, closest.PlayerId);
 
                 Main.AllPlayerSpeed[target.PlayerId] = HolderSpeed.GetFloat();
                 target.MarkDirtySettings();

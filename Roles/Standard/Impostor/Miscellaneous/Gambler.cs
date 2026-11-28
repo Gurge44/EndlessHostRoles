@@ -214,13 +214,13 @@ public class Gambler : RoleBase
                     _ = new CountdownTimer(speedDur, () =>
                     {
                         if (!killer) return;
-                        Main.AllPlayerSpeed[killer.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[killer.PlayerId] = Options.PlayerSpeed.GetFloat();
                         if (!killer.IsAlive()) return;
                         killer.MarkDirtySettings();
                     }, onCanceled: () =>
                     {
                         if (!killer) return;
-                        Main.AllPlayerSpeed[killer.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[killer.PlayerId] = Options.PlayerSpeed.GetFloat();
                     });
                     Main.AllPlayerSpeed[killer.PlayerId] = Speed.GetFloat();
                     killer.MarkDirtySettings();
@@ -252,13 +252,13 @@ public class Gambler : RoleBase
                     _ = new CountdownTimer(freezeDur, () =>
                     {
                         if (!killer) return;
-                        Main.AllPlayerSpeed[killer.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[killer.PlayerId] = Options.PlayerSpeed.GetFloat();
                         if (!killer.IsAlive()) return;
                         killer.MarkDirtySettings();
                     }, onCanceled: () =>
                     {
                         if (!killer) return;
-                        Main.AllPlayerSpeed[killer.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        Main.AllPlayerSpeed[killer.PlayerId] = Options.PlayerSpeed.GetFloat();
                     });
                     Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;
                     killer.MarkDirtySettings();

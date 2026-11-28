@@ -98,7 +98,7 @@ public class SoulCollector : RoleBase
         {
             ToExile.ToValidPlayers().Do(x =>
             {
-                Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[x.PlayerId] = Options.PlayerSpeed.GetFloat();
                 x.RpcSetRoleGlobal(x.GetGhostRoleBasis());
                 Utils.AfterPlayerDeathTasks(x, onMeeting: true);
             });

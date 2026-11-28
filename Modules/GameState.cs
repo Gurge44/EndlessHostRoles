@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
@@ -225,7 +224,7 @@ public class PlayerState(byte playerId)
         {
             if (SubRoles.Contains(CustomRoles.Flash) || SubRoles.Contains(CustomRoles.Dynamo) || SubRoles.Contains(CustomRoles.Spurt))
             {
-                Main.AllPlayerSpeed[PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerSpeed[PlayerId] = Options.PlayerSpeed.GetFloat();
                 PlayerGameOptionsSender.SetDirty(PlayerId);
             }
             
@@ -358,7 +357,7 @@ public class PlayerState(byte playerId)
 
         if (role is CustomRoles.Flash or CustomRoles.Dynamo or CustomRoles.Spurt)
         {
-            Main.AllPlayerSpeed[PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Main.AllPlayerSpeed[PlayerId] = Options.PlayerSpeed.GetFloat();
             PlayerGameOptionsSender.SetDirty(PlayerId);
         }
 

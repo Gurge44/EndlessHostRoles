@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 
@@ -32,7 +31,7 @@ public class Entombed : IAddon
         if (BlockedRoom == null) return;
         
         MeetingEndTS = Utils.TimeStamp;
-        GracePeriodLength = 8 + 5 / Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        GracePeriodLength = 8 + 5 / Options.PlayerSpeed.GetFloat();
 
         if (Utils.DoRPC)
         {
