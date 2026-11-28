@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      
+
       - name: Sync translations from Crowdin
         uses: crowdin/github-action@v2
         with:
@@ -43,6 +43,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+
+      - name: Set mod GUID from version
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          HASH=$(echo -n "EHR-v${VERSION}" | sha256sum | awk '{print $1}')
+          GUID="${HASH:0:8}-${HASH:8:4}-${HASH:12:4}-${HASH:16:4}-${HASH:20:12}"
+          echo "GUID for v${VERSION}: ${GUID}"
+          sed -i "s|private const string ModGuidString = \".*\";|private const string ModGuidString = \"${GUID}\";|" Modules/AmciRegistration.cs
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -182,7 +190,7 @@ jobs:
           path: extracted/*
 
   # ---------------------------------------------------------
-  # 4) Package everything on Linux
+  # 4) Package everything
   # ---------------------------------------------------------
   package:
     runs-on: ubuntu-latest
@@ -242,12 +250,10 @@ jobs:
       # -----------------------------
 
       - name: Copy Mono packaging files
-        run: |
-          cp -rf packaging/mono/* mono/
+        run: cp -rf packaging/mono/* mono/
 
       - name: Copy Mono EHR dll to plugins
-        run: |
-          cp artifacts/signed/mono/EHR.dll mono/BepInEx/plugins/
+        run: cp artifacts/signed/mono/EHR.dll mono/BepInEx/plugins/
 
       # -----------------------------
       # Create ZIPs
@@ -275,7 +281,7 @@ jobs:
           path: ./EHR*.zip
 
   # ---------------------------------------------------------
-  # 5) Upload releases to CurseForge
+  # 5) Upload to CurseForge
   # ---------------------------------------------------------
   publish-curseforge:
     runs-on: ubuntu-latest
@@ -332,7 +338,7 @@ jobs:
       # Create GitHub Release
       # -----------------------------
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: "v${{ github.event.inputs.version }}"
           name: "EHR v${{ github.event.inputs.version }}"
@@ -356,7 +362,7 @@ jobs:
       - name: Install dependencies
         run: pip install requests markdown
 
-      - name: Run script and send ModNews
+      - name: Send ModNews
         env:
           MODNEWS_API_URL: ${{ secrets.MODNEWS_API_URL }}
           MODNEWS_API_TOKEN: ${{ secrets.MODNEWS_API_TOKEN }}
